@@ -1,5 +1,9 @@
 # Patreon TS
 
+![npm](https://img.shields.io/npm/v/patreon-api.ts)
+![npm](https://img.shields.io/npm/dm/patreon-api.ts)
+![GitHub issues](https://img.shields.io/github/issues/ghostrider-05/patreon-api.ts)
+
 Typescript library for the V2 [Patreon API](https://docs.patreon.com/)
 
 ## Installation
@@ -37,17 +41,63 @@ Before deploying this, check that:
 
 ### Oauth2 vs Creator token
 
+#### Creator token
+
 If you don't need to handle Oauth2 requests, but only your own creator profile, the first example will get you started.
 It is recommended to sync your token to your database or store it somewhere safe, so the token is not lost.
 
-> If you don't plan to use the application name on the client, set the option `name` to an empty string.
+```ts
+import { PatreonCreatorClient, PatreonStore } from 'patreon-api.ts'
+
+const creatorClient = new PatreonCreatorClient({
+    clientId: process.env.PATREON_CLIENT_ID!,
+    clientSecret: process.env.PATREON_CLIENT_SECRET!,
+    store: new PatreonStore.Fetch('<url>'),
+}, fetch)
+
+// Use the token of the creator with the current app, instead of Oauth2 callback
+// Will call store.put, to sync it with an external DB
+// After fetching, you can directly call the V2 API and the token is stored with store.put
+await creatorClient.initialize()
+```
+
+### User oauth2
+
+For handling Oauth2 requests, add `redirectUri` and if specified a `state` to the options.
+Then fetch the token for the user with request url.
+Note that for handling Oauth2 requests the client will not cache or store the tokens anywhere in case you need to refresh it!
 
 ```ts
-import { PatreonClient } from 'patreon-api.ts'
+import { PatreonUserClient } from 'patreon-api.ts'
 
+// Minimal configuration for handling Oauth2
+const userClient = new PatreonUserClient({
+    clientId: process.env.PATREON_CLIENT_ID!,
+    clientSecret: process.env.PATREON_CLIENT_SECRET!,
+    redirectUri: '<uri>',
+}, fetch)
+
+export default {
+    // The Oauth2 callback request with the code parameter
+    fetch: async (request) => {
+        const instance = await userClient.createInstance(request)
+        await instance.fetchOauth2(Oauth2Routes.campaign(campaignId), campaignQuery)
+    }
+}
+```
+
+### Store
+
+There are 3 built-in methods of retreiving and storing tokens:
+
+1. Manual loading and storing, see the example below
+2. Fetch: use an external server that accepts `GET` and `PUT` requests
+3. KV: store the (creator) token in a KV-like storage system (present on a lot of edge-runtimes).
+
+```ts
 // Use stored tokens in a database
 // And directly call the `store.get` method on starting the client
-const storeClient = await PatreonClient.initialize({
+const storeClient = new PatreonClient({
     clientId: process.env.PATREON_CLIENT_ID!,
     clientSecret: process.env.PATREON_CLIENT_SECRET!,
     name: '<application>', // The application name in the dashboard
@@ -65,44 +115,7 @@ const storeClient = await PatreonClient.initialize({
     }
 }, fetch)
 
-// Use the token of the creator with the current app, instead of Oauth2 callback
-// Will call options.store.put, to sync it with an external DB
-// If you did not construct the client with `PatreonClient.initialize`, fetch the token.
-// After fetching, you can directly call the V2 API and the token is stored with options.store.put
-// await storeClient.fetchApplicationToken()
-```
 
-For handling Oauth2 requests, add `redirectUri` and if specified a `state` to the options.
-Then fetch the token for the user with request url.
-Note that for handling Oauth2 requests the client will not cache or store the tokens anywhere in case you need to refresh it!
-
-```ts
-import { PatreonClient } from 'patreon-api.ts'
-
-// Minimal configuration for handling Oauth2
-const codeClient = new PatreonClient({
-    clientId: process.env.PATREON_CLIENT_ID!,
-    clientSecret: process.env.PATREON_CLIENT_SECRET!,
-    name: '<application>', // The application name in the dashboard
-    redirectUri: '<uri>',
-}, fetch)
-
-// Use the client to handle an incoming request
-// Use this token to bind it in your DB to a specific user, store it, etc.
-const token = await codeClient.fetchToken('request.url')
-
-// Or if you have the token already somewhere loaded, pass the option directly:
-const manualCodeClient = new PatreonClient({
-    clientId: process.env.PATREON_CLIENT_ID!,
-    clientSecret: process.env.PATREON_CLIENT_SECRET!,
-    name: '<application>', // The application name in the dashboard
-    redirectUri: '<uri>',
-}, fetch, {
-    access_token: '<access_token>',
-    expires_in: '<seconds>',
-    refresh_token: '<refresh_token>',
-    token_type: 'Bearer',
-})
 ```
 
 ## Examples

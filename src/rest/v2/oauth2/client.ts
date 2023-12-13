@@ -102,6 +102,7 @@ export class PatreonOauthClient {
     }
 
     /**
+     * @deprecated
      * @returns if the token is updated and stored, and the token
      */
     public async fetchApplicationToken() {
