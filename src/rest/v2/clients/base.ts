@@ -22,6 +22,8 @@ export interface PatreonClientOptions extends BaseOauthClientOptions {
     name?: string
     store?: PatreonTokenFetchOptions
     refreshOnFailed?: boolean
+    fetch?: Fetch
+    token?: Token
 }
 
 export type PatreonInitializeClientOptions = PatreonClientOptions & Required<Pick<PatreonClientOptions, 'store'>>
@@ -36,6 +38,7 @@ export interface Oauth2FetchOptions {
 export class PatreonClient extends PatreonOauthClient {
     private store: PatreonTokenFetchOptions | undefined = undefined
     private refreshOnFailed: boolean
+    private _fetch: Fetch
 
     /**
      * The application name.
@@ -45,17 +48,20 @@ export class PatreonClient extends PatreonOauthClient {
 
     public constructor(
         patreonOptions: PatreonClientOptions & (BaseOauthHandlerOptions | object),
-        private _fetch: Fetch,
+        /** @deprecated */
+        _fetch?: Fetch,
+        /**@deprecated */
         token?: Token,
     ) {
-        super(patreonOptions, token)
+        super(patreonOptions, patreonOptions.token ?? token)
+        this._fetch = _fetch ?? patreonOptions.fetch ?? fetch
 
         this.name = patreonOptions.name ?? null
         this.store = patreonOptions.store
         this.refreshOnFailed = patreonOptions.refreshOnFailed ?? false
     }
 
-    public static async initialize(options: PatreonInitializeClientOptions, fetch: Fetch) {
+    public static async initialize(options: PatreonInitializeClientOptions, fetch?: Fetch) {
         const token = await this.fetchStored(options.store)
 
         return new PatreonClient(options, fetch, token)
