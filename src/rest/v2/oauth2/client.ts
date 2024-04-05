@@ -32,8 +32,8 @@ export class PatreonOauthClient {
         token?: Token
     ) {
         this.options = {
-            accessTokenUri: 'https://www.patreon.com/api/oauth2/token',
-            authorizationUri: 'https://www.patreon.com/oauth2/authorize',
+            accessTokenUri: 'https://patreon.com/api/oauth2/token',
+            authorizationUri: 'https://patreon.com/oauth2/authorize',
             clientId: options.clientId,
             clientSecret: options.clientSecret,
         }
