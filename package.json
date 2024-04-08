@@ -12,13 +12,13 @@
   "engines": {
     "node": ">=14.17"
   },
-  "homepage": "https://github.com/ghostrider-05/patreon-api-types#readme",
+  "homepage": "https://github.com/ghostrider-05/patreon-api.ts#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ghostrider-05/patreon-api-types.git"
+    "url": "https://github.com/ghostrider-05/patreon-api.ts.git"
   },
   "bugs": {
-    "url": "https://github.com/ghostrider-05/patreon-api-types/issues/"
+    "url": "https://github.com/ghostrider-05/patreon-api.ts/issues/"
   },
   "files": [
     "dist",
