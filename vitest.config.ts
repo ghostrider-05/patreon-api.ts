@@ -4,7 +4,7 @@ export default defineConfig({
     root: 'src',
     test: {
         reporters: ['basic']
-            .concat(process.env.GITHUB_ACTIONS ? ['github.actions'] : []),
+            .concat(process.env.GITHUB_ACTIONS ? ['github-actions'] : []),
 
         coverage: {
             provider: 'istanbul',
