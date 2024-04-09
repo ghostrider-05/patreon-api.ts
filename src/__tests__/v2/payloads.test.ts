@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { assertType, describe, test } from 'vitest'
 
-import { Type, buildQuery } from '../v2'
+import { Type, buildQuery } from '../../v2'
 
 describe('campaign payload', () => {
     test('single', () => {
