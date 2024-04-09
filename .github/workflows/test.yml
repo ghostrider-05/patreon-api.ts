@@ -52,7 +52,7 @@ jobs:
   test_coverage:
     name: Test coverage
     runs-on: ubuntu-latest
-    if: ${{ github.ref_name == 'main' && github.event_name == 'pull_request' }}
+    if: ${{ github.event_name == 'pull_request' && github.base_ref == 'refs/heads/main' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

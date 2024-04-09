@@ -1,7 +1,5 @@
 import { assertType, describe, expectTypeOf, test } from 'vitest'
 
-// TODO: add tests for more types
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Add, If, Length, Subtract, Tuple } from '../../utils/generics'
 
 describe('add type', () => {
@@ -35,5 +33,41 @@ describe('if type', () => {
         assertType<If<false, true, false>>(false)
         assertType<If<false, true>>(<never>{})
         assertType<If<false, string, number>>(9)
+    })
+})
+
+describe('length', () => {
+    test('array', () => {
+        assertType<Length<[0, 1, 2]>>(3)
+    })
+
+    test('string', () => {
+        assertType<Length<'test'>>(4)
+    })
+})
+
+describe('subtract', () => {
+    test('two numbers', () => {
+        assertType<Subtract<9, 6>>(3)
+    })
+
+    test('no changes', () => {
+        assertType<Subtract<9, 0>>(9)
+        assertType<Subtract<1, 0>>(1)
+        assertType<Subtract<0, 0>>(0)
+    })
+})
+
+describe('tuple', () => {
+    test('array', () => {
+        assertType<Tuple<0, 2>>([0, 0])
+    })
+
+    test('one length', () => {
+        assertType<Tuple<'test', 1>>(['test'])
+    })
+
+    test('empty', () => {
+        assertType<Tuple<'test', 0>>([])
     })
 })
