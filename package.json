@@ -37,14 +37,14 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^18.19.29",
-    "@typescript-eslint/eslint-plugin": "^7.5.0",
-    "@typescript-eslint/parser": "^7.5.0",
+    "@types/node": "^18.19.31",
+    "@typescript-eslint/eslint-plugin": "^7.6.0",
+    "@typescript-eslint/parser": "^7.6.0",
     "@vitest/coverage-istanbul": "^1.4.0",
     "eslint": "^8.57.0",
     "gen-esm-wrapper": "^1.1.3",
     "typescript": "^5.4.4",
-    "vitest": "^1.4.0"
+    "vitest": "1.4.0"
   },
   "dependencies": {
     "client-oauth2": "^4.3.3"
