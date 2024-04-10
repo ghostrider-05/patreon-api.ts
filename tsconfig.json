@@ -5,6 +5,8 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",
     "lib": ["esnext"],
+    // Uncomment types to check global modules
+    // "types": [],
     "module": "commonjs",
     "noUnusedParameters": true,
     "sourceMap": true,

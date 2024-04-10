@@ -6,10 +6,9 @@
 
 Typescript library for the V2 [Patreon API](https://docs.patreon.com/)
 
-## Installation
-
-> [!WARNING]
 > You might be looking for [patreon-js](https://github.com/Patreon/patreon-js) for JavaScript, [patreon-api-types](https://github.com/mrTomatolegit/patreon-api-types) for less strict types and no client or another package in between.
+
+## Installation
 
 ```sh
 npm install patreon-api.ts
@@ -17,7 +16,7 @@ npm install patreon-api.ts
 
 ## Usage
 
-> [!NOTE]
+> [!CAUTION]
 > This package does not include v1 of the Patreon API and starts with [API v2](https://docs.patreon.com/#apiv2-oauth)
 
 The default API version for this package is `2` and might change in major versions.
@@ -28,16 +27,13 @@ You can not import this module by API version since it is unlikely that Patreon 
 import { Campaign } from 'patreon-api.ts';
 ```
 
-```ts
-const { Campaign } = require('patreon-api.ts');
-```
-
 ### Platform
 
-Before deploying this, check that:
+To check for compatibility with this package, look if your platform:
 
-- [ ] In the example below, `fetch` is replaced with the fetch function of your platform.
-- [ ] your platform supports ES5+
+- has the globals: `fetch`, `URL` and `URLSearchParams`
+  - for node.js: `v18` or higher
+- supports `ES2020`
 
 ### Oauth2 vs Creator token
 
@@ -61,7 +57,7 @@ const creatorClient = new PatreonCreatorClient({
 await creatorClient.initialize()
 ```
 
-### User oauth2
+#### User oauth2
 
 For handling Oauth2 requests, add `redirectUri` and if specified a `state` to the options.
 Then fetch the token for the user with request url.
@@ -114,13 +110,11 @@ const storeClient = new PatreonClient({
         }
     }
 }, fetch)
-
-
 ```
 
 ## Examples
 
-> **Info**
+> [!NOTE]
 > In API v2, [all attributes must be explicitly requested](https://docs.patreon.com/#apiv2-oauth).
 
 ### Fetch campaigns
