@@ -1,0 +1,25 @@
+name: Coverage
+on:
+  - pull_request_target
+jobs:
+  test_coverage:
+    name: Test coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tsc
+        run: npm run prestart
+
+      - name: Run tests
+        run: npm run test:coverage
