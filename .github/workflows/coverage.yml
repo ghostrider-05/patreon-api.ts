@@ -1,5 +1,6 @@
 name: Coverage
 on:
+  - pull_request
   - pull_request_target
 jobs:
   test_coverage:
