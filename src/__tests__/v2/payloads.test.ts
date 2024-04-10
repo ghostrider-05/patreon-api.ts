@@ -3,6 +3,7 @@ import { assertType, describe, test } from 'vitest'
 
 import { Type, buildQuery } from '../../v2'
 
+// TODO: add all queries
 describe('campaign payload', () => {
     test('single', () => {
         assertType<{

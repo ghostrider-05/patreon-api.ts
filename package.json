@@ -13,7 +13,7 @@
     "publish": "npm run test && npm run prestart && npm run lint && npm install && npm publish"
   },
   "engines": {
-    "node": ">=18.17"
+    "node": ">=14.17"
   },
   "homepage": "https://github.com/ghostrider-05/patreon-api.ts#readme",
   "repository": {
