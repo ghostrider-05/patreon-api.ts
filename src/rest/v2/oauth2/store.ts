@@ -1,9 +1,5 @@
 import {
-    // PatreonOauthClient,
-    // type Token,
     type StoredToken,
-    // type BaseOauthClientOptions,
-    // BaseOauthHandlerOptions,
 } from './client'
 
 declare class Response {
@@ -28,14 +24,15 @@ class PatreonFetchStore implements PatreonTokenFetchOptions {
     public get: () => Promise<StoredToken | undefined>
     public put: (token: StoredToken, url?: string | undefined) => Promise<void>
 
-    //TODO: set fetch to optional parameter
     /**
      * Sync tokens
      * @param url The server URL that accepts GET and PUT requests
-     * @param fetch The fetch function to use
+     * @param fetchFn The fetch function to use
      */
-    public constructor (url: string, fetch: Fetch) {
-        this.get = async () => fetch(url, { method: 'GET' })
+    public constructor (url: string, fetchFn?: Fetch) {
+        const _fetch = fetchFn ?? fetch
+
+        this.get = async () => _fetch(url, { method: 'GET' })
             .then(res => res.ok ? res.json() : undefined)
 
         this.put = async (token, _url) => {

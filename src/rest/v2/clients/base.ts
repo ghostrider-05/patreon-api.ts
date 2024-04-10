@@ -22,9 +22,8 @@ export interface PatreonClientOptions extends BaseOauthClientOptions {
     name?: string
     store?: PatreonTokenFetchOptions
     refreshOnFailed?: boolean
-    // TODO: uncomment
-    // fetch?: Fetch
-    // token?: Token
+    fetch?: Fetch
+    token?: Token
 }
 
 export type PatreonInitializeClientOptions = PatreonClientOptions & Required<Pick<PatreonClientOptions, 'store'>>
@@ -47,25 +46,22 @@ export class PatreonClient extends PatreonOauthClient {
      */
     public name: string | null = null
 
-    // TODO: remove fetch and token option
     public constructor(
         patreonOptions: PatreonClientOptions & (BaseOauthHandlerOptions | object),
-        _fetch: Fetch,
-        token?: Token,
     ) {
-        super(patreonOptions, token)
-        this._fetch = _fetch ?? fetch
+        super(patreonOptions, patreonOptions.token)
+        this._fetch = patreonOptions.fetch ?? fetch
 
         this.name = patreonOptions.name ?? null
         this.store = patreonOptions.store
         this.refreshOnFailed = patreonOptions.refreshOnFailed ?? false
     }
 
-    // TODO: remove fetch option
-    public static async initialize(options: PatreonInitializeClientOptions, fetch: Fetch) {
+    public static async initialize(options: PatreonInitializeClientOptions) {
         const token = await this.fetchStored(options.store)
+        if (token) options.token ??= token
 
-        return new PatreonClient(options, fetch, token)
+        return new PatreonClient(options)
     }
 
     protected static async fetchStored(store?: PatreonTokenFetchOptions) {
@@ -84,10 +80,10 @@ export class PatreonClient extends PatreonOauthClient {
         return PatreonClient.fetchStored(this.store)
     }
 
-    // TODO: deprecate
     /**
      * For handling Oauth2 requests, fetch the token that is assiocated with the request code
      * @param requestUrl The url with the `code` parameter
+     * @deprecated
      */
     public override async fetchToken(requestUrl: string): Promise<StoredToken> {
         const token = await this._fetchToken(requestUrl, 'code', false)

@@ -46,10 +46,12 @@ export class PatreonOauthClient {
         if (token) this.cachedToken = this.oauth2.createToken(token)
     }
 
+    /** @deprecated */
     public static getTokenData(token: ClientOAuth2.Token): Token {
         return <Token>token.data
     }
 
+    /** @deprecated */
     public static getExpiresEpoch(token: ClientOAuth2.Token): { expires_in_epoch: string } {
         return {
             expires_in_epoch: token
@@ -59,6 +61,7 @@ export class PatreonOauthClient {
         }
     }
 
+    /** @deprecated */
     protected static toStored(token: ClientOAuth2.Token): StoredToken {
         return {
             ...this.getTokenData(token),
@@ -86,9 +89,8 @@ export class PatreonOauthClient {
         return this.oauth2.createToken(token)
     }
 
-    // TODO: deprecate
     /**
-     *
+     * @deprecated
      * @param requestUrl The incoming request URL with the code parameter
      * @example
      * ```ts
