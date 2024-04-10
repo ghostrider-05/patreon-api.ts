@@ -86,6 +86,7 @@ export class PatreonOauthClient {
         return this.oauth2.createToken(token)
     }
 
+    // TODO: deprecate
     /**
      *
      * @param requestUrl The incoming request URL with the code parameter

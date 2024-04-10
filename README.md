@@ -8,7 +8,7 @@ Typescript library for the V2 [Patreon API](https://docs.patreon.com/)
 
 ## Installation
 
-> **Warning**
+> [!WARNING]
 > You might be looking for [patreon-js](https://github.com/Patreon/patreon-js) for JavaScript, [patreon-api-types](https://github.com/mrTomatolegit/patreon-api-types) for less strict types and no client or another package in between.
 
 ```sh
@@ -17,7 +17,7 @@ npm install patreon-api.ts
 
 ## Usage
 
-> **Warning**
+> [!NOTE]
 > This package does not include v1 of the Patreon API and starts with [API v2](https://docs.patreon.com/#apiv2-oauth)
 
 The default API version for this package is `2` and might change in major versions.

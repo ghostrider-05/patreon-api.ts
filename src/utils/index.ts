@@ -1,1 +1,1 @@
-export * from './fields'
+export type { AdditionalKeys } from './fields'

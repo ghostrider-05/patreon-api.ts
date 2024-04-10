@@ -34,6 +34,10 @@ type Additional<I extends string, C, E, O> = Subtract<
     1
 > extends C ? E : O;
 
+/**
+ * Returns ToAdd if Filter is a string.
+ * If ToAdd is never, it returns unknown.
+ */
 export type AdditionalKeys<
     Filter extends string,
     ToAdd extends Record<string, unknown>

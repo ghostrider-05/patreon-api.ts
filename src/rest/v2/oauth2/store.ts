@@ -28,6 +28,7 @@ class PatreonFetchStore implements PatreonTokenFetchOptions {
     public get: () => Promise<StoredToken | undefined>
     public put: (token: StoredToken, url?: string | undefined) => Promise<void>
 
+    //TODO: set fetch to optional parameter
     /**
      * Sync tokens
      * @param url The server URL that accepts GET and PUT requests

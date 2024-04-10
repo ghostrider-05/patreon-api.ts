@@ -1,0 +1,33 @@
+name: Test
+on: 
+  - push
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 18.x
+          - 20.x
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install node.js v${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tsc
+        run: npm run prestart
+
+      - name: Run eslint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test
