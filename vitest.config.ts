@@ -8,13 +8,13 @@ export default defineConfig({
 
         coverage: {
             provider: 'istanbul',
+            exclude: [
+                // TODO: add tests for clients
+                '**/rest/v2/clients/*.ts',
+                '**/rest/v2/oauth2/client.ts',
+            ],
             thresholds: {
-                // TODO: change to 100
-                // '100': true,
-                branches: 60,
-                functions: 60,
-                lines: 60,
-                statements: 60,
+                '100': true,
             }
         },
     },
