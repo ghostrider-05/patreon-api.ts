@@ -27,6 +27,8 @@ export type PatreonQuery<
     _payload_type: RequestPayload<T, Includes, Attributes, Listing>
 }
 
+export type BasePatreonQueryType<T extends Type, Listing extends boolean> = PatreonQuery<T, never, never, Listing>
+
 type PayloadFromQuery<
     T extends Type,
     Include extends RelationshipFields<`${T}`>,

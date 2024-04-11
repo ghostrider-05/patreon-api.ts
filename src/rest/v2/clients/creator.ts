@@ -1,6 +1,6 @@
-import { PatreonClient } from './base'
+import { BasePatreonClient } from './base'
 
-export class PatreonCreatorClient extends PatreonClient {
+export class PatreonCreatorClient extends BasePatreonClient {
     public async initialize(): Promise<boolean> {
         return await this.fetchApplicationToken()
             .then(res => res.success)
@@ -10,7 +10,7 @@ export class PatreonCreatorClient extends PatreonClient {
      * @returns if the token is updated and stored, and the token
      */
     public override async fetchApplicationToken() {
-        return await this._fetchToken('', 'credentials', true)
-            .then(raw => ({ success: raw != undefined, token: PatreonClient.toStored(raw) }))
+        return await this.oauthClient._fetchToken('', 'credentials', true)
+            .then(raw => ({ success: raw != undefined, token: BasePatreonClient.toStored(raw) }))
     }
 }

@@ -24,7 +24,7 @@ When the default API version is changed, old versions will still receive updates
 You can not import this module by API version since it is unlikely that Patreon will release a new version any time soon.
 
 ```ts
-import { Campaign } from 'patreon-api.ts';
+import { type Campaign } from 'patreon-api.ts';
 ```
 
 ### Platform
@@ -49,7 +49,7 @@ const creatorClient = new PatreonCreatorClient({
     clientId: process.env.PATREON_CLIENT_ID!,
     clientSecret: process.env.PATREON_CLIENT_SECRET!,
     store: new PatreonStore.Fetch('<url>'),
-}, fetch)
+})
 
 // Use the token of the creator with the current app, instead of Oauth2 callback
 // Will call store.put, to sync it with an external DB
@@ -71,13 +71,13 @@ const userClient = new PatreonUserClient({
     clientId: process.env.PATREON_CLIENT_ID!,
     clientSecret: process.env.PATREON_CLIENT_SECRET!,
     redirectUri: '<uri>',
-}, fetch)
+})
 
 export default {
     // The Oauth2 callback request with the code parameter
     fetch: async (request) => {
         const instance = await userClient.createInstance(request)
-        await instance.fetchOauth2(Oauth2Routes.campaign(campaignId), campaignQuery)
+        await instance.fetchIdentity(<query>)
     }
 }
 ```
@@ -93,7 +93,7 @@ There are 3 built-in methods of retreiving and storing tokens:
 ```ts
 // Use stored tokens in a database
 // And directly call the `store.get` method on starting the client
-const storeClient = new PatreonClient({
+const storeClient = new PatreonCreatorClient({
     clientId: process.env.PATREON_CLIENT_ID!,
     clientSecret: process.env.PATREON_CLIENT_SECRET!,
     name: '<application>', // The application name in the dashboard
@@ -109,7 +109,7 @@ const storeClient = new PatreonClient({
             console.log(JSON.stringify(token))
         }
     }
-}, fetch)
+})
 ```
 
 ## Examples
@@ -120,21 +120,21 @@ const storeClient = new PatreonClient({
 ### Fetch campaigns
 
 ```ts
-import { Oauth2Routes, buildQuery } from 'patreon-api.ts'
+import { buildQuery } from 'patreon-api.ts'
 
 const query = buildQuery.campaigns()({
     // Include number of patrons for each campaign
     campaign: ['patron_count']
 })
 
-const campaigns = await <Client>.fetchOauth2(Oauth2Routes.campaigns(), query)
+const campaigns = await <Client>.fetchCampaigns(query)
 console.log('The first campaign id of the current user is: ' + campaigns?.data[0].id)
 ```
 
 ### Fetch single campaign
 
 ```ts
-import { Oauth2Routes, Type, buildQuery, type AttributeItem } from 'patreon-api.ts'
+import { Type, buildQuery, type AttributeItem } from 'patreon-api.ts'
 
 // Fetch all campaigns first, or look at the network tab to find the id
 const campaignId = '<id>'
@@ -144,7 +144,7 @@ const campaignId = '<id>'
 const campaignQuery = buildQuery.campaign(['tiers'])({
     tier: ['amount_cents', 'title']
 })
-const campaign = await <Client>.fetchOauth2(Oauth2Routes.campaign(campaignId), campaignQuery)
+const campaign = await <Client>.fetchCampaign(campaignId, campaignQuery)
 
 if (campaign != undefined) {
     // Filter all but tiers and get the attributes
