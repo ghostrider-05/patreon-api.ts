@@ -45,8 +45,7 @@ interface OauthClient {
 
 export class BasePatreonClientMethods implements OauthClient {
     public constructor (
-        protected oauthClient: PatreonOauthClient,
-        private fetch: Fetch,
+        public oauthClient: PatreonOauthClient,
         private _token?: StoredToken,
     ) {}
 
@@ -66,11 +65,7 @@ export class BasePatreonClientMethods implements OauthClient {
             options.token ??= this._token
         }
 
-        return await PatreonOauthClient.fetch<Query>(path, query, {
-            oauth: this.oauthClient,
-            fetch: this.fetch,
-            refreshOnFailed: this.oauthClient.refreshOnFailed,
-        }, options)
+        return await PatreonOauthClient.fetch<Query>(path, query, this.oauthClient, options)
     }
 
     public async fetchCampaigns <Query extends BasePatreonQueryType<Type.Campaign, true>>(query: Query, options?: Oauth2RouteOptions) {
