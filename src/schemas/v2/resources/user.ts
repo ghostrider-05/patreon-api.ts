@@ -59,7 +59,7 @@ export interface User {
     /**
      * Mapping from user's connected app names to external user id on the respective app
      */
-    social_connections: object
+    social_connections: Record<string, string>
 
     /**
      * The user's profile picture URL, scaled to a square of size 100x100px

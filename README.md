@@ -6,10 +6,9 @@
 
 Typescript library for the V2 [Patreon API](https://docs.patreon.com/)
 
-## Installation
-
-> [!WARNING]
 > You might be looking for [patreon-js](https://github.com/Patreon/patreon-js) for JavaScript, [patreon-api-types](https://github.com/mrTomatolegit/patreon-api-types) for less strict types and no client or another package in between.
+
+## Installation
 
 ```sh
 npm install patreon-api.ts
@@ -17,7 +16,7 @@ npm install patreon-api.ts
 
 ## Usage
 
-> [!NOTE]
+> [!CAUTION]
 > This package does not include v1 of the Patreon API and starts with [API v2](https://docs.patreon.com/#apiv2-oauth)
 
 The default API version for this package is `2` and might change in major versions.
@@ -25,19 +24,16 @@ When the default API version is changed, old versions will still receive updates
 You can not import this module by API version since it is unlikely that Patreon will release a new version any time soon.
 
 ```ts
-import { Campaign } from 'patreon-api.ts';
-```
-
-```ts
-const { Campaign } = require('patreon-api.ts');
+import { type Campaign } from 'patreon-api.ts';
 ```
 
 ### Platform
 
-Before deploying this, check that:
+To check for compatibility with this package, look if your platform:
 
-- [ ] In the example below, `fetch` is replaced with the fetch function of your platform.
-- [ ] your platform supports ES5+
+- has the globals: `fetch`, `URL` and `URLSearchParams`
+  - for node.js: `v18` or higher
+- supports `ES2020`
 
 ### Oauth2 vs Creator token
 
@@ -53,7 +49,7 @@ const creatorClient = new PatreonCreatorClient({
     clientId: process.env.PATREON_CLIENT_ID!,
     clientSecret: process.env.PATREON_CLIENT_SECRET!,
     store: new PatreonStore.Fetch('<url>'),
-}, fetch)
+})
 
 // Use the token of the creator with the current app, instead of Oauth2 callback
 // Will call store.put, to sync it with an external DB
@@ -61,7 +57,7 @@ const creatorClient = new PatreonCreatorClient({
 await creatorClient.initialize()
 ```
 
-### User oauth2
+#### User oauth2
 
 For handling Oauth2 requests, add `redirectUri` and if specified a `state` to the options.
 Then fetch the token for the user with request url.
@@ -75,13 +71,13 @@ const userClient = new PatreonUserClient({
     clientId: process.env.PATREON_CLIENT_ID!,
     clientSecret: process.env.PATREON_CLIENT_SECRET!,
     redirectUri: '<uri>',
-}, fetch)
+})
 
 export default {
     // The Oauth2 callback request with the code parameter
     fetch: async (request) => {
         const instance = await userClient.createInstance(request)
-        await instance.fetchOauth2(Oauth2Routes.campaign(campaignId), campaignQuery)
+        await instance.fetchIdentity(<query>)
     }
 }
 ```
@@ -97,7 +93,7 @@ There are 3 built-in methods of retreiving and storing tokens:
 ```ts
 // Use stored tokens in a database
 // And directly call the `store.get` method on starting the client
-const storeClient = new PatreonClient({
+const storeClient = new PatreonCreatorClient({
     clientId: process.env.PATREON_CLIENT_ID!,
     clientSecret: process.env.PATREON_CLIENT_SECRET!,
     name: '<application>', // The application name in the dashboard
@@ -113,34 +109,32 @@ const storeClient = new PatreonClient({
             console.log(JSON.stringify(token))
         }
     }
-}, fetch)
-
-
+})
 ```
 
 ## Examples
 
-> **Info**
+> [!NOTE]
 > In API v2, [all attributes must be explicitly requested](https://docs.patreon.com/#apiv2-oauth).
 
 ### Fetch campaigns
 
 ```ts
-import { Oauth2Routes, buildQuery } from 'patreon-api.ts'
+import { buildQuery } from 'patreon-api.ts'
 
 const query = buildQuery.campaigns()({
     // Include number of patrons for each campaign
     campaign: ['patron_count']
 })
 
-const campaigns = await <Client>.fetchOauth2(Oauth2Routes.campaigns(), query)
+const campaigns = await <Client>.fetchCampaigns(query)
 console.log('The first campaign id of the current user is: ' + campaigns?.data[0].id)
 ```
 
 ### Fetch single campaign
 
 ```ts
-import { Oauth2Routes, Type, buildQuery, type AttributeItem } from 'patreon-api.ts'
+import { Type, buildQuery, type AttributeItem } from 'patreon-api.ts'
 
 // Fetch all campaigns first, or look at the network tab to find the id
 const campaignId = '<id>'
@@ -150,7 +144,7 @@ const campaignId = '<id>'
 const campaignQuery = buildQuery.campaign(['tiers'])({
     tier: ['amount_cents', 'title']
 })
-const campaign = await <Client>.fetchOauth2(Oauth2Routes.campaign(campaignId), campaignQuery)
+const campaign = await <Client>.fetchCampaign(campaignId, campaignQuery)
 
 if (campaign != undefined) {
     // Filter all but tiers and get the attributes

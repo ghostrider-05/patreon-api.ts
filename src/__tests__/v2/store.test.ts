@@ -56,6 +56,10 @@ describe('Fetch store', () => {
         } else return new Response(null, { status: 400 })
     })
 
+    test('use global fetch', () => {
+        expect(new PatreonStore.Fetch('https://localhost:8000')).toBeDefined()
+    })
+
     test('unset value', async () => {
         expect(await store.get()).toBeUndefined()
     })

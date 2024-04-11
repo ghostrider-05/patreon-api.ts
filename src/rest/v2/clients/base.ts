@@ -1,7 +1,6 @@
 import ClientOAuth2 from 'client-oauth2'
 
-import { BasePatreonQuery, GetResponsePayload } from '../query'
-import { RouteBases } from '../routes'
+import { BasePatreonClientMethods } from './baseMethods'
 
 import {
     PatreonOauthClient,
@@ -22,9 +21,8 @@ export interface PatreonClientOptions extends BaseOauthClientOptions {
     name?: string
     store?: PatreonTokenFetchOptions
     refreshOnFailed?: boolean
-    // TODO: uncomment
-    // fetch?: Fetch
-    // token?: Token
+    fetch?: Fetch
+    token?: Token
 }
 
 export type PatreonInitializeClientOptions = PatreonClientOptions & Required<Pick<PatreonClientOptions, 'store'>>
@@ -36,10 +34,10 @@ export interface Oauth2FetchOptions {
     contentType?: string
 }
 
-export class PatreonClient extends PatreonOauthClient {
+export type Oauth2RouteOptions = Omit<Oauth2FetchOptions, 'method'>
+
+export abstract class BasePatreonClient extends BasePatreonClientMethods {
     private store: PatreonTokenFetchOptions | undefined = undefined
-    private refreshOnFailed: boolean
-    private _fetch: Fetch
 
     /**
      * The application name.
@@ -47,26 +45,34 @@ export class PatreonClient extends PatreonOauthClient {
      */
     public name: string | null = null
 
-    // TODO: remove fetch and token option
     public constructor(
         patreonOptions: PatreonClientOptions & (BaseOauthHandlerOptions | object),
-        _fetch: Fetch,
-        token?: Token,
     ) {
-        super(patreonOptions, token)
-        this._fetch = _fetch ?? fetch
+        super(
+            new PatreonOauthClient(patreonOptions,
+                patreonOptions.refreshOnFailed ?? false,
+                patreonOptions.token
+            ),
+            patreonOptions.fetch ?? fetch
+        )
 
         this.name = patreonOptions.name ?? null
         this.store = patreonOptions.store
-        this.refreshOnFailed = patreonOptions.refreshOnFailed ?? false
+        this.oauthClient.onTokenRefreshed = async (token) => {
+            await this.store?.put?.(token)
+        }
     }
 
-    // TODO: remove fetch option
-    public static async initialize(options: PatreonInitializeClientOptions, fetch: Fetch) {
+    /** @deprecated */
+    public static async initialize(options: PatreonInitializeClientOptions) {
         const token = await this.fetchStored(options.store)
+        if (token) options.token ??= token
 
-        return new PatreonClient(options, fetch, token)
+        return new PatreonClient(options)
     }
+
+    /** @deprecated */
+    protected static toStored = PatreonOauthClient.toStored
 
     protected static async fetchStored(store?: PatreonTokenFetchOptions) {
         const stored = await store?.get()
@@ -78,33 +84,33 @@ export class PatreonClient extends PatreonOauthClient {
     }
 
     /**
-     * Fetch the stored token with the `get` method from the client options
-     */
-    public async fetchStoredToken() {
-        return PatreonClient.fetchStored(this.store)
-    }
-
-    // TODO: deprecate
-    /**
      * For handling Oauth2 requests, fetch the token that is assiocated with the request code
      * @param requestUrl The url with the `code` parameter
+     * @deprecated
      */
-    public override async fetchToken(requestUrl: string): Promise<StoredToken> {
-        const token = await this._fetchToken(requestUrl, 'code', false)
-        if (token) await this.store?.put(PatreonClient.toStored(token), requestUrl)
+    public async fetchToken(requestUrl: string): Promise<StoredToken> {
+        const token = await this.oauthClient._fetchToken(requestUrl, 'code', false)
+        if (token) await this.store?.put(BasePatreonClient.toStored(token), requestUrl)
 
-        return PatreonClient.toStored(token)
+        return BasePatreonClient.toStored(token)
     }
 
-    protected async validateToken(token: ClientOAuth2.Token | undefined = this.cachedToken) {
+    protected async validateToken(token: ClientOAuth2.Token | undefined = this.oauthClient.cachedToken) {
         if (token != undefined && !token.expired()) return token
         if (token == undefined) throw new Error('No token found to validate!')
 
-        const refreshed = await token.refresh(this.options)
-        await this.store?.put(PatreonClient.toStored(refreshed))
-        this.cachedToken = refreshed
+        const refreshed = await token.refresh(this.oauthClient.options)
+        await this.store?.put(BasePatreonClient.toStored(refreshed))
+        this.oauthClient.cachedToken = refreshed
 
         return refreshed
+    }
+
+    /**
+     * Fetch the stored token with the `get` method from the client options
+     */
+    public async fetchStoredToken() {
+        return BasePatreonClient.fetchStored(this.store)
     }
 
     /**
@@ -112,43 +118,31 @@ export class PatreonClient extends PatreonOauthClient {
      * @param token The token to save
      * @param cache Whether to overwrite the application token cache and update it with the token
      */
-    public async putToken(token: StoredToken, cache?: boolean) {
+    public async putStoredToken(token: StoredToken, cache?: boolean) {
         await this.store?.put(token)
-        if (cache) this.cachedToken = this.toRaw(token)
+        if (cache) this.oauthClient.cachedToken = this.oauthClient.toRaw(token)
+    }
+
+
+    /**
+     * Save your token with the method from the client options
+     * @deprecated Use {@link putStoredToken}
+     * @param token The token to save
+     * @param cache Whether to overwrite the application token cache and update it with the token
+     */
+    public async putToken(token: StoredToken, cache?: boolean) {
+        return this.putStoredToken(token, cache)
     }
 
     /**
-     * Fetch the Patreon Oauth V2 API
-     * @param path The Oauth V2 API Route
-     * @param query The query builder with included fields and attributes
-     * @param options Request options
+     * @deprecated
+     * @returns if the token is updated and stored, and the token
      */
-    public async fetchOauth2<Query extends BasePatreonQuery>(
-        path: string,
-        query: Query,
-        options?: Oauth2FetchOptions,
-    ): Promise<GetResponsePayload<Query> | undefined> {
-        const token = await this.validateToken(options?.token
-            ? this.toRaw(options.token)
-            : undefined
-        )
-
-        return await this._fetch(RouteBases.oauth2 + path + query.query, {
-            method: options?.method ?? 'GET',
-            headers: {
-                'Content-Type': options?.contentType ?? 'application/json',
-                'Authorization': 'Bearer ' + token.accessToken,
-            },
-        }).then(res => {
-            if (res.ok) return res.json()
-
-            const shouldRefetch = options?.refreshOnFailed !== false && (options?.refreshOnFailed || this.refreshOnFailed)
-            if (shouldRefetch && res.status === 403) {
-                return this.fetchOauth2(path, query, {
-                    ...options,
-                    refreshOnFailed: false,
-                })
-            }
-        })
+    public async fetchApplicationToken() {
+        return await this.oauthClient._fetchToken('', 'credentials', true)
+            .then(raw => ({ success: raw != undefined, token: BasePatreonClient.toStored(raw) }))
     }
 }
+
+/** @deprecated */
+export class PatreonClient extends BasePatreonClient {}
