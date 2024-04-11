@@ -4,7 +4,7 @@ export class PatreonCreatorClient extends BasePatreonClient {
     public async initialize(): Promise<boolean> {
         const token = await this.fetchApplicationToken()
 
-        return token != undefined
+        return token.success
     }
 
     /**
@@ -18,7 +18,7 @@ export class PatreonCreatorClient extends BasePatreonClient {
         const stored = await BasePatreonClient.fetchStored(this['store'])
         if (!stored) return { success: false, token: undefined }
 
-        const updated = await this.oauthClient.refreshToken(stored)
+        const updated = await this.oauth.refreshToken(stored)
         return {
             success: updated != undefined,
             token: updated,

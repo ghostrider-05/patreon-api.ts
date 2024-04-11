@@ -49,13 +49,13 @@ export class PatreonOauthClient {
 
     public options: OauthOptions
     public cachedToken: StoredToken | undefined = undefined
-    public refreshOnFailed: boolean
+    public retryOnFailed: boolean
 
     public onTokenRefreshed?: (token: StoredToken | undefined) => Promise<void> = undefined
 
     public constructor(options: PatreonOauthClientOptions) {
         this.clientOptions = options
-        this.refreshOnFailed = options.retryOnFailed ?? options.refreshOnFailed ?? false
+        this.retryOnFailed = options.retryOnFailed ?? options.refreshOnFailed ?? false
 
         this.options = {
             accessTokenUri: options.accessTokenUri ?? 'https://patreon.com/api/oauth2/token',
@@ -106,18 +106,22 @@ export class PatreonOauthClient {
         )
 
         if (!token) return undefined
-
-        return await oauthClient.fetch(RouteBases.oauth2 + path + query.query, {
+        const init = {
             method: options?.method ?? 'GET',
             headers: {
                 'Content-Type': options?.contentType ?? 'application/json',
                 'Authorization': 'Bearer ' + token.accessToken,
+                'User-Agent': oauthClient.userAgent,
             },
-        }).then((res: Response) => {
+        }
+
+        if (options?.body && init.method !== 'GET') init['body'] = options.body
+
+        return await oauthClient.fetch(RouteBases.oauth2 + path + query.query, init).then((res: Response) => {
             if (res.ok) return res.json() as Promise<GetResponsePayload<Query>>
 
-            const shouldRefetch = options?.refreshOnFailed !== false
-                && (options?.refreshOnFailed || oauthClient.refreshOnFailed)
+            const shouldRefetch = (options?.retryOnFailed !== false && options?.refreshOnFailed !== false)
+                && (options?.retryOnFailed || options?.refreshOnFailed || oauthClient.retryOnFailed)
 
             if (shouldRefetch && res.status === 403) {
                 return this.fetch(path, query, oauthClient, {

@@ -17,15 +17,17 @@ export type {
 export type PatreonClientOptions = PatreonOauthClientOptions & {
     name?: string
     store?: PatreonTokenFetchOptions
-    refreshOnFailed?: boolean
 }
 
 export type PatreonInitializeClientOptions = PatreonClientOptions & Required<Pick<PatreonClientOptions, 'store'>>
 
 export interface Oauth2FetchOptions {
+    retryOnFailed?: boolean
+    /** @deprecated */
     refreshOnFailed?: boolean
     token?: StoredToken
     method?: string
+    body?: string
     contentType?: string
 }
 
@@ -45,7 +47,7 @@ export abstract class BasePatreonClient extends BasePatreonClientMethods {
 
         this.name = patreonOptions.name ?? null
         this.store = patreonOptions.store
-        this.oauthClient.onTokenRefreshed = async (token) => {
+        this.oauth.onTokenRefreshed = async (token) => {
             if (token) await this.putStoredToken?.(token, true)
         }
     }
@@ -81,7 +83,7 @@ export abstract class BasePatreonClient extends BasePatreonClientMethods {
      */
     public async putStoredToken(token: StoredToken, cache?: boolean) {
         await this.store?.put(token)
-        if (cache) this.oauthClient.cachedToken = token
+        if (cache) this.oauth.cachedToken = token
     }
 }
 
