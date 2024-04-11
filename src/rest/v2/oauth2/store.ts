@@ -36,7 +36,7 @@ class PatreonFetchStore implements PatreonTokenFetchOptions {
             .then(res => res.ok ? res.json() : undefined)
 
         this.put = async (token, _url) => {
-            await fetch(_url ?? url, {
+            await _fetch(_url ?? url, {
                 method: 'PUT',
                 body: JSON.stringify(token),
             })
