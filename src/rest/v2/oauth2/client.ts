@@ -1,5 +1,5 @@
 import type { Oauth2FetchOptions } from '../client'
-import type { BasePatreonQuery, GetResponsePayload } from '../query'
+import { createQuery, type BasePatreonQuery, type GetResponsePayload } from '../query'
 import { RouteBases } from '../routes'
 
 import type { Fetch } from './store'
@@ -130,6 +130,30 @@ export class PatreonOauthClient {
                 })
             } else return undefined
         })
+    }
+
+    public static async* paginate<Query extends BasePatreonQuery>(
+        path: string,
+        query: Query,
+        oauthClient: PatreonOauthClient,
+        options?: Oauth2FetchOptions,
+    ): AsyncGenerator<GetResponsePayload<Query>, void, unknown> {
+        let done = false, page = 1
+
+        while (!done) {
+            query.params.set('page[count]', page.toString())
+            const pageQuery = createQuery(query.params) as unknown as Query
+
+            const response = await this.fetch(path, pageQuery, oauthClient, options)
+            if (response == undefined) break
+            yield response
+
+            if ('meta' in response && response.meta.pagination.cursors?.next) {
+                page += 1
+            } else {
+                done = true
+            }
+        }
     }
 
     public async getOauthTokenFromCode (url: string | { code: string }): Promise<StoredToken | undefined> {
