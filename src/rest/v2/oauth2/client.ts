@@ -41,7 +41,8 @@ type OauthOptions = (Partial<Pick<BaseOauthHandlerOptions, 'redirectUri' | 'scop
     authorizationUri: string
 }
 
-export type PatreonOauthClientOptions = BaseOauthClientOptions & (BaseOauthHandlerOptions | Record<string, never>)
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type PatreonOauthClientOptions = BaseOauthClientOptions & (BaseOauthHandlerOptions | {})
 
 export class PatreonOauthClient {
     private clientOptions: PatreonOauthClientOptions
