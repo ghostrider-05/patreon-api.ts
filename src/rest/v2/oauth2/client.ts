@@ -63,10 +63,11 @@ export class PatreonOauthClient {
             authorizationUri: options.authorizationUri ?? 'https://patreon.com/oauth2/authorize',
             clientId: options.clientId,
             clientSecret: options.clientSecret,
-            redirectUri: options.redirectUri,
-            scopes: options.scopes ?? [],
-            state: options.state,
+            scopes: 'scopes' in options ? options.scopes ?? [] : [],
+            state: 'state' in options ? options.state : undefined,
         }
+
+        if ('redirectUri' in options) this.options.redirectUri = options.redirectUri
 
         if (options.token) this.cachedToken = 'expires_in_epoch' in options.token
             ? <StoredToken>options.token
