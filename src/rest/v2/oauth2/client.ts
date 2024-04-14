@@ -45,7 +45,7 @@ export type PatreonOauthClientOptions = BaseOauthClientOptions & (BaseOauthHandl
 
 export class PatreonOauthClient {
     private clientOptions: PatreonOauthClientOptions
-    private readonly defaultUserAgent = 'Patreon-api.ts Bot (https://github.com/ghostrider-05/patreon-api.ts, 0.4.0)'
+    private readonly defaultUserAgent = 'PatreonBot patreon-api.ts (https://github.com/ghostrider-05/patreon-api.ts, 0.4.0)'
 
     public options: OauthOptions
     public cachedToken: StoredToken | undefined = undefined
@@ -82,9 +82,9 @@ export class PatreonOauthClient {
 
     protected static async validateToken(
         client: PatreonOauthClient,
-        token: StoredToken | undefined = client.cachedToken
+        token: StoredToken | string | undefined = client.cachedToken
     ) {
-        if (token != undefined && !PatreonOauthClient.isExpired(token)) return token
+        if (token != undefined && (typeof token === 'object' && !PatreonOauthClient.isExpired(token))) return token
         if (token == undefined) throw new Error('No token found to validate!')
 
         const refreshed = await client.refreshToken(token)
@@ -132,8 +132,11 @@ export class PatreonOauthClient {
         })
     }
 
-    public async getOauthTokenFromCode (url: string): Promise<StoredToken | undefined> {
-        const code = new URL(url).searchParams.get('code')
+    public async getOauthTokenFromCode (url: string | { code: string }): Promise<StoredToken | undefined> {
+        const code = typeof url === 'string'
+            ? new URL(url).searchParams.get('code')
+            : url.code
+
         if (!code) return undefined
 
         const token: Token | undefined = await this.fetch(this.options.accessTokenUri, {

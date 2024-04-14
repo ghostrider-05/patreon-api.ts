@@ -14,7 +14,8 @@ export type {
     StoredToken,
 }
 
-export type PatreonClientOptions = PatreonOauthClientOptions & {
+export type PatreonClientOptions = {
+    oauth: PatreonOauthClientOptions
     name?: string
     store?: PatreonTokenFetchOptions
 }
@@ -43,7 +44,7 @@ export abstract class BasePatreonClient extends BasePatreonClientMethods {
     public name: string | null = null
 
     public constructor(patreonOptions: PatreonClientOptions) {
-        super(new PatreonOauthClient(patreonOptions))
+        super(new PatreonOauthClient(patreonOptions.oauth))
 
         this.name = patreonOptions.name ?? null
         this.store = patreonOptions.store
@@ -55,7 +56,7 @@ export abstract class BasePatreonClient extends BasePatreonClientMethods {
     /** @deprecated */
     public static async initialize(options: PatreonInitializeClientOptions) {
         const token = await this.fetchStored(options.store)
-        if (token) options.token ??= token
+        if (token) options.oauth.token ??= token
 
         return new PatreonClient(options)
     }
