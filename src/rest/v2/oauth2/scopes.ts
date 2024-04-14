@@ -1,4 +1,4 @@
-export enum PatreonScope {
+export enum PatreonOauthScope {
     Identity = 'identity',
     IdentityEmail = 'identity[email]',
     IdentityMemberships = 'identity.memberships',
