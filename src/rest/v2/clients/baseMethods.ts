@@ -114,4 +114,16 @@ export class BasePatreonClientMethods implements OauthClient {
     public async fetchIdentity <Query extends BasePatreonQueryType<Type.User, false>>(query: Query, options?: Oauth2RouteOptions) {
         return await this.fetchOauth2<Query>(Oauth2Routes.identity(), query, options)
     }
+
+    public listCampaigns <Query extends BasePatreonQueryType<Type.Campaign, true>>(query: Query, options?: Oauth2RouteOptions) {
+        return this.listOauth2<Query>(Oauth2Routes.campaigns(), query, options)
+    }
+
+    public listCampaignMembers <Query extends BasePatreonQueryType<Type.Member, true>>(campaignId: string, query: Query, options?: Oauth2RouteOptions) {
+        return this.listOauth2<Query>(Oauth2Routes.campaignMembers(campaignId), query, options)
+    }
+
+    public listCampaignPosts <Query extends BasePatreonQueryType<Type.Post, true>>(campaignId: string, query: Query, options?: Oauth2RouteOptions) {
+        return this.listOauth2<Query>(Oauth2Routes.campaignPosts(campaignId), query, options)
+    }
 }
