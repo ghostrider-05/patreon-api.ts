@@ -11,7 +11,7 @@ export class PatreonUserClientInstance extends BasePatreonClientMethods implemen
     public client: PatreonUserClient
 
     public constructor (client: PatreonUserClient, token: StoredToken) {
-        super(client['oauthClient'], client['fetch'], token)
+        super(client.oauth, token)
         this.client = client
         this.token = token
     }
@@ -28,20 +28,21 @@ export class PatreonUserClientInstance extends BasePatreonClientMethods implemen
 }
 
 export class PatreonUserClient extends BasePatreonClient {
-    public override async fetchToken(request: { url: string }): Promise<StoredToken>;
-    public override async fetchToken(url: string): Promise<StoredToken>;
-    public override async fetchToken(request: string | { url: string }): Promise<StoredToken>;
-    public override async fetchToken(request: string | { url: string }): Promise<StoredToken> {
+    public async fetchToken(request: { url: string }): Promise<StoredToken | undefined>;
+    public async fetchToken(url: string): Promise<StoredToken | undefined>;
+    public async fetchToken(request: string | { url: string }): Promise<StoredToken | undefined>;
+    public async fetchToken(request: string | { url: string }): Promise<StoredToken | undefined> {
         const url = typeof request === 'string'
             ? request
             : request.url
 
-        const token = await super.fetchToken(url)
+        const token = await this.oauth.getOauthTokenFromCode(url)
         return token
     }
 
     public async createInstance (request: string | { url: string }) {
         const token = await this.fetchToken(request)
+        if (!token) throw new Error('Failed to fetch access token for: ' + request)
 
         return new PatreonUserClientInstance(this, token)
     }

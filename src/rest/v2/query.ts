@@ -8,6 +8,33 @@ export type BasePatreonQuery = {
      * @example `'?fields%5Buser%5D=url%2Cname'`
      */
     query: string
+
+    /**
+     * The raw search params.
+     * Use {@link BasePatreonQuery.query} for the stringified params.
+     */
+    params: URLSearchParams
+}
+
+type ValueOrArray<T> = T | T[]
+
+type PaginationQuerySort =
+    | string
+    | { key: string, descending?: boolean }
+
+export type PaginationQuery = {
+    cursor?: string
+    count?: number
+    sort?: ValueOrArray<PaginationQuerySort>
+}
+
+export interface QueryRequestOptions extends PaginationQuery {
+    // TODO: see if this also applies to V2
+    /**
+     * @experimental This is documented to both versions, but makes more sense to work for only V1
+     * @see https://docs.patreon.com/#requesting-specific-data
+     */
+    useDefaultIncludes?: boolean
 }
 
 export type PatreonQuery<
@@ -41,6 +68,43 @@ export type GetResponsePayload<Query extends BasePatreonQuery> = Query extends P
     ? PayloadFromQuery<T, I, A, L, Query>
     : never
 
+function resolveSortOptions(options: ValueOrArray<PaginationQuerySort>): string {
+    return (Array.isArray(options) ? options : [options])
+        .map(option => {
+            return typeof option === 'string'
+                ? option
+                : (option.descending ? `-${option.key}` : option.key)
+        })
+        .join(',')
+}
+
+function resolveQueryOptions(options?: QueryRequestOptions): Record<string, string> {
+    const params: Record<string, string> = {}
+
+    if (options?.count != undefined) params['page[count]'] = options.count.toString()
+    if (options?.cursor != undefined) params['page[cursor]'] = options.cursor
+    if (options?.sort != undefined) params['sort'] = resolveSortOptions(options.sort)
+
+    if (options?.useDefaultIncludes != undefined) {
+        params['json-api-use-default-includes'] = `${options.useDefaultIncludes}`
+    }
+
+    return params
+}
+
+export function createQuery<Q extends BasePatreonQueryType<Type, boolean>>(params: URLSearchParams): Q {
+    function toQuery(params: URLSearchParams): string {
+        return params.size > 0 ? '?' + params.toString() : ''
+    }
+
+    return {
+        params,
+        query: toQuery(params),
+        // @ts-expect-error expect
+        _payload_type: <Q['_payload_type']>'',
+    } as Q
+}
+
 function _buildQuery<
     T extends Extract<
         Type,
@@ -50,23 +114,20 @@ function _buildQuery<
         | Type.User
     >,
     Listing extends boolean = false
-> () {
-    return function <Includes extends RelationshipFields<`${T}`> = never> (include?: Includes[]) {
+>() {
+    return function <Includes extends RelationshipFields<`${T}`> = never>(include?: Includes[]) {
         return function <
             Attributes extends RelationshipMap<T, Includes>,
-        > (attributes?: Attributes): PatreonQuery<T, Includes, Attributes, Listing> {
+        >(attributes?: Attributes, options?: QueryRequestOptions): PatreonQuery<T, Includes, Attributes, Listing> {
             const params = new URLSearchParams({
-                ...(include ? { include: include.join(',') } : { }),
+                ...(include ? { include: include.join(',') } : {}),
                 ...Object
                     .keys(attributes ?? {})
-                    .reduce((params, key) => ({ ...params, [`fields[${key}]`]: attributes![key].join(',') }), {})
-            }).toString()
+                    .reduce((params, key) => ({ ...params, [`fields[${key}]`]: attributes![key].join(',') }), {}),
+                ...resolveQueryOptions(options),
+            })
 
-            return {
-                query: params.length > 0 ? '?' + params : '',
-                // @ts-expect-error expected
-                _payload_type: '',
-            }
+            return createQuery(params)
         }
     }
 }

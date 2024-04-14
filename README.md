@@ -1,17 +1,19 @@
 # Patreon TS
 
-![npm](https://img.shields.io/npm/v/patreon-api.ts)
-![npm](https://img.shields.io/npm/dm/patreon-api.ts)
-![GitHub issues](https://img.shields.io/github/issues/ghostrider-05/patreon-api.ts)
+[![npm](https://img.shields.io/npm/v/patreon-api.ts)](https://www.npmjs.com/package/patreon-api.ts?activeTab=versions)
+[![npm](https://img.shields.io/npm/dm/patreon-api.ts)](https://www.npmjs.com/package/patreon-api.ts?activeTab=readme)
+[![GitHub issues](https://img.shields.io/github/issues/ghostrider-05/patreon-api.ts)](https://github.com/ghostrider-05/patreon-api.ts/issues/)
 
 Typescript library for the V2 [Patreon API](https://docs.patreon.com/)
 
-> You might be looking for [patreon-js](https://github.com/Patreon/patreon-js) for JavaScript, [patreon-api-types](https://github.com/mrTomatolegit/patreon-api-types) for less strict types and no client or another package in between.
+> You might be looking for [patreon-js](https://github.com/Patreon/patreon-js) for JavaScript, [patreon-api-types](https://github.com/mrTomatolegit/patreon-api-types) for less strict types and no client or [another package](https://www.npmjs.com/search?q=patreon) in between.
 
 ## Installation
 
 ```sh
 npm install patreon-api.ts
+pnpm add patreon-api.ts
+yarn add patreon-api.ts
 ```
 
 ## Usage
@@ -46,8 +48,10 @@ It is recommended to sync your token to your database or store it somewhere safe
 import { PatreonCreatorClient, PatreonStore } from 'patreon-api.ts'
 
 const creatorClient = new PatreonCreatorClient({
-    clientId: process.env.PATREON_CLIENT_ID!,
-    clientSecret: process.env.PATREON_CLIENT_SECRET!,
+    oauth: {
+        clientId: process.env.PATREON_CLIENT_ID!,
+        clientSecret: process.env.PATREON_CLIENT_SECRET!,
+    },
     store: new PatreonStore.Fetch('<url>'),
 })
 
@@ -68,9 +72,11 @@ import { PatreonUserClient } from 'patreon-api.ts'
 
 // Minimal configuration for handling Oauth2
 const userClient = new PatreonUserClient({
-    clientId: process.env.PATREON_CLIENT_ID!,
-    clientSecret: process.env.PATREON_CLIENT_SECRET!,
-    redirectUri: '<uri>',
+    oauth: {
+        clientId: process.env.PATREON_CLIENT_ID!,
+        clientSecret: process.env.PATREON_CLIENT_SECRET!,
+        redirectUri: '<uri>',
+    }
 })
 
 export default {
@@ -94,8 +100,10 @@ There are 3 built-in methods of retreiving and storing tokens:
 // Use stored tokens in a database
 // And directly call the `store.get` method on starting the client
 const storeClient = new PatreonCreatorClient({
-    clientId: process.env.PATREON_CLIENT_ID!,
-    clientSecret: process.env.PATREON_CLIENT_SECRET!,
+    oauth: {
+        clientId: process.env.PATREON_CLIENT_ID!,
+        clientSecret: process.env.PATREON_CLIENT_SECRET!,
+    },
     name: '<application>', // The application name in the dashboard
     store: {
         get: async () => {
@@ -117,42 +125,6 @@ const storeClient = new PatreonCreatorClient({
 > [!NOTE]
 > In API v2, [all attributes must be explicitly requested](https://docs.patreon.com/#apiv2-oauth).
 
-### Fetch campaigns
-
-```ts
-import { buildQuery } from 'patreon-api.ts'
-
-const query = buildQuery.campaigns()({
-    // Include number of patrons for each campaign
-    campaign: ['patron_count']
-})
-
-const campaigns = await <Client>.fetchCampaigns(query)
-console.log('The first campaign id of the current user is: ' + campaigns?.data[0].id)
-```
-
-### Fetch single campaign
-
-```ts
-import { Type, buildQuery, type AttributeItem } from 'patreon-api.ts'
-
-// Fetch all campaigns first, or look at the network tab to find the id
-const campaignId = '<id>'
-
-// Use the `include` option to request more relationships, like `tiers`
-// When included, you can add attributes to the relationships
-const campaignQuery = buildQuery.campaign(['tiers'])({
-    tier: ['amount_cents', 'title']
-})
-const campaign = await <Client>.fetchCampaign(campaignId, campaignQuery)
-
-if (campaign != undefined) {
-    // Filter all but tiers and get the attributes
-    const tiers = campaign.included
-        .filter((item): item is AttributeItem<Type.Tier, typeof item['attributes']> => item.type === Type.Tier)
-        .map(item => item.attributes)
-
-    // Type: { title: string, amount_cents: number }[]
-    console.log(tiers)
-}
-```
+- [Commonly used routes](./examples/README.md)
+- [Example Cloudflare worker](./examples/cloudflare-worker/)
+- [Example Node.js server](./examples/nodejs/)

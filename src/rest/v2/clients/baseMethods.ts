@@ -41,12 +41,17 @@ interface OauthClient {
         query: Query,
         options?: Oauth2FetchOptions,
     ): Promise<GetResponsePayload<Query> | undefined>
+
+    listOauth2<Query extends BasePatreonQuery>(
+        path: string,
+        query: Query,
+        options?: Oauth2FetchOptions,
+    ): AsyncGenerator<GetResponsePayload<Query>, void>
 }
 
 export class BasePatreonClientMethods implements OauthClient {
     public constructor (
-        protected oauthClient: PatreonOauthClient,
-        private fetch: Fetch,
+        public oauth: PatreonOauthClient,
         private _token?: StoredToken,
     ) {}
 
@@ -66,11 +71,20 @@ export class BasePatreonClientMethods implements OauthClient {
             options.token ??= this._token
         }
 
-        return await PatreonOauthClient.fetch<Query>(path, query, {
-            oauth: this.oauthClient,
-            fetch: this.fetch,
-            refreshOnFailed: this.oauthClient.refreshOnFailed,
-        }, options)
+        return await PatreonOauthClient.fetch<Query>(path, query, this.oauth, options)
+    }
+
+    public listOauth2<Query extends BasePatreonQuery>(
+        path: string,
+        query: Query,
+        options?: Oauth2FetchOptions | undefined
+    ): AsyncGenerator<GetResponsePayload<Query>, void, unknown> {
+        if (this._token) {
+            options ??= {}
+            options.token ??= this._token
+        }
+
+        return PatreonOauthClient.paginate(path, query, this.oauth, options)
     }
 
     public async fetchCampaigns <Query extends BasePatreonQueryType<Type.Campaign, true>>(query: Query, options?: Oauth2RouteOptions) {
@@ -99,5 +113,17 @@ export class BasePatreonClientMethods implements OauthClient {
 
     public async fetchIdentity <Query extends BasePatreonQueryType<Type.User, false>>(query: Query, options?: Oauth2RouteOptions) {
         return await this.fetchOauth2<Query>(Oauth2Routes.identity(), query, options)
+    }
+
+    public listCampaigns <Query extends BasePatreonQueryType<Type.Campaign, true>>(query: Query, options?: Oauth2RouteOptions) {
+        return this.listOauth2<Query>(Oauth2Routes.campaigns(), query, options)
+    }
+
+    public listCampaignMembers <Query extends BasePatreonQueryType<Type.Member, true>>(campaignId: string, query: Query, options?: Oauth2RouteOptions) {
+        return this.listOauth2<Query>(Oauth2Routes.campaignMembers(campaignId), query, options)
+    }
+
+    public listCampaignPosts <Query extends BasePatreonQueryType<Type.Post, true>>(campaignId: string, query: Query, options?: Oauth2RouteOptions) {
+        return this.listOauth2<Query>(Oauth2Routes.campaignPosts(campaignId), query, options)
     }
 }
