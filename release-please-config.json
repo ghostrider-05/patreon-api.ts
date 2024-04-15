@@ -1,7 +1,10 @@
 {
     "packages": {
         ".": {
-            "bump-minor-pre-major": true
+            "bump-minor-pre-major": true,
+            "extra-files": [
+                "src/utils/version.ts"
+            ]
         }
     }
 }

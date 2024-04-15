@@ -4,6 +4,8 @@ import { RouteBases } from '../routes'
 
 import type { Fetch } from './store'
 
+import { VERSION } from '../../../utils'
+
 export interface BaseOauthClientOptions {
     /**
      * The client id of the application.
@@ -86,7 +88,7 @@ export type PatreonOauthClientOptions = BaseOauthClientOptions & (BaseOauthHandl
 
 export class PatreonOauthClient {
     private clientOptions: PatreonOauthClientOptions
-    private readonly defaultUserAgent = 'PatreonBot patreon-api.ts (https://github.com/ghostrider-05/patreon-api.ts, 0.4.0)'
+    private readonly defaultUserAgent = `PatreonBot patreon-api.ts (https://github.com/ghostrider-05/patreon-api.ts, ${VERSION})`
 
     public options: OauthOptions
     public cachedToken: StoredToken | undefined = undefined
