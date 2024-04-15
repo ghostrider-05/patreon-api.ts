@@ -1,4 +1,8 @@
-import { BasePatreonClientMethods } from './baseMethods'
+import {
+    BasePatreonClientMethods,
+    Oauth2FetchOptions,
+    Oauth2RouteOptions,
+} from './baseMethods'
 
 import {
     PatreonOauthClient,
@@ -10,36 +14,43 @@ import {
 import { type PatreonTokenFetchOptions } from '../oauth2/store'
 
 export type {
+    Oauth2FetchOptions,
+    Oauth2RouteOptions,
     Token,
     StoredToken,
 }
 
+/**
+ * The constructor options for API applications
+ */
 export type PatreonClientOptions = {
+    /**
+     * The Oauth options for this client.
+     * Required for both creator and user clients.
+     */
     oauth: PatreonOauthClientOptions
+
+    /**
+     * The application name of this client
+     */
     name?: string
+
+    /**
+     * Options for storing and getting API (creator) tokens.
+     * @default undefined
+     */
     store?: PatreonTokenFetchOptions
 }
 
+/** @deprecated */
 export type PatreonInitializeClientOptions = PatreonClientOptions & Required<Pick<PatreonClientOptions, 'store'>>
-
-export interface Oauth2FetchOptions {
-    retryOnFailed?: boolean
-    /** @deprecated */
-    refreshOnFailed?: boolean
-    token?: StoredToken
-    method?: string
-    body?: string
-    contentType?: string
-}
-
-export type Oauth2RouteOptions = Omit<Oauth2FetchOptions, 'method'>
 
 export abstract class BasePatreonClient extends BasePatreonClientMethods {
     private store: PatreonTokenFetchOptions | undefined = undefined
 
     /**
-     * The application name.
-     * Can be useful to log or something.
+     * The application name of the client.
+     * @default null
      */
     public name: string | null = null
 
@@ -53,15 +64,20 @@ export abstract class BasePatreonClient extends BasePatreonClientMethods {
         }
     }
 
-    /** @deprecated */
-    public static async initialize(options: PatreonInitializeClientOptions) {
+    /**
+     * @param {PatreonInitializeClientOptions} options The client options to initialize the client with.
+     * The store option is required.
+     * @deprecated
+     * @returns {PatreonClient} a base client.
+     */
+    public static async initialize(options: PatreonInitializeClientOptions): Promise<PatreonClient> {
         const token = await this.fetchStored(options.store)
         if (token) options.oauth.token ??= token
 
         return new PatreonClient(options)
     }
 
-    protected static async fetchStored(store?: PatreonTokenFetchOptions) {
+    protected static async fetchStored(store?: PatreonTokenFetchOptions): Promise<StoredToken | undefined> {
         const stored = await store?.get()
         if (stored == undefined) return undefined
 
@@ -72,17 +88,18 @@ export abstract class BasePatreonClient extends BasePatreonClientMethods {
 
     /**
      * Fetch the stored token with the `get` method from the client options
+     * @returns {StoredToken | undefined} the stored token, if `options.store.get` is defined and returns succesfully.
      */
-    public async fetchStoredToken() {
+    public async fetchStoredToken(): Promise<StoredToken | undefined> {
         return BasePatreonClient.fetchStored(this.store)
     }
 
     /**
      * Save your token with the method from the client options
-     * @param token The token to save
-     * @param cache Whether to overwrite the application token cache and update it with the token
+     * @param {StoredToken} token The token to save
+     * @param {boolean} [cache] Whether to overwrite the application token cache and update it with the token
      */
-    public async putStoredToken(token: StoredToken, cache?: boolean) {
+    public async putStoredToken(token: StoredToken, cache?: boolean): Promise<void> {
         await this.store?.put(token)
         if (cache) this.oauth.cachedToken = token
     }

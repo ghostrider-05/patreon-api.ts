@@ -5,15 +5,56 @@ import { RouteBases } from '../routes'
 import type { Fetch } from './store'
 
 export interface BaseOauthClientOptions {
+    /**
+     * The client id of the application.
+     * Can be found in the Patreon developer portal.
+     */
     clientId: string
+
+    /**
+     * The client secret of the application.
+     * Can be found in the Patreon developer portal. Keep this private!
+     */
     clientSecret: string
+
+    /**
+     * Set the (creator) token of the application.
+     * If no epoch time (ms) is given, it will assume the token was just created.
+     */
     token?: Token | StoredToken
+
+    /**
+     * Replace the global fetch function with a custom one.
+     */
     fetch?: Fetch
+
+    /**
+     * If an request is missing access on, try to refresh the access token and retry the same request.
+     * @default false
+     */
     retryOnFailed?: boolean
-    /** @deprecated use {@link retryOnFailed} */
+
+    /**
+     * @deprecated use {@link BaseOauthClientOptions.retryOnFailed}
+     */
     refreshOnFailed?: boolean
+
+    /**
+     * Overwrite the access token Oauth route
+     * @default 'https://patreon.com/api/oauth2/token'
+     */
     accessTokenUri?: string
+
+    /**
+     * Overwrite the authorization Oauth route
+     * @default 'https://patreon.com/oauth2/authorize'
+     */
     authorizationUri?: string
+
+    /**
+     * Overwrites the user agent header of requests.
+     * @default - user agent of the library
+     */
     userAgent?: string
 }
 
@@ -34,13 +75,12 @@ export interface StoredToken extends Token {
     expires_in_epoch: string
 }
 
-type OauthOptions = (Partial<Pick<BaseOauthHandlerOptions, 'redirectUri' | 'scopes' | 'state'>>) & {
-    clientId: string
-    clientSecret: string
-    accessTokenUri: string
-    authorizationUri: string
-}
+type OauthOptions = Partial<Pick<BaseOauthHandlerOptions, 'redirectUri' | 'scopes' | 'state'>>
+    & Required<Pick<BaseOauthClientOptions, 'clientId' | 'clientSecret' | 'accessTokenUri' | 'authorizationUri'>>
 
+/**
+ * Client options for handling Oauth
+ */
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type PatreonOauthClientOptions = BaseOauthClientOptions & (BaseOauthHandlerOptions | {})
 
@@ -74,7 +114,11 @@ export class PatreonOauthClient {
             : PatreonOauthClient.toStored(options.token)
     }
 
-    public get userAgent () {
+    /**
+     * The user agent header for requests
+     * @returns {string} The header in the client options or the default library header
+     */
+    public get userAgent (): string {
         return this.clientOptions.userAgent ?? this.defaultUserAgent
     }
 
@@ -158,6 +202,12 @@ export class PatreonOauthClient {
         }
     }
 
+    /**
+     * Get an Oauth token from an redirect request. This request has a code parameter
+     * @param {string | { code: string }} url The request url, or the code, to use for fetching the access token
+     * @returns {StoredToken | undefined} Returns the token on success.
+     * Returns undefined for missing code, missing permission or invalid request.
+     */
     public async getOauthTokenFromCode (url: string | { code: string }): Promise<StoredToken | undefined> {
         const code = typeof url === 'string'
             ? new URL(url).searchParams.get('code')
@@ -185,6 +235,11 @@ export class PatreonOauthClient {
             : undefined
     }
 
+    /**
+     * Update an access token with the refresh token
+     * @param {Token | StoredToken | string} token The refresh token, or the token with a `refresh_token`, to use
+     * @returns {StoredToken | undefined} the updated access token or undefined on a failed request
+     */
     public async refreshToken (token: Token | StoredToken | string): Promise<StoredToken | undefined> {
         const refresh_token = typeof token === 'string'
             ? token
@@ -205,7 +260,11 @@ export class PatreonOauthClient {
         }).then(res => res.ok ? res.json() : undefined)
     }
 
-    public get oauthUri () {
+    /**
+     * The uri to redirect users to in the first step of the Oauth flow
+     * @type {string}
+     */
+    public get oauthUri (): string {
         const params = new URLSearchParams({
             response_type: 'code',
             client_id: this.options.clientId,

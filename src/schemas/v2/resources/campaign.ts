@@ -62,7 +62,7 @@ export interface Campaign {
     pledge_url: string
 
     /**
-     * The thing which patrons are paying per, as in "{@link vanity} is making $1000 per {@link pay_per_name}"
+     * The thing which patrons are paying per, as in "{@link Campaign.vanity} is making $1000 per {@link Campaign.pay_per_name}"
      */
     pay_per_name: string | null
 
@@ -134,7 +134,7 @@ export interface Campaign {
     discord_server_id: string | null
 
     /**
-     * The type of content the creator is creating, as in "{@link vanity} is creating {@link creation_name}"
+     * The type of content the creator is creating, as in "{@link Campaign.vanity} is creating {@link Campaign.creation_name}"
      */
     creation_name: string | null
 
