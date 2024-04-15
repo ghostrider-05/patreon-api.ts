@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import { expect, describe, test } from 'vitest'
 
 import { PatreonStore } from '../../v2'
@@ -49,7 +48,9 @@ describe('Fetch store', () => {
                 status: token ? 200 : 500,
             })
         } else if (options.method === 'PUT') {
-            values.set('fetch_token', options.body!)
+            if (!options.body) return new Response('Invalid body', { status: 400 })
+
+            values.set('fetch_token', options.body)
             return new Response(null, {
                 status: 201,
             })

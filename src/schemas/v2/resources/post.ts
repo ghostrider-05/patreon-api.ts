@@ -45,7 +45,7 @@ export interface Post {
     // TODO: why is the type Tier[], but description string[]?
     /**
      * The tier ids that allow the patrons from those tiers to view the post.
-     * Empty array if no tiers assigned even if {@link is_paid} is true
+     * Empty array if no tiers assigned even if {@link Post.is_paid} is true
      */
     tiers: string[]
 

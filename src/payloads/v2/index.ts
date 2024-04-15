@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { RelationshipFields, RelationshipMap, Type } from '../../schemas/v2'
 import { RequestPayload } from './internals/request'
 

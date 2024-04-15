@@ -3,36 +3,55 @@ import { Type } from '../../../schemas/v2'
 
 import {
     PatreonOauthClient,
-    type Token,
     type StoredToken,
-    type BaseOauthClientOptions,
 } from '../oauth2/client'
 
 import { Oauth2Routes } from '../oauth2/routes'
-import { type Fetch, type PatreonTokenFetchOptions } from '../oauth2/store'
 
-export type {
-    Token,
-    StoredToken,
-}
-
-export interface PatreonClientOptions extends BaseOauthClientOptions {
-    name?: string
-    store?: PatreonTokenFetchOptions
-    refreshOnFailed?: boolean
-    fetch?: Fetch
-    token?: Token
-}
-
-export type PatreonInitializeClientOptions = PatreonClientOptions & Required<Pick<PatreonClientOptions, 'store'>>
-
+/**
+ * Options for the raw Oauth2 request methods
+ */
 export interface Oauth2FetchOptions {
+    /**
+     * If an request is missing access on, try to refresh the access token and retry the same request.
+     * @default false
+     */
+    retryOnFailed?: boolean
+
+    /**
+     * @deprecated use {@link Oauth2FetchOptions.retryOnFailed}
+     */
     refreshOnFailed?: boolean
+
+    /**
+     * Overwrite the client token with a new token
+     * @default undefined
+     */
     token?: StoredToken
+
+    /**
+     * Overwrite the method of the request.
+     * If you are using a function to write, update or delete resources this will be already set.
+     * @default 'GET'
+     */
     method?: string
+
+    /**
+     * The stringified body to use in the request, if the endpoint allows a body.
+     * @default undefined
+     */
+    body?: string
+
+    /**
+     * Overwrite the `'Content-Type'` header
+     * @default 'application/json'
+     */
     contentType?: string
 }
 
+/**
+ * Options for the `fetch*` and `list*` Oauth2 methods
+ */
 export type Oauth2RouteOptions = Omit<Oauth2FetchOptions, 'method'>
 
 interface OauthClient {
@@ -60,6 +79,7 @@ export class BasePatreonClientMethods implements OauthClient {
      * @param path The Oauth V2 API Route
      * @param query The query builder with included fields and attributes
      * @param options Request options
+     * @returns the response for succesful requests, otherwise undefined.
      */
     public async fetchOauth2<Query extends BasePatreonQuery>(
         path: string,

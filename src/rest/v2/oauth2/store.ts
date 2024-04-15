@@ -16,8 +16,22 @@ export type Fetch = (url: string, options?: {
 }) => Promise<Response>
 
 export interface PatreonTokenFetchOptions {
+    /**
+     * Store the token from the client to an external resource
+     * @param token The token to store
+     * @param [url] For the Fetch store, send the request to a different url than the default url.
+     */
     put: (token: StoredToken, url?: string) => Promise<void>
+
+    /**
+     * Method to retreive the stored token
+     */
     get: () => Promise<StoredToken | undefined>
+}
+
+export interface KVLikeStore {
+    get: (key: string) => Promise<string | null>
+    put: (key: string, value: string) => Promise<void>
 }
 
 class PatreonFetchStore implements PatreonTokenFetchOptions {
@@ -25,9 +39,9 @@ class PatreonFetchStore implements PatreonTokenFetchOptions {
     public put: (token: StoredToken, url?: string | undefined) => Promise<void>
 
     /**
-     * Sync tokens
+     * Sync tokens in a remote server
      * @param url The server URL that accepts GET and PUT requests
-     * @param fetchFn The fetch function to use
+     * @param [fetchFn] The fetch function to use. Defaults to the globally available `fetch` function.
      */
     public constructor (url: string, fetchFn?: Fetch) {
         const _fetch = fetchFn ?? fetch
@@ -44,14 +58,19 @@ class PatreonFetchStore implements PatreonTokenFetchOptions {
     }
 }
 
+/**
+ * A store for Patreon tokens stored in a KV-like resource.
+ */
 class PatreonKVStore implements PatreonTokenFetchOptions {
     public get: () => Promise<StoredToken | undefined>
     public put: (token: StoredToken) => Promise<void>
 
-    public constructor (store: {
-        get: (key: string) => Promise<string | null>
-        put: (key: string, value: string) => Promise<void>
-    }, tokenKey: string) {
+    /**
+     * Sync tokens in a KV-like store
+     * @param store the external KV-like store to use for synchronizing tokens
+     * @param tokenKey the key in the store to save the token in
+     */
+    public constructor (store: KVLikeStore, tokenKey: string) {
         this.get = async () => await store.get(tokenKey)
             .then(value => value ? JSON.parse(value) : undefined)
             .catch(() => undefined)

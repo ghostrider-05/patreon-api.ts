@@ -30,7 +30,7 @@ export interface Media {
     mimetype: string
 
     /**
-     * Ownership id (See also {@link owner_type})
+     * Ownership id (See also {@link Media.owner_type})
      */
     owner_id: string
 

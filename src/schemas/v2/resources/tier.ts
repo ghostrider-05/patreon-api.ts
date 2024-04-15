@@ -51,7 +51,7 @@ export interface Tier {
     published_at: string | null
 
     /**
-     * Remaining number of patrons who may subscribe, if there is a {@link user_limit}
+     * Remaining number of patrons who may subscribe, if there is a {@link Tier.user_limit}
      */
     remaining: number | null
 

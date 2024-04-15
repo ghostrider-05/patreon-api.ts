@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import { expect, describe, test } from 'vitest'
 
 import { Oauth2Routes } from '../../v2'
