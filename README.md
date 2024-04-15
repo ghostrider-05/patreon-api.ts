@@ -4,7 +4,7 @@
 [![npm](https://img.shields.io/npm/dm/patreon-api.ts)](https://www.npmjs.com/package/patreon-api.ts?activeTab=readme)
 [![GitHub issues](https://img.shields.io/github/issues/ghostrider-05/patreon-api.ts)](https://github.com/ghostrider-05/patreon-api.ts/issues/)
 
-Typescript library for the V2 [Patreon API](https://docs.patreon.com/)
+Typescript library for the V2 [Patreon API](https://docs.patreon.com/) with [Typescript types](./examples/README.md) that strongly reflect your request.
 
 > You might be looking for [patreon-js](https://github.com/Patreon/patreon-js) for JavaScript, [patreon-api-types](https://github.com/mrTomatolegit/patreon-api-types) for less strict types and no client or [another package](https://www.npmjs.com/search?q=patreon) in between.
 
@@ -37,7 +37,7 @@ To check for compatibility with this package, look if your platform:
   - for node.js: `v18` or higher
 - supports `ES2020`
 
-### Oauth2 vs Creator token
+### Clients
 
 #### Creator token
 
@@ -128,3 +128,17 @@ const storeClient = new PatreonCreatorClient({
 - [Commonly used routes](./examples/README.md)
 - [Example Cloudflare worker](./examples/cloudflare-worker/)
 - [Example Node.js server](./examples/nodejs/)
+
+## Changelog
+
+Detailed changes are listed for each release in [the changelog](./CHANGELOG.md).
+
+For upcoming releases, see [the roadmap](https://github.com/users/ghostrider-05/projects/5) for planned changes.
+
+## Contributing
+
+See the [code of conduct](./CODE_OF_CONDUCT.md) and the [contributing guide](./CONTRIBUTING.md) for how to contribute. You can also support the development by writing guides, posts and templates or by funding the maintainers.
+
+## License
+
+[MIT](./LICENSE)
