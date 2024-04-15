@@ -66,6 +66,26 @@ export const Oauth2Routes = {
      */
     post (postId: string) {
         return `/posts/${postId}` as const
-    }
+    },
+
+    /**
+     * Routes for:
+     * 
+     * - PATCH `/webhooks/{webhookId}`
+     * @param webhookId The id of the webhook
+     */
+    webhook (webhookId: string) {
+        return `/webhooks/${webhookId}` as const
+    },
+
+    /**
+     * Routes for:
+     * 
+     * - GET `/webhooks`
+     * - POST `/webhooks`
+     */
+    webhooks () {
+        return '/webhooks' as const
+    },
 }
 
