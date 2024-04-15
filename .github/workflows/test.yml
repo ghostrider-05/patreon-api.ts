@@ -21,7 +21,8 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install
+        # TODO: remove on ts-lint@v8
+        run: npm install --legacy-peer-deps
 
       - name: Run tsc
         run: npm run prestart
