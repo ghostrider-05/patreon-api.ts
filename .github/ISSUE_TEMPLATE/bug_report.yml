@@ -1,0 +1,45 @@
+name: Bug report
+description: Create a report to track incorrect or broken things
+labels:
+  - "bug"
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug description
+      description: |
+        A clear and concise description of what the bug is.
+      placeholder: |
+        Steps to reproduce the behavior:
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: behaviour
+    attributes:
+      label: Expected behaviour
+      description: What should be the expected behaviour?
+    validations:
+      required: true
+  - type: textarea
+    id: settings
+    attributes:
+      label: System settings
+      description: Which versions are you using?
+      value: |
+        Node version: 20.x.x
+        Npm version: 10.x.x
+        Patreon-api.ts version: 0.x.x
+  - type: input
+    id: fix
+    attributes:
+      label: Potential fixes
+      description: Add any potential solution for the problem here
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add any other context about / related to the problem
