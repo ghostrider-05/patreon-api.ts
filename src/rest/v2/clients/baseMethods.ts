@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/no-undefined-types */
 import type { BasePatreonQuery, BasePatreonQueryType, GetResponsePayload } from '../query'
 import { Type } from '../../../schemas/v2'
 
@@ -19,7 +18,9 @@ export interface Oauth2FetchOptions {
      */
     retryOnFailed?: boolean
 
-    /** @deprecated use {@link retryOnFailed} */
+    /**
+     * @deprecated use {@link Oauth2FetchOptions.retryOnFailed}
+     */
     refreshOnFailed?: boolean
 
     /**
@@ -75,10 +76,10 @@ export class BasePatreonClientMethods implements OauthClient {
 
     /**
      * Fetch the Patreon Oauth V2 API
-     * @param {string} path The Oauth V2 API Route
-     * @param {Query} query The query builder with included fields and attributes
-     * @param {Oauth2FetchOptions | undefined} options Request options
-     * @returns {GetResponsePayload<Query> | undefined} the response for succesful requests, otherwise undefined.
+     * @param path The Oauth V2 API Route
+     * @param query The query builder with included fields and attributes
+     * @param options Request options
+     * @returns the response for succesful requests, otherwise undefined.
      */
     public async fetchOauth2<Query extends BasePatreonQuery>(
         path: string,

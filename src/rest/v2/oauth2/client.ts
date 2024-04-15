@@ -118,7 +118,7 @@ export class PatreonOauthClient {
 
     /**
      * The user agent header for requests
-     * @returns {string} The header in the client options or the default library header
+     * @returns The header in the client options or the default library header
      */
     public get userAgent (): string {
         return this.clientOptions.userAgent ?? this.defaultUserAgent
@@ -206,8 +206,8 @@ export class PatreonOauthClient {
 
     /**
      * Get an Oauth token from an redirect request. This request has a code parameter
-     * @param {string | { code: string }} url The request url, or the code, to use for fetching the access token
-     * @returns {StoredToken | undefined} Returns the token on success.
+     * @param url The request url, or the code, to use for fetching the access token
+     * @returns Returns the token on success.
      * Returns undefined for missing code, missing permission or invalid request.
      */
     public async getOauthTokenFromCode (url: string | { code: string }): Promise<StoredToken | undefined> {
@@ -216,6 +216,7 @@ export class PatreonOauthClient {
             : url.code
 
         if (!code) return undefined
+        if (!this.options.redirectUri) return undefined
 
         const token: Token | undefined = await this.fetch(this.options.accessTokenUri, {
             method: 'POST',
@@ -228,7 +229,7 @@ export class PatreonOauthClient {
                 client_id: this.options.clientId,
                 client_secret: this.options.clientSecret,
                 grant_type: 'authorization_code',
-                redirect_uri: this.options.redirectUri!,
+                redirect_uri: this.options.redirectUri,
             }).toString(),
         }).then(res => res.ok ? res.json() : undefined)
 
@@ -239,8 +240,8 @@ export class PatreonOauthClient {
 
     /**
      * Update an access token with the refresh token
-     * @param {Token | StoredToken | string} token The refresh token, or the token with a `refresh_token`, to use
-     * @returns {StoredToken | undefined} the updated access token or undefined on a failed request
+     * @param token The refresh token, or the token with a `refresh_token`, to use
+     * @returns the updated access token or undefined on a failed request
      */
     public async refreshToken (token: Token | StoredToken | string): Promise<StoredToken | undefined> {
         const refresh_token = typeof token === 'string'
@@ -264,13 +265,18 @@ export class PatreonOauthClient {
 
     /**
      * The uri to redirect users to in the first step of the Oauth flow
-     * @type {string}
+     * @returns the url to use for redirecting the user to
+     * @throws if the redirectUri is not defined
      */
     public get oauthUri (): string {
+        if (!this.options.redirectUri) {
+            throw new Error('Missing redirect uri in oauth options')
+        }
+
         const params = new URLSearchParams({
             response_type: 'code',
             client_id: this.options.clientId,
-            redirect_uri: this.options.redirectUri!,
+            redirect_uri: this.options.redirectUri,
         })
 
         if (this.options.state) params.set('state', this.options.state)

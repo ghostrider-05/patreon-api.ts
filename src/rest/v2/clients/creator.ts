@@ -3,7 +3,7 @@ import { BasePatreonClient, StoredToken } from './base'
 export class PatreonCreatorClient extends BasePatreonClient {
     /**
      * Calls {@link PatreonCreatorClient.fetchApplicationToken}.
-     * @returns {Promise<boolean>} Whether the call was successful or not
+     * @returns Whether the call was successful or not
      */
     public async initialize(): Promise<boolean> {
         const token = await this.fetchApplicationToken()
@@ -13,7 +13,7 @@ export class PatreonCreatorClient extends BasePatreonClient {
 
     /**
      * Fetch the current application token from the configured store and updates the token.
-     * @returns {{ success: true, token: StoredToken } | { success: false, token: undefined }}
+     * @returns
      * if the token is updated and stored, and the token
      */
     public async fetchApplicationToken(): Promise<

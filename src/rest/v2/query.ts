@@ -48,7 +48,6 @@ export type PatreonQuery<
      *
      * An empty string.
      * Used to infer the return type for the response
-     * @private
      * @deprecated
      */
     _payload_type: RequestPayload<T, Includes, Attributes, Listing>
@@ -70,8 +69,8 @@ export type GetResponsePayload<Query extends BasePatreonQuery> = Query extends P
 
 /**
  * Helper function to convert pagination sort options to a parameter
- * @param {ValueOrArray<PaginationQuerySort>} options the sort options
- * @returns {string} the parameter to include in the query
+ * @param options the sort options
+ * @returns the parameter to include in the query
  */
 function resolveSortOptions(options: ValueOrArray<PaginationQuerySort>): string {
     return (Array.isArray(options) ? options : [options])
@@ -85,8 +84,8 @@ function resolveSortOptions(options: ValueOrArray<PaginationQuerySort>): string 
 
 /**
  * Helper function to convert query options to parameter options
- * @param {QueryRequestOptions} options the request options
- * @returns {Record<string, string>} the parameters options
+ * @param options the request options
+ * @returns the parameters options
  */
 function resolveQueryOptions(options?: QueryRequestOptions): Record<string, string> {
     const params: Record<string, string> = {}
@@ -104,14 +103,14 @@ function resolveQueryOptions(options?: QueryRequestOptions): Record<string, stri
 
 /**
  * Helper function to create a Patreon query from URLSearchParams
- * @param {URLSearchParams} params the parameters for the request.
- * @returns {BasePatreonQueryType<Type, boolean>} the Patreon query to pass to client methods
+ * @param params the parameters for the request.
+ * @returns the Patreon query to pass to client methods
  */
 export function createQuery<Q extends BasePatreonQueryType<Type, boolean>>(params: URLSearchParams): Q {
     /**
      * Convert params to a query string
-     * @param {URLSearchParams} params The search params to create a query with
-     * @returns {string} the stringified parameters
+     * @param params The search params to create a query with
+     * @returns the stringified parameters
      */
     function toQuery(params: URLSearchParams): string {
         return params.size > 0 ? '?' + params.toString() : ''
@@ -120,14 +119,14 @@ export function createQuery<Q extends BasePatreonQueryType<Type, boolean>>(param
     return {
         params,
         query: toQuery(params),
-        // @ts-expect-error expect
+        // @ts-expect-error Ignore Typescript error for private property
         _payload_type: <Q['_payload_type']>'',
     } as Q
 }
 
 /**
  * Create a stronly typed query for the Patreon API
- * @returns {Function} to add include, attributes and options to the query
+ * @returns to add include, attributes and options to the query
  */
 function _buildQuery<
     T extends Extract<
@@ -143,11 +142,13 @@ function _buildQuery<
         return function <
             Attributes extends RelationshipMap<T, Includes>,
         >(attributes?: Attributes, options?: QueryRequestOptions): PatreonQuery<T, Includes, Attributes, Listing> {
+            const attr: Partial<Attributes> = attributes ?? {}
+
             const params = new URLSearchParams({
                 ...(include ? { include: include.join(',') } : {}),
                 ...Object
-                    .keys(attributes ?? {})
-                    .reduce((params, key) => ({ ...params, [`fields[${key}]`]: attributes![key].join(',') }), {}),
+                    .keys(attr)
+                    .reduce((params, key) => ({ ...params, [`fields[${key}]`]: attr[key].join(',') }), {}),
                 ...resolveQueryOptions(options),
             })
 

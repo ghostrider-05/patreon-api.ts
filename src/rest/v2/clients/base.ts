@@ -65,10 +65,10 @@ export abstract class BasePatreonClient extends BasePatreonClientMethods {
     }
 
     /**
-     * @param {PatreonInitializeClientOptions} options The client options to initialize the client with.
+     * @param options The client options to initialize the client with.
      * The store option is required.
      * @deprecated
-     * @returns {PatreonClient} a base client.
+     * @returns a base client.
      */
     public static async initialize(options: PatreonInitializeClientOptions): Promise<PatreonClient> {
         const token = await this.fetchStored(options.store)
@@ -88,7 +88,7 @@ export abstract class BasePatreonClient extends BasePatreonClientMethods {
 
     /**
      * Fetch the stored token with the `get` method from the client options
-     * @returns {StoredToken | undefined} the stored token, if `options.store.get` is defined and returns succesfully.
+     * @returns the stored token, if `options.store.get` is defined and returns succesfully.
      */
     public async fetchStoredToken(): Promise<StoredToken | undefined> {
         return BasePatreonClient.fetchStored(this.store)
@@ -96,8 +96,8 @@ export abstract class BasePatreonClient extends BasePatreonClientMethods {
 
     /**
      * Save your token with the method from the client options
-     * @param {StoredToken} token The token to save
-     * @param {boolean} [cache] Whether to overwrite the application token cache and update it with the token
+     * @param token The token to save
+     * @param [cache] Whether to overwrite the application token cache and update it with the token
      */
     public async putStoredToken(token: StoredToken, cache?: boolean): Promise<void> {
         await this.store?.put(token)

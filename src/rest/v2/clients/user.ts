@@ -16,13 +16,15 @@ export class PatreonUserClientInstance extends BasePatreonClientMethods {
      * Fetch the ID of the Discord connection.
      *
      * This will only work if the current token is associated with the user.
-     * @returns {Promise<string | undefined>} The discord user ID
+     * @returns The discord user ID
      */
     public async fetchDiscordId (): Promise<string | undefined> {
         return await this.fetchIdentity(buildQuery.identity(['memberships'])({ user: ['social_connections' ]}))
             .then(res => res?.data.attributes.social_connections.discord)
     }
 }
+
+/* eslint-disable @typescript-eslint/unified-signatures */
 
 export class PatreonUserClient extends BasePatreonClient {
     /**
@@ -45,8 +47,8 @@ export class PatreonUserClient extends BasePatreonClient {
 
     /**
      * Create a client with the current user authenticated.
-     * @param {string | { url: string }} request The request or url with the code query
-     * @returns {PatreonUserClientInstance} a similar Oauth client that has the token of the current token
+     * @param request The request or url with the code query
+     * @returns a similar Oauth client that has the token of the current token
      * @throws when failed to fetch access token
      */
     public async createInstance (request: string | { url: string }): Promise<PatreonUserClientInstance> {

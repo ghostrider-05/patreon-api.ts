@@ -40,8 +40,8 @@ class PatreonFetchStore implements PatreonTokenFetchOptions {
 
     /**
      * Sync tokens in a remote server
-     * @param {string} url The server URL that accepts GET and PUT requests
-     * @param {Fetch} [fetchFn] The fetch function to use. Defaults to the globally available `fetch` function.
+     * @param url The server URL that accepts GET and PUT requests
+     * @param [fetchFn] The fetch function to use. Defaults to the globally available `fetch` function.
      */
     public constructor (url: string, fetchFn?: Fetch) {
         const _fetch = fetchFn ?? fetch
@@ -67,8 +67,8 @@ class PatreonKVStore implements PatreonTokenFetchOptions {
 
     /**
      * Sync tokens in a KV-like store
-     * @param {KVLikeStore} store the external KV-like store to use for synchronizing tokens
-     * @param {string} tokenKey the key in the store to save the token in
+     * @param store the external KV-like store to use for synchronizing tokens
+     * @param tokenKey the key in the store to save the token in
      */
     public constructor (store: KVLikeStore, tokenKey: string) {
         this.get = async () => await store.get(tokenKey)
