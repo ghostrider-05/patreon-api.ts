@@ -1,4 +1,5 @@
 export * from './oauth2'
+export * from './webhooks'
 
 export * from './client'
 export * from './query'
