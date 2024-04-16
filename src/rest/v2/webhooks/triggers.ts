@@ -50,3 +50,18 @@ export enum PatreonWebhookTrigger {
      */
     PostDeleted = 'posts:delete'
 }
+
+export type PatreonWebhookMemberTrigger =
+    | PatreonWebhookTrigger.MemberCreated
+    | PatreonWebhookTrigger.MemberUpdated
+    | PatreonWebhookTrigger.MemberDeleted
+
+export type PatreonWebhookPledgeTrigger =
+    | PatreonWebhookTrigger.MemberPledgeCreated
+    | PatreonWebhookTrigger.MemberPledgeUpdated
+    | PatreonWebhookTrigger.MemberPledgeDeleted
+
+export type PatreonWebhookPostTrigger =
+    | PatreonWebhookTrigger.PostPublished
+    | PatreonWebhookTrigger.PostUpdated
+    | PatreonWebhookTrigger.PostDeleted

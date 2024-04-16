@@ -1,4 +1,4 @@
-import type { Oauth2FetchOptions } from '../client'
+import type { Oauth2FetchOptions } from '../clients'
 import { createQuery, type BasePatreonQuery, type GetResponsePayload } from '../query'
 import { RouteBases } from '../routes'
 

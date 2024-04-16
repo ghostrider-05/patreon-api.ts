@@ -36,3 +36,8 @@ export type PatchWebhookBody = Partial<Pick<Webhook,
     | 'triggers'
     | 'uri'
 >>
+
+export type PostWebhookBody = Pick<Webhook,
+    | 'triggers'
+    | 'uri'
+>

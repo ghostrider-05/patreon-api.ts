@@ -36,6 +36,7 @@ To check for compatibility with this package, look if your platform:
 - has the globals: `fetch`, `URL` and `URLSearchParams`
   - for node.js: `v18` or higher
 - supports `ES2020`
+- supports `createHMAC` of the `node:crypto` module
 
 ### Clients
 
@@ -118,6 +119,23 @@ const storeClient = new PatreonCreatorClient({
         }
     }
 })
+```
+
+### Webhooks
+
+You can interact with the webhooks API using one of the [clients](#clients) above. This library also exposes functions to create a webhook server.
+
+```ts
+import { parseWebhookRequest } from 'patreon-api.ts'
+
+export default {
+    async fetch (request) {
+        const { verified, payload, event } = await parseWebhookRequest(request, env.WEBHOOK_SECRET)
+        if (!verified) return new Response('Invalid request', { status: 403 })
+
+        // handle your event
+    }
+}
 ```
 
 ## Examples
