@@ -30,4 +30,12 @@ describe('oauth routes', () => {
     test('post', () => {
         expect(Oauth2Routes.post('post')).toEqual('/posts/post')
     })
+
+    test('webhook', () => {
+        expect(Oauth2Routes.webhook('hook')).toEqual('/webhooks/hook')
+    })
+
+    test('webhooks', () => {
+        expect(Oauth2Routes.webhooks()).toEqual('/webhooks')
+    })
 })

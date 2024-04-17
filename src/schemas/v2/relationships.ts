@@ -20,6 +20,12 @@ interface RelationshipTypeMap extends Record<ItemType, BaseRelationDataItem<Item
         [Type.Goal]: [true, false]
         [Type.Tier]: [true, false]
     }
+    client: {
+        // TODO: add `apps` when documented
+        [Type.Campaign]: [false, false]
+        // TODO: add `creator_token` when documented
+        [Type.User]: [false, false]
+    }
     deliverable: {
         [Type.Benefit]: [false, false]
         [Type.Campaign]: [false, false]
@@ -57,6 +63,10 @@ interface RelationshipTypeMap extends Record<ItemType, BaseRelationDataItem<Item
         [Type.Campaign]: [false, false]
         [Type.Member]: ['memberships', true, false]
     }
+    webhook: {
+        [Type.Campaign]: [false, false]
+        [Type.Client]: [false, false]
+    }
 }
 
 type ResolvedRelation<T extends `${Type}`> = {
@@ -92,6 +102,11 @@ type RelationDataItem<RelationType extends Type | `${Type}`, Index extends Relat
     }
     : never
 
+/**
+ * For an resource, returns the relationship names that this resource can have.
+ * In the API documentation 
+ * @see https://docs.patreon.com/#apiv2-resources beneath each resource table the `relationships` table
+ */
 export type RelationshipFields<T extends Type | `${Type}`> = keyof RelationDataItem<T, 1> extends infer Key
     ? Key extends string
         ? Key
@@ -99,7 +114,7 @@ export type RelationshipFields<T extends Type | `${Type}`> = keyof RelationDataI
     : never
 
 export type RelationshipFieldToFieldType<T extends Type | `${Type}`, F extends RelationshipFields<T>> =
-    RelationDataItem<Type.Campaign, 1>[Extract<RelationshipFields<Type.Campaign>, F>]['data'] extends infer I
+    RelationDataItem<T, 1>[Extract<RelationshipFields<T>, F>]['data'] extends infer I
         ? I extends unknown []
             ? I[number] extends Item<Type> ? I[number]['type'] : never
             : I extends Item<Type> ? I['type'] : never
@@ -109,6 +124,9 @@ export type Relationship<T extends Type | `${Type}`, Keys extends RelationshipFi
     relationships: Pick<RelationDataItem<T, 1>, Keys>
 }
 
+/**
+ * Same as {@link RelationshipFields}, but instead of the relationship names it returns the type of item for each name
+ */
 export type RelationshipTypeFields<T extends `${Type}` | Type> = keyof RelationDataItem<T, 0> extends infer K ? K extends `${Type}` ? K : never : never
 export type RelationshipMap<T extends `${Type}`, Keys extends RelationshipFields<T>> = {
     [Item in (RelationshipFieldToFieldType<T, Keys> | T)]?: Item extends keyof ItemMap ? (keyof ItemMap[Item])[] : never

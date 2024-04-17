@@ -27,6 +27,7 @@ export type ListResourcePayload<
     ResourceType extends Extract<
         Type,
         GetRequestType
+            | Type.Webhook
     >,
     Includes extends RelationshipFields<ResourceType> = never,
     Attributes extends RelationshipMap<ResourceType, Includes> = never
@@ -38,3 +39,5 @@ export type ListResourcePayload<
         true
     >
 }[ResourceType]
+
+export * from './webhook'

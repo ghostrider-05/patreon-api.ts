@@ -135,6 +135,7 @@ function _buildQuery<
         | Type.Member
         | Type.Post
         | Type.User
+        | Type.Webhook
     >,
     Listing extends boolean = false
 >() {
@@ -165,4 +166,5 @@ export const buildQuery = {
     member: _buildQuery<Type.Member, false>(),
     campaignPosts: _buildQuery<Type.Post, true>(),
     post: _buildQuery<Type.Post, false>(),
+    webhooks: _buildQuery<Type.Webhook, true>(),
 }

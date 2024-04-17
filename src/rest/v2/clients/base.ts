@@ -12,6 +12,7 @@ import {
 } from '../oauth2/client'
 
 import { type PatreonTokenFetchOptions } from '../oauth2/store'
+import { WebhookClient } from '../webhooks'
 
 export type {
     Oauth2FetchOptions,
@@ -54,8 +55,16 @@ export abstract class BasePatreonClient extends BasePatreonClientMethods {
      */
     public name: string | null = null
 
+    /**
+     * Interact with the webhooks API.
+     * 
+     * Client to use for creating, updating and getting webhooks from the current client.
+     */
+    public webhooks: WebhookClient
+
     public constructor(patreonOptions: PatreonClientOptions) {
         super(new PatreonOauthClient(patreonOptions.oauth))
+        this.webhooks = new WebhookClient(this.oauth)
 
         this.name = patreonOptions.name ?? null
         this.store = patreonOptions.store

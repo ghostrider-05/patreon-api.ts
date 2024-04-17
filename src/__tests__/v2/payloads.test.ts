@@ -1,11 +1,20 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { assertType, describe, test } from 'vitest'
+import { assertType, describe, expectTypeOf, test } from 'vitest'
 
-import { Type, buildQuery } from '../../v2'
+import {
+    Type,
+    buildQuery,
+    type PatreonQuery
+} from '../../v2'
 
 // TODO: add all queries
 describe('campaign payload', () => {
     test('single', () => {
+        expectTypeOf<{
+            links: { self: string }
+            data: { type: Type.Campaign, id: string, attributes: {} }
+        }>().toEqualTypeOf<PatreonQuery<Type.Campaign, never, never>['_payload_type']>()
+
         assertType<{
             links: { self: string }
             data: { type: Type.Campaign, id: string, attributes: {} }

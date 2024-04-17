@@ -7,15 +7,18 @@ import { Deliverable } from './resources/deliverable'
 import { Goal } from './resources/goal'
 import { Media } from './resources/media'
 import { Member } from './resources/member'
+import { OauthClient } from './resources/oauth_client'
 import { Post } from './resources/post'
 import { PledgeEvent } from './resources/pledge_event'
 import { Tier } from './resources/tier'
 import { User } from './resources/user'
+import { Webhook } from './resources/webhook'
 
 export enum Type {
     Address = 'address',
     Benefit = 'benefit',
     Campaign = 'campaign',
+    Client = 'client',
     Deliverable = 'deliverable',
     Goal = 'goal',
     Media = 'media',
@@ -23,7 +26,8 @@ export enum Type {
     Post = 'post',
     PledgeEvent = 'pledge-event',
     Tier = 'tier',
-    User = 'user'
+    User = 'user',
+    Webhook = 'webhook'
 }
 
 export type ItemType = `${Type}`
@@ -32,6 +36,7 @@ export interface ItemMap {
     address: Address
     benefit: Benefit
     campaign: Campaign
+    client: OauthClient
     deliverable: Deliverable
     goal: Goal
     media: Media
@@ -40,6 +45,7 @@ export interface ItemMap {
     post: Post
     tier: Tier
     user: User
+    webhook: Webhook
 }
 
 export interface Item<Type extends ItemType> {
