@@ -41,12 +41,12 @@ export class WebhookClient {
         event: 'X-Patreon-Event',
     } as const
 
-    public static getWebhookHeaders (headers: Record<string, string>) {
+    public static getWebhookHeaders (headers: Headers) {
         const types = <(keyof typeof this.headers)[]>Object.keys(this.headers)
 
         return types.reduce((data, key) => ({
             ...data,
-            [key]: headers[this.headers[key]] ?? null,
+            [key]: headers.get(this.headers[key]),
         }), {} as Record<keyof typeof this.headers, string | null>)
     }
 

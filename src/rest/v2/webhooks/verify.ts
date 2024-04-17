@@ -33,7 +33,7 @@ export async function parseWebhookRequest <
     Trigger extends PatreonWebhookTrigger = PatreonWebhookTrigger
 >(request: Request, secret: string) {
     const body = await request.clone().text()
-    const headers = WebhookClient.getWebhookHeaders(Object.fromEntries(request.headers))
+    const headers = WebhookClient.getWebhookHeaders(request.headers)
 
     const verified = verify(secret, headers.signature, body)
     if (!verified) {

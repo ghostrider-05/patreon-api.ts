@@ -48,7 +48,7 @@ export enum PatreonWebhookTrigger {
     /**
      * Triggered when a post is deleted on a campaign.
      */
-    PostDeleted = 'posts:delete'
+    PostDeleted = 'posts:delete',
 }
 
 export type PatreonWebhookMemberTrigger =
