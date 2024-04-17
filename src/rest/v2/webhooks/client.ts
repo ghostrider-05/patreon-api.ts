@@ -7,6 +7,7 @@ import {
     type Relationship,
     type Webhook,
 } from "../../../schemas/v2";
+import { type WebhookPayload } from "../../../payloads/v2";
 
 import { Oauth2Routes } from "../oauth2";
 import { createQuery, type BasePatreonQueryType, type GetResponsePayload } from "../query";
@@ -30,6 +31,12 @@ export type APIPostWebhookResponse = DataItem<Type.Webhook, false> & {
     data: {
         attributes: Webhook
     }
+}
+
+export function getWebhookUserId (payload: WebhookPayload): string {
+    return 'user' in payload.data.relationships
+        ? payload.data.relationships.user.data.id
+        : payload.data.relationships.patron.data.id
 }
 
 export class WebhookClient {
