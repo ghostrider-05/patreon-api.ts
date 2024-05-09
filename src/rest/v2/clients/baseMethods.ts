@@ -2,19 +2,29 @@ import type { BasePatreonQuery, BasePatreonQueryType, GetResponsePayload } from 
 import { Type } from '../../../schemas/v2'
 
 import {
+    CreatorToken,
     PatreonOauthClient,
+    type PatreonOauthClientOptions,
     type StoredToken,
 } from '../oauth2/client'
 
 import { Oauth2Routes } from '../oauth2/routes'
+import { RequestMethod, RequestOptions, RestClient, type RESTOptions } from '../oauth2/rest'
+
+type BaseFetchOptions = Omit<RequestOptions,
+    | 'route'
+    | 'accessToken'
+    | 'query'
+>
 
 /**
  * Options for the raw Oauth2 request methods
  */
-export interface Oauth2FetchOptions {
+export interface Oauth2FetchOptions extends BaseFetchOptions {
     /**
      * If an request is missing access on, try to refresh the access token and retry the same request.
      * @default false
+     * @deprecated use `options.rest.retries`
      */
     retryOnFailed?: boolean
 
@@ -24,27 +34,22 @@ export interface Oauth2FetchOptions {
     refreshOnFailed?: boolean
 
     /**
-     * Overwrite the client token with a new token
+     * Overwrite the client token with a new (access) token
      * @default undefined
      */
-    token?: StoredToken
+    token?: StoredToken | CreatorToken | string
 
     /**
      * Overwrite the method of the request.
      * If you are using a function to write, update or delete resources this will be already set.
      * @default 'GET'
      */
-    method?: string
-
-    /**
-     * The stringified body to use in the request, if the endpoint allows a body.
-     * @default undefined
-     */
-    body?: string
+    method?: RequestMethod | `${RequestMethod}`
 
     /**
      * Overwrite the `'Content-Type'` header
      * @default 'application/json'
+     * @deprecated
      */
     contentType?: string
 }
@@ -65,14 +70,21 @@ interface OauthClient {
         path: string,
         query: Query,
         options?: Oauth2FetchOptions,
-    ): AsyncGenerator<GetResponsePayload<Query>, void>
+    ): AsyncGenerator<GetResponsePayload<Query>, number>
 }
 
 export class BasePatreonClientMethods implements OauthClient {
+    public oauth: PatreonOauthClient
+    protected rest: RestClient
+
     public constructor (
-        public oauth: PatreonOauthClient,
+        protected rawOauthOptions: PatreonOauthClientOptions,
+        rest: Partial<RESTOptions> = {},
         private _token?: StoredToken,
-    ) {}
+    ) {
+        this.rest = new RestClient(rest)
+        this.oauth = new PatreonOauthClient(rawOauthOptions, this.rest)
+    }
 
     /**
      * Fetch the Patreon Oauth V2 API
@@ -98,7 +110,7 @@ export class BasePatreonClientMethods implements OauthClient {
         path: string,
         query: Query,
         options?: Oauth2FetchOptions | undefined
-    ): AsyncGenerator<GetResponsePayload<Query>, void, unknown> {
+    ): AsyncGenerator<GetResponsePayload<Query>, number, unknown> {
         if (this._token) {
             options ??= {}
             options.token ??= this._token

@@ -1,24 +1,28 @@
 import {
     BasePatreonClientMethods,
-    Oauth2FetchOptions,
-    Oauth2RouteOptions,
+    type Oauth2FetchOptions,
+    type Oauth2RouteOptions,
 } from './baseMethods'
 
 import {
-    PatreonOauthClient,
-    type Token,
-    type StoredToken,
+    type CreatorToken,
     type PatreonOauthClientOptions,
+    type StoredToken,
+    type Token,
 } from '../oauth2/client'
 
-import { type PatreonTokenFetchOptions } from '../oauth2/store'
+import {
+    type PatreonTokenFetchOptions,
+    type RESTOptions,
+} from '../oauth2'
 import { WebhookClient } from '../webhooks'
 
 export type {
     Oauth2FetchOptions,
     Oauth2RouteOptions,
-    Token,
+    CreatorToken,
     StoredToken,
+    Token,
 }
 
 /**
@@ -35,6 +39,11 @@ export type PatreonClientOptions = {
      * The application name of this client
      */
     name?: string
+
+    /**
+     * The rest options for this client
+     */
+    rest?: Partial<RESTOptions>
 
     /**
      * Options for storing and getting API (creator) tokens.
@@ -63,13 +72,19 @@ export abstract class BasePatreonClient extends BasePatreonClientMethods {
     public webhooks: WebhookClient
 
     public constructor(patreonOptions: PatreonClientOptions) {
-        super(new PatreonOauthClient(patreonOptions.oauth))
+        super(patreonOptions.oauth, patreonOptions.rest)
         this.webhooks = new WebhookClient(this.oauth)
 
         this.name = patreonOptions.name ?? null
         this.store = patreonOptions.store
+
         this.oauth.onTokenRefreshed = async (token) => {
             if (token) await this.putStoredToken?.(token, true)
+        }
+
+        this.rest.options.getAccessToken = async () => {
+            return await this.fetchStoredToken()
+                .then(token => token?.access_token)
         }
     }
 
