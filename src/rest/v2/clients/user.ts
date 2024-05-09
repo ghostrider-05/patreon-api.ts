@@ -7,7 +7,7 @@ export class PatreonUserClientInstance extends BasePatreonClientMethods {
     public client: PatreonUserClient
 
     public constructor (client: PatreonUserClient, token: StoredToken) {
-        super(client.oauth, token)
+        super(client['rawOauthOptions'], client['rest'].options, token)
         this.client = client
         this.token = token
     }
@@ -20,7 +20,10 @@ export class PatreonUserClientInstance extends BasePatreonClientMethods {
      */
     public async fetchDiscordId (): Promise<string | undefined> {
         return await this.fetchIdentity(buildQuery.identity(['memberships'])({ user: ['social_connections' ]}))
-            .then(res => res?.data.attributes.social_connections.discord)
+            .then(res => {
+                const option = <{ user_id: string } | null>(res?.data.attributes.social_connections.discord ?? null)
+                return option?.user_id
+        })
     }
 }
 
