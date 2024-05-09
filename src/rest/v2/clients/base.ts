@@ -1,11 +1,10 @@
 import {
     BasePatreonClientMethods,
-    Oauth2FetchOptions,
-    Oauth2RouteOptions,
+    type Oauth2FetchOptions,
+    type Oauth2RouteOptions,
 } from './baseMethods'
 
 import {
-    PatreonOauthClient,
     type Token,
     type StoredToken,
     type PatreonOauthClientOptions,
@@ -36,6 +35,11 @@ export type PatreonClientOptions = {
      */
     name?: string
 
+    rest?: {
+        userAgentAppendix?: string
+        retries?: number
+    }
+
     /**
      * Options for storing and getting API (creator) tokens.
      * @default undefined
@@ -63,7 +67,7 @@ export abstract class BasePatreonClient extends BasePatreonClientMethods {
     public webhooks: WebhookClient
 
     public constructor(patreonOptions: PatreonClientOptions) {
-        super(new PatreonOauthClient(patreonOptions.oauth))
+        super(patreonOptions.oauth, patreonOptions.rest)
         this.webhooks = new WebhookClient(this.oauth)
 
         this.name = patreonOptions.name ?? null

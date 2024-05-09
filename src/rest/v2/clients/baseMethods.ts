@@ -3,10 +3,12 @@ import { Type } from '../../../schemas/v2'
 
 import {
     PatreonOauthClient,
+    type PatreonOauthClientOptions,
     type StoredToken,
 } from '../oauth2/client'
 
 import { Oauth2Routes } from '../oauth2/routes'
+import { RestClient, type RESTOptions } from '../oauth2/rest'
 
 /**
  * Options for the raw Oauth2 request methods
@@ -65,14 +67,21 @@ interface OauthClient {
         path: string,
         query: Query,
         options?: Oauth2FetchOptions,
-    ): AsyncGenerator<GetResponsePayload<Query>, void>
+    ): AsyncGenerator<GetResponsePayload<Query>, number>
 }
 
 export class BasePatreonClientMethods implements OauthClient {
+    public oauth: PatreonOauthClient
+    protected rest: RestClient
+
     public constructor (
-        public oauth: PatreonOauthClient,
+        oauth: PatreonOauthClientOptions,
+        rest: Partial<RESTOptions> = {},
         private _token?: StoredToken,
-    ) {}
+    ) {
+        this.rest = new RestClient(rest)
+        this.oauth = new PatreonOauthClient(oauth, this.rest)
+    }
 
     /**
      * Fetch the Patreon Oauth V2 API
@@ -98,7 +107,7 @@ export class BasePatreonClientMethods implements OauthClient {
         path: string,
         query: Query,
         options?: Oauth2FetchOptions | undefined
-    ): AsyncGenerator<GetResponsePayload<Query>, void, unknown> {
+    ): AsyncGenerator<GetResponsePayload<Query>, number, unknown> {
         if (this._token) {
             options ??= {}
             options.token ??= this._token
