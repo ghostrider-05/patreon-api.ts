@@ -1,8 +1,9 @@
-import { If } from '../../../utils/generics'
 import type { Oauth2FetchOptions } from '../clients'
 import { createQuery, type BasePatreonQuery, type GetResponsePayload } from '../query'
 
 import { RestClient, type RestFetcher } from './rest'
+
+import type { If } from '../../../utils/generics'
 
 export interface BaseOauthClientOptions {
     /**
