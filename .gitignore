@@ -79,7 +79,9 @@ web_modules/
 .env.production.local
 .env.local
 
-secrets.json
+# Example projects
+examples/**/.wrangler
+examples/**/secrets.json
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
