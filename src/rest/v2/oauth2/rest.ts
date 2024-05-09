@@ -1,50 +1,144 @@
 import { VERSION } from "../../../utils"
 import { RouteBases } from "../routes"
 
-type RestResponse = Response
+export type RestResponse = Pick<Response,
+    | 'body'
+    | 'arrayBuffer'
+    | 'bodyUsed'
+    | 'headers'
+    | 'json'
+    | 'ok'
+    | 'status'
+    | 'statusText'
+    | 'text'
+>
 
-type RestRetries =
+export type RestFetcher = (url: string, init: RequestInit) => Promise<RestResponse>
+
+export type RestRetries =
     | number
     | { status: [number, number] | number, retries: number }[]
 
 export interface RESTOptions {
+    /**
+     * The base url of the Patreon API
+     * @default 'https://patreon.com/api/oauth/v2'
+     */
     api: string
+
+    /**
+     * The prefix of the Authorization header
+     * @default 'Bearer'
+     */
     authPrefix: string
 
-    fetch: (url: string, init: RequestInit) => Promise<RestResponse>
+    /**
+     * The fetch function to use for making requests
+     * @default globalThis.fetch
+     */
+    fetch: RestFetcher
+
+    /**
+     * Get the access token for unauthenticated requests
+     * @default <Client>.fetchStoredToken
+     */
     getAccessToken: () => Promise<string | undefined>
 
+    /**
+     * Headers to add on every request
+     * @default {}
+     */
     headers: Record<string, string>
 
+    /**
+     * The amount of times to retry failed or aborted requests.
+     * 
+     * Can be applied to all statuses, ranges or a specific status.
+     * @default 3
+     */
     retries: RestRetries
+
+    /**
+     * The string to append to the user agent header
+     */
     userAgentAppendix: string | undefined
 }
 
-interface RequestOptions {
+export interface RequestOptions {
+    /**
+     * The base url of the Patreon API
+     * @default {@link RESTOptions.api}
+     */
     api?: string
+
+    /**
+     * Replace the api base, path and query with a different route
+     * @default undefined
+     */
     route?: string
 
+    /**
+     * The final query string
+     * @default ''
+     */
     query?: string
 
+    /**
+     * Whether this request should include an authorization header
+     * @default true
+     */
     auth?: boolean
 
+    /**
+     * The authentication prefix for this request to use
+     * @default 'Bearer'
+     */
     authPrefix?: string
+
+    /**
+     * For authenticated requests, the token to use.
+     * @default undefined
+     * @throws if the request is authenticated but no token is given
+     */
     accessToken?: string | undefined
+
+    /**
+     * The stringified request body
+     * @default undefined
+     */
     body?: string | undefined
 
+    /**
+     * Headers to add on this request
+     * @default {}
+     */
     headers?: Record<string, string>
+
+    /**
+     * The time in ms after the request will be aborted
+     * @default 15_000
+     */
     timeout?: number
 
-    fetch?: ((url: string, init: RequestInit) => Promise<RestResponse>) | undefined
+    /**
+     * The fetch function to use for making this request
+     * @default globalThis.fetch
+     */
+    fetch?: RestFetcher | undefined
+
+    /**
+     * The abort signal for this request
+     * @default undefined
+     */
     signal?: AbortSignal | undefined
 }
 
-const PATREON_RESPONSE_HEADERS = {
+export const PATREON_RESPONSE_HEADERS = {
     Sha: 'x-patreon-sha',
     UUID: 'x-patreon-uuid',
 } as const
 
-const DefaultRestOptions: RESTOptions = {
+export const DefaultRestOptions: RESTOptions = {
     authPrefix: 'Bearer',
     api: RouteBases.oauth2,
     fetch: (...args) => fetch(...args),
@@ -55,20 +149,20 @@ const DefaultRestOptions: RESTOptions = {
     userAgentAppendix: '',
 }
 
-enum RequestMethod {
+export enum RequestMethod {
     Get = 'GET',
     Patch = 'PATCH',
     Post = 'POST',
 }
 
-type PatreonHeadersData = Record<Lowercase<keyof typeof PATREON_RESPONSE_HEADERS>, string | null>
+export type PatreonHeadersData = Record<Lowercase<keyof typeof PATREON_RESPONSE_HEADERS>, string | null>
 
-interface InternalRequestOptions extends RequestOptions {
+export interface InternalRequestOptions extends RequestOptions {
     path: string
     method: RequestMethod
 }
 
-interface PatreonErrorData {
+export interface PatreonErrorData {
     id: string
     code: number
     code_name: string
@@ -135,9 +229,7 @@ export class RestClient {
             ...options,
         }
 
-        // TODO: improve check
-        this.options.fetch ??= DefaultRestOptions.fetch
-        if (this.options.fetch == undefined) {
+        if (options.fetch == undefined && fetch == undefined) {
             throw new Error('No global fetch function found. Specify options.fetch with your fetch function')
         }
     }

@@ -1,19 +1,9 @@
 import {
     type StoredToken,
 } from './client'
-
-declare class Response {
-    ok: boolean
-    status: number
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    json: () => Promise<any>
-}
-
-export type Fetch = (url: string, options?: {
-    method?: string,
-    headers?: Record<string, string>,
-    body?: string
-}) => Promise<Response>
+import {
+    type RestFetcher,
+} from './rest'
 
 export interface PatreonTokenFetchOptions {
     /**
@@ -43,11 +33,11 @@ class PatreonFetchStore implements PatreonTokenFetchOptions {
      * @param url The server URL that accepts GET and PUT requests
      * @param [fetchFn] The fetch function to use. Defaults to the globally available `fetch` function.
      */
-    public constructor (url: string, fetchFn?: Fetch) {
+    public constructor (url: string, fetchFn?: RestFetcher) {
         const _fetch = fetchFn ?? fetch
 
         this.get = async () => _fetch(url, { method: 'GET' })
-            .then(res => res.ok ? res.json() : undefined)
+            .then(res => res.ok ? res.json() as never : undefined)
 
         this.put = async (token, _url) => {
             await _fetch(_url ?? url, {
