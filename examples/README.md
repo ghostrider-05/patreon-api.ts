@@ -26,7 +26,7 @@ const query = buildQuery.campaigns()({
 
 const campaigns = <Client>.listCampaigns(query)
 
-for await (const campaign of <Client>.listCampaigns(query)) {
+for await (const campaign of campaigns) {
     console.log('Campaign id: ' + campaign.data[0].id)
 }
 ```
