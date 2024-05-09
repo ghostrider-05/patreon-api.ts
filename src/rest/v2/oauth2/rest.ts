@@ -164,11 +164,15 @@ export interface InternalRequestOptions extends RequestOptions {
 
 export interface PatreonErrorData {
     id: string
-    code: number
+    code_challenge: null
+    code: number | null
     code_name: string
     detail: string
     status: string
     title: string
+    source?: {
+        parameter?: string
+    }
 }
 
 function getRetryAmount (options: RestRetries, status: number | null): number {
@@ -193,11 +197,13 @@ async function parseResponse <Parsed = unknown>(response: RestResponse) {
 
 class PatreonError extends Error implements PatreonErrorData {
     public id: string
-    public code: number
+    public code: number | null
     public code_name: string
     public detail: string
     public status: string
     public title: string
+    public code_challenge: null = null
+    public source?: { parameter?: string } = undefined
 
     public constructor (
         error: PatreonErrorData,
@@ -214,7 +220,7 @@ class PatreonError extends Error implements PatreonErrorData {
     }
 
     public override get name () {
-        return `${this.code_name}[${this.code}]`
+        return `${this.code_name}[${this.code ?? 'unkown code'}]`
     }
 }
 
