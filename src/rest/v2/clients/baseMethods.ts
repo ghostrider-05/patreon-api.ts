@@ -75,12 +75,12 @@ export class BasePatreonClientMethods implements OauthClient {
     protected rest: RestClient
 
     public constructor (
-        oauth: PatreonOauthClientOptions,
+        protected rawOauthOptions: PatreonOauthClientOptions,
         rest: Partial<RESTOptions> = {},
         private _token?: StoredToken,
     ) {
         this.rest = new RestClient(rest)
-        this.oauth = new PatreonOauthClient(oauth, this.rest)
+        this.oauth = new PatreonOauthClient(rawOauthOptions, this.rest)
     }
 
     /**

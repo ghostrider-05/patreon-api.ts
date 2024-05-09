@@ -7,7 +7,7 @@ export class PatreonUserClientInstance extends BasePatreonClientMethods {
     public client: PatreonUserClient
 
     public constructor (client: PatreonUserClient, token: StoredToken) {
-        super(client.oauth, token)
+        super(client['rawOauthOptions'], client['rest'].options, token)
         this.client = client
         this.token = token
     }

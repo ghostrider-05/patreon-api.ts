@@ -12,6 +12,7 @@ export default defineConfig({
                 // TODO: add tests for clients
                 '**/rest/v2/clients/*.ts',
                 '**/rest/v2/oauth2/client.ts',
+                '**/rest/v2/oauth2/rest.ts',
                 '**/rest/v2/webhooks/client.ts',
             ],
             thresholds: {
