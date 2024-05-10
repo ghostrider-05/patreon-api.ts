@@ -1,0 +1,10 @@
+name = "patreon-webhook"
+compatibility_date = "2024-04-17"
+main = "./src/index.ts"
+
+compatibility_flags = [
+    "nodejs_compat"
+]
+
+[vars]
+events = ["posts:published"]

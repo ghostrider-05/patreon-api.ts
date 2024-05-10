@@ -36,7 +36,7 @@ To check for compatibility with this package, look if your platform:
 - has the globals: `fetch`, `URL` and `URLSearchParams`
   - for node.js: `v18` or higher
 - supports `ES2020`
-- supports `createHMAC` of the `node:crypto` module
+- supports `createHmac` of the `node:crypto` module
 
 ### Clients
 
@@ -52,6 +52,12 @@ const creatorClient = new PatreonCreatorClient({
     oauth: {
         clientId: process.env.PATREON_CLIENT_ID!,
         clientSecret: process.env.PATREON_CLIENT_SECRET!,
+        // Either set the token in the options
+        // or configure a store and call <Client>.initialize()
+        token: {
+            access_token: process.env.PATREON_CREATOR_ACCESS_TOKEN!,
+            refresh_token: process.env.PATREON_CREATOR_REFRESH_TOKEN!,
+        },
     },
     store: new PatreonStore.Fetch('<url>'),
 })
