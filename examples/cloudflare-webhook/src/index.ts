@@ -5,6 +5,15 @@ import {
     webhookToDiscordEmbed,
 } from '../../../src'
 
+import { NodeHtmlMarkdown } from 'node-html-markdown'
+
+// Replace this with your own html -> markdown function
+// To use this library, comment the process.env.LOG_PERF lines in dist/utilities.js and deploy
+// TODO: look into other library
+function html2md (html: string): string {
+    return new NodeHtmlMarkdown().translate(html)
+}
+
 interface EnvWithSecrets extends Env {
     DISCORD_WEBHOOK_URL: string
     PATREON_WEBHOOK_SECRET: string
@@ -34,7 +43,7 @@ export default <ExportedHandler<EnvWithSecrets>> {
                 },
                 extends(payload) {
                     return {
-                        description: payload.data.attributes.content,
+                        description: html2md(payload.data.attributes.content),
                     }
                 },
             }

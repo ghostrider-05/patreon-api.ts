@@ -116,9 +116,9 @@ export class WebhookClient {
     ) {
         const { id, ...body } = webhook
     
-        return await PatreonOauthClient.fetch(Oauth2Routes.webhooks(), createQuery(new URLSearchParams()), this.oauth, {
+        return await PatreonOauthClient.fetch(Oauth2Routes.webhook(webhook.id), createQuery(new URLSearchParams()), this.oauth, {
             ...(options ?? {}),
-            method: 'POST',
+            method: 'PATCH',
             body: JSON.stringify({
                 data: {
                     type: Type.Webhook,

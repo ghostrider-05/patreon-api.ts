@@ -1,7 +1,7 @@
 import type { Oauth2FetchOptions } from '../clients'
 import { createQuery, type BasePatreonQuery, type GetResponsePayload } from '../query'
 
-import { RestClient, type RestFetcher } from './rest'
+import { type RestClient } from './rest'
 
 import type { If } from '../../../utils/generics'
 
@@ -31,24 +31,6 @@ export interface BaseOauthClientOptions {
     validateToken?: boolean
 
     /**
-     * Replace the global fetch function with a custom one.
-     * @deprecated
-     */
-    fetch?: RestFetcher
-
-    /**
-     * If an request is missing access on, try to refresh the access token and retry the same request.
-     * @default false
-     * @deprecated
-     */
-    retryOnFailed?: boolean
-
-    /**
-     * @deprecated use {@link BaseOauthClientOptions.retryOnFailed}
-     */
-    refreshOnFailed?: boolean
-
-    /**
      * Overwrite the access token Oauth route
      * @default 'https://patreon.com/api/oauth2/token'
      */
@@ -59,13 +41,6 @@ export interface BaseOauthClientOptions {
      * @default 'https://patreon.com/oauth2/authorize'
      */
     authorizationUri?: string
-
-    /**
-     * Overwrites the user agent header of requests.
-     * @default - user agent of the library
-     * @deprecated
-     */
-    userAgent?: string
 }
 
 export interface BaseOauthHandlerOptions {
@@ -98,17 +73,12 @@ type OauthOptions = Partial<Pick<BaseOauthHandlerOptions, 'redirectUri' | 'scope
 export type PatreonOauthClientOptions = BaseOauthClientOptions & (BaseOauthHandlerOptions | {})
 
 export class PatreonOauthClient {
-    private clientOptions: PatreonOauthClientOptions
-
     public options: OauthOptions
 
     /**
      * The last (updated) token that is stored
      */
     public cachedToken: CreatorToken | StoredToken | undefined = undefined
-
-    /** @deprecated */
-    public retryOnFailed: boolean
 
     /**
      * Called when the token is refreshed
@@ -120,9 +90,6 @@ export class PatreonOauthClient {
         options: PatreonOauthClientOptions,
         private rest: RestClient,
     ) {
-        this.clientOptions = options
-        this.retryOnFailed = options.retryOnFailed ?? options.refreshOnFailed ?? false
-
         this.options = {
             accessTokenUri: options.accessTokenUri ?? 'https://patreon.com/api/oauth2/token',
             authorizationUri: options.authorizationUri ?? 'https://patreon.com/oauth2/authorize',
@@ -158,14 +125,6 @@ export class PatreonOauthClient {
         return this.rest.userAgent
     }
 
-    /** @deprecated */
-    public get fetch() {
-        const fn = this.clientOptions.fetch ?? fetch
-        if (fn == undefined) throw new Error('No global fetch function found. Specify options.fetch with your fetch function')
-
-        return fn
-    }
-
     protected static async validateToken(
         client: PatreonOauthClient,
         token: CreatorToken | StoredToken | string | undefined = client.cachedToken
@@ -191,18 +150,12 @@ export class PatreonOauthClient {
             options?.token
         ) : options?.token
 
-        const headers: Record<string, string> = options?.headers ?? {}
-        if (options?.contentType) {
-            headers['Content-Type'] = options.contentType
-        }
-
         return await oauthClient.rest.request({
             ...options,
             method: <never>options?.method ?? 'GET',
             path,
             query: query.query,
             accessToken: typeof token === 'string' ? token : token?.access_token,
-            headers,
         })
     }
 

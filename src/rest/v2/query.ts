@@ -29,12 +29,7 @@ export type PaginationQuery = {
 }
 
 export interface QueryRequestOptions extends PaginationQuery {
-    // TODO: see if this also applies to V2
-    /**
-     * This is documented to both versions, but makes more sense to work for only V1
-     * @see https://docs.patreon.com/#requesting-specific-data
-     */
-    useDefaultIncludes?: boolean
+
 }
 
 export type PatreonQuery<
@@ -93,10 +88,6 @@ function resolveQueryOptions(options?: QueryRequestOptions): Record<string, stri
     if (options?.count != undefined) params['page[count]'] = options.count.toString()
     if (options?.cursor != undefined) params['page[cursor]'] = options.cursor
     if (options?.sort != undefined) params['sort'] = resolveSortOptions(options.sort)
-
-    if (options?.useDefaultIncludes != undefined) {
-        params['json-api-use-default-includes'] = `${options.useDefaultIncludes}`
-    }
 
     return params
 }

@@ -31,9 +31,6 @@ describe('query options', () => {
         }).query).toEqual('?' + new URLSearchParams({ 'page[count]': '100', 'page[cursor]': 'cursor', sort: '-created' }).toString())
     })
 
-    test('resource options', () => {
-        expect(buildQuery.campaigns()(undefined, {
-            useDefaultIncludes: false,
-        }).query).toEqual('?' + new URLSearchParams({ 'json-api-use-default-includes': 'false' }).toString())
-    })
+    // test('resource options', () => {
+    // })
 })

@@ -356,7 +356,7 @@ export class RestClient {
                 ...(options.headers ?? {}),
             },
             method: options.method,
-            body: [RequestMethod.Get].includes(options.method)
+            body: ![RequestMethod.Get].includes(options.method)
                 ? options.body ?? null
                 : null,
             signal: options.signal!,
