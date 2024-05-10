@@ -150,8 +150,8 @@ export default {
 > In API v2, [all attributes must be explicitly requested](https://docs.patreon.com/#apiv2-oauth).
 
 - [Commonly used routes](./examples/README.md)
-- [Example Cloudflare worker](./examples/cloudflare-worker/)
-- [Example Node.js server](./examples/nodejs/)
+- [Example Cloudflare worker](./examples/cloudflare-webhook/)
+- [Example Node.js server](./examples/nodejs-esm/)
 
 ## Changelog
 
