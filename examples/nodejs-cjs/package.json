@@ -1,0 +1,17 @@
+{
+  "name": "@patreon-api.ts/nodejs-cjs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./index.js",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node -r dotenv/config . dotenv_config_path=../.env"
+  },
+  "keywords": [],
+  "author": "ghostrider-05",
+  "license": "MIT",
+  "devDependencies": {
+    "dotenv": "^16.4.5"
+  }
+}
