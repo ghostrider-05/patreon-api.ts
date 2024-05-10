@@ -22,18 +22,6 @@ type BaseFetchOptions = Omit<RequestOptions,
  */
 export interface Oauth2FetchOptions extends BaseFetchOptions {
     /**
-     * If an request is missing access on, try to refresh the access token and retry the same request.
-     * @default false
-     * @deprecated use `options.rest.retries`
-     */
-    retryOnFailed?: boolean
-
-    /**
-     * @deprecated use {@link Oauth2FetchOptions.retryOnFailed}
-     */
-    refreshOnFailed?: boolean
-
-    /**
      * Overwrite the client token with a new (access) token
      * @default undefined
      */
@@ -45,13 +33,6 @@ export interface Oauth2FetchOptions extends BaseFetchOptions {
      * @default 'GET'
      */
     method?: RequestMethod | `${RequestMethod}`
-
-    /**
-     * Overwrite the `'Content-Type'` header
-     * @default 'application/json'
-     * @deprecated
-     */
-    contentType?: string
 }
 
 /**

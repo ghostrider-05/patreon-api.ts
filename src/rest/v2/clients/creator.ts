@@ -1,6 +1,6 @@
-import { BasePatreonClient, StoredToken } from './base'
+import { PatreonClient, StoredToken } from './base'
 
-export class PatreonCreatorClient extends BasePatreonClient {
+export class PatreonCreatorClient extends PatreonClient {
     /**
      * Calls {@link PatreonCreatorClient.fetchApplicationToken}.
      * @returns Whether the call was successful or not
@@ -21,7 +21,7 @@ export class PatreonCreatorClient extends BasePatreonClient {
         | { success: false, token: undefined }
         >
     {
-        const stored = await BasePatreonClient.fetchStored(this['store'])
+        const stored = await PatreonClient.fetchStored(this['store'])
         if (!stored) return { success: false, token: undefined }
 
         const updated = await this.oauth.refreshToken(stored)

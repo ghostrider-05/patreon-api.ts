@@ -52,10 +52,7 @@ export type PatreonClientOptions = {
     store?: PatreonTokenFetchOptions
 }
 
-/** @deprecated */
-export type PatreonInitializeClientOptions = PatreonClientOptions & Required<Pick<PatreonClientOptions, 'store'>>
-
-export abstract class BasePatreonClient extends BasePatreonClientMethods {
+export abstract class PatreonClient extends BasePatreonClientMethods {
     private store: PatreonTokenFetchOptions | undefined = undefined
 
     /**
@@ -88,19 +85,6 @@ export abstract class BasePatreonClient extends BasePatreonClientMethods {
         }
     }
 
-    /**
-     * @param options The client options to initialize the client with.
-     * The store option is required.
-     * @deprecated
-     * @returns a base client.
-     */
-    public static async initialize(options: PatreonInitializeClientOptions): Promise<PatreonClient> {
-        const token = await this.fetchStored(options.store)
-        if (token) options.oauth.token ??= token
-
-        return new PatreonClient(options)
-    }
-
     protected static async fetchStored(store?: PatreonTokenFetchOptions): Promise<StoredToken | undefined> {
         const stored = await store?.get()
         if (stored == undefined) return undefined
@@ -115,7 +99,7 @@ export abstract class BasePatreonClient extends BasePatreonClientMethods {
      * @returns the stored token, if `options.store.get` is defined and returns succesfully.
      */
     public async fetchStoredToken(): Promise<StoredToken | undefined> {
-        return BasePatreonClient.fetchStored(this.store)
+        return PatreonClient.fetchStored(this.store)
     }
 
     /**
@@ -128,6 +112,3 @@ export abstract class BasePatreonClient extends BasePatreonClientMethods {
         if (cache) this.oauth.cachedToken = token
     }
 }
-
-/** @deprecated */
-export class PatreonClient extends BasePatreonClient {}
