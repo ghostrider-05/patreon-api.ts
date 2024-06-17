@@ -6,6 +6,9 @@ jobs:
   test_coverage:
     name: Test coverage
     runs-on: ubuntu-latest
+    # Only needs to run on head branch since that will become the new base
+    # and coverage needs to pass before merging
+    if: ${{ github.event_name == 'pull_request' }}
     strategy:
       matrix:
         node-version:
@@ -32,7 +35,7 @@ jobs:
   labeler:
     name: Pull Request labeler
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request_target'}}
+    if: ${{ github.event_name == 'pull_request_target' }}
     permissions:
       contents: read
       pull-requests: write
