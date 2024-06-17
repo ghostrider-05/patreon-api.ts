@@ -1,7 +1,7 @@
 name: Bug report
 description: Create a report to track incorrect or broken things
 labels:
-  - "bug"
+  - "bug:pending triage"
 body:
   - type: textarea
     id: description
@@ -33,7 +33,7 @@ body:
         Node version: 20.x.x
         Npm version: 10.x.x
         Patreon-api.ts version: 0.x.x
-  - type: input
+  - type: textarea
     id: fix
     attributes:
       label: Potential fixes
