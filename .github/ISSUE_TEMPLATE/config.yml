@@ -1,1 +1,8 @@
 blank_issues_enabled: true
+contact_links:
+  - name: Patreon Developer forum
+    url: https://www.patreondevelopers.com/
+    about: If your question or feedback is not related to this library, use the official forum
+  - name: Library Questions & discussions
+    url: https://github.com/ghostrider-05/patreon-api.ts/discussions
+    about: If you have a question about using this library, you can use GitHub discussions
