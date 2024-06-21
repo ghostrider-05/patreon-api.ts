@@ -1,18 +1,19 @@
 import { describe, expectTypeOf, test } from 'vitest'
 
+// TODO: create tests for types not included
 import {
     Type,
     type AttributeItem,
     type DataItem,
     type DataItems,
-    type GetResponsePayload,
+    // type GetResponsePayload,
     type Item,
-    type PatreonQuery,
-    type Relationship,
+    // type PatreonQuery,
+    // type Relationship,
     type RelationshipFieldToFieldType,
     type RelationshipFields,
-    type RelationshipItem,
-    type RelationshipMainItemAttributes,
+    // type RelationshipItem,
+    // type RelationshipMainItemAttributes,
     type RelationshipMap,
     type RelationshipTypeFields
 } from '../../v2'
@@ -23,6 +24,10 @@ import type { Tuple } from '../../utils/generics'
 
 const empty: Record<string, never> = {}
 
+/**
+ * @param items the items to create a tuple type of
+ * @returns a tupled type of `items`
+ */
 function createTuple <T extends string>(items: T[]): Tuple<T, typeof items['length']> {
     return items
 }

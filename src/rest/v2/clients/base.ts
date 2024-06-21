@@ -63,7 +63,7 @@ export abstract class PatreonClient extends BasePatreonClientMethods {
 
     /**
      * Interact with the webhooks API.
-     * 
+     *
      * Client to use for creating, updating and getting webhooks from the current client.
      */
     public webhooks: WebhookClient

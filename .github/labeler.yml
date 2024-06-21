@@ -3,7 +3,7 @@ examples:
     - any-glob-to-any-file:
       - 'examples/*'
       - 'examples/**'
-tests:
+test:
   - changed-files:
     - any-glob-to-any-file:
       - 'src/__tests__/*'

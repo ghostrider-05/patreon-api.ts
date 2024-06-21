@@ -120,6 +120,7 @@ export class PatreonOauthClient {
 
     /**
      * The user agent header for requests
+     * @returns the (readonly) user agent that is sent on API requests
      */
     public get userAgent(): string {
         return this.rest.userAgent
@@ -139,6 +140,14 @@ export class PatreonOauthClient {
         return refreshed
     }
 
+    /**
+     * Make a request to the Patreon API
+     * @param path the path of the resource
+     * @param query The query wrapper to include more fields
+     * @param oauthClient The client that is requesting the API
+     * @param options additional request options
+     * @returns the response body, parsed.
+     */
     public static async fetch<Query extends BasePatreonQuery>(
         path: string,
         query: Query,
@@ -159,6 +168,16 @@ export class PatreonOauthClient {
         })
     }
 
+    /**
+     * Make a paginated request to the Patreon API.
+     * @param path the resource path
+     * @param query the wrapped query to include fields
+     * @param oauthClient the client that is requesting this resource
+     * @param options additional request options
+     * @yields a page of the request resource
+     * @returns the async generator to paginate through the response.
+     * @example See `./examples/README.md` in the GitHub repo
+     */
     public static async* paginate<Query extends BasePatreonQuery>(
         path: string,
         query: Query,
@@ -239,6 +258,14 @@ export class PatreonOauthClient {
         return this.createOauthUri()
     }
 
+    /**
+     * Create a Oauth2 Authorization uri. This is the first step in the Oauth2 process.
+     * @param options The Oauth2 client options
+     * @param options.redirectUri The uri to redirect to after authorization
+     * @param options.scopes The scopes to request for this client.
+     * @param options.state The state to check after authorization.
+     * @returns the uri to redirect the user to in order to authorize this client.
+     */
     public createOauthUri(options?: { redirectUri?: string, scopes?: string[], state?: string }) {
         const redirectUri = options?.redirectUri ?? this.options.redirectUri
 
@@ -261,11 +288,21 @@ export class PatreonOauthClient {
         return this.options.authorizationUri + '?' + params.toString()
     }
 
+    /**
+     * Check if a token is likely expired
+     * @param token The token to check
+     * @returns `true` only if `token.expires_in_epoch` is present and not in the past
+     */
     public static isExpired(token: CreatorToken | StoredToken): boolean {
         if (!token.expires_in_epoch) return false
         else return Date.now() > parseInt(token.expires_in_epoch)
     }
 
+    /**
+     * Create a stored version of a token by including the current timestamp
+     * @param token The token to create a stored version of
+     * @returns the same token if `expires_in` is missing. Otherwise the stored token version.
+     */
     public static toStored<SupportsCreator extends boolean = true>(token: Token | CreatorToken): If<SupportsCreator, StoredToken | CreatorToken, StoredToken> {
         if (!token.expires_in) return <never>token
         const now = new Date()

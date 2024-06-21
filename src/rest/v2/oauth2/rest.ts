@@ -1,5 +1,5 @@
-import { VERSION } from "../../../utils"
-import { RouteBases } from "../routes"
+import { VERSION } from '../../../utils'
+import { RouteBases } from '../routes'
 
 export type RestResponse = Pick<Response,
     | 'body'
@@ -52,7 +52,7 @@ export interface RESTOptions {
 
     /**
      * The amount of times to retry failed or aborted requests.
-     * 
+     *
      * Can be applied to all statuses, ranges or a specific status.
      * @default 3
      */
@@ -175,6 +175,12 @@ export interface PatreonErrorData {
     }
 }
 
+/**
+ * Get the amount to retry the failed request
+ * @param options the client options for retrying requests
+ * @param status The response status. `null` if no response is assiocated
+ * @returns the final retry amount
+ */
 function getRetryAmount (options: RestRetries, status: number | null): number {
     if (status == null) {
         return <number>DefaultRestOptions.retries
@@ -191,6 +197,11 @@ function getRetryAmount (options: RestRetries, status: number | null): number {
     }
 }
 
+/**
+ * Parse a response from Patreon
+ * @param response the REST response
+ * @returns the parsed body
+ */
 async function parseResponse <Parsed = unknown>(response: RestResponse) {
     return await response.json() as Promise<Parsed>
 }
@@ -212,11 +223,11 @@ class PatreonError extends Error implements PatreonErrorData {
         super(error.title)
 
         this.id = error.id
-        this.code = error.code;
-        this.code_name = error.code_name;
-        this.detail = error.detail;
-        this.status = error.status;
-        this.title = error.title;
+        this.code = error.code
+        this.code_name = error.code_name
+        this.detail = error.detail
+        this.status = error.status
+        this.title = error.title
     }
 
     public override get name () {
@@ -225,7 +236,7 @@ class PatreonError extends Error implements PatreonErrorData {
 }
 
 export class RestClient {
-    public readonly options: RESTOptions;
+    public readonly options: RESTOptions
 
     public constructor (
         options: Partial<RESTOptions> = {},
@@ -302,22 +313,22 @@ export class RestClient {
 
     private async makeRequest (options: InternalRequestOptions & { currentRetries: number }) {
         // copied from @discordjs/rest
-        const controller = new AbortController();
-	    const timeout = setTimeout(() => controller.abort(), options.timeout ?? 15_000);
+        const controller = new AbortController()
+	    const timeout = setTimeout(() => controller.abort(), options.timeout ?? 15_000)
 
         if (options.signal) {
-            if (options.signal.aborted) controller.abort();
-            else options.signal.addEventListener('abort', () => controller.abort());
+            if (options.signal.aborted) controller.abort()
+            else options.signal.addEventListener('abort', () => controller.abort())
         }
 
         const fetchAPI = this.buildRequest(options)
 
-        let res: RestResponse;
+        let res: RestResponse
 
         try {
             res = await fetchAPI()
         } catch (error: unknown) {
-            if (!(error instanceof Error)) throw error;
+            if (!(error instanceof Error)) throw error
 
             if (this.shouldRetry(options.currentRetries, null, error)) {
                 return null
@@ -328,7 +339,7 @@ export class RestClient {
             clearTimeout(timeout)
         }
 
-        return res;
+        return res
     }
 
     private buildRequest (options: InternalRequestOptions) {
@@ -359,7 +370,8 @@ export class RestClient {
             body: ![RequestMethod.Get].includes(options.method)
                 ? options.body ?? null
                 : null,
-            signal: options.signal!,
+            // AbortSignal | undefined is not a possible type...
+            signal: <AbortSignal>options.signal,
         })
     }
 
@@ -376,6 +388,11 @@ export class RestClient {
         return amount !== current
     }
 
+    /**
+     * Get Patreon headers from a response
+     * @param response the response from Patreon
+     * @returns the extracted headers
+     */
     public getHeaders (response: RestResponse): PatreonHeadersData {
         return {
             sha: response.headers.get(PATREON_RESPONSE_HEADERS.Sha),

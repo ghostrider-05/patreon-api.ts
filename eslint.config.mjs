@@ -19,6 +19,10 @@ export default [
         },
         ignores: [
             '**/*.test.ts',
+            // Ignore current file
+            'eslint.config.mjs',
+            // Ignore vitest config
+            'vitest.config.mts',
         ],
         plugins: {
             jsdoc,
@@ -34,7 +38,8 @@ export default [
             ],
             'linebreak-style': [
                 'error',
-                'windows'
+                // eslint-disable-next-line no-undef
+                process.platform === 'win32' ? 'windows' : 'unix',
             ],
             'quotes': [
                 'error',
