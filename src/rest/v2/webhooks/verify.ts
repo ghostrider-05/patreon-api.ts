@@ -1,8 +1,8 @@
-import { createHmac } from "node:crypto";
+import { createHmac } from 'node:crypto'
 
-import { WebhookClient } from "./client";
-import { PatreonWebhookTrigger } from "./triggers";
-import { WebhookPayload } from "../../../payloads/v2/webhook";
+import { WebhookClient } from './client'
+import { PatreonWebhookTrigger } from './triggers'
+import { WebhookPayload } from '../../../payloads/v2/webhook'
 
 /**
  * Verify an incoming webhook request
@@ -10,6 +10,7 @@ import { WebhookPayload } from "../../../payloads/v2/webhook";
  * @param signature The signature of the request. Can be found in the request headers
  * @param body The raw request body
  * @throws if no secret is given
+ * @returns whether the signature is valid for the assiocated body
  */
 export function verify (
     secret: string,
@@ -28,6 +29,7 @@ export function verify (
  * @param secret The secret of the webhook to use for verifying the request
  * @throws if no secret is given
  * @throws if no event header is not found
+ * @returns the parsed request body and event, or indicates if the verification has failed
  */
 export async function parseWebhookRequest <
     Trigger extends PatreonWebhookTrigger = PatreonWebhookTrigger
@@ -52,6 +54,6 @@ export async function parseWebhookRequest <
     return {
         event: <Trigger> headers.event,
         payload: JSON.parse(body) as WebhookPayload<Trigger>,
-        verified: <true>true,
+        verified: <const>true,
     }
 }

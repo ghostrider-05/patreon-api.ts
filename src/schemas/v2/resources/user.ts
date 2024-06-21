@@ -1,25 +1,25 @@
 // Copied from a /campaigns/id response since no documentation is present
 // TODO: update on new docs
-type RawSocialConnections = { 
-    "discord": {
-        "scopes": string[],
-        "user_id": string
+type RawSocialConnections = {
+    'discord': {
+        'scopes': string[],
+        'user_id': string
     },
-    "facebook": null,
-    "google": null,
-    "instagram": null,
-    "reddit": null,
-    "spotify": null,
-    "spotify_open_access": null,
-    "tiktok": null,
-    "twitch": null,
-    "twitter": {
-        "url": string,
-        "user_id": string
+    'facebook': null,
+    'google': null,
+    'instagram': null,
+    'reddit': null,
+    'spotify': null,
+    'spotify_open_access': null,
+    'tiktok': null,
+    'twitch': null,
+    'twitter': {
+        'url': string,
+        'user_id': string
     },
-    "twitter2": null,
-    "vimeo": null,
-    "youtube": null
+    'twitter2': null,
+    'vimeo': null,
+    'youtube': null
 }
 
 export type SocialConnectionPlatform = keyof RawSocialConnections
@@ -84,7 +84,7 @@ export interface User {
 
     /**
      * Mapping from user's connected app names to external user id on the respective app
-     * 
+     *
      * NOTE: since the documentation is `object`, this can change without notice.
      * For a more accurate representation use the following type:
      * ```ts

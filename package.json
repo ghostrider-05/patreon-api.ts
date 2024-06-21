@@ -9,7 +9,8 @@
     "prestart": "npx tsc && npx gen-esm-wrapper ./dist/index.js ./dist/index.mjs",
     "test": "vitest --typecheck",
     "test:coverage": "vitest run --typecheck --coverage",
-    "lint": "npx eslint --fix src/**/*.ts"
+    "lint": "npx eslint src/**/*.ts",
+    "lint:fix": "npx eslint --fix src/**/*.ts"
   },
   "engines": {
     "node": ">=18.17"

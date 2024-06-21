@@ -23,7 +23,7 @@ export class PatreonUserClientInstance extends BasePatreonClientMethods {
             .then(res => {
                 const option = <{ user_id: string } | null>(res?.data.attributes.social_connections.discord ?? null)
                 return option?.user_id
-        })
+            })
     }
 }
 

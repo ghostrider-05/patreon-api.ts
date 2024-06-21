@@ -70,7 +70,7 @@ export const Oauth2Routes = {
 
     /**
      * Routes for:
-     * 
+     *
      * - PATCH `/webhooks/{webhookId}`
      * @param webhookId The id of the webhook
      */
@@ -80,7 +80,7 @@ export const Oauth2Routes = {
 
     /**
      * Routes for:
-     * 
+     *
      * - GET `/webhooks`
      * - POST `/webhooks`
      */

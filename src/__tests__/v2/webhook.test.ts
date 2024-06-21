@@ -1,6 +1,14 @@
-import { expect, describe, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
-import { PatreonWebhookTrigger, Type, WebhookPayload, WebhookToDiscordMessages, parseWebhookRequest, verify, webhookToDiscordEmbed } from '../../v2'
+import {
+    PatreonWebhookTrigger,
+    Type,
+    parseWebhookRequest,
+    verify,
+    webhookToDiscordEmbed,
+    type WebhookPayload,
+    type WebhookToDiscordMessages,
+} from '../../v2'
 
 describe('webhook utilities', () => {
     describe('webhook verify', () => {
@@ -137,7 +145,7 @@ describe('webhook platforms', () => {
                         url: patron.url,
                     } : undefined
                 },
-                extends(payload, replacer) {
+                extends(payload) {
                     return {
                         description: payload.data.attributes.content ?? '',
                         url: payload.data.attributes.url,

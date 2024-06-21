@@ -104,7 +104,7 @@ type RelationDataItem<RelationType extends Type | `${Type}`, Index extends Relat
 
 /**
  * For an resource, returns the relationship names that this resource can have.
- * In the API documentation 
+ * In the API documentation
  * @see https://docs.patreon.com/#apiv2-resources beneath each resource table the `relationships` table
  */
 export type RelationshipFields<T extends Type | `${Type}`> = keyof RelationDataItem<T, 1> extends infer Key

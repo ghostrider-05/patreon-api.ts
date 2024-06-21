@@ -6,14 +6,14 @@ import {
     type PostWebhookBody,
     type Relationship,
     type Webhook,
-} from "../../../schemas/v2";
-import { type WebhookPayload } from "../../../payloads/v2";
+} from '../../../schemas/v2'
+import { type WebhookPayload } from '../../../payloads/v2'
 
-import { Oauth2Routes } from "../oauth2";
-import { createQuery, type BasePatreonQueryType, type GetResponsePayload } from "../query";
+import { Oauth2Routes } from '../oauth2'
+import { createQuery, type BasePatreonQueryType, type GetResponsePayload } from '../query'
 
-import type { Oauth2RouteOptions } from "../clients/baseMethods";
-import { PatreonOauthClient } from "../oauth2/client";
+import type { Oauth2RouteOptions } from '../clients/baseMethods'
+import { PatreonOauthClient } from '../oauth2/client'
 
 export type Oauth2WebhookRouteOptions = Omit<Oauth2RouteOptions, 'body' | 'contentType'>
 
@@ -33,6 +33,11 @@ export type APIPostWebhookResponse = DataItem<Type.Webhook, false> & {
     }
 }
 
+/**
+ * Gets the assiocated user from the webhook request
+ * @param payload the webhook parsed body
+ * @returns the user / patron id
+ */
 export function getWebhookUserId (payload: WebhookPayload): string {
     return 'user' in payload.data.relationships
         ? payload.data.relationships.user.data.id
@@ -65,6 +70,7 @@ export class WebhookClient {
      * Creates a new webhook owned by this client.
      * @param webhook The webhook data: uri, event triggers and the campaign of the events
      * @param options Request options
+     * @returns the API response from Patreon: either the created webhook on success or `undefined` when failed.
      */
     public async createWebhook (
         webhook: CreateWebhookBody,
@@ -97,6 +103,7 @@ export class WebhookClient {
      * Fetch webhooks created by this client
      * @param query The query to fetch attributes and relationships
      * @param options Request options
+     * @returns the webhooks managed by this client
      */
     public async fetchWebhooks<Query extends BasePatreonQueryType<Type.Webhook, true>>(
         query: Query,
@@ -106,23 +113,24 @@ export class WebhookClient {
     }
 
     /**
-     * Edit the webhook, created by this client, attributes 
+     * Edit the webhook, created by this client, attributes
      * @param webhook The data to edit
      * @param options Request options
+     * @returns The updated webhook or `undefined` when failed to update
      */
     public async editWebhook (
         webhook: PatchWebhookBody & { id: string },
         options?: Oauth2WebhookRouteOptions,
     ) {
         const { id, ...body } = webhook
-    
-        return await PatreonOauthClient.fetch(Oauth2Routes.webhook(webhook.id), createQuery(new URLSearchParams()), this.oauth, {
+
+        return await PatreonOauthClient.fetch(Oauth2Routes.webhook(id), createQuery(new URLSearchParams()), this.oauth, {
             ...(options ?? {}),
             method: 'PATCH',
             body: JSON.stringify({
                 data: {
                     type: Type.Webhook,
-                    id: webhook.id,
+                    id,
                     attributes: body,
                 },
             }),
@@ -131,9 +139,10 @@ export class WebhookClient {
 
     /**
      * Check if the webhook should be unpaused as events have failed to send.
-     * 
+     *
      * If `true`, you can call {@link unpauseWebhook}.
      * @param webhook The webhook to check for unsent events
+     * @returns whether the webhook has failed events that can be resent
      */
     public hasUnsentEvents (webhook: Webhook): boolean {
         return webhook.num_consecutive_times_failed > 0
@@ -143,6 +152,7 @@ export class WebhookClient {
      * To temporarily pause events, such as when updating servers or deploying a new version.
      * @param webhookId The webhook to pause events for
      * @param options Request options
+     * @returns the updated (paused) webhook
      */
     public async pauseWebhook (
         webhookId: string,
@@ -158,6 +168,7 @@ export class WebhookClient {
      * Continue sending events to this webhook.
      * @param webhookId The webhook to unpause events for
      * @param options Request options
+     * @returns the updated (unpaused) webhook
      */
     public async unpauseWebhook (
         webhookId: string,

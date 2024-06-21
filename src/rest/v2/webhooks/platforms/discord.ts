@@ -1,9 +1,9 @@
-import { 
+import {
     PatreonWebhookTrigger,
     Type,
     User,
     WebhookPayload,
-} from "../../../../v2";
+} from '../../../../v2'
 
 import { getWebhookUserId } from '../client'
 
@@ -11,7 +11,7 @@ interface WebhookToDiscordMessage<Trigger extends PatreonWebhookTrigger, Title> 
     /**
      * For each type, the embed title.
      * Set context values in brackets: {key}
-     * 
+     *
      * Available keys:
      * - user_id
      * - campaign_id
@@ -28,6 +28,7 @@ interface WebhookToDiscordMessage<Trigger extends PatreonWebhookTrigger, Title> 
     extends?: (
         payload: WebhookPayload<Trigger>,
         replacer: (str: string) => string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ) => Record<string, any>
 }
 
@@ -35,8 +36,21 @@ export type WebhookToDiscordMessages = Partial<{
     [E in PatreonWebhookTrigger]: WebhookToDiscordMessage<E, string>
 }>
 
+/**
+ * Easily convert a Patreon webhook to a Discord embed
+ * @param trigger The event from the Patreon webhook headers
+ * @param payload The incoming webhook payload from Patreon
+ * @param messages The options to convert webhook payloads to embed fields
+ * @returns Discord embeds that can be sent using webhooks.
+ * `undefined` if no options are found for this trigger.
+ */
 export function webhookToDiscordEmbed (trigger: PatreonWebhookTrigger, payload: WebhookPayload, messages: WebhookToDiscordMessages) {
-    function replace (obj: Record<string, string>) {
+    /**
+     * Replaces a string with template keys with their values: `{title} is new!` -> `My new post is new!`
+     * @param obj the options with the template values
+     * @returns a string with all template values replaced
+     */
+    function replaceTemplateKeys (obj: Record<string, string>) {
         return (str: string) => {
             for (const key of Object.keys(obj)) {
                 str = str.replaceAll(`{${key}}`, obj[key])
@@ -53,7 +67,7 @@ export function webhookToDiscordEmbed (trigger: PatreonWebhookTrigger, payload: 
     const user = <IncludedUser | undefined>payload.included.find((included) => included.type === Type.User && userId === included.id)
 
     const option = messages[trigger]
-    const replacer = replace({
+    const replacer = replaceTemplateKeys({
         ...(option?.addContextKeys?.(<never>payload) ?? {}),
         user_id: userId,
         campaign_id: campaignId,
