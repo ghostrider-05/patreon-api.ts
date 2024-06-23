@@ -5,13 +5,17 @@ import {
     webhookToDiscordEmbed,
 } from '../../../src'
 
-import { NodeHtmlMarkdown } from 'node-html-markdown'
+import turndownService from 'turndown'
 
 // Replace this with your own html -> markdown function
-// To use this library, comment the process.env.LOG_PERF lines in dist/utilities.js and deploy
-// TODO: look into other library
+/**
+ * Convert HTML to markdown
+ * @param html The HTML to convert
+ * @returns The created markdown
+ */
 function html2md (html: string): string {
-    return new NodeHtmlMarkdown().translate(html)
+    const service = turndownService()
+    return service.turndown(html)
 }
 
 interface EnvWithSecrets extends Env {
