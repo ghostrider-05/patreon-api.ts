@@ -1,5 +1,5 @@
 import {
-    BasePatreonClientMethods,
+    PatreonClientMethods,
     type Oauth2FetchOptions,
     type Oauth2RouteOptions,
 } from './baseMethods'
@@ -52,7 +52,7 @@ export type PatreonClientOptions = {
     store?: PatreonTokenFetchOptions
 }
 
-export abstract class PatreonClient extends BasePatreonClientMethods {
+export abstract class PatreonClient extends PatreonClientMethods {
     private store: PatreonTokenFetchOptions | undefined = undefined
 
     /**

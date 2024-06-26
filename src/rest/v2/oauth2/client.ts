@@ -252,7 +252,7 @@ export class PatreonOauthClient {
     /**
      * The uri to redirect users to in the first step of the Oauth flow
      * @returns the url to use for redirecting the user to
-     * @throws if the redirectUri is not defined
+     * @throws if the redirectUri is not defined or an empty string
      */
     public get oauthUri(): string {
         return this.createOauthUri()
@@ -264,6 +264,7 @@ export class PatreonOauthClient {
      * @param options.redirectUri The uri to redirect to after authorization
      * @param options.scopes The scopes to request for this client.
      * @param options.state The state to check after authorization.
+     * @throws if the redirectUri is not defined or an empty string, in both the options and client options
      * @returns the uri to redirect the user to in order to authorize this client.
      */
     public createOauthUri(options?: { redirectUri?: string, scopes?: string[], state?: string }) {
