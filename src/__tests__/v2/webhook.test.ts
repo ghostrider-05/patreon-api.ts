@@ -3,9 +3,11 @@ import { describe, expect, test } from 'vitest'
 import {
     PatreonWebhookTrigger,
     Type,
+    WebhookClient,
     parseWebhookRequest,
     verify,
     webhookToDiscordEmbed,
+    type Webhook,
     type WebhookPayload,
     type WebhookToDiscordMessages,
 } from '../../v2'
@@ -78,6 +80,28 @@ describe('webhook utilities', () => {
                 return result
             })()).toEqual('failed to get event header from request for webhooks')
         })
+    })
+})
+
+describe('webhook client', () => {
+    test('webhook headers', () => {
+        const headers = new Headers({
+            [WebhookClient.headers.event]: 'event',
+            [WebhookClient.headers.signature]: 'signature'
+        })
+
+        expect(WebhookClient.getWebhookHeaders(headers)).toHaveProperty('event', 'event')
+        expect(WebhookClient.getWebhookHeaders(headers)).toHaveProperty('signature', 'signature')
+    })
+
+    test('webhook paused', () => {
+        const webhook: Partial<Webhook> = {
+            num_consecutive_times_failed: 0,
+        }
+
+        const webhookClient = new WebhookClient(<never>{})
+
+        expect(webhookClient.hasUnsentEvents(<Webhook>webhook)).toBeFalsy()
     })
 })
 

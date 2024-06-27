@@ -30,7 +30,7 @@ jobs:
       - name: Run tsc
         run: npm run prestart
 
-      - name: Run tests
+      - name: Run test coverage
         run: npm run test:coverage
   labeler:
     name: Pull Request labeler

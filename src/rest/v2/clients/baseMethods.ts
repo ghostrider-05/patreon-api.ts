@@ -54,7 +54,7 @@ interface OauthClient {
     ): AsyncGenerator<GetResponsePayload<Query>, number>
 }
 
-export class BasePatreonClientMethods implements OauthClient {
+export abstract class PatreonClientMethods implements OauthClient {
     public oauth: PatreonOauthClient
     protected rest: RestClient
 
@@ -84,7 +84,7 @@ export class BasePatreonClientMethods implements OauthClient {
             options.token ??= this._token
         }
 
-        return await PatreonOauthClient.fetch<Query>(path, query, this.oauth, options)
+        return await this.oauth.fetch<Query>(path, query, options)
     }
 
     public listOauth2<Query extends BasePatreonQuery>(
@@ -97,7 +97,7 @@ export class BasePatreonClientMethods implements OauthClient {
             options.token ??= this._token
         }
 
-        return PatreonOauthClient.paginate(path, query, this.oauth, options)
+        return this.oauth.paginate(path, query, options)
     }
 
     public async fetchCampaigns <Query extends BasePatreonQueryType<Type.Campaign, true>>(query: Query, options?: Oauth2RouteOptions) {
@@ -140,3 +140,6 @@ export class BasePatreonClientMethods implements OauthClient {
         return this.listOauth2<Query>(Oauth2Routes.campaignPosts(campaignId), query, options)
     }
 }
+
+/** @deprecated */
+export class BasePatreonClientMethods extends PatreonClientMethods {}
