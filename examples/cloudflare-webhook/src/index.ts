@@ -3,24 +3,14 @@ import {
     WebhookToDiscordMessages,
     parseWebhookRequest,
     webhookToDiscordEmbed,
-} from '../../../src'
+} from 'patreon-api.ts'
 
-import turndownService from 'turndown'
+import { renderPost } from './md'
 
-// Replace this with your own html -> markdown function
-/**
- * Convert HTML to markdown
- * @param html The HTML to convert
- * @returns The created markdown
- */
-function html2md (html: string): string {
-    const service = turndownService()
-    return service.turndown(html)
-}
-
-interface EnvWithSecrets extends Env {
+interface EnvWithSecrets {
     DISCORD_WEBHOOK_URL: string
     PATREON_WEBHOOK_SECRET: string
+    HTML_MD_KEY: string
 }
 
 export default <ExportedHandler<EnvWithSecrets>> {
@@ -35,6 +25,7 @@ export default <ExportedHandler<EnvWithSecrets>> {
         }
 
         const { event, payload } = result
+        const description = await renderPost(payload.data.attributes.content, env.HTML_MD_KEY)
 
         const options: WebhookToDiscordMessages = {
             [PatreonWebhookTrigger.PostPublished]: {
@@ -45,9 +36,9 @@ export default <ExportedHandler<EnvWithSecrets>> {
                         title: payload.data.attributes.title,
                     }
                 },
-                extends(payload) {
+                extends() {
                     return {
-                        description: html2md(payload.data.attributes.content),
+                        description,
                     }
                 },
             }
