@@ -3,7 +3,7 @@ on:
   push:
     branches: main
     paths: 
-      - 'examples/cloudflare-webhook/'  
+      - 'examples/cloudflare-webhook/**'  
 jobs:
   examples:
     name: Deploy examples
