@@ -5,6 +5,3 @@ main = "./src/index.ts"
 compatibility_flags = [
     "nodejs_compat"
 ]
-
-[vars]
-events = ["posts:published"]

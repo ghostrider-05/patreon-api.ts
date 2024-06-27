@@ -4,7 +4,7 @@
 const {
     buildQuery,
     PatreonCreatorClient,
-} = require('../../dist/')
+} = require('patreon-api.ts')
 
 const client = new PatreonCreatorClient({
     oauth: {

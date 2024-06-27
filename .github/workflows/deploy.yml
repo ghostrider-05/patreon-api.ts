@@ -1,0 +1,42 @@
+name: Deploy
+on:
+  push:
+    branches: main
+    paths: 
+      - 'examples/cloudflare-webhook/'  
+jobs:
+  examples:
+    name: Deploy examples
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 20.x
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install node.js v${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install dependencies
+        # TODO: remove on ts-lint@v8
+        run: npm install --legacy-peer-deps
+
+      - name: Deploy cloudflare-webhook
+        uses: cloudflare/wrangler-action@v3
+        env: 
+          DISCORD_WEBHOOK_URL: ${{ secrets.CW_DISCORD_WEBHOOK_URL }}
+          HTML_MD_KEY: ${{ secrets.CW_HTML_MD_KEY }}
+          PATREON_WEBHOOK_SECRET: ${{ secrets.CW_PATREON_WEBHOOK_SECRET }}
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: examples/cloudflare-webhook/
+          secrets: |
+            HTML_MD_KEY
+            PATREON_WEBHOOK_SECRET
+            DISCORD_WEBHOOK_URL

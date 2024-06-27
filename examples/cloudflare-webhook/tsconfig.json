@@ -1,5 +1,7 @@
 {
     "compilerOptions": {
+        "resolveJsonModule": true,
+        "lib": ["ES2015"],
         "types": [
             "@cloudflare/workers-types/2023-07-01",
             "./src/types.d.ts"
