@@ -3,7 +3,7 @@
   "compilerOptions": {
     "alwaysStrict": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "dist",
+    "outDir": "tsc-generated",
     "lib": ["esnext"],
     // Uncomment types to check global modules
     // "types": [],
@@ -22,7 +22,8 @@
     "exactOptionalPropertyTypes": true
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "tsup.config.ts"
   ],
   "exclude": [
     "coverage",

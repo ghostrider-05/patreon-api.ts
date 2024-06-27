@@ -79,6 +79,9 @@ web_modules/
 .env.production.local
 .env.local
 
+# tsc output
+tsc-generated
+
 # Example projects
 examples/**/.wrangler
 examples/**/secrets.json

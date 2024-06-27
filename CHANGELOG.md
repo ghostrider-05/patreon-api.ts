@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.6.1](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.6.0...patreon-api.ts-v0.6.1) (2024-06-27)
+
+
+### Bug Fixes
+
+* **build:** add node: prefix to node packages ([d85fb54](https://github.com/ghostrider-05/patreon-api.ts/commit/d85fb547b2f0dc694b82a7fee2869c3b8a1b151d))
+* **build:** move to tsup and fix esm exports ([d85fb54](https://github.com/ghostrider-05/patreon-api.ts/commit/d85fb547b2f0dc694b82a7fee2869c3b8a1b151d))
+* **ci:** fix test command ([39b7251](https://github.com/ghostrider-05/patreon-api.ts/commit/39b72515d509dd2a1992b63beab558518fb3408a))
+* **ci:** update release action ([#36](https://github.com/ghostrider-05/patreon-api.ts/issues/36)) ([062c4c0](https://github.com/ghostrider-05/patreon-api.ts/commit/062c4c0edd5e6a10cc8e533a8f209ac8de13f0ba))
+* **ci:** update tests labeler ([39b7251](https://github.com/ghostrider-05/patreon-api.ts/commit/39b72515d509dd2a1992b63beab558518fb3408a))
+* **examples:** use workspace package ([d85fb54](https://github.com/ghostrider-05/patreon-api.ts/commit/d85fb547b2f0dc694b82a7fee2869c3b8a1b151d))
+* **examples:** working html to markdown in webhook worker ([#38](https://github.com/ghostrider-05/patreon-api.ts/issues/38)) ([d85fb54](https://github.com/ghostrider-05/patreon-api.ts/commit/d85fb547b2f0dc694b82a7fee2869c3b8a1b151d))
+* **lint:** resolve eslint errors ([#35](https://github.com/ghostrider-05/patreon-api.ts/issues/35)) ([39b7251](https://github.com/ghostrider-05/patreon-api.ts/commit/39b72515d509dd2a1992b63beab558518fb3408a))
+
 ## [0.6.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.5.0...patreon-api.ts-v0.6.0) (2024-05-10)
 
 

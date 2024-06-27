@@ -4,7 +4,7 @@ import {
     buildQuery,
     PatreonCreatorClient,
     PatreonWebhookTrigger,
-} from '../../dist/index.js'
+} from 'patreon-api.ts'
 
 const client = new PatreonCreatorClient({
     oauth: {
@@ -45,7 +45,13 @@ if (createWebhook) {
 
     console.log(JSON.stringify(test, null, 4))
 } else {
-    const test = await client.webhooks.fetchWebhooks(buildQuery.webhooks(['campaign'])())
+    const webhooks = await client.webhooks.fetchWebhooks(buildQuery.webhooks(['campaign'])())
 
-    console.log(JSON.stringify(test, null, 4))
+    for (const webhook of webhooks.data) {
+        if (webhook.attributes.uri === process.env.WEBHOOK_URI) {
+            await client.webhooks.unpauseWebhook(webhook.id)
+        }
+    }
+
+    console.log(JSON.stringify(webhooks, null, 4))
 }

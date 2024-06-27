@@ -19,13 +19,26 @@ updates:
     # Undocumented on docs.github.com, but is in JSON schema
     directories:
       - "/"
-      - "/examples/cloudflare-webhook/"
-      - "/examples/nodejs-cjs/"
-      - "/examples/nodejs-esm"
     ignore:
+        - dependency-name: '@types/node'
         - dependency-name: "*"
           update-types:
             - "version-update:semver-patch"
     labels:
-      - "npm"
+      - "dependencies"
+  - package-ecosystem: "npm"
+    versioning-strategy: increase
+    schedule:
+      interval: "monthly"
+    # Undocumented on docs.github.com, but is in JSON schema
+    directories:
+      - "/examples/cloudflare-webhook/"
+      - "/examples/nodejs-cjs/"
+      - "/examples/nodejs-esm/"
+    ignore:
+        - dependency-name: "*"
+          update-types:
+            - "version-update:semver-patch"
+            - "version-update:semver-minor"
+    labels:
       - "dependencies"
