@@ -92,7 +92,7 @@ export class WebhookClient {
             },
         }
 
-        return await PatreonOauthClient.fetch(Oauth2Routes.webhooks(), createQuery(new URLSearchParams()), this.oauth, {
+        return await this.oauth.fetch(Oauth2Routes.webhooks(), createQuery(new URLSearchParams()), {
             ...(options ?? {}),
             method: 'POST',
             body: JSON.stringify({ data: body }),
@@ -109,7 +109,7 @@ export class WebhookClient {
         query: Query,
         options?: Oauth2WebhookRouteOptions,
     ): Promise<GetResponsePayload<Query> | undefined> {
-        return await PatreonOauthClient.fetch<Query>(Oauth2Routes.webhooks(), query, this.oauth, options)
+        return await this.oauth.fetch<Query>(Oauth2Routes.webhooks(), query, options)
     }
 
     /**
@@ -124,7 +124,7 @@ export class WebhookClient {
     ) {
         const { id, ...body } = webhook
 
-        return await PatreonOauthClient.fetch(Oauth2Routes.webhook(id), createQuery(new URLSearchParams()), this.oauth, {
+        return await this.oauth.fetch(Oauth2Routes.webhook(id), createQuery(new URLSearchParams()), {
             ...(options ?? {}),
             method: 'PATCH',
             body: JSON.stringify({

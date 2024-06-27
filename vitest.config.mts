@@ -1,7 +1,6 @@
 import { defineConfig } from 'vitest/config'
 
-// TODO: increase threshold after testing clients are made
-const threshold = 50
+const threshold = 70
 
 export default defineConfig({
     root: 'src',
