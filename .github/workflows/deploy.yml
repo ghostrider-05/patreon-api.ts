@@ -76,8 +76,11 @@ jobs:
         run: npm run docs:build
         working-directory: docs
 
+      - name: Install wrangler
+        run: npm i -D wrangler --legacy-peer-deps
+
       - name: Publish to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v3.6.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
