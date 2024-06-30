@@ -14,6 +14,7 @@
     "declarationMap": true,
     "noUnusedLocals": true,
     "removeComments": false,
+    "resolveJsonModule": true,
     "esModuleInterop": true,
     "target": "ES2020",
     "strictNullChecks": true,
@@ -23,6 +24,7 @@
   },
   "include": [
     "src/**/*.ts",
+    "docs/.vitepress/**/*.ts",
     "tsup.config.ts"
   ],
   "exclude": [

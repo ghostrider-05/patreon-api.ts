@@ -36,9 +36,13 @@
     "CHANGELOG.md"
   ],
   "keywords": [
-    "typescript",
     "patreon",
-    "patreon-api"
+    "patreon-api",
+    "patreon-wrapper",
+    "patreon-client",
+    "typescript",
+    "oauth",
+    "webhook-server"
   ],
   "author": {
     "name": "ghostrider-05"

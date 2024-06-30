@@ -1,0 +1,20 @@
+{
+  "name": "@patreon-api.ts/docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "@primevue/auto-import-resolver": "^4.0.0-rc.3",
+    "@primevue/themes": "^4.0.0-rc.3",
+    "@vueuse/core": "^10.11.0",
+    "primeicons": "^7.0.0",
+    "primevue": "^4.0.0-rc.3",
+    "unplugin-vue-components": "^0.27.2",
+    "vitepress": "^1.2.3",
+    "vue": "^3.4.30"
+  }
+}

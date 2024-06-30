@@ -1,13 +1,14 @@
 name: Deploy
 on:
   push:
-    branches: main
     paths: 
-      - 'examples/cloudflare-webhook/'  
+      - 'examples/cloudflare-webhook/**'
+      - 'docs/**' 
 jobs:
   examples:
     name: Deploy examples
     runs-on: ubuntu-latest
+    if: github.ref_name == 'main' && github.ref_type == 'branch'
     strategy:
       matrix:
         node-version:
@@ -22,9 +23,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
 
-      - name: Install dependencies
-        # TODO: remove on ts-lint@v8
-        run: npm install --legacy-peer-deps
+      - name: Move directory
+        run: cd ./examples/cloudflare-webhook/
+
+      - name: Install example dependencies
+        run: npm install
 
       - name: Deploy cloudflare-webhook
         uses: cloudflare/wrangler-action@v3
@@ -35,8 +38,44 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: examples/cloudflare-webhook/
           secrets: |
             HTML_MD_KEY
             PATREON_WEBHOOK_SECRET
             DISCORD_WEBHOOK_URL
+  docs:
+    name: Deploy documentation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    strategy:
+      matrix:
+        node-version:
+          - 20.x
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install node.js v${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Move directory
+        run: cd ./docs/
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build documentation
+        run: npm run docs:build
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: patreon-api
+          directory: .vitepress/dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
