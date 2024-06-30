@@ -32,6 +32,7 @@ function getLabel (value: boolean | number | string) {
                 </th>
             </tr>
         </thead>
+
         <tbody>
             <tr v-for="lib in $frontmatter.libraries">
                 <td v-for="key in $frontmatter.keys" :style="getStyle(key, lib[key.id])">
@@ -40,6 +41,7 @@ function getLabel (value: boolean | number | string) {
                         <span v-else>{{ lib.title }}</span>
                         <Badge :text="officialText" v-if="lib.official" type="info" />
                     </span>
+
                     <span v-else>
                         {{ getLabel(lib[key.id])  }}
                     </span>
