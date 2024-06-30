@@ -19,6 +19,7 @@ updates:
     # Undocumented on docs.github.com, but is in JSON schema
     directories:
       - "/"
+      - "/docs/"
     ignore:
         - dependency-name: '@types/node'
         - dependency-name: "*"
