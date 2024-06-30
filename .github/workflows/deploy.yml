@@ -76,5 +76,6 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: patreon-api
-          directory: .vitepress/dist
+          directory: ./.vitepress/dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          wranglerVersion: 3
