@@ -74,11 +74,8 @@ jobs:
         run: npm run docs:build
 
       - name: Publish to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: patreon-api
-          directory: ./.vitepress/dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          wranglerVersion: 3
+          command: pages deploy ./.vitepress/dist --project-name=patreon-api --commit-dirty=true
