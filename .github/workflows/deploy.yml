@@ -47,9 +47,6 @@ jobs:
   docs:
     name: Deploy documentation
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: docs
     permissions:
       contents: read
       deployments: write
@@ -68,14 +65,20 @@ jobs:
           cache: npm
 
       - name: Install dependencies
+        # TODO: remove on ts-lint@v8
+        run: npm install --legacy-peer-deps
+
+      - name: Install dependencies
         run: npm install
+        working-directory: docs
 
       - name: Build documentation
         run: npm run docs:build
+        working-directory: docs
 
       - name: Publish to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy ./.vitepress/dist --project-name=patreon-api --commit-dirty=true
+          command: pages deploy docs/.vitepress/dist --project-name=patreon-api --commit-dirty=true

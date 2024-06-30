@@ -1,7 +1,7 @@
 ---
 libraries:
     - title: patreon-api.ts
-      # link: https://github.com/ghostrider-05/patreon-api.ts
+      link: https://github.com/ghostrider-05/patreon-api.ts
       api: 2
       sandbox: false
       user: true
