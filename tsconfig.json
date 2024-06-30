@@ -24,7 +24,6 @@
   },
   "include": [
     "src/**/*.ts",
-    "docs/.vitepress/**/*.ts",
     "tsup.config.ts"
   ],
   "exclude": [
