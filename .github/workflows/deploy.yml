@@ -4,6 +4,9 @@ on:
     paths: 
       - 'examples/cloudflare-webhook/**'
       - 'docs/**' 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   examples:
     name: Deploy examples
