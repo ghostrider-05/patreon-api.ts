@@ -8,7 +8,7 @@ import {
     SchemaKeys,
     SchemaRelationshipKeys,
     Type,
-} from '../../../../'
+} from 'patreon-api.ts'
 
 interface Route {
     route: string
