@@ -89,6 +89,9 @@ jobs:
       - name: Install worker dependencies
         run: npm install
         working-directory: ./docs/.vitepress/worker/
+
+      - name: Install wrangler
+        run: npm install --save-dev wrangler@3
       
       - name: Deploy patreon-docs worker
         uses: cloudflare/wrangler-action@v3
