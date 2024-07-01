@@ -27,6 +27,16 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
 
+      - name: Install dependencies
+        # TODO: remove on ts-lint@v8
+        run: npm install --legacy-peer-deps
+
+      - name: Run tsc
+        run: npm run prestart
+
+      - name: Run build
+        run: npm run build
+
       - name: Install example dependencies
         run: npm install
         working-directory: ./examples/cloudflare-webhook/
@@ -68,6 +78,12 @@ jobs:
       - name: Install dependencies
         # TODO: remove on ts-lint@v8
         run: npm install --legacy-peer-deps
+
+      - name: Run tsc
+        run: npm run prestart
+
+      - name: Run build
+        run: npm run build
 
       - name: Install dependencies
         run: npm install
