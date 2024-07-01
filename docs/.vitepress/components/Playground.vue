@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import { useLocalStorage, useFetch, useOffsetPagination } from '@vueuse/core'
-
-const url = 'https://patreon-docs.ghostrider.workers.dev'
-
-
 import { ref } from 'vue';
+import { useLocalStorage, useFetch, useOffsetPagination } from '@vueuse/core'
 
 import type { LibraryData } from './data.js'
 
 const data = ref<LibraryData>()
 
+const url = 'https://patreon-docs.ghostrider.workers.dev'
 const { onFetchResponse } = useFetch(url)
+
 onFetchResponse(async (res) => {
     data.value = await res.json()
 })
@@ -34,15 +32,7 @@ const settings = [
     }
 ]
 
-interface PatreonRoute {
-    route: string
-    list: boolean
-    id?: string
-}
-
-const routes: PatreonRoute[] = []
-
-async function makeRequest (route: PatreonRoute, query: string) {
+async function makeRequest (route: string, query: string) {
     
 }
 
@@ -58,6 +48,6 @@ async function makeRequest (route: PatreonRoute, query: string) {
                 {{ i }}
             </div>
         </div>
-        {{ data.base }}
+        {{ data }}
     </div>
 </template>
