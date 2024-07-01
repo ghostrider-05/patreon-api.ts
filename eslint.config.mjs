@@ -18,6 +18,7 @@ export default [
             sourceType: 'module'
         },
         ignores: [
+            'dist/*',
             '**/*.test.ts',
             // Ignore current file
             'eslint.config.mjs',

@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "prestart": "npx tsc",
+    "prestart": "npx tsc && node ./tsc-generated/src/schemas/v2/scripts/index.js",
     "build": "tsup",
     "test": "vitest --typecheck",
     "test:coverage": "vitest run --typecheck --coverage",
@@ -36,9 +36,13 @@
     "CHANGELOG.md"
   ],
   "keywords": [
-    "typescript",
     "patreon",
-    "patreon-api"
+    "patreon-api",
+    "patreon-wrapper",
+    "patreon-client",
+    "typescript",
+    "oauth",
+    "webhook-server"
   ],
   "author": {
     "name": "ghostrider-05"
@@ -50,6 +54,7 @@
     "@vitest/coverage-istanbul": "^1.6.0",
     "eslint": "^9.5.0",
     "eslint-plugin-jsdoc": "^48.5.0",
+    "ts-morph": "^23.0.0",
     "tsup": "^8.1.0",
     "typescript": "^5.5.2",
     "typescript-eslint": "^7.14.1",

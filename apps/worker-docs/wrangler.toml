@@ -1,4 +1,4 @@
-name = "patreon-webhook"
+name = "patreon-docs"
 compatibility_date = "2024-06-31"
 main = "./src/index.ts"
 
