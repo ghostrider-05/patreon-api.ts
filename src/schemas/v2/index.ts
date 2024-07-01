@@ -14,3 +14,6 @@ export * from './resources/post'
 export * from './resources/tier'
 export * from './resources/user'
 export * from './resources/webhook'
+
+export * from './generated/keys'
+export * from './generated/relationships'
