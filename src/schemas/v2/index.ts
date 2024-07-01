@@ -15,5 +15,7 @@ export * from './resources/tier'
 export * from './resources/user'
 export * from './resources/webhook'
 
+// @ts-expect-error Checked before generating
 export * from './generated/keys'
+// @ts-expect-error Checked before generating
 export * from './generated/relationships'
