@@ -14,6 +14,7 @@ export default defineConfig({
                 '**/rest/v2/oauth2/client.ts',
                 '**/rest/v2/oauth2/rest.ts',
                 '**/rest/v2/webhooks/client.ts',
+                '/src/schemas/v2/scripts/*.ts',
             ],
             thresholds: {
                 '100': true,
