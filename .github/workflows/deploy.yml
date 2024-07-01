@@ -4,6 +4,7 @@ on:
     paths: 
       - 'examples/cloudflare-webhook/**'
       - 'docs/**' 
+      - 'apps/worker-docs/**'
       - '.github/workflows/deploy.yml'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -105,16 +106,11 @@ jobs:
 
       - name: Install worker dependencies
         run: npm install
-        working-directory: ./docs/.vitepress/worker/
-
-        # Workaround to install the repo instead of using the latest release
-      - name: Install wrangler
-        # TODO: remove on ts-lint@v8
-        run: npm install wrangler@3 --legacy-peer-deps
+        working-directory: ./apps/worker-docs
       
       - name: Deploy patreon-docs worker
         uses: cloudflare/wrangler-action@v3.6.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy -c ./docs/.vitepress/worker/wrangler.toml
+          command: deploy -c ./apps/worker-docs/wrangler.toml

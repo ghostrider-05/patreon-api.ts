@@ -3,12 +3,7 @@ import {
     Type,
 } from 'patreon-api.ts'
 
-interface Route {
-    route: string
-    relationship_type: string
-    list?: true
-    requires_id?: true
-}
+import type { Route } from '../../../docs/.vitepress/components/data'
 
 const id = ':id'
 

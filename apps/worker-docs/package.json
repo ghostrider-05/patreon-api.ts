@@ -8,7 +8,7 @@
   "license": "MIT",
   "devDependencies": {
     "@cloudflare/workers-types": "4.20240620.0",
-    "patreon-api.ts": "../../../",
+    "patreon-api.ts": "../../",
     "wrangler": "^3.62.0"
   }
 }

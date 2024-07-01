@@ -11,9 +11,11 @@ import {
 
 import routes from './routes'
 
-export default <ExportedHandler> {
-    async fetch () {
-        const data = {
+import type { LibraryData } from '../../../docs/.vitepress/components/data'
+
+export default <ExportedHandler>{
+    async fetch() {
+        const data: LibraryData = {
             version: APIVersion,
             base: RouteBases.oauth2,
             headers: {
@@ -35,6 +37,13 @@ export default <ExportedHandler> {
             }
         }
 
-        return new Response(JSON.stringify(data))
+        return new Response(JSON.stringify(data), {
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET,HEAD,POST,OPTIONS',
+                'Access-Control-Max-Age': '86400',
+            }
+        })
     }
 }

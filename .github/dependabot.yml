@@ -10,7 +10,6 @@ updates:
             - "version-update:semver-patch"
             - "version-update:semver-minor"
     labels:
-      - "github"
       - "dependencies"
   - package-ecosystem: "npm"
     versioning-strategy: increase
@@ -20,6 +19,7 @@ updates:
     directories:
       - "/"
       - "/docs/"
+      - "/apps/worker-docs/"
     ignore:
         - dependency-name: '@types/node'
         - dependency-name: "*"
