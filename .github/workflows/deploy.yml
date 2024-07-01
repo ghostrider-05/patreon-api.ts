@@ -90,8 +90,10 @@ jobs:
         run: npm install
         working-directory: ./docs/.vitepress/worker/
 
+        # Workaround to install the repo instead of using the latest release
       - name: Install wrangler
-        run: npm install --save-dev wrangler@3
+        # TODO: remove on ts-lint@v8
+        run: npm install --save-dev wrangler@3 --legacy-peer-deps
       
       - name: Deploy patreon-docs worker
         uses: cloudflare/wrangler-action@v3
