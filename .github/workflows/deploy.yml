@@ -85,6 +85,10 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy docs/.vitepress/dist --project-name=patreon-api --commit-dirty=true
+
+      - name: Install worker dependencies
+        run: npm install
+        working-directory: ./docs/.vitepress/worker/
       
       - name: Deploy patreon-docs worker
         uses: cloudflare/wrangler-action@v3
