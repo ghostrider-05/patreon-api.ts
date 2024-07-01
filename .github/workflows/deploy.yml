@@ -94,11 +94,11 @@ jobs:
         # Workaround to install the repo instead of using the latest release
       - name: Install wrangler
         # TODO: remove on ts-lint@v8
-        run: npm install wrangler@3.6 --legacy-peer-deps
+        run: npm install wrangler@3 --legacy-peer-deps
       
       - name: Deploy patreon-docs worker
         uses: cloudflare/wrangler-action@v3.6.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          preCommands: cd ./docs/.vitepress/worker/
+          command: deploy -c ./docs/.vitepress/worker/wrangler.toml
