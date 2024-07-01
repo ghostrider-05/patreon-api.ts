@@ -4,6 +4,7 @@ on:
     paths: 
       - 'examples/cloudflare-webhook/**'
       - 'docs/**' 
+      - '.github/workflows/deploy.yml'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -31,7 +32,7 @@ jobs:
         working-directory: ./examples/cloudflare-webhook/
 
       - name: Deploy cloudflare-webhook
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v3.6.0
         env: 
           DISCORD_WEBHOOK_URL: ${{ secrets.CW_DISCORD_WEBHOOK_URL }}
           HTML_MD_KEY: ${{ secrets.CW_HTML_MD_KEY }}
@@ -93,10 +94,10 @@ jobs:
         # Workaround to install the repo instead of using the latest release
       - name: Install wrangler
         # TODO: remove on ts-lint@v8
-        run: npm install --save-dev wrangler@3 --legacy-peer-deps
+        run: npm install wrangler@3.6 --legacy-peer-deps
       
       - name: Deploy patreon-docs worker
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v3.6.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
