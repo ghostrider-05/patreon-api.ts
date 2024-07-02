@@ -17,6 +17,12 @@ export default <ExportedHandler>{
     async fetch(request) {
         const { pathname } = new URL(request.url)
 
+        const corsHeaders = {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET,HEAD,POST,OPTIONS',
+            'Access-Control-Max-Age': '86400',
+        }
+
         if (pathname.startsWith('/data')) {
             const data: LibraryData = {
                 version: APIVersion,
@@ -43,17 +49,24 @@ export default <ExportedHandler>{
             return new Response(JSON.stringify(data), {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'GET,HEAD,POST,OPTIONS',
-                    'Access-Control-Max-Age': '86400',
+                    ...corsHeaders,
                 }
             })
         } else if (pathname.startsWith('/proxy')) {
-            const body: { method: string, url: string } = await request.json()
+            const body: { method: string, url: string, headers: Record<string, string> } = await request.json()
 
-            return await fetch(body.url, {
+            const response = await fetch(body.url, {
                 method: body.method,
+                headers: body.headers,
             })
+
+            const newResponse = new Response(response.body, response)
+
+            for (const [key, value] of Object.entries(corsHeaders)) {
+                newResponse.headers.set(key, value)
+            }
+
+            return newResponse
         }
     }
 }

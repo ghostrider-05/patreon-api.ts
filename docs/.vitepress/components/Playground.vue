@@ -74,12 +74,12 @@ async function makeRequest() {
         body: JSON.stringify({
             path: path.value!,
             method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + accessToken.value!,
+                'Content-Type': 'application/json',
+                'User-Agent': userAgent.value ?? defaultUserAgent.value,
+            },
         }),
-        headers: {
-            'Authorization': 'Bearer ' + accessToken.value!,
-            'Content-Type': 'application/json',
-            'User-Agent': userAgent.value ?? defaultUserAgent.value,
-        },
     }).then(res => res.json()).catch(() => 'Failed request. See the network tab for more details')
 
     lastRequest.value = res
