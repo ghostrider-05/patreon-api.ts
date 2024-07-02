@@ -45,12 +45,17 @@ const possibleIncludeFields = computed(() => data.value?.relationships[activeRou
 const path = computed(() => {
     if (!activeRoute.value) return
     const { route, requires_id } = activeRoute.value
-    const query = new URLSearchParams({
-        include: includedFields.value.join(','),
-        ...groupAttributes(),
-    }).toString()
 
-    return (base.value ?? defaultBaseUrl.value) + (requires_id ? route.replace(':id', idParam.value!) : route) + (query.length ? ('?' + query) : '')
+    const params = new URLSearchParams(groupAttributes())
+    if (includedFields.value.length) {
+        params.set('include', includedFields.value.join(','))
+    }
+
+    const query = params.toString()
+
+    return (base.value ?? defaultBaseUrl.value)
+        + (requires_id ? route.replace(':id', idParam.value!) : route)
+        + (query.length ? ('?' + query) : '')
 })
 
 const errorMessages = computed(() => {
@@ -167,6 +172,7 @@ async function makeRequest() {
 
             <div class="errors" v-if="errorMessages.length > 0">
                 <div class="custom-block danger" v-for="err in errorMessages" :key="err">
+                    <h4 class="title">Error</h4>
                     {{ err }}
                 </div>
             </div>

@@ -53,6 +53,12 @@ export default <ExportedHandler>{
                 }
             })
         } else if (pathname.startsWith('/proxy')) {
+            if (request.method !== 'POST') {
+                return new Response(null, {
+                    status: 400,
+                    headers: corsHeaders,
+                })
+            }
             const body: { method: string, url: string, headers: Record<string, string> } = await request.json()
 
             const response = await fetch(body.url, {
