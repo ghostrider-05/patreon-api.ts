@@ -17,6 +17,7 @@ export default [
         route: Oauth2Routes.campaignMembers(id),
         relationship_type: Type.Member,
         list: true,
+        requires_id: true,
     },
     {
         route: Oauth2Routes.campaignPosts(id),
@@ -41,6 +42,7 @@ export default [
     {
         route: Oauth2Routes.post(id),
         relationship_type: Type.Post,
+        requires_id: true,
     },
     {
         route: Oauth2Routes.webhook(id),
