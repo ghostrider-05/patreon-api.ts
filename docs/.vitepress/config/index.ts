@@ -27,6 +27,12 @@ export default defineConfig({
     cleanUrls: true,
     lastUpdated: true,
 
+    vite: {
+        ssr: {
+            noExternal: [ /\.css$/, /^vuetify/ ],
+        },
+    },
+
     themeConfig: {
         nav: createOverview(),
         sidebar: createOverview(true),
