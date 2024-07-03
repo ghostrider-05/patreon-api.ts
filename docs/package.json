@@ -1,0 +1,16 @@
+{
+  "name": "@patreon-api.ts/docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "@vueuse/core": "^10.11.0",
+    "vitepress": "^1.2.3",
+    "vue": "^3.4.31",
+    "vuetify": "^3.6.10"
+  }
+}

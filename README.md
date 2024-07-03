@@ -1,12 +1,17 @@
-# Patreon TS
+# Patreon-api.ts
 
 [![npm](https://img.shields.io/npm/v/patreon-api.ts)](https://www.npmjs.com/package/patreon-api.ts?activeTab=versions)
 [![npm](https://img.shields.io/npm/dm/patreon-api.ts)](https://www.npmjs.com/package/patreon-api.ts?activeTab=readme)
 [![GitHub issues](https://img.shields.io/github/issues/ghostrider-05/patreon-api.ts)](https://github.com/ghostrider-05/patreon-api.ts/issues/)
+[![GitHub stars](https://img.shields.io/github/stars/ghostrider-05/patreon-api.ts?style=flat&label=stargazers)](https://github.com/ghostrider-05/patreon-api.ts/stars/)
 
-Typescript library for the V2 [Patreon API](https://docs.patreon.com/) with [Typescript types](./examples/README.md) that strongly reflect your request.
+Typescript library for the [V2 Patreon API](https://docs.patreon.com/) with [Typescript types](./examples/README.md) that strongly reflect your request.
 
-> You might be looking for [patreon-js](https://github.com/Patreon/patreon-js) for JavaScript, [patreon-api-types](https://github.com/mrTomatolegit/patreon-api-types) for less strict types and no client or [another package](https://www.npmjs.com/search?q=patreon) in between.
+```ts
+// query: attributes[campaign]=title
+const payload = await client.fetchCampaign(query)
+    // ^? { data: { attributes: { title: string } }, ... }
+```
 
 ## Installation
 
@@ -29,14 +34,23 @@ You can not import this module by API version since it is unlikely that Patreon 
 import { type Campaign } from 'patreon-api.ts';
 ```
 
-### Platform
+While some features are highlighted below, you can read more in the [documentation](https://patreon-api.pages.dev). Still doubting if this library has everything you need related to the Patreon API? [Compare all libraries yourself](https://patreon-api.pages.dev/guide/introduction#why).
+
+<details>
+<summary>Compatibility</summary>
 
 To check for compatibility with this package, look if your platform:
 
-- has the globals: `fetch`, `URL` and `URLSearchParams`
+- has the globals: `AbortController`, `setTimeout`, `clearTimeout`, `fetch`, `URL` and `URLSearchParams`
   - for node.js: `v18` or higher
+  - for Cloudflare workers: [enable Node.js](https://developers.cloudflare.com/workers/runtime-apis/nodejs/#enable-nodejs-with-workers)
 - supports `ES2020`
 - supports `createHmac` of the `node:crypto` module
+
+> [!WARNING]
+> This is a server-side API & Oauth package and requires your application tokens. Make sure you do not share or expose your tokens or run this code client-side.
+
+</details>
 
 ### Clients
 
@@ -44,6 +58,9 @@ To check for compatibility with this package, look if your platform:
 
 If you don't need to handle Oauth2 requests, but only your own creator profile, the first example will get you started.
 It is recommended to sync your token to your database or store it somewhere safe, so the token is not lost.
+
+<details>
+<summary>Example</summary>
 
 ```ts
 import { PatreonCreatorClient, PatreonStore } from 'patreon-api.ts'
@@ -61,18 +78,18 @@ const creatorClient = new PatreonCreatorClient({
     },
     store: new PatreonStore.Fetch('<url>'),
 })
-
-// Use the token of the creator with the current app, instead of Oauth2 callback
-// Will call store.put, to sync it with an external DB
-// After fetching, you can directly call the V2 API and the token is stored with store.put
-await creatorClient.initialize()
 ```
+
+</details>
 
 #### User oauth2
 
 For handling Oauth2 requests, add `redirectUri` and if specified a `state` to the options.
 Then fetch the token for the user with request url.
 Note that for handling Oauth2 requests the client will not cache or store the tokens anywhere in case you need to refresh it!
+
+<details>
+<summary>Example</summary>
 
 ```ts
 import { PatreonUserClient } from 'patreon-api.ts'
@@ -95,6 +112,8 @@ export default {
 }
 ```
 
+</details>
+
 ### Store
 
 There are 3 built-in methods of retreiving and storing tokens:
@@ -102,6 +121,9 @@ There are 3 built-in methods of retreiving and storing tokens:
 1. Manual loading and storing, see the example below
 2. Fetch: use an external server that accepts `GET` and `PUT` requests
 3. KV: store the (creator) token in a KV-like storage system (present on a lot of edge-runtimes).
+
+<details>
+<summary>Example</summary>
 
 ```ts
 // Use stored tokens in a database
@@ -127,15 +149,20 @@ const storeClient = new PatreonCreatorClient({
 })
 ```
 
+</details>
+
 ### Webhooks
 
 You can interact with the webhooks API using one of the [clients](#clients) above. This library also exposes functions to create a webhook server.
+
+<details>
+<summary>Example</summary>
 
 ```ts
 import { parseWebhookRequest } from 'patreon-api.ts'
 
 export default {
-    async fetch (request) {
+    async fetch (request, env) {
         const { verified, payload, event } = await parseWebhookRequest(request, env.WEBHOOK_SECRET)
         if (!verified) return new Response('Invalid request', { status: 403 })
 
@@ -143,6 +170,8 @@ export default {
     }
 }
 ```
+
+</details>
 
 ## Examples
 
