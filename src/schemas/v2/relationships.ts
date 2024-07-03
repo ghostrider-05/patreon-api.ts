@@ -1,9 +1,15 @@
 import { AttributeItem, DataItem, DataItems, Item, ItemMap, ItemType, Type } from './item'
 
+type Multiple<
+    IncludedKey extends string,
+    Related extends boolean,
+    Appendix extends string = 's'
+> = [`${IncludedKey}${Appendix}`, true, Related]
+
 // TODO: correct related relations
 interface RelationshipTypeMap extends Record<ItemType, BaseRelationDataItem<ItemType>> {
     address: {
-        [Type.Campaign]: [true, false]
+        [Type.Campaign]: Multiple<Type.Campaign, false>
         [Type.User]: [false, false]
     }
     benefit: {
@@ -13,12 +19,12 @@ interface RelationshipTypeMap extends Record<ItemType, BaseRelationDataItem<Item
         [Type.Tier]: [true, false]
     }
     campaign: {
-        [Type.Benefit]: [true, false]
+        [Type.Benefit]: Multiple<Type.Benefit, false>
         // TODO: add `campaign_installation` when documentated
         // TODO: add `categories` when documentated
         [Type.User]: ['creator', false, false]
-        [Type.Goal]: [true, false]
-        [Type.Tier]: [true, false]
+        [Type.Goal]: Multiple<Type.Goal, false>
+        [Type.Tier]: Multiple<Type.Tier, false>
     }
     client: {
         // TODO: add `apps` when documented
@@ -55,7 +61,7 @@ interface RelationshipTypeMap extends Record<ItemType, BaseRelationDataItem<Item
         [Type.Campaign]: [false, false]
     }
     tier: {
-        [Type.Benefit]: [true, false]
+        [Type.Benefit]: Multiple<Type.Benefit, false>
         [Type.Campaign]: [false, false]
         [Type.Media]: ['tier_image', false, false]
     }
