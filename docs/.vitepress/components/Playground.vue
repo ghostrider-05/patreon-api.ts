@@ -40,6 +40,7 @@ const defaultBaseUrl = computed(() => data.value?.base ?? '')
 const accessToken = useLocalStorage('access_token', undefined)
 const userAgent = useLocalStorage('user_agent', defaultUserAgent)
 const base = useLocalStorage('base_url', defaultBaseUrl)
+const proxy = useLocalStorage('proxy_url', url + '/proxy')
 
 const possibleIncludeFields = computed(() => data.value?.relationships[activeRoute.value!.relationship_type].map(r => r.includeKey) ?? [])
 const path = computed(() => {
@@ -74,10 +75,10 @@ const errorMessages = computed(() => {
 const lastRequest = ref()
 
 async function makeRequest() {
-    const res = await fetch(url + '/proxy', {
+    const res = await fetch(proxy.value!, {
         method: 'POST',
         body: JSON.stringify({
-            path: path.value!,
+            url: path.value!,
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + accessToken.value!,
@@ -98,6 +99,8 @@ async function makeRequest() {
             <details class="details custom-block" open>
                 <summary class="title">Settings</summary>
 
+                <p>Your settings are stored locally for this site. Request are made to Patreon through a server, by default the <code>apps/worker-docs</code> worker on GitHub</p>
+
                 <div class="settings">
                     <div class="settings-row">
                         <div class="setting">
@@ -115,6 +118,7 @@ async function makeRequest() {
                     <div class="settings-row">
                         <div class="setting">
                             <InputText v-model="base" label="Base URL" placeholder="API base url" variant="outlined" />
+                            <InputText v-model="proxy" label="Proxy URL" placeholder="Proxy url" variant="outlined" />
                         </div>
                     </div>
                 </div>
@@ -181,7 +185,9 @@ async function makeRequest() {
 
                 <hr>
                 <span v-if="lastRequest">
-                    {{ JSON.stringify(lastRequest, null, 4) }}
+                    <pre style="width: 100%; overflow-x: scroll; background-color: var(--vp-c-bg-soft);">
+                        {{ JSON.stringify(lastRequest, null, 2) }}
+                    </pre>
                 </span>
             </div>
         </div>
