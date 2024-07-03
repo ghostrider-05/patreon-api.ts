@@ -195,6 +195,44 @@ describe('creator client', () => {
     })
 })
 
+describe('user client', () => {
+    const client = createTestClient('user', async (url) => {
+        const { pathname } = new URL(url)
+        if (pathname.endsWith('/token')) return new Response(JSON.stringify({
+            access_token: 'stored',
+            refresh_token: 'refresh',
+            expires_in: '6000',
+        }))
+
+        if (pathname.endsWith('/identity')) return new Response(JSON.stringify({
+            data: {
+                attributes: { social_connections: { discord: { user_id: 'discord_id' } } }
+            }
+        }))
+
+        return new Response(null, { status: 400 })
+    })
+
+    test('user instance', async () => {
+        const url = 'https://patreon-api.pages.dev/token?code=code'
+
+        const instance = await client.createInstance(url)
+        expect(instance).toBeDefined()
+
+        const instance2 = await client.createInstance({ url })
+        expect(instance2).toBeDefined()
+    })
+
+    test('user discord id', async () => {
+        const url = 'https://patreon-api.pages.dev/token?code=code'
+
+        const instance = await client.createInstance(url)
+        const discordId = await instance.fetchDiscordId()
+
+        expect(discordId).toEqual('discord_id')
+    })
+})
+
 // TODO: replace data with actual payloads
 describe('client methods', () => {
     const data = { type: 'client' }

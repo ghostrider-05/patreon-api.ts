@@ -4,6 +4,7 @@ import {
     PatreonWebhookTrigger,
     Type,
     WebhookClient,
+    buildQuery,
     parseWebhookRequest,
     verify,
     webhookToDiscordEmbed,
@@ -11,6 +12,7 @@ import {
     type WebhookPayload,
     type WebhookToDiscordMessages,
 } from '../../v2'
+import { createTestClient } from './client.test'
 
 describe('webhook utilities', () => {
     describe('webhook verify', () => {
@@ -102,6 +104,48 @@ describe('webhook client', () => {
         const webhookClient = new WebhookClient(<never>{})
 
         expect(webhookClient.hasUnsentEvents(<Webhook>webhook)).toBeFalsy()
+    })
+
+    describe('webhook API', () => {
+        const webhook = { type: 'webhook', id: 'id', attributes: {} }
+        const client = createTestClient('creator', async (_, { method }) => {
+            return new Response(JSON.stringify(method === 'GET' ? [webhook] : webhook), { status: 200 })
+        }).webhooks
+
+        test('fetch webhooks', async () => {
+            const query = buildQuery.webhooks()()
+            const webhooks = await client.fetchWebhooks(query, { token: 'token' })
+
+            expect(webhooks).toEqual([webhook])
+        })
+
+        test('edit webhooks', async () => {
+            const res = await client.editWebhook({ id: 'id', paused: false }, { token: 'token' })
+
+            expect(res).toEqual(webhook)
+        })
+
+        test('unpause webhooks', async () => {
+            const res = await client.unpauseWebhook('id', { token: 'token' })
+
+            expect(res).toEqual(webhook)
+        })
+
+        test('pause webhooks', async () => {
+            const res = await client.pauseWebhook('id', { token: 'token' })
+
+            expect(res).toEqual(webhook)
+        })
+
+        test('create webhooks', async () => {
+            const res = await client.createWebhook({
+                campaignId: 'id',
+                triggers: ['members:create'],
+                uri: 'https://patreon-api.pages/',
+            }, { token: 'token' })
+
+            expect(res).toEqual(webhook)
+        })
     })
 })
 

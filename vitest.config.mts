@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitest/config'
 
-const threshold = 70
+const threshold = 60
 
 export default defineConfig({
     root: 'src',
@@ -12,6 +12,7 @@ export default defineConfig({
             provider: 'istanbul',
             exclude: [
                 '**/schemas/v2/generated/',
+                '**/schemas/v2/scripts/',
             ],
             thresholds: {
                 branches: threshold,

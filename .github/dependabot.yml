@@ -15,6 +15,10 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: "weekly"
+    groups:
+      eslint:
+        patterns:
+          - '*eslint*'
     # Undocumented on docs.github.com, but is in JSON schema
     directories:
       - "/"
@@ -22,6 +26,10 @@ updates:
       - "/apps/worker-docs/"
     ignore:
         - dependency-name: '@types/node'
+        - dependency-name: 'wrangler'
+          update-types:
+            - "version-update:semver-patch"
+            - "version-update:semver-minor"
         - dependency-name: "*"
           update-types:
             - "version-update:semver-patch"
@@ -31,6 +39,10 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: "monthly"
+    groups:
+      examples:
+        patterns:
+          - '*'
     # Undocumented on docs.github.com, but is in JSON schema
     directories:
       - "/examples/cloudflare-webhook/"
