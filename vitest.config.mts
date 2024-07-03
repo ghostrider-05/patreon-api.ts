@@ -10,6 +10,9 @@ export default defineConfig({
 
         coverage: {
             provider: 'istanbul',
+            exclude: [
+                '**/schemas/v2/generated/',
+            ],
             thresholds: {
                 branches: threshold,
                 functions: threshold,
