@@ -1,8 +1,29 @@
+export interface RouteBodyKey {
+    key: string
+    type:
+        | 'string'
+        | 'number'
+        | 'boolean'
+    is_array?: boolean
+    options?: (
+        | string
+        | number
+    )[]
+    required?: boolean
+}
+
 export interface Route {
     route: string
     relationship_type: string
     list?: true
     requires_id?: true
+    methods?: (
+        | string
+        | {
+            method: string
+            body?: RouteBodyKey[]
+        }
+    )[]
 }
 
 export interface LibraryData {
