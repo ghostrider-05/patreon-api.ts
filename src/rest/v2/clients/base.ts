@@ -1,5 +1,5 @@
 import {
-    BasePatreonClientMethods,
+    PatreonClientMethods,
     type Oauth2FetchOptions,
     type Oauth2RouteOptions,
 } from './baseMethods'
@@ -52,7 +52,7 @@ export type PatreonClientOptions = {
     store?: PatreonTokenFetchOptions
 }
 
-export abstract class PatreonClient extends BasePatreonClientMethods {
+export abstract class PatreonClient extends PatreonClientMethods {
     private store: PatreonTokenFetchOptions | undefined = undefined
 
     /**
@@ -79,7 +79,7 @@ export abstract class PatreonClient extends BasePatreonClientMethods {
             if (token) await this.putStoredToken?.(token, true)
         }
 
-        this.rest.options.getAccessToken = async () => {
+        this.rest.options.getAccessToken ??= async () => {
             return await this.fetchStoredToken()
                 .then(token => token?.access_token)
         }
@@ -90,7 +90,7 @@ export abstract class PatreonClient extends BasePatreonClientMethods {
         if (stored == undefined) return undefined
 
         const { expires_in_epoch } = stored
-        stored.expires_in = ((parseInt(expires_in_epoch) - Date.now()) / 1000).toString()
+        stored.expires_in = (Math.round((parseInt(expires_in_epoch) - Date.now()) / 1000)).toString()
         return stored
     }
 

@@ -141,12 +141,7 @@ export class PatreonOauthClient {
     }
 
     /**
-     * Make a request to the Patreon API
-     * @param path the path of the resource
-     * @param query The query wrapper to include more fields
-     * @param oauthClient The client that is requesting the API
-     * @param options additional request options
-     * @returns the response body, parsed.
+     * @deprecated
      */
     public static async fetch<Query extends BasePatreonQuery>(
         path: string,
@@ -154,12 +149,45 @@ export class PatreonOauthClient {
         oauthClient: PatreonOauthClient,
         options?: Oauth2FetchOptions,
     ): Promise<GetResponsePayload<Query> | undefined> {
-        const token = oauthClient.options.validateToken ? await this.validateToken(
-            oauthClient,
+        return oauthClient.fetch(path, query, options)
+    }
+
+    /** @deprecated */
+    public static async* paginate<Query extends BasePatreonQuery>(
+        path: string,
+        query: Query,
+        oauthClient: PatreonOauthClient,
+        options?: Oauth2FetchOptions,
+    ): AsyncGenerator<GetResponsePayload<Query>, number, unknown> {
+        const paginator = oauthClient.paginate(path, query, options)
+
+        let page = await paginator.next()
+        while (!page.done) {
+            yield page.value
+            page = await paginator.next()
+        }
+
+        return page.value
+    }
+
+    /**
+     * Make a request to the Patreon API
+     * @param path the path of the resource
+     * @param query The query wrapper to include more fields
+     * @param options additional request options
+     * @returns the response body, parsed.
+     */
+    public async fetch<Query extends BasePatreonQuery>(
+        path: string,
+        query: Query,
+        options?: Oauth2FetchOptions,
+    ): Promise<GetResponsePayload<Query> | undefined> {
+        const token = this.options.validateToken ? await PatreonOauthClient.validateToken(
+            this,
             options?.token
         ) : options?.token
 
-        return await oauthClient.rest.request({
+        return await this.rest.request({
             ...options,
             method: <never>options?.method ?? 'GET',
             path,
@@ -172,16 +200,14 @@ export class PatreonOauthClient {
      * Make a paginated request to the Patreon API.
      * @param path the resource path
      * @param query the wrapped query to include fields
-     * @param oauthClient the client that is requesting this resource
      * @param options additional request options
      * @yields a page of the request resource
      * @returns the async generator to paginate through the response.
      * @example See `./examples/README.md` in the GitHub repo
      */
-    public static async* paginate<Query extends BasePatreonQuery>(
+    public async* paginate<Query extends BasePatreonQuery>(
         path: string,
         query: Query,
-        oauthClient: PatreonOauthClient,
         options?: Oauth2FetchOptions,
     ): AsyncGenerator<GetResponsePayload<Query>, number, unknown> {
         let done = false, page = 1
@@ -190,7 +216,7 @@ export class PatreonOauthClient {
             query.params.set('page[count]', page.toString())
             const pageQuery = createQuery(query.params) as unknown as Query
 
-            const response = await this.fetch(path, pageQuery, oauthClient, options)
+            const response = await this.fetch(path, pageQuery, options)
             if (response == undefined) break
             yield response
 
@@ -252,7 +278,7 @@ export class PatreonOauthClient {
     /**
      * The uri to redirect users to in the first step of the Oauth flow
      * @returns the url to use for redirecting the user to
-     * @throws if the redirectUri is not defined
+     * @throws if the redirectUri is not defined or an empty string
      */
     public get oauthUri(): string {
         return this.createOauthUri()
@@ -264,6 +290,7 @@ export class PatreonOauthClient {
      * @param options.redirectUri The uri to redirect to after authorization
      * @param options.scopes The scopes to request for this client.
      * @param options.state The state to check after authorization.
+     * @throws if the redirectUri is not defined or an empty string, in both the options and client options
      * @returns the uri to redirect the user to in order to authorize this client.
      */
     public createOauthUri(options?: { redirectUri?: string, scopes?: string[], state?: string }) {

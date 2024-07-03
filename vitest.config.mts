@@ -1,5 +1,7 @@
 import { defineConfig } from 'vitest/config'
 
+const threshold = 60
+
 export default defineConfig({
     root: 'src',
     test: {
@@ -9,15 +11,14 @@ export default defineConfig({
         coverage: {
             provider: 'istanbul',
             exclude: [
-                // TODO: add tests for clients
-                '**/rest/v2/clients/*.ts',
-                '**/rest/v2/oauth2/client.ts',
-                '**/rest/v2/oauth2/rest.ts',
-                '**/rest/v2/webhooks/client.ts',
-                '**/schemas/v2/scripts/*.ts',
+                '**/schemas/v2/generated/',
+                '**/schemas/v2/scripts/',
             ],
             thresholds: {
-                '100': true,
+                branches: threshold,
+                functions: threshold,
+                lines: threshold,
+                statements: threshold,
             }
         },
     },

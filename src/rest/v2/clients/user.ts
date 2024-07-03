@@ -1,8 +1,8 @@
 import { buildQuery } from '../query'
 import { PatreonClient, type StoredToken } from './base'
-import { BasePatreonClientMethods } from './baseMethods'
+import { PatreonClientMethods } from './baseMethods'
 
-export class PatreonUserClientInstance extends BasePatreonClientMethods {
+export class PatreonUserClientInstance extends PatreonClientMethods {
     public readonly token: StoredToken
     public client: PatreonUserClient
 
@@ -19,9 +19,11 @@ export class PatreonUserClientInstance extends BasePatreonClientMethods {
      * @returns The discord user ID
      */
     public async fetchDiscordId (): Promise<string | undefined> {
-        return await this.fetchIdentity(buildQuery.identity(['memberships'])({ user: ['social_connections' ]}))
+        const query = buildQuery.identity(['memberships'])({ user: ['social_connections' ]})
+
+        return await this.fetchIdentity(query, { token: this.token })
             .then(res => {
-                const option = <{ user_id: string } | null>(res?.data.attributes.social_connections.discord ?? null)
+                const option = <{ user_id: string } | null>(res?.data.attributes.social_connections.discord)
                 return option?.user_id
             })
     }

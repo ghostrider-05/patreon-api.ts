@@ -23,6 +23,8 @@ export default [
             '**/*.test.ts',
             // Ignore current file
             'eslint.config.mjs',
+            // Ignore tsup config
+            'tsup.config.ts',
             // Ignore vitest config
             'vitest.config.mts',
         ],
