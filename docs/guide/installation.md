@@ -47,21 +47,5 @@ To get started you can see one of the examples:
 or read more about [the features your application needs](./features/).
 
 <script setup>
-import Features from '../node_modules/vitepress/dist/client/theme-default/components/VPHomeFeatures.vue'
+import Features from '../.vitepress/components/DocFeatures.vue'
 </script>
-
-<style scoped>
-:deep(.VPHomeFeatures h2) {
-  margin: 0 !important;
-  padding: 0 !important;
-  border-top: none !important;
-}
-
-:deep(.VPHomeFeatures a) {
-  text-decoration-line: none;
-}
-
-:deep(.VPHomeFeatures p) {
-  margin: 0;
-}
-</style>
