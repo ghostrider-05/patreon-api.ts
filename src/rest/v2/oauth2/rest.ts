@@ -59,6 +59,13 @@ export interface RESTOptions {
     retries: RestRetries
 
     /**
+     * The time in ms after the request will be aborted.
+     * Can also be overwritten on the request options.
+     * @default 15_000
+     */
+    timeout: number
+
+    /**
      * The string to append to the user agent header
      */
     userAgentAppendix: string | undefined
@@ -145,6 +152,7 @@ export const DefaultRestOptions: RESTOptions = {
     getAccessToken: async () => undefined,
     // Set to number for the typecast to be correct
     retries: 3,
+    timeout: 15_000,
     headers: {},
     userAgentAppendix: '',
 }
@@ -159,7 +167,7 @@ export type PatreonHeadersData = Record<Lowercase<keyof typeof PATREON_RESPONSE_
 
 export interface InternalRequestOptions extends RequestOptions {
     path: string
-    method: RequestMethod
+    method?: RequestMethod | `${RequestMethod}`
 }
 
 export interface PatreonErrorData {
@@ -257,16 +265,16 @@ export class RestClient {
         return `PatreonBot patreon-api.ts (https://github.com/ghostrider-05/patreon-api.ts, ${userAgentAppendix})`
     }
 
-    public async get (path: string, options?: RequestOptions) {
-        return await this.request({ ...options, method: RequestMethod.Get, path })
+    public async get<T> (path: string, options?: RequestOptions) {
+        return await this.request<T>({ ...options, method: RequestMethod.Get, path })
     }
 
-    public async patch (path: string, options?: RequestOptions) {
-        return await this.request({ ...options, method: RequestMethod.Patch, path })
+    public async patch<T> (path: string, options?: RequestOptions) {
+        return await this.request<T>({ ...options, method: RequestMethod.Patch, path })
     }
 
-    public async post (path: string, options?: RequestOptions) {
-        return await this.request({ ...options, method: RequestMethod.Post, path })
+    public async post<T> (path: string, options?: RequestOptions) {
+        return await this.request<T>({ ...options, method: RequestMethod.Post, path })
     }
 
     public async request <Parsed = unknown>(options: InternalRequestOptions) {
@@ -314,7 +322,7 @@ export class RestClient {
     private async makeRequest (options: InternalRequestOptions & { currentRetries: number }) {
         // copied from @discordjs/rest
         const controller = new AbortController()
-	    const timeout = setTimeout(() => controller.abort(), options.timeout ?? 15_000)
+	    const timeout = setTimeout(() => controller.abort(), options.timeout ?? this.options.timeout)
 
         if (options.signal) {
             if (options.signal.aborted) controller.abort()
@@ -360,14 +368,16 @@ export class RestClient {
             defaultHeaders['Authorization'] = prefix + options.accessToken
         }
 
+        const method = <RequestMethod>(options.method ?? RequestMethod.Get)
+
         return async () => await (options.fetch ?? this.options.fetch)(url, {
             headers: {
                 ...defaultHeaders,
                 ...this.options.headers,
                 ...(options.headers ?? {}),
             },
-            method: options.method,
-            body: ![RequestMethod.Get].includes(options.method)
+            method,
+            body: ![RequestMethod.Get].includes(method)
                 ? options.body ?? null
                 : null,
             // AbortSignal | undefined is not a possible type...
