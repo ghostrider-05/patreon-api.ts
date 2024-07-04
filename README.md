@@ -42,7 +42,7 @@ You can not import this module by API version since it is unlikely that Patreon 
 
 </details>
 
-To read more about how to use this library, go to the [documentation](https://patreon-api.pages.dev). Still doubting if this library has everything you need related to the Patreon API? [Compare all libraries yourself](https://patreon-api.pages.dev/guide/introduction#why).
+To read more about how to use this library, go to the [documentation](https://patreon-api.pages.dev). Still doubting if this library has everything you need related to the Patreon API? [Compare all libraries yourself](https://patreon-api.pages.dev/guide/introduction#comparison).
 
 <details>
 <summary>Compatibility</summary>

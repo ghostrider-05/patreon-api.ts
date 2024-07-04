@@ -1,5 +1,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     SchemaRelationshipKeys,
     type DataItem,
     type DataItems,
