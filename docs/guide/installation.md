@@ -18,9 +18,11 @@ features:
 
 ## Platform
 
-<!-- @include: ../../README.md{41,51} -->
+<!-- @include: ../../README.md{50,59} -->
 
 ## Set up
+
+This package exports both CJS and ESM code. However, the guide will only have ESM examples.
 
 ::: code-group
 
@@ -38,7 +40,7 @@ yarn add patreon-api.ts
 
 :::
 
-<!-- @include: ../../README.md{26,35} -->
+<!-- @include: ../../README.md{35,42} -->
 
 To get started you can see one of the examples:
 
