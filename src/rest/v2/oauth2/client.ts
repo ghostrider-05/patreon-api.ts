@@ -108,7 +108,7 @@ export class PatreonOauthClient {
     }
 
     private async makeOauthRequest<T>(url: string, params: Record<string, string>) {
-        return await this.rest.post('', {
+        return await this.rest.post<T>('', {
             route: url,
             auth: false,
             headers: {
@@ -148,7 +148,7 @@ export class PatreonOauthClient {
         query: Query,
         oauthClient: PatreonOauthClient,
         options?: Oauth2FetchOptions,
-    ): Promise<GetResponsePayload<Query> | undefined> {
+    ): Promise<GetResponsePayload<Query>> {
         return oauthClient.fetch(path, query, options)
     }
 
@@ -181,7 +181,7 @@ export class PatreonOauthClient {
         path: string,
         query: Query,
         options?: Oauth2FetchOptions,
-    ): Promise<GetResponsePayload<Query> | undefined> {
+    ): Promise<GetResponsePayload<Query>> {
         const token = this.options.validateToken ? await PatreonOauthClient.validateToken(
             this,
             options?.token
@@ -189,7 +189,6 @@ export class PatreonOauthClient {
 
         return await this.rest.request({
             ...options,
-            method: <never>options?.method ?? 'GET',
             path,
             query: query.query,
             accessToken: typeof token === 'string' ? token : token?.access_token,
@@ -234,7 +233,8 @@ export class PatreonOauthClient {
      * Get an Oauth token from an redirect request. This request has a code parameter
      * @param url The request url, or the code, to use for fetching the access token
      * @returns Returns the token on success.
-     * Returns undefined for missing code, missing permission or invalid request.
+     * Returns `undefined` for missing code missing redirect uri.
+     * @throws on a failed request: can be e.g. because of missing permissions or invalid code
      */
     public async getOauthTokenFromCode(url: string | { code: string }): Promise<StoredToken | undefined> {
         const code = typeof url === 'string'
@@ -244,7 +244,7 @@ export class PatreonOauthClient {
         if (!code) return undefined
         if (!this.options.redirectUri) return undefined
 
-        const token: Token | undefined = await this.makeOauthRequest(this.options.accessTokenUri, {
+        const token: Token = await this.makeOauthRequest(this.options.accessTokenUri, {
             code,
             client_id: this.options.clientId,
             client_secret: this.options.clientSecret,
@@ -260,9 +260,10 @@ export class PatreonOauthClient {
     /**
      * Update an access token with the refresh token
      * @param token The refresh token, or the token with a `refresh_token`, to use
-     * @returns the updated access token or undefined on a failed request
+     * @returns the updated access token
+     * @throws on a failed request
      */
-    public async refreshToken(token: CreatorToken | Token | StoredToken | string): Promise<StoredToken | undefined> {
+    public async refreshToken(token: CreatorToken | Token | StoredToken | string): Promise<StoredToken> {
         const refresh_token = typeof token === 'string'
             ? token
             : token.refresh_token
