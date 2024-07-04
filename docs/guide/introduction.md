@@ -7,7 +7,7 @@ libraries:
       user: true
       creator: true
       webhooks: true
-      simplified: false
+      simplified: true
       raw: true
       fetch_patrons: true
       fetch_identity: true
@@ -146,7 +146,7 @@ See why I made this library with all[*](#search-filter) [JavaScript and TypeScri
 
 <LibraryTable />
 
-### Search filter
+:::details Repository requirements
 
 A library is included if it:
 
@@ -156,6 +156,8 @@ A library is included if it:
   - **not** for scraping, only related to badges, downloading assets or a Patreon clone
   - exports code or is published on NPM
 - is not archived
+
+:::
 
 ### Contributions
 
