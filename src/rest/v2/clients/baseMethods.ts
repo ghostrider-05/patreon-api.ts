@@ -1,5 +1,11 @@
-import type { BasePatreonQuery, BasePatreonQueryType, GetResponsePayload } from '../query'
+import { normalizeFromQuery, simplifyFromQuery } from '../../../payloads/v2'
 import type { Type } from '../../../schemas/v2'
+
+import type {
+    BasePatreonQuery,
+    BasePatreonQueryType,
+    GetResponsePayload,
+} from '../query'
 
 import {
     CreatorToken,
@@ -8,9 +14,14 @@ import {
     type StoredToken,
 } from '../oauth2/client'
 
+import {
+    RestClient,
+    type RequestMethod,
+    type RequestOptions,
+    type RESTOptions,
+} from '../oauth2/rest'
+
 import { Oauth2Routes } from '../oauth2/routes'
-import { RequestMethod, RequestOptions, RestClient, type RESTOptions } from '../oauth2/rest'
-import { normalizeFromQuery, simplifyFromQuery } from '../../../v2'
 
 type BaseFetchOptions = Omit<RequestOptions,
     | 'route'
