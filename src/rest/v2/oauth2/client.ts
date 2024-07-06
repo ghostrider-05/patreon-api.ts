@@ -210,9 +210,10 @@ export class PatreonOauthClient {
         options?: Oauth2FetchOptions,
     ): AsyncGenerator<GetResponsePayload<Query>, number, unknown> {
         let done = false, page = 1
+        let cursor: string | undefined = undefined
 
         while (!done) {
-            query.params.set('page[count]', page.toString())
+            if (cursor) query.params.set('page[cursor]', cursor)
             const pageQuery = createQuery(query.params) as unknown as Query
 
             const response = await this.fetch(path, pageQuery, options)
@@ -221,6 +222,7 @@ export class PatreonOauthClient {
 
             if ('meta' in response && response.meta.pagination.cursors?.next) {
                 page += 1
+                cursor = response.meta.pagination.cursors.next
             } else {
                 done = true
             }
