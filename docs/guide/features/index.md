@@ -2,7 +2,7 @@
 
 ## Authorization
 
-You can choose between two types of applications:
+The patreon API is only accessible by using Oauth. You can choose between two types of applications:
 
 - [Creator account](./oauth#creator-token)
 - [User Oauth](./oauth#user-oauth2)
@@ -10,6 +10,9 @@ You can choose between two types of applications:
 ## Request
 
 When you have created the application, you're ready to make a request.
+
+> [!NOTE]
+> In API v2, [all attributes must be explicitly requested](https://docs.patreon.com/#apiv2-oauth).
 
 You can use the methods on the client:
 

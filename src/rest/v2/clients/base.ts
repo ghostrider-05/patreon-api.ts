@@ -68,18 +68,18 @@ export abstract class PatreonClient extends PatreonClientMethods {
      */
     public webhooks: WebhookClient
 
-    public constructor(patreonOptions: PatreonClientOptions) {
-        super(patreonOptions.oauth, patreonOptions.rest)
+    public constructor(options: PatreonClientOptions) {
+        super(options.oauth, options.rest)
         this.webhooks = new WebhookClient(this.oauth)
 
-        this.name = patreonOptions.name ?? null
-        this.store = patreonOptions.store
+        this.name = options.name ?? null
+        this.store = options.store
 
         this.oauth.onTokenRefreshed = async (token) => {
             if (token) await this.putStoredToken?.(token, true)
         }
 
-        this.rest.options.getAccessToken ??= async () => {
+        this.oauth['rest'].options.getAccessToken ??= async () => {
             return await this.fetchStoredToken()
                 .then(token => token?.access_token)
         }
