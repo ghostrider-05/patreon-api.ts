@@ -136,7 +136,7 @@ keys:
 
 # Introduction
 
-<!-- @include:../../README.md{8,21} -->
+<!-- @include:../../README.md#introduction -->
 
 ## Comparison
 

@@ -5,6 +5,8 @@
 [![GitHub issues](https://img.shields.io/github/issues/ghostrider-05/patreon-api.ts)](https://github.com/ghostrider-05/patreon-api.ts/issues/)
 [![GitHub stars](https://img.shields.io/github/stars/ghostrider-05/patreon-api.ts?style=flat&label=stargazers)](https://github.com/ghostrider-05/patreon-api.ts/stars/)
 
+<!-- #region introduction -->
+
 Typescript Oauth library for the [V2 Patreon API](https://docs.patreon.com/) with:
 
 - Support for Creator access tokens and Oauth tokens.
@@ -20,6 +22,8 @@ const campaign = await client.fetchCampaign(query)
     // ^? { title: string, id: string, type: Type.Campaign }
 ```
 
+<!-- #endregion introduction -->
+
 ## Installation
 
 ```sh
@@ -33,6 +37,8 @@ yarn add patreon-api.ts
 <details>
 <summary>Supported Patreon api: v2</summary>
 
+<!-- #region api-versions -->
+
 > [!CAUTION]
 > This package does not include v1 of the Patreon API and starts with [API v2](https://docs.patreon.com/#apiv2-oauth)
 
@@ -40,12 +46,16 @@ The default API version for this package is `2` and might change in major versio
 When the default API version is changed, old versions will still receive updates.
 You can not import this module by API version since it is unlikely that Patreon will release a new version any time soon.
 
+<!-- #endregion api-versions -->
+
 </details>
 
 To read more about how to use this library, go to the [documentation](https://patreon-api.pages.dev). Still doubting if this library has everything you need related to the Patreon API? [Compare all libraries yourself](https://patreon-api.pages.dev/guide/introduction#comparison).
 
 <details>
 <summary>Compatibility</summary>
+
+<!-- #region compatibility -->
 
 To check for compatibility with this package, look if your platform:
 
@@ -57,6 +67,8 @@ To check for compatibility with this package, look if your platform:
 
 > [!WARNING]
 > This is a server-side API & Oauth package and requires your application tokens. Make sure you do not share or expose your tokens or run this code client-side.
+
+<!-- #endregion compatibility -->
 
 </details>
 

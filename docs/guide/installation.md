@@ -18,7 +18,7 @@ features:
 
 ## Platform
 
-<!-- @include: ../../README.md{50,59} -->
+<!-- @include: ../../README.md#compatibility -->
 
 ## Set up
 
@@ -40,7 +40,7 @@ yarn add patreon-api.ts
 
 :::
 
-<!-- @include: ../../README.md{35,42} -->
+<!-- @include: ../../README.md#api-versions -->
 
 To get started you can see one of the examples:
 
