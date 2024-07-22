@@ -51,13 +51,13 @@
   "devDependencies": {
     "@eslint/js": "^9.6.0",
     "@types/node": "^18.19.31",
-    "@vitest/coverage-istanbul": "^1.6.0",
+    "@vitest/coverage-istanbul": "^2.0.4",
     "eslint": "^9.6.0",
     "eslint-plugin-jsdoc": "^48.5.0",
     "ts-morph": "^23.0.0",
     "tsup": "^8.1.0",
     "typescript": "^5.5.2",
     "typescript-eslint": "^7.15.0",
-    "vitest": "1.6.0"
+    "vitest": "2.0.4"
   }
 }
