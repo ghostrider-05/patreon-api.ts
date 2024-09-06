@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.7.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.6.1...patreon-api.ts-v0.7.0) (2024-09-06)
+
+
+### Features
+
+* add documentation (closes [#40](https://github.com/ghostrider-05/patreon-api.ts/issues/40)) ([#46](https://github.com/ghostrider-05/patreon-api.ts/issues/46)) ([521b29e](https://github.com/ghostrider-05/patreon-api.ts/commit/521b29e0d0ff97fd7f3895be82983009147866cb))
+* add experimental support for normalized responses ([#53](https://github.com/ghostrider-05/patreon-api.ts/issues/53)) ([242587d](https://github.com/ghostrider-05/patreon-api.ts/commit/242587d66b20a2bdd6eca59c75dad637e1585b59))
+* export keys from schemas and relationships ([521b29e](https://github.com/ghostrider-05/patreon-api.ts/commit/521b29e0d0ff97fd7f3895be82983009147866cb))
+* **PatreonOauthClient:** add paginate and fetch to client from static methods ([bbf4d2f](https://github.com/ghostrider-05/patreon-api.ts/commit/bbf4d2f11a4d9b2529b0c0ce24a3ac45c64e0052))
+* **rest:** add timeout option to client ([242587d](https://github.com/ghostrider-05/patreon-api.ts/commit/242587d66b20a2bdd6eca59c75dad637e1585b59))
+
+
+### Bug Fixes
+
+* correct included query for address, campaign and tier ([521b29e](https://github.com/ghostrider-05/patreon-api.ts/commit/521b29e0d0ff97fd7f3895be82983009147866cb))
+* **PatreonClient:** do not overwrite options.rest.getAccessToken if specified ([bbf4d2f](https://github.com/ghostrider-05/patreon-api.ts/commit/bbf4d2f11a4d9b2529b0c0ce24a3ac45c64e0052))
+* **PatreonClient:** round StoredToken.expires_in to seconds when fetched from store ([bbf4d2f](https://github.com/ghostrider-05/patreon-api.ts/commit/bbf4d2f11a4d9b2529b0c0ce24a3ac45c64e0052))
+* **PatreonOauthClient:** correctly use cursor for paginating ([242587d](https://github.com/ghostrider-05/patreon-api.ts/commit/242587d66b20a2bdd6eca59c75dad637e1585b59))
+* **PatreonOauthClient:** remove undefined from return types ([242587d](https://github.com/ghostrider-05/patreon-api.ts/commit/242587d66b20a2bdd6eca59c75dad637e1585b59))
+
 ## [0.6.1](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.6.0...patreon-api.ts-v0.6.1) (2024-06-27)
 
 
