@@ -1,7 +1,7 @@
 # Normalized responses
 
 > [!WARNING]
-> This is WIP, see [#26](https://github.com/ghostrider-05/patreon-api.ts/issues/26)
+> This is experimental, see [#26](https://github.com/ghostrider-05/patreon-api.ts/issues/26)
 
 The Patreon API returns data in the [JSON:API]() format with the data spread over `attributes`, `relationships` and `included` fields.
 

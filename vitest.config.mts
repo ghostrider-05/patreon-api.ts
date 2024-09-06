@@ -13,6 +13,7 @@ export default defineConfig({
             exclude: [
                 '**/schemas/v2/generated/',
                 '**/schemas/v2/scripts/',
+                '**/payloads/v2/normalized/'
             ],
             thresholds: {
                 branches: threshold,

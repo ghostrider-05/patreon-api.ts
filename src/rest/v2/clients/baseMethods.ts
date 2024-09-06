@@ -186,7 +186,18 @@ class GenericPatreonClientMethods<TransformType extends ResponseTransformType> {
 export abstract class PatreonClientMethods extends GenericPatreonClientMethods<'default'> {
     public oauth: PatreonOauthClient
 
+    /**
+     * EXPERIMENTAL
+     *
+     * Issue a bug if something is broken
+     */
     public simplified: GenericPatreonClientMethods<'simplified'>
+
+    /**
+     * EXPERIMENTAL
+     *
+     * Issue a bug if something is broken
+     */
     public normalized: GenericPatreonClientMethods<'normalized'>
 
     public constructor (
