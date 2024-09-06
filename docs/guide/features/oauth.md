@@ -31,6 +31,7 @@ const creatorClient = new PatreonCreatorClient({
 ## User oauth2
 
 For handling Oauth2 requests, add `redirectUri` and if specified a `state` to the options.
+Determine the `scopes` you will need, request only the scopes that your application requires.
 Then fetch the token for the user with request url.
 Note that for handling Oauth2 requests the client will not cache or store the tokens anywhere in case you need to refresh it!
 
@@ -65,7 +66,7 @@ export default {
 
 There are 3 built-in methods of retreiving and storing tokens:
 
-1. Manual loading and storing, see the example below
+1. Manual loading and storing
 2. Fetch: use an external server that accepts `GET` and `PUT` requests
 3. KV: store the (creator) token in a KV-like storage system (present on a lot of edge-runtimes).
 
@@ -90,5 +91,26 @@ const storeClient = new PatreonCreatorClient({
             console.log(JSON.stringify(token))
         }
     }
+})
+```
+
+```ts
+import { PatreonCreatorClient } from 'patreon-api.ts'
+
+interface Env {
+    PATREON_CLIENT_ID: string
+    PATREON_CLIENT_SECRET: string
+    KV_STORE: cf.KVNamespace
+}
+
+// Use stored tokens in a database
+// And directly call the `store.get` method on starting the client
+const storeClient = new PatreonCreatorClient({
+    oauth: {
+        clientId: env.PATREON_CLIENT_ID,
+        clientSecret: env.PATREON_CLIENT_SECRET,
+    },
+    name: '<application>',
+    store: new PatreonStore.KV(env.KV_STORE),
 })
 ```

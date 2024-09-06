@@ -7,7 +7,7 @@ libraries:
       user: true
       creator: true
       webhooks: true
-      simplified: false
+      simplified: true
       raw: true
       fetch_patrons: true
       fetch_identity: true
@@ -136,17 +136,15 @@ keys:
 
 # Introduction
 
-> {{ site.description }}
+<!-- @include:../../README.md#introduction -->
 
-<!-- @include:../../README.md{9,14} -->
+## Comparison
 
-## Why
-
-See why I made this library with all[*](#search-filter) [JavaScript and TypeScript repositories for the Patreon API](https://github.com/search?q=patreon+language:JavaScript+language:TypeScript++archived:false++is:public+stars:%3E0&type=repositories&s=stars&o=desc) compared (scroll to see all features):
+See why I made this library with all* [JavaScript and TypeScript repositories for the Patreon API](https://github.com/search?q=patreon+language:JavaScript+language:TypeScript++archived:false++is:public+stars:%3E0&type=repositories&s=stars&o=desc) compared (scroll to see all features):
 
 <LibraryTable />
 
-### Search filter
+:::details Repository requirements
 
 A library is included if it:
 
@@ -157,13 +155,12 @@ A library is included if it:
   - exports code or is published on NPM
 - is not archived
 
+:::
+
 ### Contributions
 
 If a library has been updated or a new library has met the requirements above, issues or a pull request are accepted to update this table.
 
 <script setup>
 import LibraryTable from '../.vitepress/components/LibraryTable.vue'
-import { useData } from 'vitepress'
-
-const { site } = useData()
 </script>
