@@ -83,7 +83,7 @@ describe('oauth client', () => {
 
 
 describe('rest client', () => {
-    const client = createTestClient('creator', async () => new Response())['rest']
+    const client = createTestClient('creator', async () => new Response())['oauth']['rest']
 
     test('client', () => {
         expect(client.userAgent).toBeTypeOf('string')

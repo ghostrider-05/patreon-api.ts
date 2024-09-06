@@ -23,8 +23,8 @@ export class PatreonUserClientInstance extends PatreonClientMethods {
 
         return await this.fetchIdentity(query, { token: this.token })
             .then(res => {
-                const option = <{ userId: string } | null>(res.socialConnections.discord)
-                return option?.userId
+                const option = <{ user_id: string } | null>(res.data.attributes.social_connections.discord)
+                return option?.user_id
             })
     }
 }

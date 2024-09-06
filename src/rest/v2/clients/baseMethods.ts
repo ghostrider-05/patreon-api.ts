@@ -1,3 +1,5 @@
+/* eslint-disable jsdoc/require-returns */
+/* eslint-disable jsdoc/require-param */
 import { normalizeFromQuery, simplifyFromQuery } from '../../../payloads/v2'
 import type { Type } from '../../../schemas/v2'
 
@@ -181,10 +183,10 @@ class GenericPatreonClientMethods<TransformType extends ResponseTransformType> {
 }
 
 
-export abstract class PatreonClientMethods extends GenericPatreonClientMethods<'simplified'> {
+export abstract class PatreonClientMethods extends GenericPatreonClientMethods<'default'> {
     public oauth: PatreonOauthClient
 
-    public api: GenericPatreonClientMethods<'default'>
+    public simplified: GenericPatreonClientMethods<'simplified'>
     public normalized: GenericPatreonClientMethods<'normalized'>
 
     public constructor (
@@ -195,12 +197,12 @@ export abstract class PatreonClientMethods extends GenericPatreonClientMethods<'
         const restClient = new RestClient(rest)
         const oauth = new PatreonOauthClient(rawOauthOptions, restClient)
 
-        super(oauth, 'simplified', _token)
+        super(oauth, 'default', _token)
 
         this.oauth = oauth
 
         this.normalized = new GenericPatreonClientMethods(oauth, 'normalized', _token)
-        this.api = new GenericPatreonClientMethods(oauth, 'default', _token)
+        this.simplified = new GenericPatreonClientMethods(oauth, 'simplified', _token)
     }
 }
 
