@@ -13,8 +13,9 @@ import type {
 import { BasePatreonQuery, GetResponsePayload } from '../../../v2'
 
 /**
- *
- * @param payload
+ * Returns if the payload has pagination data
+ * @param payload The payload to check
+ * @returns the result
  */
 export function isListingPayload <
     T extends Type,
@@ -25,8 +26,9 @@ export function isListingPayload <
 }
 
 /**
- *
- * @param payload
+ * Returns if the normalized payload has pagination data
+ * @param payload The payload to check
+ * @returns the result
  */
 export function isListingNormalizedPayload<
     T extends Type,
@@ -37,8 +39,9 @@ export function isListingNormalizedPayload<
 }
 
 /**
- *
+ * EXPERIMENTAL Issue a bug if something is broken
  * @param payload
+ * @returns
  */
 export function normalize <
     T extends Type,
@@ -90,8 +93,9 @@ export function normalize <
 }
 
 /**
- *
+ * EXPERIMENTAL Issue a bug if something is broken
  * @param payload
+ * @returns
  */
 export function normalizeFromQuery<
     Query extends BasePatreonQuery
@@ -100,8 +104,9 @@ export function normalizeFromQuery<
 }
 
 /**
- *
+ * EXPERIMENTAL Issue a bug if something is broken
  * @param payload
+ * @returns
  */
 export function simplify<
     T extends Type,
@@ -112,8 +117,9 @@ export function simplify<
 }
 
 /**
- *
+ * EXPERIMENTAL Issue a bug if something is broken
  * @param payload
+ * @returns
  */
 export function simplifyFromQuery<Query extends BasePatreonQuery>(payload: GetResponsePayload<Query>): AnyToCamelCase<GetNormalizedResponsePayload<Query>> {
     return convertToCamelcase(normalizeFromQuery(payload))
