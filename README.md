@@ -16,9 +16,9 @@ Typescript Oauth library for the [V2 Patreon API](https://docs.patreon.com/) wit
 
 ```ts
 const query = buildQuery.campaign([])({ campaign: ['title']})
-const payload = await client.api.fetchCampaign(query)
+const payload = await client.fetchCampaign(query)
     // ^? { data: { attributes: { title: string } }, ... }
-const campaign = await client.fetchCampaign(query)
+const campaign = await client.normalized.fetchCampaign(query)
     // ^? { title: string, id: string, type: Type.Campaign }
 ```
 
