@@ -1,6 +1,12 @@
 import { syncResourceKeys } from './keys'
 import { syncRelationships } from './relationships'
 
-syncResourceKeys()
-    .then(syncRelationships)
-    .then(() => process.exit(0))
+// eslint-disable-next-line jsdoc/require-jsdoc
+async function syncSchemas () {
+    await syncResourceKeys()
+    await syncRelationships()
+
+    process.exit(0)
+}
+
+syncSchemas()
