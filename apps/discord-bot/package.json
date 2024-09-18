@@ -1,0 +1,19 @@
+{
+  "name": "@patreon-api.ts/discord-bot",
+  "version": "0.1.0",
+  "description": "",
+  "private": true,
+  "type": "module",
+  "author": "ghostrider-05",
+  "license": "MIT",
+  "scripts": {
+    "types": "wrangler types ./src/types.d.ts",
+    "login": "wrangler login"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "4.20240909.0",
+    "discord-api-types": "^0.37.100",
+    "patreon-api.ts": "^0.7.0",
+    "wrangler": "^3.76.0"
+  }
+}
