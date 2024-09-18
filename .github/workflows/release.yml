@@ -22,8 +22,7 @@ jobs:
           node-version: 20
           registry-url: 'https://registry.npmjs.org'
         if: ${{ steps.release.outputs.release_created }}
-        # TODO: remove on ts-lint@v8
-      - run: npm ci --legacy-peer-deps
+      - run: npm ci
         if: ${{ steps.release.outputs.release_created }}
       - run: npm run prestart
         if: ${{ steps.release.outputs.release_created }}
