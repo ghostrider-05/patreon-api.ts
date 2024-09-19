@@ -7,8 +7,6 @@ import {
     PatreonWebhookMemberTrigger,
 } from "patreon-api.ts";
 
-import { Config } from "../types";
-
 // TODO
 function html2md (html: string | null): string {
     if (html == null || html.length === 0) return ''

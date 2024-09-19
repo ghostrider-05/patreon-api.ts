@@ -1,5 +1,3 @@
-import { Config } from './types'
-
 import handleInteractionRequest from './interactions/'
 import { getPatreonWebhookRoutes, handlePatreonWebhook } from './webhook/webhook'
 

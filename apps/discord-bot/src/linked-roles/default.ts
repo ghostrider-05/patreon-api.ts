@@ -1,7 +1,5 @@
 import { ApplicationRoleConnectionMetadataType } from "discord-api-types/v10";
 
-import { Config } from "../types";
-
 export const defaultLinkedRolesData: NonNullable<Config.LinkedRolesConfig['data']> = [
     {
         metadata: {

@@ -2,8 +2,8 @@ import {
     type APIMessage,
     type APIThreadChannel,
     ChannelType,
-    RESTPostAPIChannelMessageJSONBody,
-    RESTPostAPIChannelMessagesThreadsJSONBody,
+    type RESTPostAPIChannelMessageJSONBody,
+    type RESTPostAPIChannelMessagesThreadsJSONBody,
     type RESTPostAPIGuildForumThreadsJSONBody,
     type RESTPostAPIWebhookWithTokenJSONBody,
     Routes,
@@ -14,12 +14,11 @@ import {
     WebhookClient,
 } from 'patreon-api.ts';
 
-import { Config } from '../types';
+import { makeDiscordRequest } from '../interactions';
 import { getConfig, getPossibleWebhookConfigs, isPostPayload } from './config';
-import { getWebhookUrl, makeDiscordRequest } from './discord';
 import { createMemberMessage, createPostMessage, createText } from './messages';
+import { requiredTriggers, updateGuildRoles } from './roles';
 import { getMessageStorage } from './storage';
-import { updateGuildRoles } from './roles';
 
 export const webhookPath = '/patreon/webhook'
 
@@ -29,6 +28,17 @@ export function getPatreonWebhookRoutes (campaigns: Config.CampaignConfig[]): st
 
     if (routes.length === 0) return []
     else return [...new Set(routes)]
+}
+
+function getWebhookUrl (config: Config.WebhookMessageConfig, env: Config.Env) {
+    if (config.app_type === 'webhook' || !env.use_bot_scope) {
+        const webhookUrl = config.discord_webhook?.url_secret_name
+            ? <string | undefined>env[config.discord_webhook.url_secret_name]
+            : undefined
+        if (!webhookUrl) throw new Error('No webhook found in secrets for Discord webhook: ' + config.discord_webhook?.url_secret_name)
+        
+        return webhookUrl
+    } else return undefined
 }
 
 function isThread (type: ChannelType) {
@@ -48,6 +58,15 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
     const parsed = await parseWebhookRequest(request, <string>env[configs.secretName])
     if (!parsed.verified) return new Response('Failed to verify request', { status: 403 })
     console.log(`New Patreon webhook request. Path: ${path}. Event: ${parsed.event}`, configs.options, parsed.payload)
+
+    if (requiredTriggers.includes(parsed.event) && configs.campaign.guild_roles != undefined) {
+        await updateGuildRoles({
+            config: configs.campaign,
+            env,
+            member: <never>parsed.payload,
+            trigger: parsed.event,
+        })
+    }
 
     const config = getConfig(configs.options, parsed.event, parsed.payload)
     if (!config) throw new Error('No configuration found that matches post data')
@@ -73,8 +92,10 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
                     await makeDiscordRequest({
                         env,
                         method: 'DELETE',
-                        path: Routes.channelMessage(config.channel_id, message.messageId),
                         reason: postOptions.delete_audit_log_reason,
+                        bot: {
+                            path: Routes.channelMessage(config.channel_id, message.messageId),
+                        },
                         webhook: {
                             url: webhookUrl,
                             path: `/messages/${message.messageId}`,
@@ -90,8 +111,10 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
                 await makeDiscordRequest({
                     env,
                     method: 'POST',
-                    path: Routes.channelMessages(config.channel_id),
-                    body: JSON.stringify(postMessage),
+                    bot: {
+                        path: Routes.channelMessages(config.channel_id),
+                        body: JSON.stringify(postMessage),
+                    },
                     webhook: {
                         url: webhookUrl,
                         params: {
@@ -114,9 +137,11 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
                     await makeDiscordRequest({
                         env,
                         method: 'PATCH',
-                        path: Routes.channelMessage(config.channel_id, message.messageId),
                         reason: postOptions.edit_audit_log_reason,
-                        body: JSON.stringify(postMessage),
+                        bot: {
+                            path: Routes.channelMessage(config.channel_id, message.messageId),
+                            body: JSON.stringify(postMessage),
+                        },
                         webhook: {
                             url: webhookUrl,
                             path: `/messages/${message.messageId}`,
@@ -130,8 +155,10 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
                 await makeDiscordRequest({
                     env,
                     method: 'POST',
-                    path: Routes.channelMessages(config.channel_id),
-                    body: JSON.stringify(postMessage),
+                    bot: {
+                        path: Routes.channelMessages(config.channel_id),
+                        body: JSON.stringify(postMessage),
+                    },
                     webhook: {
                         url: webhookUrl,
                         params: {
@@ -157,15 +184,17 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
                 const response = await makeDiscordRequest({
                     env,
                     method: 'POST',
-                    path: Routes.threads(config.channel_id),
-                    body: JSON.stringify({
-                        message: postMessage,
-                        name: thread_name,
-                        applied_tags: options.forum_tags ?? [],
-                        auto_archive_duration: options.thread_auto_archive,
-                        rate_limit_per_user: options.thread_rate_limit,
-                    } satisfies RESTPostAPIGuildForumThreadsJSONBody),
                     reason: options.thread_reason,
+                    bot: {
+                        path: Routes.threads(config.channel_id),
+                        body: JSON.stringify({
+                            message: postMessage,
+                            name: thread_name,
+                            applied_tags: options.forum_tags ?? [],
+                            auto_archive_duration: options.thread_auto_archive,
+                            rate_limit_per_user: options.thread_rate_limit,
+                        } satisfies RESTPostAPIGuildForumThreadsJSONBody),
+                    },
                     webhook: {
                         url: webhookUrl,
                         body: JSON.stringify({
@@ -198,8 +227,10 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
                 const response = await makeDiscordRequest({
                     env,
                     method: 'POST',
-                    path: Routes.channelMessages(config.channel_id),
-                    body: JSON.stringify(postMessage satisfies RESTPostAPIChannelMessageJSONBody),
+                    bot: {
+                        path: Routes.channelMessages(config.channel_id),
+                        body: JSON.stringify(postMessage satisfies RESTPostAPIChannelMessageJSONBody),
+                    },
                     webhook: {
                         url: webhookUrl,
                         params: {
@@ -223,14 +254,16 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
                     await makeDiscordRequest({
                         env,
                         method: 'POST',
-                        path: Routes.threads(config.channel_id, json.id),
                         reason: options.thread_reason,
-                        body: JSON.stringify({
-                            name: createText(config.title, payload.data.attributes, 'title', 'New post published')
-                                .slice(0, 100),
-                            auto_archive_duration: options.thread_auto_archive,
-                            rate_limit_per_user: options.thread_rate_limit,
-                        } satisfies RESTPostAPIChannelMessagesThreadsJSONBody)
+                        bot: {
+                            path: Routes.threads(config.channel_id, json.id),
+                            body: JSON.stringify({
+                                name: createText(config.title, payload.data.attributes, 'title', 'New post published')
+                                    .slice(0, 100),
+                                auto_archive_duration: options.thread_auto_archive,
+                                rate_limit_per_user: options.thread_rate_limit,
+                            } satisfies RESTPostAPIChannelMessagesThreadsJSONBody),
+                        },
                     })
                 }
 
@@ -246,7 +279,9 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
                     await makeDiscordRequest({
                         env,
                         method: 'POST',
-                        path: Routes.channelMessageCrosspost(config.channel_id, json.id),
+                        bot: {
+                            path: Routes.channelMessageCrosspost(config.channel_id, json.id),
+                        },
                     })
                 }
 
@@ -280,8 +315,10 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
         await makeDiscordRequest({
             env,
             method: 'POST',
-            path: Routes.channelMessages(config.channel_id),
-            body: JSON.stringify(message satisfies RESTPostAPIChannelMessageJSONBody),
+            bot: {
+                path: Routes.channelMessages(config.channel_id),
+                body: JSON.stringify(message satisfies RESTPostAPIChannelMessageJSONBody),
+            },
             webhook: {
                 url: getWebhookUrl(config, env),
                 body: JSON.stringify({

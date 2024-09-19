@@ -1,12 +1,16 @@
 import { PatreonCreatorClient, PatreonStore } from "patreon-api.ts";
-import { Config } from "../types";
 
-export function createClient (env: Config.Env, kv: KVNamespace, key: string) {
+interface StoreOptions {
+    key: string
+    kv: KVNamespace
+}
+
+export function createClient (env: Config.Env, store: StoreOptions) {
     return new PatreonCreatorClient({
         oauth: {
             clientId: env.PATREON_CLIENT_ID,
             clientSecret: env.PATREON_CLIENT_SECRET,
         },
-        store: new PatreonStore.KV(kv, key),
+        store: new PatreonStore.KV(store.kv, store.key),
     })
 }

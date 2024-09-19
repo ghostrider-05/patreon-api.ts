@@ -1,9 +1,12 @@
-import { PatreonWebhookMemberTrigger, PatreonWebhookTrigger, WebhookPayload } from "patreon-api.ts";
-
-import { Config } from "../types";
-import { getMemberStorage } from "./storage";
-import { makeDiscordRequest } from "./discord";
 import { Routes } from "discord-api-types/v10";
+import {
+    type PatreonWebhookMemberTrigger,
+    PatreonWebhookTrigger,
+    type WebhookPayload,
+} from "patreon-api.ts";
+
+import { makeDiscordRequest } from "../interactions/";
+import { getMemberStorage } from "./storage";
 
 function getStorage (config: Config.CampaignConfig, env: Config.Env) {
     if (config.guild_roles == undefined) return undefined
@@ -37,10 +40,12 @@ async function manageRoles (env: Config.Env, campaign: Config.CampaignConfig, id
         await makeDiscordRequest({
             env,
             method: action === 'add' ? 'PUT' : 'DELETE',
-            path: Routes.guildMemberRole(campaign.guild_id, id, role),
             reason: action === 'add'
                 ? campaign.guild_roles?.reason_add
                 : campaign.guild_roles?.reason_remove,
+            bot: {
+                path: Routes.guildMemberRole(campaign.guild_id, id, role),
+            },
         })
     }
 

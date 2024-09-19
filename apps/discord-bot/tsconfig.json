@@ -9,7 +9,7 @@
         "types": [
             "@cloudflare/workers-types/2023-07-01",
             "./src/types.d.ts"
-        ]
+        ],
     },
     "include": [
         "src"

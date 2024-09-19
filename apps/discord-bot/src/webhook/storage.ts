@@ -1,5 +1,3 @@
-import { Config } from "../types"
-
 export interface Storage<Data> {
     save(data: Data): Promise<void>
     deleteItem(id: string): Promise<void>
