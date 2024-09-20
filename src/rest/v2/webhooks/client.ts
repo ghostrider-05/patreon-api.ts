@@ -1,3 +1,4 @@
+import { type WebhookPayload } from '../../../payloads/v2'
 import {
     Type,
     type AttributeItem,
@@ -7,13 +8,13 @@ import {
     type Relationship,
     type Webhook,
 } from '../../../schemas/v2'
-import { type WebhookPayload } from '../../../payloads/v2'
 
 import { Oauth2Routes } from '../oauth2'
 import { createQuery, type BasePatreonQueryType, type GetResponsePayload } from '../query'
 
 import type { Oauth2RouteOptions } from '../clients/baseMethods'
 import { PatreonOauthClient } from '../oauth2/client'
+import { WebhookPayloadClient } from './payload'
 
 export type Oauth2WebhookRouteOptions = Omit<Oauth2RouteOptions, 'body' | 'contentType'>
 
@@ -60,6 +61,8 @@ export class WebhookClient {
             [key]: headers.get(this.headers[key]),
         }), {} as Record<keyof typeof this.headers, string | null>)
     }
+
+    public payloads = WebhookPayloadClient
 
     public constructor (
         public oauth: PatreonOauthClient,
