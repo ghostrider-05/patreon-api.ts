@@ -3,6 +3,7 @@ import { RouteBases } from 'discord-api-types/v10'
 /**
  *
  * @param params
+ * @returns
  */
 function createParams (params?: Record<string, string | boolean | number | null | undefined>) {
     return Object.keys(params ?? {}).reduce((str, key) => {
@@ -19,17 +20,7 @@ interface RequestOptions<Params> {
     params?: Params
 }
 
-/**
- *
- * @param data
- * @param data.env
- * @param data.method
- * @param data.reason
- * @param data.bearerToken
- * @param data.bot
- * @param data.webhook
- */
-export async function makeDiscordRequest (data: {
+interface RequestData {
     env: Config.Env
     method: string
     reason?: string
@@ -43,7 +34,14 @@ export async function makeDiscordRequest (data: {
     }>> & {
         url: string | undefined
     }
-}) {
+}
+
+/**
+ *
+ * @param data
+ * @returns
+ */
+export async function makeDiscordRequest (data: RequestData) {
     const { env, method, webhook, bot, reason, bearerToken } = data
 
     const headers: Record<string, string> = {

@@ -54,14 +54,6 @@ function getWebhookUrl (config: Config.WebhookMessageConfig, env: Config.Env) {
 
 /**
  *
- * @param type
- */
-function isThread (type: ChannelType) {
-    return [ChannelType.PublicThread, ChannelType.PrivateThread, ChannelType.AnnouncementThread].includes(type)
-}
-
-/**
- *
  * @param request
  * @param env
  */
@@ -97,7 +89,11 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
     const config = getConfig(configs.options, parsed.event, parsed.payload)
     if (!config) throw new Error('No configuration found that matches post data')
 
-    const thread_id = isThread(config.channel_type) ? config.channel_id : undefined
+    const thread_id = [
+        ChannelType.PublicThread,
+        ChannelType.PrivateThread,
+        ChannelType.AnnouncementThread,
+    ].includes(config.channel_type) ? config.channel_id : undefined
 
     if (WebhookPayloadClient.isPostPayload(parsed.event, parsed.payload)) {
         const { event, payload } = parsed
