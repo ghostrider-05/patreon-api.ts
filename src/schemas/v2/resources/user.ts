@@ -1,4 +1,4 @@
-import { type CustomTypeOptions } from '../../../utils/'
+import { CustomTypeOption, type CustomTypeOptions } from '../../../utils/'
 
 /** @deprecated will be removed in future version */
 export type SocialConnectionPlatform = keyof {
@@ -96,7 +96,7 @@ export interface User {
         }
      * ```
      */
-    social_connections: CustomTypeOptions extends { social_connections: unknown } ? CustomTypeOptions['social_connections'] : object
+    social_connections: CustomTypeOption<'social_connections', object>
 
     /**
      * The user's profile picture URL, scaled to a square of size 100x100px

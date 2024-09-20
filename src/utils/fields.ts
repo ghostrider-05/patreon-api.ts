@@ -50,3 +50,7 @@ export type AdditionalKeys<
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface CustomTypeOptions {}
+
+export type CustomTypeOption<Key extends string, Value> = CustomTypeOptions extends { [K in Key]: unknown }
+    ? CustomTypeOptions[Key]
+    : Value

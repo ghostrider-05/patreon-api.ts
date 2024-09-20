@@ -98,6 +98,10 @@ export function createGuideItem (expandFeatures = false): SharedItem {
                 link: '/guide/installation'
             },
             {
+                text: 'Configuration',
+                link: '/guide/configuration'
+            },
+            {
                 text: 'Features',
                 ...{ ...(expandFeatures ? { items: features, collapsed: false } : { link: '/guide/features/' }) },
             },

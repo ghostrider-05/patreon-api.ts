@@ -1,6 +1,6 @@
 ---
 features:
-  - title: Cloudlfare webhook
+  - title: Cloudflare webhook
     details: Worker to forward Patreon posts to Discord
     link: https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/cloudflare-webhook/
     linkText: See on GitHub
