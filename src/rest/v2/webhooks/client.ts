@@ -36,7 +36,7 @@ export type APIPostWebhookResponse = DataItem<Type.Webhook, false> & {
 /**
  * Gets the assiocated user from the webhook request
  * @param payload the webhook parsed body
- * @returns the user / patron id
+ * @returns the user id
  * @deprecated
  */
 export function getWebhookUserId (payload: WebhookPayload): string {
