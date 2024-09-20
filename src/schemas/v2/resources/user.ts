@@ -1,4 +1,4 @@
-import { CustomTypeOption, type CustomTypeOptions } from '../../../utils/'
+import { type CustomTypeOption } from '../../../utils/'
 
 /** @deprecated will be removed in future version */
 export type SocialConnectionPlatform = keyof {

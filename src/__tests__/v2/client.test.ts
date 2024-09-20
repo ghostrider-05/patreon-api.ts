@@ -133,6 +133,9 @@ describe('creator client', () => {
         const token = await client.fetchApplicationToken()
         expect(token).toHaveProperty('success', true)
         expect(token).toHaveProperty('token', { access_token: 'token' })
+
+        const result = await client.initialize()
+        expect(result).toEqual(token.success)
     })
 
     test('stored token: get', async () => {
@@ -221,6 +224,11 @@ describe('user client', () => {
 
         const instance2 = await client.createInstance({ url })
         expect(instance2).toBeDefined()
+
+        expect(await (async function () {
+            return await client.createInstance(<never>{ url: undefined })
+                .catch(() => undefined)
+        })()).toBeUndefined()
     })
 
     test('user discord id', async () => {
