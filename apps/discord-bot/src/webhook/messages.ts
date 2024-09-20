@@ -1,19 +1,30 @@
 import {
     type RESTPostAPIChannelMessageJSONBody,
-} from "discord-api-types/v10";
+} from 'discord-api-types/v10'
 import {
     type PatreonWebhookPostTrigger,
     type WebhookPayload,
     PatreonWebhookMemberTrigger,
-} from "patreon-api.ts";
+} from 'patreon-api.ts'
 
 // TODO
+/**
+ *
+ * @param html
+ */
 function html2md (html: string | null): string {
     if (html == null || html.length === 0) return ''
 
     return html
 }
 
+/**
+ *
+ * @param option
+ * @param attributes
+ * @param attribute
+ * @param unknown
+ */
 export function createText <Keys extends string>(
     option: string | undefined,
     attributes: Record<Keys, unknown>,
@@ -25,6 +36,11 @@ export function createText <Keys extends string>(
         : new String((attribute ? attributes[attribute] : undefined) ?? unknown ?? '').toString()
 }
 
+/**
+ *
+ * @param config
+ * @param payload
+ */
 export function createPostMessage (
     config: Config.WebhookMessageConfig,
     payload: WebhookPayload<PatreonWebhookPostTrigger>,
@@ -44,18 +60,24 @@ export function createPostMessage (
                 url: payload.data.attributes.embed_url,
             } : undefined
         }]} satisfies RESTPostAPIChannelMessageJSONBody
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         : { content: description || payload.data.attributes.title! }
 
     return {
         allowed_mentions: {},
         components: config.posts?.buttons != undefined
             && (config.app_type === 'webhook' ? config.discord_webhook?.is_app_owned : true)
-                ? [{ type: 1, components: config.posts.buttons }]
-                : undefined,
+            ? [{ type: 1, components: config.posts.buttons }]
+            : undefined,
         ...content,
     } satisfies RESTPostAPIChannelMessageJSONBody
 }
 
+/**
+ *
+ * @param config
+ * @param payload
+ */
 export function createMemberMessage (
     config: Config.WebhookMessageConfig,
     payload: WebhookPayload<PatreonWebhookMemberTrigger>,
@@ -75,8 +97,8 @@ export function createMemberMessage (
         allowed_mentions: {},
         components: config.posts?.buttons != undefined
             && (config.app_type === 'webhook' ? config.discord_webhook?.is_app_owned : true)
-                ? [{ type: 1, components: config.posts.buttons }]
-                : undefined,
+            ? [{ type: 1, components: config.posts.buttons }]
+            : undefined,
         ...content,
     } satisfies RESTPostAPIChannelMessageJSONBody
 }

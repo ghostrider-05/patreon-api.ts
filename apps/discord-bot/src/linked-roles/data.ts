@@ -1,10 +1,14 @@
 import {
     type Member,
     type User,
-} from "patreon-api.ts";
+} from 'patreon-api.ts'
 
-import { defaultLinkedRolesData } from "./default";
+import { defaultLinkedRolesData } from './default'
 
+/**
+ *
+ * @param config
+ */
 export function getAttributes (config: Config.LinkedRolesConfig) {
     const attributes = (config.data ?? defaultLinkedRolesData).map(item => item.attribute)
 
@@ -14,6 +18,12 @@ export function getAttributes (config: Config.LinkedRolesConfig) {
     }
 }
 
+/**
+ *
+ * @param config
+ * @param user
+ * @param member
+ */
 export function getLinkedRolesMemberData (config: Config.LinkedRolesConfig, user: User, member: Member): Record<string, string | number> {
     const data: Record<string, string | number> = {}
 

@@ -1,9 +1,9 @@
-import type { Member, PatreonWebhookTrigger, User } from 'patreon-api.ts';
+import type { Member, PatreonWebhookTrigger, User } from 'patreon-api.ts'
 
 import type {
-	APIApplicationRoleConnectionMetadata,
-	APIButtonComponentWithURL,
-} from 'discord-api-types/v10';
+    APIApplicationRoleConnectionMetadata,
+    APIButtonComponentWithURL,
+} from 'discord-api-types/v10'
 
 declare global {
 	namespace Config {
@@ -162,5 +162,5 @@ declare global {
 
 }
 
-export { };
+export { }
 

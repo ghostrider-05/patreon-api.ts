@@ -17,8 +17,8 @@
     "build": "tsup",
     "test": "vitest --typecheck",
     "test:coverage": "vitest run --typecheck --coverage",
-    "lint": "npx eslint src/**/*.ts",
-    "lint:fix": "npx eslint --fix src/**/*.ts"
+    "lint": "npx eslint src/**/*.ts apps/**/*.ts examples/**/*.ts",
+    "lint:fix": "npx eslint --fix src/**/*.ts apps/**/*.ts examples/**/*.ts"
   },
   "engines": {
     "node": ">=18.17"

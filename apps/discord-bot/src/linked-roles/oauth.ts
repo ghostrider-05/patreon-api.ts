@@ -1,24 +1,29 @@
 import {
     type RESTPutAPICurrentUserApplicationRoleConnectionJSONBody,
     Routes,
-} from "discord-api-types/v10";
+} from 'discord-api-types/v10'
 import {
     Member,
     PatreonOauthScope,
     PatreonUserClient,
+    WebhookMemberPayload,
     type StoredToken,
-} from "patreon-api.ts";
+} from 'patreon-api.ts'
 
-import { makeDiscordRequest } from "../interactions";
-import { fetchOauthMemberships } from "../patreon/member";
-import { createText } from "../webhook/messages";
-import { getAttributes, getLinkedRolesMemberData } from "./data";
+import { makeDiscordRequest } from '../interactions'
+import { fetchOauthMemberships } from '../patreon/member'
+import { createText } from '../webhook/messages'
+import { getAttributes, getLinkedRolesMemberData } from './data'
 
 export const linkedRolesPath = {
     auth: '/linked-roles/auth',
     callback: '/linked-roles/callback',
 }
 
+/**
+ *
+ * @param env
+ */
 export function createLinkedRoleRedirect (env: Config.Env): string {
     const client = new PatreonUserClient({
         oauth: {
@@ -36,6 +41,11 @@ export function createLinkedRoleRedirect (env: Config.Env): string {
     })
 }
 
+/**
+ *
+ * @param env
+ * @param request
+ */
 export async function handleLinkedRolesCallback (env: Config.Env, request: Request) {
     if (!env.linked_roles) {
         return new Response('No linked roles configured', { status: 500 })
@@ -75,11 +85,20 @@ export async function handleLinkedRolesCallback (env: Config.Env, request: Reque
     await storeOauthToken(member.data.id, token)
 }
 
+/**
+ *
+ * @param memberId
+ * @param token
+ */
 async function storeOauthToken (memberId: string, token: StoredToken) {
 
 }
 
-async function updateLinkedRolesForMember (member: Member) {
+/**
+ *
+ * @param payload
+ */
+export async function updateLinkedRolesForMember (payload: WebhookMemberPayload) {
 
 }
 

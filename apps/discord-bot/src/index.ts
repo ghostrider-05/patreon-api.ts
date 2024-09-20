@@ -22,14 +22,14 @@ export default <ExportedHandler<Config.Env>>{
         }
 
         switch (pathname) {
-            case '/interactions':
-                return await handleInteractionRequest(request)
-            case linkedRolesPath.auth:
-                return createLinkedRoleRedirect(env)
-            case linkedRolesPath.callback:
-                return handleLinkedRolesCallback(env, request)
-            default:
-                return new Response()
+        case '/interactions':
+            return await handleInteractionRequest(request)
+        case linkedRolesPath.auth:
+            return createLinkedRoleRedirect(env)
+        case linkedRolesPath.callback:
+            return handleLinkedRolesCallback(env, request)
+        default:
+            return new Response()
         }
     }
 }

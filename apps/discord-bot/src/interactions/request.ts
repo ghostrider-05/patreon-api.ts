@@ -1,5 +1,9 @@
-import { RouteBases } from "discord-api-types/v10"
+import { RouteBases } from 'discord-api-types/v10'
 
+/**
+ *
+ * @param params
+ */
 function createParams (params?: Record<string, string | boolean | number | null | undefined>) {
     return Object.keys(params ?? {}).reduce((str, key) => {
         if (params?.[key] != null && params[key] != undefined) {
@@ -15,6 +19,16 @@ interface RequestOptions<Params> {
     params?: Params
 }
 
+/**
+ *
+ * @param data
+ * @param data.env
+ * @param data.method
+ * @param data.reason
+ * @param data.bearerToken
+ * @param data.bot
+ * @param data.webhook
+ */
 export async function makeDiscordRequest (data: {
     env: Config.Env
     method: string

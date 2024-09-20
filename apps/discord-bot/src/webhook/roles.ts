@@ -1,13 +1,18 @@
-import { Routes } from "discord-api-types/v10";
+import { Routes } from 'discord-api-types/v10'
 import {
     type PatreonWebhookMemberTrigger,
     PatreonWebhookTrigger,
     type WebhookPayload,
-} from "patreon-api.ts";
+} from 'patreon-api.ts'
 
-import { makeDiscordRequest } from "../interactions/";
-import { getMemberStorage } from "./storage";
+import { makeDiscordRequest } from '../interactions/'
+import { getMemberStorage } from './storage'
 
+/**
+ *
+ * @param config
+ * @param env
+ */
 function getStorage (config: Config.CampaignConfig, env: Config.Env) {
     if (config.guild_roles == undefined) return undefined
     if (!env.use_bot_scope) {
@@ -33,6 +38,14 @@ export const requiredTriggers = [
     PatreonWebhookTrigger.MemberUpdated,
 ]
 
+/**
+ *
+ * @param env
+ * @param campaign
+ * @param id
+ * @param action
+ * @param roles
+ */
 async function manageRoles (env: Config.Env, campaign: Config.CampaignConfig, id: string, action: 'add' | 'remove', roles: string[]) {
     if (roles.length === 0) return false
 
@@ -52,15 +65,20 @@ async function manageRoles (env: Config.Env, campaign: Config.CampaignConfig, id
     return true
 }
 
+/**
+ *
+ * @param options
+ */
 export async function updateGuildRoles (options: Options) {
     const { config, env, member: { relationships, attributes, id: memberId }, trigger } = options
 
+    if (!config.guild_roles) return
     const storage = getStorage(config, env)
     if (!storage) return
 
     const stored = await storage.fetchItem(memberId)
     if (!stored) return
-    const roles = config.guild_roles!
+    const roles = config.guild_roles
 
     if (trigger === PatreonWebhookTrigger.MemberPledgeCreated) {
         let added_roles: string[] = []
@@ -98,10 +116,10 @@ export async function updateGuildRoles (options: Options) {
                         if (role.tier_id && !relationships.currently_entitled_tiers.data.some(t => t.id === role.tier_id)) return false
                         return true
                     }
-        
+
                     return false
                 })
-        
+
                 const newRoles = memberRoles.map(r => r.id).filter(r => !stored.discord_roles.includes(r))
                 const added = await manageRoles(env, config, stored.discord_id, 'add', newRoles)
                 if (added) added_roles = newRoles
@@ -131,6 +149,11 @@ export async function updateGuildRoles (options: Options) {
     }
 }
 
+/**
+ *
+ * @param config
+ * @param env
+ */
 export async function checkGuildMembers (config: Config.CampaignConfig, env: Config.Env) {
     const storage = getStorage(config, env)
     if (!storage) return
@@ -139,7 +162,7 @@ export async function checkGuildMembers (config: Config.CampaignConfig, env: Con
 
     for (const member of members) {
         if (member.until != null) {
-
+            // Remove access of member at until date
         }
     }
 }

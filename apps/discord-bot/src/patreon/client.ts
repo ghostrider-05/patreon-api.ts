@@ -1,10 +1,15 @@
-import { PatreonCreatorClient, PatreonStore } from "patreon-api.ts";
+import { PatreonCreatorClient, PatreonStore } from 'patreon-api.ts'
 
 interface StoreOptions {
     key: string
     kv: KVNamespace
 }
 
+/**
+ *
+ * @param env
+ * @param store
+ */
 export function createClient (env: Config.Env, store: StoreOptions) {
     return new PatreonCreatorClient({
         oauth: {

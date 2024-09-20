@@ -1,8 +1,12 @@
-import { Routes } from "discord-api-types/v10";
-import { makeDiscordRequest } from "../interactions/";
+import { Routes } from 'discord-api-types/v10'
+import { makeDiscordRequest } from '../interactions/'
 
-import { defaultLinkedRolesData } from "./default";
+import { defaultLinkedRolesData } from './default'
 
+/**
+ *
+ * @param env
+ */
 export default async function (env: Config.Env) {
     if (!env.linked_roles) return
 

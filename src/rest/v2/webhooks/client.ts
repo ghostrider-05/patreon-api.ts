@@ -38,7 +38,7 @@ export type APIPostWebhookResponse = DataItem<Type.Webhook, false> & {
  * Gets the assiocated user from the webhook request
  * @param payload the webhook parsed body
  * @returns the user id
- * @deprecated
+ * @deprecated use `new WebhookClient.payloads(trigger, payload).userId`
  */
 export function getWebhookUserId (payload: WebhookPayload): string {
     return payload.data.relationships.user.data.id

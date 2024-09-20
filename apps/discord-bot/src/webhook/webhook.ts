@@ -7,21 +7,26 @@ import {
     type RESTPostAPIGuildForumThreadsJSONBody,
     type RESTPostAPIWebhookWithTokenJSONBody,
     Routes,
-} from 'discord-api-types/v10';
+} from 'discord-api-types/v10'
 import {
     parseWebhookRequest,
     PatreonWebhookTrigger,
     WebhookClient,
-} from 'patreon-api.ts';
+} from 'patreon-api.ts'
 
-import { makeDiscordRequest } from '../interactions';
-import { getConfig, getPossibleWebhookConfigs, isPostPayload } from './config';
-import { createMemberMessage, createPostMessage, createText } from './messages';
-import { requiredTriggers as roleTriggers, updateGuildRoles } from './roles';
-import { getMessageStorage } from './storage';
+import { makeDiscordRequest } from '../interactions/'
+import { getConfig, getPossibleWebhookConfigs, isPostPayload } from './config'
+import { createMemberMessage, createPostMessage, createText } from './messages'
+import { requiredTriggers as roleTriggers, updateGuildRoles } from './roles'
+import { getMessageStorage } from './storage'
+import { updateLinkedRolesForMember } from '../linked-roles/oauth'
 
 export const webhookPath = '/patreon/webhook'
 
+/**
+ *
+ * @param campaigns
+ */
 export function getPatreonWebhookRoutes (campaigns: Config.CampaignConfig[]): string[] {
     const routes = campaigns.map(c => c.webhooks ? (c.webhooks_path ?? webhookPath) : undefined)
         .filter(route => route != undefined)
@@ -30,21 +35,35 @@ export function getPatreonWebhookRoutes (campaigns: Config.CampaignConfig[]): st
     else return [...new Set(routes)]
 }
 
+/**
+ *
+ * @param config
+ * @param env
+ */
 function getWebhookUrl (config: Config.WebhookMessageConfig, env: Config.Env) {
     if (config.app_type === 'webhook' || !env.use_bot_scope) {
         const webhookUrl = config.discord_webhook?.url_secret_name
             ? <string | undefined>env[config.discord_webhook.url_secret_name]
             : undefined
         if (!webhookUrl) throw new Error('No webhook found in secrets for Discord webhook: ' + config.discord_webhook?.url_secret_name)
-        
+
         return webhookUrl
     } else return undefined
 }
 
+/**
+ *
+ * @param type
+ */
 function isThread (type: ChannelType) {
     return [ChannelType.PublicThread, ChannelType.PrivateThread, ChannelType.AnnouncementThread].includes(type)
 }
 
+/**
+ *
+ * @param request
+ * @param env
+ */
 export async function handlePatreonWebhook (request: Request, env: Config.Env): Promise<Response> {
     const path = new URL(request.url).pathname
     const trigger = <Config.WebhookTrigger>request.headers.get(WebhookClient.headers.event)
@@ -70,7 +89,7 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
         }
 
         if (env.linked_roles != undefined) {
-
+            await updateLinkedRolesForMember(<never>parsed.payload)
         }
     }
 
@@ -82,7 +101,7 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
     if (isPostPayload(parsed.event, parsed.payload)) {
         const { event, payload } = parsed
         const postOptions: Config.WebhookMessagePostConfig = config?.posts ?? {}
-        
+
         const storage = getMessageStorage(postOptions, env)
         const webhookUrl = getWebhookUrl(config, env)
 
@@ -277,11 +296,11 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
                     if (config.channel_type !== ChannelType.GuildAnnouncement) {
                         throw new Error('Not announcing message for published post since channel is not an announcement channel')
                     }
-    
+
                     if (config.app_type === 'webhook') {
                         throw new Error('Not announcing message because webhooks can\'t announce message')
                     }
-    
+
                     await makeDiscordRequest({
                         env,
                         method: 'POST',
@@ -306,7 +325,6 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
             trigger: parsed.event,
         })
 
-        // @ts-expect-error Should be member payload
         const message = createMemberMessage(config, parsed.payload)
         const type = <'create' | 'update' | 'delete'>parsed.event.split(':')[1]
 

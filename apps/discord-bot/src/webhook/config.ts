@@ -2,8 +2,13 @@ import {
     type PatreonWebhookPostTrigger,
     PatreonWebhookTrigger,
     type WebhookPayload,
-} from "patreon-api.ts"
+} from 'patreon-api.ts'
 
+/**
+ *
+ * @param trigger
+ * @param payload
+ */
 export function isPostPayload (trigger: Config.WebhookTrigger, payload: WebhookPayload): payload is WebhookPayload<PatreonWebhookPostTrigger> {
     const postTriggers = [
         PatreonWebhookTrigger.PostDeleted,
@@ -14,6 +19,12 @@ export function isPostPayload (trigger: Config.WebhookTrigger, payload: WebhookP
     return postTriggers.includes(trigger)
 }
 
+/**
+ *
+ * @param configs
+ * @param trigger
+ * @param payload
+ */
 export function getConfig (configs: Config.WebhookMessageConfig[], trigger: Config.WebhookTrigger, payload: WebhookPayload) {
     if (!isPostPayload(trigger, payload)) return configs[0]
     else {
@@ -34,6 +45,13 @@ interface ConfigData {
     campaign: Config.CampaignConfig
 }
 
+/**
+ *
+ * @param path
+ * @param trigger
+ * @param campaigns
+ * @param webhookPath
+ */
 export function getPossibleWebhookConfigs (
     path: string,
     trigger: Config.WebhookTrigger,
