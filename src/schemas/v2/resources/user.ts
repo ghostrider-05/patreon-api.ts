@@ -1,6 +1,7 @@
-// Copied from a /campaigns/id response since no documentation is present
-// TODO: update on new docs
-type RawSocialConnections = {
+import { type CustomTypeOptions } from '../../../utils/'
+
+/** @deprecated will be removed in future version */
+export type SocialConnectionPlatform = keyof {
     'discord': {
         'scopes': string[],
         'user_id': string
@@ -21,8 +22,6 @@ type RawSocialConnections = {
     'vimeo': null,
     'youtube': null
 }
-
-export type SocialConnectionPlatform = keyof RawSocialConnections
 
 export interface User {
     /**
@@ -86,19 +85,18 @@ export interface User {
      * Mapping from user's connected app names to external user id on the respective app
      *
      * NOTE: since the documentation is `object`, this can change without notice.
-     * For a more accurate representation use the following type:
+     * For a more accurate representation use the following type using TypeScript module augmentation:
      * ```ts
-     * type SocialConnections = {
-            [P in SocialConnectionPlatform]: (P extends 'discord'
-                ? { scopes: string[], user_id: string }
-                : P extends 'twitter'
-                    ? { url: string, user_id: string }
-                    : string
-            ) | null
+     * import 'patreon-api.ts'
+     *
+        declare module 'patreon-api.ts' {
+            interface CustomTypeOptions {
+                social_connections: Record<string, { url: string, user_id: string } | null>
+            }
         }
      * ```
      */
-    social_connections: Record<string, string | null>
+    social_connections: CustomTypeOptions extends { social_connections: unknown } ? CustomTypeOptions['social_connections'] : object
 
     /**
      * The user's profile picture URL, scaled to a square of size 100x100px
