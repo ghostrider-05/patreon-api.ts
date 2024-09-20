@@ -105,8 +105,9 @@ declare global {
 		}
 
 		interface LinkedRolesConfig {
-			allowed_campaigns?: string[]
-			redirect
+			campaign: string
+			platform_name?: string
+			platform_username?: string
 
 			data?: {
 				metadata: APIApplicationRoleConnectionMetadata

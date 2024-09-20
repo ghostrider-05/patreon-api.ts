@@ -1,4 +1,5 @@
 import handleInteractionRequest from './interactions/'
+import { createLinkedRoleRedirect, handleLinkedRolesCallback, linkedRolesPath } from './linked-roles/oauth'
 import { getPatreonWebhookRoutes, handlePatreonWebhook } from './webhook/webhook'
 
 export default <ExportedHandler<Config.Env>>{
@@ -23,7 +24,10 @@ export default <ExportedHandler<Config.Env>>{
         switch (pathname) {
             case '/interactions':
                 return await handleInteractionRequest(request)
-            case '/linked-roles':
+            case linkedRolesPath.auth:
+                return createLinkedRoleRedirect(env)
+            case linkedRolesPath.callback:
+                return handleLinkedRolesCallback(env, request)
             default:
                 return new Response()
         }

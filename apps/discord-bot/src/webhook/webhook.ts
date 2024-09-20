@@ -17,7 +17,7 @@ import {
 import { makeDiscordRequest } from '../interactions';
 import { getConfig, getPossibleWebhookConfigs, isPostPayload } from './config';
 import { createMemberMessage, createPostMessage, createText } from './messages';
-import { requiredTriggers, updateGuildRoles } from './roles';
+import { requiredTriggers as roleTriggers, updateGuildRoles } from './roles';
 import { getMessageStorage } from './storage';
 
 export const webhookPath = '/patreon/webhook'
@@ -59,13 +59,19 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
     if (!parsed.verified) return new Response('Failed to verify request', { status: 403 })
     console.log(`New Patreon webhook request. Path: ${path}. Event: ${parsed.event}`, configs.options, parsed.payload)
 
-    if (requiredTriggers.includes(parsed.event) && configs.campaign.guild_roles != undefined) {
-        await updateGuildRoles({
-            config: configs.campaign,
-            env,
-            member: <never>parsed.payload,
-            trigger: parsed.event,
-        })
+    if (roleTriggers.includes(parsed.event)) {
+        if (configs.campaign.guild_roles != undefined) {
+            await updateGuildRoles({
+                config: configs.campaign,
+                env,
+                member: <never>parsed.payload,
+                trigger: parsed.event,
+            })
+        }
+
+        if (env.linked_roles != undefined) {
+
+        }
     }
 
     const config = getConfig(configs.options, parsed.event, parsed.payload)

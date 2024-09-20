@@ -13,7 +13,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "4.20240909.0",
     "discord-api-types": "^0.37.100",
-    "patreon-api.ts": "^0.7.0",
+    "patreon-api.ts": "../../",
     "wrangler": "^3.76.0"
   }
 }
