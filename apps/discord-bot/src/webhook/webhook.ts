@@ -12,10 +12,11 @@ import {
     parseWebhookRequest,
     PatreonWebhookTrigger,
     WebhookClient,
+    WebhookPayloadClient,
 } from 'patreon-api.ts'
 
 import { makeDiscordRequest } from '../interactions/'
-import { getConfig, getPossibleWebhookConfigs, isPostPayload } from './config'
+import { getConfig, getPossibleWebhookConfigs } from './config'
 import { createMemberMessage, createPostMessage, createText } from './messages'
 import { requiredTriggers as roleTriggers, updateGuildRoles } from './roles'
 import { getMessageStorage } from './storage'
@@ -98,7 +99,7 @@ export async function handlePatreonWebhook (request: Request, env: Config.Env): 
 
     const thread_id = isThread(config.channel_type) ? config.channel_id : undefined
 
-    if (isPostPayload(parsed.event, parsed.payload)) {
+    if (WebhookPayloadClient.isPostPayload(parsed.event, parsed.payload)) {
         const { event, payload } = parsed
         const postOptions: Config.WebhookMessagePostConfig = config?.posts ?? {}
 

@@ -3,7 +3,6 @@ import {
     Routes,
 } from 'discord-api-types/v10'
 import {
-    Member,
     PatreonOauthScope,
     PatreonUserClient,
     WebhookMemberPayload,

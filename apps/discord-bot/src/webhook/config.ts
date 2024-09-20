@@ -1,23 +1,7 @@
 import {
-    type PatreonWebhookPostTrigger,
-    PatreonWebhookTrigger,
     type WebhookPayload,
+    WebhookPayloadClient,
 } from 'patreon-api.ts'
-
-/**
- *
- * @param trigger
- * @param payload
- */
-export function isPostPayload (trigger: Config.WebhookTrigger, payload: WebhookPayload): payload is WebhookPayload<PatreonWebhookPostTrigger> {
-    const postTriggers = [
-        PatreonWebhookTrigger.PostDeleted,
-        PatreonWebhookTrigger.PostPublished,
-        PatreonWebhookTrigger.PostUpdated,
-    ]
-
-    return postTriggers.includes(trigger)
-}
 
 /**
  *
@@ -26,7 +10,7 @@ export function isPostPayload (trigger: Config.WebhookTrigger, payload: WebhookP
  * @param payload
  */
 export function getConfig (configs: Config.WebhookMessageConfig[], trigger: Config.WebhookTrigger, payload: WebhookPayload) {
-    if (!isPostPayload(trigger, payload)) return configs[0]
+    if (!WebhookPayloadClient.isPostPayload(trigger, payload)) return configs[0]
     else {
         return configs.find(config => {
             const { only_paid_posts, only_public_posts, required_tiers } = config.posts ?? {}
