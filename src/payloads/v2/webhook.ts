@@ -16,9 +16,17 @@ export type CompletePayload<T extends Type> = RequestPayload<T, RelationshipFiel
 
 export type WebhookPayloadMap =
     & { [P in PatreonWebhookMemberTrigger]: CompletePayload<Type.Member> }
-    & { [P in PatreonWebhookPledgeTrigger]: CompletePayload<Type.PledgeEvent> }
+    // "In API v2, pledge has been deprecated and member is the resource of record"
+    & { [P in PatreonWebhookPledgeTrigger]: CompletePayload<Type.Member> }
     & { [P in PatreonWebhookPostTrigger]: CompletePayload<Type.Post> }
 
 export type WebhookPayload<
     Trigger extends PatreonWebhookTrigger = PatreonWebhookTrigger
 > = WebhookPayloadMap[Trigger]
+
+export type WebhookMemberPayload = WebhookPayload<
+    | PatreonWebhookMemberTrigger
+    | PatreonWebhookPledgeTrigger
+>
+
+export type WebhookPostPayload = WebhookPayload<PatreonWebhookPostTrigger>
