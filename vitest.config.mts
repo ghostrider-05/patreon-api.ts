@@ -11,8 +11,10 @@ export default defineConfig({
         coverage: {
             provider: 'istanbul',
             exclude: [
+                '__tests__',
                 '**/schemas/v2/generated/',
                 '**/schemas/v2/scripts/',
+                // TODO: add tests
                 '**/payloads/v2/normalized/'
             ],
             thresholds: {

@@ -37,6 +37,8 @@ export interface Member {
      * The result of the last attempted charge.
      * The only successful status is `'Paid'`.
      * `null` if never charged
+     *
+     * Note: this will likely be either `'Paid'` or `'Pending'`
      */
     last_charge_status:
         | 'Paid'
@@ -76,6 +78,8 @@ export interface Member {
 
     /**
      * Number of months between charges
+     *
+     * Note: this will be `1` if Campaign.is_monthly is `true`
      */
     pledge_cadence: number
 

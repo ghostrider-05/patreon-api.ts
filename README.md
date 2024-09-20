@@ -38,11 +38,11 @@ yarn add patreon-api.ts
 <summary>Supported Patreon api: v2</summary>
 
 <!-- #region api-versions -->
+The default API version for this package is `2` and might change in major versions.
 
 > [!CAUTION]
-> This package does not include v1 of the Patreon API and starts with [API v2](https://docs.patreon.com/#apiv2-oauth)
+> This package does not include v1 of the Patreon API and starts with [API v2](https://docs.patreon.com/#apiv2-oauth). The sections in the Patreon documentation are prefixed by `APIv2:`. The Oauth flow, introduction and [sections below sorting](https://docs.patreon.com/#pagination-and-sorting) are related to all versions.
 
-The default API version for this package is `2` and might change in major versions.
 When the default API version is changed, old versions will still receive updates.
 You can not import this module by API version since it is unlikely that Patreon will release a new version any time soon.
 
@@ -63,10 +63,12 @@ To check for compatibility with this package, look if your platform:
   - for node.js: `v18` or higher
   - for Cloudflare workers: [enable Node.js](https://developers.cloudflare.com/workers/runtime-apis/nodejs/#enable-nodejs-with-workers)
 - supports `ES2020`
-- supports `createHmac` of the `node:crypto` module
+- supports `createHmac` of the `node:crypto` module (to verify Patreon webhook requests)
 
 > [!WARNING]
 > This is a server-side API & Oauth package and requires your application tokens. Make sure you do not share or expose your tokens or run this code client-side.
+
+Tip: the Patreon API blocks browser requests, so choose a backend to handle Oauth2 request and return the data to your frontend.
 
 <!-- #endregion compatibility -->
 

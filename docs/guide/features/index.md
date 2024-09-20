@@ -49,6 +49,47 @@ function fetchPatreon (client) {
 }
 ```
 
+> [!NOTE] Tip
+> My advice is to write your own wrapper / class that uses a client with all attributes and included resources configured.
+
+:::details Wrapper example
+
+```ts
+export class PatreonWrapper {
+    public client: PatreonCreatorClient
+
+    public constructor () {
+        this.client = new PatreonCreatorClient({
+            // Add your own token to the options
+            oauth: {
+                clientId: process.env.CLIENT_ID!,
+                clientSecret: process.env.CLIENT_SECRET!,
+            },
+        })
+    }
+
+    public async fetchCampaign () {
+        const query = buildQuery.campaign(['tiers'])({
+            campaign: [
+                'is_monthly',
+                'is_charged_immediately',
+                'image_url',
+                'patron_count',
+            ],
+            tier: [
+                'amount_cents',
+                'title',
+                'patron_count',
+            ],
+        })
+
+        return await this.client.fetchCampaign('id', query) 
+    }
+}
+```
+
+:::
+
 ## Responses
 
 When fetching a resource the response is a JSON:API response and is typed based on the query, see [the introduction](../introduction).

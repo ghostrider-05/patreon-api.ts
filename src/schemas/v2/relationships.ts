@@ -41,6 +41,7 @@ interface RelationshipTypeMap extends Record<ItemType, BaseRelationDataItem<Item
     goal: {
         [Type.Campaign]: [false, false]
     }
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     media: {
         // Nothing
     }
