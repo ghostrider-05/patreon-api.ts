@@ -40,8 +40,8 @@ export function isListingNormalizedPayload<
 
 /**
  * EXPERIMENTAL Issue a bug if something is broken
- * @param payload
- * @returns
+ * @param payload The raw payload from the API
+ * @returns the normalized response, with no key changes
  */
 export function normalize <
     T extends Type,
@@ -94,8 +94,8 @@ export function normalize <
 
 /**
  * EXPERIMENTAL Issue a bug if something is broken
- * @param payload
- * @returns
+ * @param payload The raw payload from the API
+ * @returns the normalized response, with no key changes
  */
 export function normalizeFromQuery<
     Query extends BasePatreonQuery
@@ -105,8 +105,8 @@ export function normalizeFromQuery<
 
 /**
  * EXPERIMENTAL Issue a bug if something is broken
- * @param payload
- * @returns
+ * @param payload The raw payload from the API
+ * @returns the normalized response, with keys converted to camel case
  */
 export function simplify<
     T extends Type,
@@ -118,8 +118,8 @@ export function simplify<
 
 /**
  * EXPERIMENTAL Issue a bug if something is broken
- * @param payload
- * @returns
+ * @param payload The raw payload from the API
+ * @returns the normalized response, with keys converted to camel case
  */
 export function simplifyFromQuery<Query extends BasePatreonQuery>(payload: GetResponsePayload<Query>): AnyToCamelCase<GetNormalizedResponsePayload<Query>> {
     return convertToCamelcase(normalizeFromQuery(payload))

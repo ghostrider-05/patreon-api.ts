@@ -1,6 +1,6 @@
 # Patreon Discord bot
 
-An alternative to the Patreon Discord integration. This is a self hostable bot
+An alternative to the Patreon Discord integration. This is a self hostable bot for on Cloudflare workers.
 
 ## Features
 

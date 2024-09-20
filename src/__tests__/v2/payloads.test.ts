@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import { assertType, describe, expectTypeOf, test } from 'vitest'
 
 import {
