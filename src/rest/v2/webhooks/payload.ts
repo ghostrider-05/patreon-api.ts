@@ -1,4 +1,10 @@
 import { type WebhookPayload } from '../../../payloads/v2'
+import {
+    type AttributeItem,
+    type Campaign,
+    Type,
+    type User,
+} from '../../../schemas/v2'
 
 import {
     type PatreonWebhookMemberTrigger,
@@ -15,8 +21,8 @@ type StringObject<Value> = Partial<Record<string,
 
 export interface WebhookPayloadDataConverter<Data extends StringObject<string | number | boolean>> {
     default?: Data
-    createPostEmbed?(trigger: PatreonWebhookPostTrigger): Data
-    createMemberEmbed?(trigger: PatreonWebhookMemberTrigger | PatreonWebhookPledgeTrigger): Data
+    posts?: Partial<Record<PatreonWebhookPostTrigger, Data>>
+    member?: Partial<Record<PatreonWebhookMemberTrigger | PatreonWebhookPledgeTrigger, Data>>
 }
 
 export class WebhookPayloadClient<Trigger extends PatreonWebhookTrigger> {
@@ -71,8 +77,8 @@ export class WebhookPayloadClient<Trigger extends PatreonWebhookTrigger> {
         return (trigger: PatreonWebhookTrigger, payload: WebhookPayload) => {
             const options = {
                 ...((WebhookPayloadClient.isPostTrigger(trigger)
-                    ? converter.createPostEmbed?.(trigger)
-                    : converter.createMemberEmbed?.(trigger)
+                    ? converter.posts?.[trigger]
+                    : converter.member?.[trigger]
                 )?? {}),
                 ...(converter.default ?? {}),
             }
@@ -91,5 +97,21 @@ export class WebhookPayloadClient<Trigger extends PatreonWebhookTrigger> {
 
     public get userId () {
         return this.payload.data.relationships.user.data.id
+    }
+
+    public get user () {
+        return <AttributeItem<Type.User, Pick<User, keyof User>> | undefined>this.payload.included.find(item => {
+            return item.type === Type.User && item.id === this.userId
+        })
+    }
+
+    public get campaignId () {
+        return this.payload.data.relationships.campaign.data.id
+    }
+
+    public get campaign () {
+        return <AttributeItem<Type.Campaign, Pick<Campaign, keyof Campaign>> | undefined>this.payload.included.find(item => {
+            return item.type === Type.Campaign && item.id === this.campaignId
+        })
     }
 }
