@@ -69,7 +69,7 @@ type OauthOptions = Partial<Pick<BaseOauthHandlerOptions, 'redirectUri' | 'scope
 /**
  * Client options for handling Oauth
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type PatreonOauthClientOptions = BaseOauthClientOptions & (BaseOauthHandlerOptions | {})
 
 export class PatreonOauthClient {
@@ -138,36 +138,6 @@ export class PatreonOauthClient {
         if (refreshed) client.cachedToken = refreshed
 
         return refreshed
-    }
-
-    /**
-     * @deprecated
-     */
-    public static async fetch<Query extends BasePatreonQuery>(
-        path: string,
-        query: Query,
-        oauthClient: PatreonOauthClient,
-        options?: Oauth2FetchOptions,
-    ): Promise<GetResponsePayload<Query>> {
-        return oauthClient.fetch(path, query, options)
-    }
-
-    /** @deprecated */
-    public static async* paginate<Query extends BasePatreonQuery>(
-        path: string,
-        query: Query,
-        oauthClient: PatreonOauthClient,
-        options?: Oauth2FetchOptions,
-    ): AsyncGenerator<GetResponsePayload<Query>, number, unknown> {
-        const paginator = oauthClient.paginate(path, query, options)
-
-        let page = await paginator.next()
-        while (!page.done) {
-            yield page.value
-            page = await paginator.next()
-        }
-
-        return page.value
     }
 
     /**

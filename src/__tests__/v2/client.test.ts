@@ -101,6 +101,7 @@ describe('rest client', () => {
 })
 
 describe('creator client', () => {
+    // eslint-disable-next-line jsdoc/require-jsdoc
     function createCreatorClientWithStore (body: object, status: number) {
         return createTestClient('creator', async () => {
             return new Response(JSON.stringify(body), { status })

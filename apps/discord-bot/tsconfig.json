@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "resolveJsonModule": true,
+        "lib": ["ES2020"],
+        "target": "ES2020",
+        "moduleResolution": "Bundler",
+        "module": "ES2020",
+        "strictNullChecks": true,
+        "types": [
+            "@cloudflare/workers-types/2023-07-01",
+            "./src/types.d.ts"
+        ],
+    },
+    "include": [
+        "src"
+    ]
+}

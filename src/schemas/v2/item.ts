@@ -20,6 +20,7 @@ export enum Type {
     Campaign = 'campaign',
     Client = 'client',
     Deliverable = 'deliverable',
+    /** @deprecated */
     Goal = 'goal',
     Media = 'media',
     Member = 'member',
@@ -38,6 +39,7 @@ export interface ItemMap {
     campaign: Campaign
     client: OauthClient
     deliverable: Deliverable
+    /** @deprecated */
     goal: Goal
     media: Media
     member: Member

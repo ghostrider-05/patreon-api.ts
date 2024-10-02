@@ -38,6 +38,7 @@ interface RelationshipTypeMap extends Record<ItemType, BaseRelationDataItem<Item
         [Type.Member]: [false, false]
         [Type.User]: [false, false]
     }
+    /** @deprecated */
     goal: {
         [Type.Campaign]: [false, false]
     }

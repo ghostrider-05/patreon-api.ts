@@ -4,6 +4,7 @@ import {
     PatreonWebhookTrigger,
     Type,
     WebhookClient,
+    WebhookPayloadClient,
     buildQuery,
     parseWebhookRequest,
     verify,
@@ -145,6 +146,64 @@ describe('webhook client', () => {
             }, { token: 'token' })
 
             expect(res).toEqual(webhook)
+        })
+    })
+})
+
+describe('webhook payload client', () => {
+    describe('static utilities', () => {
+        test('post typeguard', () => {
+            expect(WebhookPayloadClient.isPostPayload(PatreonWebhookTrigger.PostPublished, <never>null)).toBeTruthy()
+            expect(WebhookPayloadClient.isPostTrigger(PatreonWebhookTrigger.PostPublished)).toBeTruthy()
+        })
+
+        describe('attribute text', () => {
+            test('undefined option', () => {
+                expect(WebhookPayloadClient.createAttributeText(undefined, { title: undefined }, 'title', 'hello')).toEqual('hello')
+                expect(WebhookPayloadClient.createAttributeText(undefined, { title: undefined }, 'title')).toEqual('')
+                expect(WebhookPayloadClient.createAttributeText(undefined, { title: undefined })).toEqual('')
+            })
+    
+            test('valid option', () => {
+                expect(WebhookPayloadClient.createAttributeText('{{title}} is new', { title: null })).toEqual('{{title}} is new')
+                expect(WebhookPayloadClient.createAttributeText('{{title}} is new', { title: 'Title' })).toEqual('Title is new')
+            })
+        })
+
+        describe('convert', () => {
+            const convert = WebhookPayloadClient.convert({
+                default: {
+                    title: '{{title}} is published',
+                    color: 0,
+                    footer: { text: 'Hello world' },
+                    fields: [{
+                        name: 'Is public',
+                        value: '{{is_public}}',
+                        inline: true,
+                    }]
+                }
+            })
+
+            test('posts', () => {
+                expect(convert(PatreonWebhookTrigger.PostPublished, <never>{
+                    data: { attributes: { title: 'Title', is_public: true } }
+                })).toEqual({
+                    title: 'Title is published',
+                    color: 0,
+                    footer: { text: 'Hello world' },
+                    fields: [{ name: 'Is public', value: 'true', inline: true }]
+                })
+            })
+        })
+    })
+
+    describe('payload', () => {
+        test('user id', () => {
+            const client = new WebhookPayloadClient(PatreonWebhookTrigger.PostPublished, <never>{
+                data: { relationships: { user: { data: { id: 'user' } } } }
+            })
+
+            expect(client.userId).toEqual('user')
         })
     })
 })

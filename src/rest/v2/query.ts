@@ -28,6 +28,7 @@ export type PaginationQuery = {
     sort?: ValueOrArray<PaginationQuerySort>
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface QueryRequestOptions extends PaginationQuery {
 
 }

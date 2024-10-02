@@ -7,6 +7,7 @@ import {
 
 import { getWebhookUserId } from '../client'
 
+/** @deprecated */
 interface WebhookToDiscordMessage<Trigger extends PatreonWebhookTrigger, Title> {
     /**
      * For each type, the embed title.
@@ -32,6 +33,7 @@ interface WebhookToDiscordMessage<Trigger extends PatreonWebhookTrigger, Title> 
     ) => Record<string, any>
 }
 
+/** @deprecated */
 export type WebhookToDiscordMessages = Partial<{
     [E in PatreonWebhookTrigger]: WebhookToDiscordMessage<E, string>
 }>
@@ -43,6 +45,7 @@ export type WebhookToDiscordMessages = Partial<{
  * @param messages The options to convert webhook payloads to embed fields
  * @returns Discord embeds that can be sent using webhooks.
  * `undefined` if no options are found for this trigger.
+ * @deprecated
  */
 export function webhookToDiscordEmbed (trigger: PatreonWebhookTrigger, payload: WebhookPayload, messages: WebhookToDiscordMessages) {
     /**

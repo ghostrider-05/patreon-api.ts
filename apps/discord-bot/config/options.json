@@ -1,0 +1,20 @@
+{
+    "$schema": "schema.json",
+    "vars": {
+        "use_bot_scope": true,
+        "use_app_commands_scope": true,
+        "worker_url": "https://discord-bot.ghostrider.workers.dev",
+        "app_config": {
+            "id": "",
+            "public_key": ""
+        },
+        "campaigns": [
+            {
+                "id": "",
+                "guild": {
+                    "id": ""
+                }
+            }
+        ]
+    }
+}
