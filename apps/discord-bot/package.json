@@ -7,13 +7,19 @@
   "author": "ghostrider-05",
   "license": "MIT",
   "scripts": {
-    "types": "wrangler types ./src/types.d.ts",
+    "deploy": "wrangler deploy -j -c ./config/wrangler.json",
+    "config-schema": "npx typescript-json-schema ./tsconfig.json Vars --id Config --out ./config/schema.json --include ./src/types.d.ts --noExtraProps --required --ignoreErrors",
+    "config-merge": "cd config && npx json-merger --pretty --output combined.json wrangler.json options.json",
+    "secrets": "wrangler secret bulk secrets.json",
     "login": "wrangler login"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "4.20240909.0",
+    "@types/node": "^18.19.31",
     "discord-api-types": "^0.37.100",
+    "json-merger": "^1.1.10",
     "patreon-api.ts": "../../",
+    "typescript-json-schema": "^0.65.1",
     "wrangler": "^3.76.0"
   }
 }

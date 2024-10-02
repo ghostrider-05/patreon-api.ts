@@ -1,0 +1,1000 @@
+{
+    "$id": "Config",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "definitions": {
+        "APIApplicationRoleConnectionMetadata": {
+            "additionalProperties": false,
+            "description": "https://discord.com/developers/docs/resources/application-role-connection-metadata#application-role-connection-metadata-object-application-role-connection-metadata-structure",
+            "properties": {
+                "description": {
+                    "description": "Description of the metadata field (1-200 characters)",
+                    "type": "string"
+                },
+                "description_localizations": {
+                    "$ref": "#/definitions/Partial<Record<\"id\"|\"en-US\"|\"en-GB\"|\"bg\"|\"zh-CN\"|\"zh-TW\"|\"hr\"|\"cs\"|\"da\"|\"nl\"|\"fi\"|\"fr\"|\"de\"|\"el\"|\"hi\"|\"hu\"|\"it\"|\"ja\"|\"ko\"|\"lt\"|\"no\"|\"pl\"|\"pt-BR\"|\"ro\"|\"ru\"|\"es-ES\"|\"es-419\"|\"sv-SE\"|\"th\"|\"tr\"|\"uk\"|\"vi\",string|null>>",
+                    "description": "Translations of the description"
+                },
+                "key": {
+                    "description": "Dictionary key for the metadata field (must be `a-z`, `0-9`, or `_` characters; 1-50 characters)",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name of the metadata field (1-100 characters)",
+                    "type": "string"
+                },
+                "name_localizations": {
+                    "$ref": "#/definitions/Partial<Record<\"id\"|\"en-US\"|\"en-GB\"|\"bg\"|\"zh-CN\"|\"zh-TW\"|\"hr\"|\"cs\"|\"da\"|\"nl\"|\"fi\"|\"fr\"|\"de\"|\"el\"|\"hi\"|\"hu\"|\"it\"|\"ja\"|\"ko\"|\"lt\"|\"no\"|\"pl\"|\"pt-BR\"|\"ro\"|\"ru\"|\"es-ES\"|\"es-419\"|\"sv-SE\"|\"th\"|\"tr\"|\"uk\"|\"vi\",string|null>>",
+                    "description": "Translations of the name"
+                },
+                "type": {
+                    "$ref": "#/definitions/ApplicationRoleConnectionMetadataType",
+                    "description": "Type of metadata value"
+                }
+            },
+            "required": [
+                "description",
+                "key",
+                "name",
+                "type"
+            ],
+            "type": "object"
+        },
+        "APIButtonComponentWithURL": {
+            "additionalProperties": false,
+            "properties": {
+                "disabled": {
+                    "description": "The status of the button",
+                    "type": "boolean"
+                },
+                "emoji": {
+                    "$ref": "#/definitions/APIMessageComponentEmoji",
+                    "description": "The emoji to display to the left of the text"
+                },
+                "label": {
+                    "description": "The label to be displayed on the button",
+                    "type": "string"
+                },
+                "style": {
+                    "$ref": "#/definitions/ButtonStyle.Link",
+                    "description": "The style of the button"
+                },
+                "type": {
+                    "$ref": "#/definitions/ComponentType.Button",
+                    "description": "The type of the component"
+                },
+                "url": {
+                    "description": "The URL to direct users to when clicked for Link buttons",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "style",
+                "type",
+                "url"
+            ],
+            "type": "object"
+        },
+        "APIMessageComponentEmoji": {
+            "additionalProperties": false,
+            "properties": {
+                "animated": {
+                    "description": "Whether this emoji is animated",
+                    "type": "boolean"
+                },
+                "id": {
+                    "description": "Emoji id",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Emoji name",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ApplicationRoleConnectionMetadataType": {
+            "description": "https://discord.com/developers/docs/resources/application-role-connection-metadata#application-role-connection-metadata-object-application-role-connection-metadata-type",
+            "enum": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+            ],
+            "type": "number"
+        },
+        "ButtonStyle.Link": {
+            "const": 5,
+            "type": "number"
+        },
+        "ComponentType.Button": {
+            "const": 2,
+            "description": "Button component",
+            "type": "number"
+        },
+        "Config.AppCommandsOptions": {
+            "additionalProperties": false,
+            "properties": {
+                "guilds": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "register_global": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "register_global"
+            ],
+            "type": "object"
+        },
+        "Config.AppConfig": {
+            "additionalProperties": false,
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "in_app_installation": {
+                    "default": true,
+                    "description": "If no custom url is specified, use the in app installation",
+                    "type": "boolean"
+                },
+                "installation_custom_url": {
+                    "type": "string"
+                },
+                "public_key": {
+                    "type": "string"
+                },
+                "tags": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "id",
+                "public_key"
+            ],
+            "type": "object"
+        },
+        "Config.Binding<\"d1\">": {
+            "additionalProperties": false,
+            "properties": {
+                "env_name": {
+                    "type": "string"
+                },
+                "env_type": {
+                    "const": "d1",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "env_name"
+            ],
+            "type": "object"
+        },
+        "Config.Binding<\"kv\">": {
+            "additionalProperties": false,
+            "properties": {
+                "env_name": {
+                    "type": "string"
+                },
+                "env_type": {
+                    "const": "kv",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "env_name"
+            ],
+            "type": "object"
+        },
+        "Config.CampaignConfig": {
+            "additionalProperties": false,
+            "properties": {
+                "guild": {
+                    "additionalProperties": false,
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "roles": {
+                            "$ref": "#/definitions/Config.GuildRolesConfig"
+                        }
+                    },
+                    "required": [
+                        "id"
+                    ],
+                    "type": "object"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "webhook": {
+                    "additionalProperties": false,
+                    "properties": {
+                        "channel_id": {
+                            "type": "string"
+                        },
+                        "channel_type": {
+                            "type": "number"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
+                        "discord_webhook": {
+                            "$ref": "#/definitions/Config.DiscordWebhookConfig",
+                            "description": "(If no bot is used) The Discord webhook to send the message from"
+                        },
+                        "embed_color": {
+                            "type": "number"
+                        },
+                        "embed_footer": {
+                            "type": "string"
+                        },
+                        "format_type": {
+                            "default": "'message'",
+                            "enum": [
+                                "embed",
+                                "message"
+                            ],
+                            "type": "string"
+                        },
+                        "members:create": {
+                            "$ref": "#/definitions/Config.WebhookMessageConfig"
+                        },
+                        "members:delete": {
+                            "$ref": "#/definitions/Config.WebhookMessageConfig"
+                        },
+                        "members:pledge:create": {
+                            "$ref": "#/definitions/Config.WebhookMessageConfig"
+                        },
+                        "members:pledge:delete": {
+                            "$ref": "#/definitions/Config.WebhookMessageConfig"
+                        },
+                        "members:pledge:update": {
+                            "$ref": "#/definitions/Config.WebhookMessageConfig"
+                        },
+                        "members:update": {
+                            "$ref": "#/definitions/Config.WebhookMessageConfig"
+                        },
+                        "path": {
+                            "type": "string"
+                        },
+                        "posts": {
+                            "$ref": "#/definitions/Config.WebhookMessagePostConfig",
+                            "description": "Additional settings for posts webhook messages.\nSome options that are only for published posts are in {@link published_posts}."
+                        },
+                        "posts:delete": {
+                            "$ref": "#/definitions/Config.WebhookMessageConfig"
+                        },
+                        "posts:publish": {
+                            "$ref": "#/definitions/Config.WebhookMessageConfig"
+                        },
+                        "posts:update": {
+                            "$ref": "#/definitions/Config.WebhookMessageConfig"
+                        },
+                        "published_posts": {
+                            "$ref": "#/definitions/Config.WebhookMessagePublishedPostConfig",
+                            "description": "Additional settings for the `posts:published` messages."
+                        },
+                        "secret_name": {
+                            "type": "string"
+                        },
+                        "send_deleted_event_message": {
+                            "default": false,
+                            "description": "Whether to send a message if a resource (post, pledge or member) is deleted",
+                            "type": "boolean"
+                        },
+                        "send_edited_event_message": {
+                            "default": false,
+                            "description": "Whether to send a message if a resource (post, pledge or member) is deleted",
+                            "type": "boolean"
+                        },
+                        "title": {
+                            "type": "string"
+                        },
+                        "triggers": {
+                            "description": "Specify *all* triggers that this webhook handles",
+                            "items": {
+                                "$ref": "#/definitions/PatreonWebhookTrigger"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "required": [
+                        "channel_id",
+                        "channel_type",
+                        "triggers"
+                    ],
+                    "type": "object"
+                }
+            },
+            "required": [
+                "guild",
+                "id"
+            ],
+            "type": "object"
+        },
+        "Config.DiscordWebhookConfig": {
+            "additionalProperties": false,
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "is_app_owned": {
+                    "default": false,
+                    "description": "Specify if the webhook is owned by app and can send components",
+                    "type": "boolean"
+                },
+                "url_secret_name": {
+                    "description": "The secret variable name for the Discord webhook url",
+                    "type": "string"
+                },
+                "use_webhook": {
+                    "default": false,
+                    "description": "Whether to use this webhook if a bot scope is present",
+                    "type": "boolean"
+                },
+                "username": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "url_secret_name"
+            ],
+            "type": "object"
+        },
+        "Config.GuildRoleConfig": {
+            "additionalProperties": false,
+            "properties": {
+                "allow_pending": {
+                    "default": true,
+                    "description": "Whether users with a pending charge status are allowed the role.\nIf the charge has failed, the role will be removed if",
+                    "type": "boolean"
+                },
+                "id": {
+                    "description": "The id of the Discord role to grant.\nNot allowed to be the default / @ everyone role.",
+                    "type": "string"
+                },
+                "managed_by_integration": {
+                    "additionalProperties": false,
+                    "description": "When registering this bot, the bot will register this role.\n\nWhen a role is managed by an integration, you cannot manually manage members of this role!\nSet {@link id} to an empty string when this is enabled and edit the id after registration by getting the id in Discord.",
+                    "properties": {
+                        "color": {
+                            "type": "number"
+                        },
+                        "hoist": {
+                            "type": "boolean"
+                        },
+                        "name": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ],
+                    "type": "object"
+                },
+                "tier_id": {
+                    "description": "The required (id of) tier a user must have for this Discord role.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id"
+            ],
+            "type": "object"
+        },
+        "Config.GuildRolesConfig": {
+            "additionalProperties": false,
+            "properties": {
+                "reason_add": {
+                    "type": "string"
+                },
+                "reason_remove": {
+                    "type": "string"
+                },
+                "roles": {
+                    "items": {
+                        "$ref": "#/definitions/Config.GuildRoleConfig"
+                    },
+                    "type": "array"
+                },
+                "storage": {
+                    "$ref": "#/definitions/Config.Binding<\"d1\">",
+                    "default": "'d1'"
+                }
+            },
+            "required": [
+                "roles",
+                "storage"
+            ],
+            "type": "object"
+        },
+        "Config.LinkedRolesAttributeConfig": {
+            "anyOf": [
+                {
+                    "additionalProperties": false,
+                    "properties": {
+                        "key": {
+                            "enum": [
+                                "about",
+                                "can_see_nsfw",
+                                "created",
+                                "email",
+                                "first_name",
+                                "full_name",
+                                "hide_pledges",
+                                "image_url",
+                                "is_email_verified",
+                                "last_name",
+                                "like_count",
+                                "social_connections",
+                                "thumb_url",
+                                "url",
+                                "vanity"
+                            ],
+                            "type": "string"
+                        },
+                        "required_match": {
+                            "anyOf": [
+                                {
+                                    "additionalProperties": true,
+                                    "properties": {},
+                                    "type": "object"
+                                },
+                                {
+                                    "type": [
+                                        "null",
+                                        "string",
+                                        "number",
+                                        "boolean"
+                                    ]
+                                }
+                            ]
+                        },
+                        "resource": {
+                            "const": "user",
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "key",
+                        "resource"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "additionalProperties": false,
+                    "properties": {
+                        "key": {
+                            "enum": [
+                                "campaign_lifetime_support_cents",
+                                "currently_entitled_amount_cents",
+                                "email",
+                                "full_name",
+                                "is_follower",
+                                "last_charge_date",
+                                "last_charge_status",
+                                "lifetime_support_cents",
+                                "next_charge_date",
+                                "note",
+                                "patron_status",
+                                "pledge_cadence",
+                                "pledge_relationship_start",
+                                "will_pay_amount_cents"
+                            ],
+                            "type": "string"
+                        },
+                        "required_match": {
+                            "type": [
+                                "null",
+                                "string",
+                                "number",
+                                "boolean"
+                            ]
+                        },
+                        "resource": {
+                            "const": "member",
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "key",
+                        "resource"
+                    ],
+                    "type": "object"
+                }
+            ]
+        },
+        "Config.LinkedRolesConfig": {
+            "additionalProperties": false,
+            "properties": {
+                "campaign": {
+                    "type": "string"
+                },
+                "data": {
+                    "items": {
+                        "$ref": "#/definitions/Config.LinkedRolesItem"
+                    },
+                    "type": "array"
+                },
+                "platform_name": {
+                    "type": "string"
+                },
+                "platform_username": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "campaign"
+            ],
+            "type": "object"
+        },
+        "Config.LinkedRolesItem": {
+            "additionalProperties": false,
+            "properties": {
+                "attribute": {
+                    "$ref": "#/definitions/Config.LinkedRolesAttributeConfig"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/APIApplicationRoleConnectionMetadata"
+                }
+            },
+            "required": [
+                "attribute",
+                "metadata"
+            ],
+            "type": "object"
+        },
+        "Config.Options": {
+            "additionalProperties": false,
+            "properties": {
+                "app_commands": {
+                    "$ref": "#/definitions/Config.AppCommandsOptions"
+                },
+                "app_config": {
+                    "$ref": "#/definitions/Config.AppConfig"
+                },
+                "campaigns": {
+                    "items": {
+                        "$ref": "#/definitions/Config.CampaignConfig"
+                    },
+                    "type": "array"
+                },
+                "linked_roles": {
+                    "$ref": "#/definitions/Config.LinkedRolesConfig"
+                },
+                "urls": {
+                    "$ref": "#/definitions/Config.UrlConfig"
+                },
+                "use_app_commands_scope": {
+                    "type": "boolean"
+                },
+                "use_bot_scope": {
+                    "type": "boolean"
+                },
+                "worker_url": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "app_config",
+                "campaigns",
+                "use_app_commands_scope",
+                "use_bot_scope",
+                "worker_url"
+            ],
+            "type": "object"
+        },
+        "Config.UrlConfig": {
+            "additionalProperties": false,
+            "properties": {
+                "discord_server": {
+                    "type": "string"
+                },
+                "github": {
+                    "type": "string"
+                },
+                "patreon": {
+                    "type": "string"
+                },
+                "privacy": {
+                    "type": "string"
+                },
+                "terms_of_service": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Config.WebhookMessageConfig": {
+            "additionalProperties": false,
+            "properties": {
+                "channel_id": {
+                    "type": "string"
+                },
+                "channel_type": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "discord_webhook": {
+                    "$ref": "#/definitions/Config.DiscordWebhookConfig",
+                    "description": "(If no bot is used) The Discord webhook to send the message from"
+                },
+                "embed_color": {
+                    "type": "number"
+                },
+                "embed_footer": {
+                    "type": "string"
+                },
+                "format_type": {
+                    "default": "'message'",
+                    "enum": [
+                        "embed",
+                        "message"
+                    ],
+                    "type": "string"
+                },
+                "posts": {
+                    "$ref": "#/definitions/Config.WebhookMessagePostConfig",
+                    "description": "Additional settings for posts webhook messages.\nSome options that are only for published posts are in {@link published_posts}."
+                },
+                "published_posts": {
+                    "$ref": "#/definitions/Config.WebhookMessagePublishedPostConfig",
+                    "description": "Additional settings for the `posts:published` messages."
+                },
+                "send_deleted_event_message": {
+                    "default": false,
+                    "description": "Whether to send a message if a resource (post, pledge or member) is deleted",
+                    "type": "boolean"
+                },
+                "send_edited_event_message": {
+                    "default": false,
+                    "description": "Whether to send a message if a resource (post, pledge or member) is deleted",
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "channel_id",
+                "channel_type"
+            ],
+            "type": "object"
+        },
+        "Config.WebhookMessagePostConfig": {
+            "additionalProperties": false,
+            "properties": {
+                "buttons": {
+                    "items": {
+                        "$ref": "#/definitions/APIButtonComponentWithURL"
+                    },
+                    "type": "array"
+                },
+                "delete_audit_log_reason": {
+                    "type": "string"
+                },
+                "delete_edit_messages": {
+                    "type": "boolean"
+                },
+                "delete_original_message": {
+                    "type": "boolean"
+                },
+                "edit_audit_log_reason": {
+                    "type": "string"
+                },
+                "edit_original_message": {
+                    "type": "boolean"
+                },
+                "embed_post_media": {
+                    "type": "boolean"
+                },
+                "embed_url_to_post": {
+                    "type": "boolean"
+                },
+                "message_storage": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/Config.Binding<\"d1\">"
+                        },
+                        {
+                            "$ref": "#/definitions/Config.Binding<\"kv\">"
+                        }
+                    ],
+                    "default": "'kv'"
+                },
+                "only_paid_posts": {
+                    "type": "boolean"
+                },
+                "only_public_posts": {
+                    "type": "boolean"
+                },
+                "required_tiers": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "type": "object"
+        },
+        "Config.WebhookMessagePublishedPostConfig": {
+            "additionalProperties": false,
+            "properties": {
+                "announce_message": {
+                    "type": "boolean"
+                },
+                "create_thread": {
+                    "type": "boolean"
+                },
+                "forum_create_posts": {
+                    "type": "boolean"
+                },
+                "forum_tags": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "forum_title": {
+                    "type": "string"
+                },
+                "forum_unknown_title": {
+                    "type": "string"
+                },
+                "thread_auto_archive": {
+                    "type": "number"
+                },
+                "thread_rate_limit": {
+                    "type": "number"
+                },
+                "thread_reason": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Partial<Record<\"id\"|\"en-US\"|\"en-GB\"|\"bg\"|\"zh-CN\"|\"zh-TW\"|\"hr\"|\"cs\"|\"da\"|\"nl\"|\"fi\"|\"fr\"|\"de\"|\"el\"|\"hi\"|\"hu\"|\"it\"|\"ja\"|\"ko\"|\"lt\"|\"no\"|\"pl\"|\"pt-BR\"|\"ro\"|\"ru\"|\"es-ES\"|\"es-419\"|\"sv-SE\"|\"th\"|\"tr\"|\"uk\"|\"vi\",string|null>>": {
+            "additionalProperties": false,
+            "properties": {
+                "bg": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "cs": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "da": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "de": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "el": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "en-GB": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "en-US": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "es-419": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "es-ES": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "fi": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "fr": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "hi": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "hr": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "hu": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "id": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "it": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "ja": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "ko": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "lt": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "nl": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "no": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "pl": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "pt-BR": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "ro": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "ru": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "sv-SE": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "th": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "tr": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "uk": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "vi": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "zh-CN": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "zh-TW": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                }
+            },
+            "type": "object"
+        },
+        "PatreonWebhookTrigger": {
+            "enum": [
+                "members:create",
+                "members:update",
+                "members:delete",
+                "members:pledge:create",
+                "members:pledge:update",
+                "members:pledge:delete",
+                "posts:publish",
+                "posts:update",
+                "posts:delete"
+            ],
+            "type": "string"
+        }
+    },
+    "properties": {
+        "$schema": {
+            "const": "schema.json",
+            "type": "string"
+        },
+        "vars": {
+            "$ref": "#/definitions/Config.Options"
+        }
+    },
+    "required": [
+        "$schema",
+        "vars"
+    ],
+    "type": "object"
+}
+

@@ -5,8 +5,8 @@ import {
 import {
     PatreonOauthScope,
     PatreonUserClient,
-    WebhookMemberPayload,
-    type StoredToken,
+    // WebhookMemberPayload,
+    // type StoredToken,
 } from 'patreon-api.ts'
 
 import { makeDiscordRequest } from '../interactions'
@@ -14,16 +14,13 @@ import { fetchOauthMemberships } from '../patreon/member'
 import { createText } from '../webhook/messages'
 import { getAttributes, getLinkedRolesMemberData } from './data'
 
-export const linkedRolesPath = {
-    auth: '/linked-roles/auth',
-    callback: '/linked-roles/callback',
-}
-
 /**
  *
- * @param env
+ * @param env Env
+ * @param path Callback path
+ * @returns redirect uri
  */
-export function createLinkedRoleRedirect (env: Config.Env): string {
+export function createLinkedRoleRedirect (env: Config.Env, path: string): string {
     const client = new PatreonUserClient({
         oauth: {
             clientId: env.PATREON_CLIENT_ID,
@@ -32,7 +29,7 @@ export function createLinkedRoleRedirect (env: Config.Env): string {
     })
 
     return client.oauth.createOauthUri({
-        redirectUri: `https://${env.worker_name}.workers.dev${linkedRolesPath.callback}`,
+        redirectUri: `${env.worker_url}${path}`,
         scopes: [
             PatreonOauthScope.Identity,
             PatreonOauthScope.IdentityMemberships,
@@ -42,8 +39,9 @@ export function createLinkedRoleRedirect (env: Config.Env): string {
 
 /**
  *
- * @param env
- * @param request
+ * @param env Env
+ * @param request Incoming request
+ * @returns a response
  */
 export async function handleLinkedRolesCallback (env: Config.Env, request: Request) {
     if (!env.linked_roles) {
@@ -71,7 +69,7 @@ export async function handleLinkedRolesCallback (env: Config.Env, request: Reque
         env,
         method: 'PUT',
         bot: {
-            path: Routes.userApplicationRoleConnection(env.app_id),
+            path: Routes.userApplicationRoleConnection(env.app_config.id),
             body: JSON.stringify({
                 platform_name: env.linked_roles.platform_name,
                 platform_username: createText(env.linked_roles.platform_username, member.data.attributes, 'full_name')
@@ -81,24 +79,16 @@ export async function handleLinkedRolesCallback (env: Config.Env, request: Reque
         }
     })
 
-    await storeOauthToken(member.data.id, token)
+    // TODO: enable updating linked roles
+    // await storeOauthToken(member.data.id, token)
+
+    return new Response()
 }
 
-/**
- *
- * @param memberId
- * @param token
- */
-async function storeOauthToken (memberId: string, token: StoredToken) {
+// async function storeOauthToken (memberId: string, token: StoredToken) {
 
-}
+// }
 
-/**
- *
- * @param payload
- */
-export async function updateLinkedRolesForMember (payload: WebhookMemberPayload) {
+// export async function updateLinkedRolesForMember (payload: WebhookMemberPayload) {
 
-}
-
-
+// }

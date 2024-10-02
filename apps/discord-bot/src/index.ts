@@ -1,15 +1,25 @@
 import handleInteractionRequest from './interactions/'
-import { createLinkedRoleRedirect, handleLinkedRolesCallback, linkedRolesPath } from './linked-roles/oauth'
+import { createLinkedRoleRedirect, handleLinkedRolesCallback } from './linked-roles/oauth'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { configureApp } from './setup'
 import { getPatreonWebhookRoutes, handlePatreonWebhook } from './webhook/webhook'
 
 export default <ExportedHandler<Config.Env>>{
     async fetch(request, env) {
         const { pathname } = new URL(request.url)
 
+        // Uncomment the following path to configure the bot in development
+        // Specify all the options that you want to register / edit
+        // if (pathname === '/configure') {
+        //     await configureApp(env, {})
+        // }
+
         const resources = {
-            '/tos': env.tos_url,
-            '/privacy': env.privacy_url,
-            '/source': env.github_url,
+            '/tos': env.urls?.terms_of_service,
+            '/privacy': env.urls?.privacy,
+            '/source': env.urls?.github,
+            '/discord': env.urls?.discord_server,
+            '/patreon': env.urls?.patreon,
         }
 
         if (resources[pathname] != undefined) {
@@ -23,10 +33,10 @@ export default <ExportedHandler<Config.Env>>{
 
         switch (pathname) {
         case '/interactions':
-            return await handleInteractionRequest(request)
-        case linkedRolesPath.auth:
-            return createLinkedRoleRedirect(env)
-        case linkedRolesPath.callback:
+            return await handleInteractionRequest(request, env)
+        case '/linked-roles/auth':
+            return createLinkedRoleRedirect(env, '/linked-roles/callback')
+        case '/linked-roles/callback':
             return handleLinkedRolesCallback(env, request)
         default:
             return new Response()

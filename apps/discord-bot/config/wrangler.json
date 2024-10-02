@@ -1,0 +1,10 @@
+{
+    "$schema": "https://unpkg.com/wrangler/config-schema.json",
+    "name": "discord-bot",
+    "main": "./src/index.ts",
+    "compatibility_date": "2024-09-01",
+    "compatibility_flags": ["nodejs_compat"],
+    "d1_databases": [],
+    "kv_namespaces": [],
+    "analytics_engine_datasets": []
+}

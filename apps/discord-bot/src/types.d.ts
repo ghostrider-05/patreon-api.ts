@@ -1,4 +1,8 @@
-import type { Member, PatreonWebhookTrigger, User } from 'patreon-api.ts'
+import type {
+    Member,
+    PatreonWebhookTrigger,
+    User,
+} from 'patreon-api.ts'
 
 import type {
     APIApplicationRoleConnectionMetadata,
@@ -9,31 +13,85 @@ declare global {
 	namespace Config {
 		type WebhookTrigger = PatreonWebhookTrigger
 
+		interface Binding<Type extends string> {
+			env_name: string
+			env_type?: Type
+		}
+
+		interface DiscordWebhookConfig {
+			/**
+			 * Whether to use this webhook if a bot scope is present
+			 * @default false
+			 */
+			use_webhook?: boolean
+			/**
+			 * The secret variable name for the Discord webhook url
+			 */
+			url_secret_name: string
+			/**
+			 * Specify if the webhook is owned by app and can send components
+			 * @default false
+			 */
+			is_app_owned?: boolean
+
+			username?: string
+			avatar_url?: string
+		}
+
 		interface WebhookMessageConfig {
 			channel_id: string;
 			channel_type: number;
 
+			/**
+			 * Whether to send a message if a resource (post, pledge or member) is deleted
+			 * @default false
+			 */
 			send_deleted_event_message?: boolean
+			/**
+			 * Whether to send a message if a resource (post, pledge or member) is deleted
+			 * @default false
+			 */
 			send_edited_event_message?: boolean
 
-			app_type?: 'bot' | 'webhook'
-			discord_webhook?: {
-				url_secret_name: string
-				is_app_owned?: boolean
-
-				username?: string
-				avatar_url?: string
-				// thread_id?: string
-			}
-
+			/**
+			 * @default 'message'
+			 */
 			format_type?: 'embed' | 'message'
 			embed_color?: number
 			embed_footer?: string
 
 			title?: string
 			description?: string
-			// Only for posts used
+			/**
+			 * (If no bot is used) The Discord webhook to send the message from
+			 */
+			discord_webhook?: DiscordWebhookConfig
+
+			/**
+			 * Additional settings for posts webhook messages.
+			 * Some options that are only for published posts are in {@link published_posts}.
+			 */
 			posts?: WebhookMessagePostConfig
+
+			/**
+			 * Additional settings for the `posts:published` messages.
+			 */
+			published_posts?: WebhookMessagePublishedPostConfig
+		}
+
+		interface WebhookMessagePublishedPostConfig {
+			announce_message?: boolean
+			create_thread?: boolean
+
+			forum_create_posts?: boolean
+
+			forum_tags?: string[]
+			forum_title?: string
+			forum_unknown_title?: string
+
+			thread_reason?: string
+			thread_auto_archive?: number
+			thread_rate_limit?: number
 		}
 
 		interface WebhookMessagePostConfig {
@@ -41,25 +99,11 @@ declare global {
 			edit_audit_log_reason?: string
 			// Does not delete post edited messages, if edit_original_message is not enabled
 			delete_original_message?: boolean
+			delete_edit_messages?: boolean
 			delete_audit_log_reason?: string
 
-			published_posts?: {
-				announce_message?: boolean
-				create_thread?: boolean
-
-				forum_create_posts?: boolean
-
-				forum_tags?: string[]
-				forum_title?: string
-				forum_unknown_title?: string
-
-				thread_reason?: string
-				thread_auto_archive?: number
-				thread_rate_limit?: number
-			}
-
-			message_storage_type?: 'kv' | 'd1'
-			message_storage_env?: string
+			/** @default 'kv' */
+			message_storage?: Binding<'kv'> | Binding<'d1'>
 
 			buttons?: APIButtonComponentWithURL[]
 
@@ -72,16 +116,21 @@ declare global {
 		}
 
 		interface WebhookConfig extends WebhookMessageConfig {
+			/**
+			 * Specify *all* triggers that this webhook handles
+			 */
 			triggers: WebhookTrigger[]
+
+			path?: string
+			secret_name?: string
 		}
 
 		interface GuildRolesConfig {
 			// TODO: look if kv can be added
 			/** @default 'd1' */
-			storage_type?: 'd1'
-			storage_env: string
+			storage: Binding<'d1'>
 
-			remove_role_cron?: boolean
+			// remove_role_cron?: boolean
 			roles: GuildRoleConfig[]
 
 			reason_add?: string
@@ -89,19 +138,43 @@ declare global {
 		}
 
 		interface GuildRoleConfig {
+			/**
+			 * The id of the Discord role to grant.
+			 * Not allowed to be the default / @ everyone role.
+			 */
 			id: string
+
+			/**
+			 * The required (id of) tier a user must have for this Discord role.
+			 */
 			tier_id?: string
-			/** @default true */
+			/**
+			 * Whether users with a pending charge status are allowed the role.
+			 * If the charge has failed, the role will be removed if
+			 * @default true
+			 */
 			allow_pending?: boolean
+
+			/**
+			 * When registering this bot, the bot will register this role.
+			 *
+			 * When a role is managed by an integration, you cannot manually manage members of this role!
+			 * Set {@link id} to an empty string when this is enabled and edit the id after registration by getting the id in Discord.
+			 */
+			managed_by_integration?: {
+				name: string
+				color?: number
+				hoist?: boolean
+			}
 		}
 
 		interface CampaignConfig {
 			id: string
-			guild_id: string
-			guild_roles?: GuildRolesConfig
-			webhooks_path?: string
-			webhooks_secret_name?: string
-			webhooks?: (WebhookConfig & { [T in WebhookTrigger]?: WebhookMessageConfig })[]
+			guild: {
+				id: string
+				roles?: GuildRolesConfig
+			}
+			webhook?: WebhookConfig & { [T in WebhookTrigger]?: WebhookMessageConfig }
 		}
 
 		interface LinkedRolesConfig {
@@ -109,12 +182,15 @@ declare global {
 			platform_name?: string
 			platform_username?: string
 
-			data?: {
-				metadata: APIApplicationRoleConnectionMetadata
-				attribute: LinkedRolesAttributeConfig
-			}[]
+			data?: LinkedRolesItem[]
 		}
 
+		interface LinkedRolesItem {
+			metadata: APIApplicationRoleConnectionMetadata
+			attribute: LinkedRolesAttributeConfig
+		}
+
+		// TODO update match to allow oneOf, equals, etc.
 		type LinkedRolesAttributeConfig =
 			| { resource: 'user', key: keyof User, required_match?: User[keyof User] }
 			| { resource: 'member', key: keyof Member, required_match?: Member[keyof Member] }
@@ -124,6 +200,34 @@ declare global {
 			verified_email: boolean
 			campaign_lifetime_cents: number
 			entitled_cents: number
+		}
+
+		interface UrlConfig {
+			patreon?: string
+			discord_server?: string
+
+			github?: string
+			privacy?: string
+			terms_of_service?: string
+		}
+
+		interface AppCommandsOptions {
+			guilds?: string[]
+			register_global: boolean
+		}
+
+		interface AppConfig {
+			id: string
+			public_key: string
+
+			description?: string
+			tags?: string[]
+			installation_custom_url?: string
+			/**
+			 * If no custom url is specified, use the in app installation
+			 * @default true
+			 */
+			in_app_installation?: boolean
 		}
 
 		interface Secrets extends Record<string, unknown> {
@@ -139,19 +243,14 @@ declare global {
 		}
 
 		interface Options {
-			worker_name: string;
-
-			app_public_key: string;
-			app_id: string;
-
-			github_url?: string
-			privacy_url?: string
-			tos_url?: string
+			worker_url: string
+			urls?: UrlConfig
 
 			use_bot_scope: boolean
 			use_app_commands_scope: boolean
-			register_global_app_commands: boolean
-			app_commands_guilds?: string[]
+
+			app_config: AppConfig
+			app_commands?: AppCommandsOptions
 
 			campaigns: CampaignConfig[]
 			linked_roles?: LinkedRolesConfig
@@ -160,6 +259,12 @@ declare global {
 		interface Env extends Options, Secrets { }
 	}
 
+}
+
+// Used only for schema generation
+interface Vars {
+	vars: Config.Options
+	$schema: 'schema.json'
 }
 
 export { }
