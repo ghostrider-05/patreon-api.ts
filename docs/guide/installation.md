@@ -9,7 +9,7 @@ features:
     link: https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/node-esm/
     linkText: See on GitHub
   - title: Node.js - CJS
-    details: Fetch creator campaigns
+    details: Fetch creator campaigns and module augmentation
     link: https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/node-cjs/
     linkText: See on GitHub
 ---

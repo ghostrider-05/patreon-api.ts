@@ -1,5 +1,6 @@
 import {
     PatreonClientMethods,
+    type GetResponseMap,
     type Oauth2FetchOptions,
     type Oauth2RouteOptions,
 } from './baseMethods'
@@ -18,6 +19,7 @@ import {
 import { WebhookClient } from '../webhooks'
 
 export type {
+    GetResponseMap,
     Oauth2FetchOptions,
     Oauth2RouteOptions,
     CreatorToken,

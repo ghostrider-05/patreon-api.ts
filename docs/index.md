@@ -21,13 +21,13 @@ features:
   - title: JSON:API typed
     details: Get accurate types for using the Patreon JSON:API. The types will display the exact resources you requested
     link: https://jsonapi.org/
-    linkText: JSON:API documentaton
+    linkText: JSON:API documentation
   - title: 100% coverage
     details: This library supports all documented endpoints for the version 2 API
     link: https://docs.patreon.com/#apiv2-resource-endpoints
     linkText: Patreon documentation
   - title: ESM & CJS
-    details: Works with ESM and CJS projects on Node.js and edge platfroms, like Cloudflare, and no dependencies
+    details: Works with ESM and CJS projects on Node.js and edge platforms, like Cloudflare, and no dependencies
     link: /guide/installation#platform
     linkText: See runtime requirements
   - title: Simplified payloads
