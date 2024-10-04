@@ -24,7 +24,7 @@ const query = buildQuery.campaigns()({
     campaign: ['patron_count']
 })
 
-const campaigns = <Client>.listCampaigns(query)
+const campaigns = <Client>.paginateCampaigns(query)
 
 for await (const campaign of campaigns) {
     console.log('Campaign id: ' + campaign.data[0].id)

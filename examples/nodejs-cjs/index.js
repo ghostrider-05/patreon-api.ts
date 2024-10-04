@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable no-undef */
 
 const {
@@ -17,10 +17,11 @@ const client = new PatreonCreatorClient({
     },
     rest: {
         fetch: (url, init) => {
+            // Log all requests made to Patreon API
             console.log(`[${init.method}] ${url}`)
 
             return fetch(url, init)
-        }
+        },
     }
 })
 
@@ -28,5 +29,15 @@ const query = buildQuery.campaigns(['creator'])({
     user: ['social_connections']
 })
 
+
+
 client.fetchCampaigns(query)
-    .then(payload => console.log(JSON.stringify(payload, null, 4)))
+    .then(payload => console.log(JSON.stringify(payload.included[0].attributes.social_connections, null, 4)))
+
+const parser = PatreonCreatorClient.createCustomParser(client, 'custom', (res) => ({
+    response: res,
+    campaign_id: '',
+}))
+
+parser.fetchCampaigns(query)
+    .then(payload => payload.response.data[0].relationships.creator.data.id)

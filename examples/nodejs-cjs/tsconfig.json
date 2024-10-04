@@ -5,9 +5,13 @@
         "outDir": "dist",
         "module": "NodeNext",
         "target": "ES2020",
-        "moduleResolution": "NodeNext"
+        "moduleResolution": "NodeNext",
+        "types": [
+            "node",
+            "./index.d.ts"
+        ]
     },
     "include": [
-        "./index.js"
+        "./"
     ]
 }
