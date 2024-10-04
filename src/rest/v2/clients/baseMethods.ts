@@ -55,7 +55,7 @@ export interface Oauth2FetchOptions extends BaseFetchOptions {
 export type Oauth2RouteOptions = Omit<Oauth2FetchOptions, 'method'>
 
 // TODO: replace with generics once https://github.com/Microsoft/TypeScript/issues/1213 is closed
-interface GetResponseMap<Query extends BasePatreonQuery> {
+export interface GetResponseMap<Query extends BasePatreonQuery> {
     default: (res: GetResponsePayload<Query>) => GetResponsePayload<Query>
     simplified: (res: GetResponsePayload<Query>) => ReturnType<typeof simplifyFromQuery<Query>>
     normalized: (res: GetResponsePayload<Query>) => ReturnType<typeof normalizeFromQuery<Query>>
@@ -66,19 +66,13 @@ export type ResponseTransformType = keyof GetResponseMap<BasePatreonQuery>
 class GenericPatreonClientMethods<TransformType extends ResponseTransformType> {
     public constructor (
         protected _oauth: PatreonOauthClient,
-        private _replacer: TransformType,
+        protected transformType: TransformType,
+        private parser: GetResponseMap<BasePatreonQuery>[TransformType],
         private _token?: StoredToken,
     ) {}
 
     private _replace <Query extends BasePatreonQuery> (res: GetResponsePayload<Query>): ReturnType<GetResponseMap<Query>[TransformType]> {
-        const map: GetResponseMap<Query> = {
-            default: (res) => res,
-            simplified: (res) => simplifyFromQuery(res),
-            normalized: (res) => normalizeFromQuery(res),
-        }
-
-        const replacer = map[this._replacer]
-        return replacer(res) as ReturnType<typeof replacer>
+        return this.parser(<never>res)
     }
 
     /**
@@ -208,12 +202,18 @@ export abstract class PatreonClientMethods extends GenericPatreonClientMethods<'
         const restClient = new RestClient(rest)
         const oauth = new PatreonOauthClient(rawOauthOptions, restClient)
 
-        super(oauth, 'default', _token)
+        super(oauth, 'default', (res) => res, _token)
 
         this.oauth = oauth
 
-        this.normalized = new GenericPatreonClientMethods(oauth, 'normalized', _token)
-        this.simplified = new GenericPatreonClientMethods(oauth, 'simplified', _token)
+        this.normalized = new GenericPatreonClientMethods(oauth, 'normalized', normalizeFromQuery, _token)
+        this.simplified = new GenericPatreonClientMethods(oauth, 'simplified', simplifyFromQuery, _token)
+    }
+
+    public static createCustomParser <
+        Type extends keyof GetResponseMap<BasePatreonQuery>
+    >(client: PatreonClientMethods, type: Type, parser: GetResponseMap<BasePatreonQuery>[Type]) {
+        return new GenericPatreonClientMethods(client.oauth, type, parser, client['_token'])
     }
 }
 
