@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.8.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.7.0...patreon-api.ts-v0.8.0) (2024-10-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* **PatreonOauthClient:** remove static fetch and paginate methods
+
+### Features
+
+* allow overriding `User.social_connections` through module augmentation ([dd32c10](https://github.com/ghostrider-05/patreon-api.ts/commit/dd32c1012d72bb2b8234740286f2cf87dbde2e33))
+* **apps:** add example discord bot ([#90](https://github.com/ghostrider-05/patreon-api.ts/issues/90)) ([86988a4](https://github.com/ghostrider-05/patreon-api.ts/commit/86988a4391a34e429fe3fe735d24ee147e930fd6))
+* deprecate webhook to Discord embed utilities ([86988a4](https://github.com/ghostrider-05/patreon-api.ts/commit/86988a4391a34e429fe3fe735d24ee147e930fd6))
+* **PatreonClient:** add method for custom response parser ([#97](https://github.com/ghostrider-05/patreon-api.ts/issues/97)) ([17e87fc](https://github.com/ghostrider-05/patreon-api.ts/commit/17e87fc5b5fa8bb6f69731bfd7c5d9abe4c919f5))
+* **PatreonOauthClient:** remove static fetch and paginate methods ([86988a4](https://github.com/ghostrider-05/patreon-api.ts/commit/86988a4391a34e429fe3fe735d24ee147e930fd6))
+* **types:** add member and post webhook payload types ([dd32c10](https://github.com/ghostrider-05/patreon-api.ts/commit/dd32c1012d72bb2b8234740286f2cf87dbde2e33))
+* **WebhookClient:** add payloads property for webhook payload utilities ([86988a4](https://github.com/ghostrider-05/patreon-api.ts/commit/86988a4391a34e429fe3fe735d24ee147e930fd6))
+
+
+### Bug Fixes
+
+* **examples:** update wrangler compat dates ([86988a4](https://github.com/ghostrider-05/patreon-api.ts/commit/86988a4391a34e429fe3fe735d24ee147e930fd6))
+* update code example ([#81](https://github.com/ghostrider-05/patreon-api.ts/issues/81)) ([5cba8ab](https://github.com/ghostrider-05/patreon-api.ts/commit/5cba8ab265526e96053bcd4e6db07fddcb8628e7))
+* **webhooks:** set pledge resource type to member ([#91](https://github.com/ghostrider-05/patreon-api.ts/issues/91)) ([dd32c10](https://github.com/ghostrider-05/patreon-api.ts/commit/dd32c1012d72bb2b8234740286f2cf87dbde2e33))
+
 ## [0.7.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.6.1...patreon-api.ts-v0.7.0) (2024-09-06)
 
 
