@@ -62,6 +62,10 @@ export default {
 }
 ```
 
+## Routes
+
+See [`/examples/README.md`](https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/README.md).
+
 ## Store
 
 There are 3 built-in methods of retreiving and storing tokens:
