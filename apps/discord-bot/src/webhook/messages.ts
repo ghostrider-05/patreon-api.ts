@@ -1,10 +1,11 @@
 import {
     type RESTPostAPIChannelMessageJSONBody,
 } from 'discord-api-types/v10'
+
 import {
+    type PatreonWebhookMemberTrigger,
     type PatreonWebhookPostTrigger,
     type WebhookPayload,
-    PatreonWebhookMemberTrigger,
 } from 'patreon-api.ts'
 
 // TODO

@@ -1,8 +1,8 @@
 import {
-    PatreonWebhookTrigger,
     Type,
-    User,
-    WebhookPayload,
+    type PatreonWebhookTrigger,
+    type User,
+    type WebhookPayload,
 } from '../../../../v2'
 
 import { getWebhookUserId } from '../client'
@@ -56,7 +56,7 @@ export function webhookToDiscordEmbed (trigger: PatreonWebhookTrigger, payload: 
     function replaceTemplateKeys (obj: Record<string, string>) {
         return (str: string) => {
             for (const key of Object.keys(obj)) {
-                str = str.replaceAll(`{${key}}`, obj[key])
+                str = str.replaceAll(`{${key}}`, obj?.[key] ?? '')
             }
 
             return str

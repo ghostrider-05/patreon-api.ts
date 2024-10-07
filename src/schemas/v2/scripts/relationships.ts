@@ -21,11 +21,13 @@ export async function syncRelationships () {
         return prop.getProperties().reduce((props, child) => {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const elements = child.getValueDeclaration()!.getType().getTupleElements()
+            const getElement = (index: number) => elements.at(index)?.getText() ?? ''
+
             const hasName = elements.length > 2
             const resourceKey = child.getName()
-            const includeKey = hasName ? elements[0].getText().replaceAll('"', '') : resourceKey
-            const isArray = elements[hasName ? 1 : 0].getText() === 'true'
-            const isRelated = elements[hasName ? 2 : 1].getText() === 'true'
+            const includeKey = hasName ? getElement(0).replaceAll('"', '') ?? '' : resourceKey
+            const isArray = getElement(hasName ? 1 : 0) === 'true'
+            const isRelated = getElement(hasName ? 2 : 1) === 'true'
 
             return props.concat([{
                 resourceKey,

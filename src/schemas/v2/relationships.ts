@@ -1,4 +1,12 @@
-import { AttributeItem, DataItem, DataItems, Item, ItemMap, ItemType, Type } from './item'
+import {
+    Type,
+    type AttributeItem,
+    type DataItem,
+    type DataItems,
+    type Item,
+    type ItemMap,
+    type ItemType
+} from './item'
 
 type Multiple<
     IncludedKey extends string,

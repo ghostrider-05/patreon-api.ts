@@ -1,33 +1,48 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
     "alwaysStrict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "exactOptionalPropertyTypes": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "tsc-generated",
-    "lib": ["esnext"],
+    "lib": [
+      "esnext"
+    ],
     // Uncomment types to check global modules
     // "types": [],
     "module": "commonjs",
-    "noUnusedParameters": true,
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "noUncheckedSideEffectImports": true,
     "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "outDir": "tsc-generated",
+    "preserveConstEnums": true,
     "removeComments": false,
     "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "target": "ES2020",
-    "strictNullChecks": true,
     "skipLibCheck": true,
-    "preserveConstEnums": true,
-    "exactOptionalPropertyTypes": true
+    "sourceMap": true,
+    "strictBindCallApply": true,
+    "strictBuiltinIteratorReturn": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "target": "ES2020",
+    "useUnknownInCatchVariables": true
   },
-  "include": [
-    "src/**/*.ts",
-    "tsup.config.ts"
-  ],
   "exclude": [
     "coverage",
     "src/__tests__/**/*.test.ts"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "tsup.config.ts"
   ]
 }

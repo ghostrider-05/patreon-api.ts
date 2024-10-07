@@ -1,8 +1,9 @@
-import { AnyToCamelCase, convertToCamelcase } from './capitalize'
-import { findRelationships } from './find'
-
+import type { BasePatreonQuery, GetResponsePayload } from '../../../rest/v2/'
 import type { RelationshipFields, RelationshipMap, Type } from '../../../schemas/v2/'
 import type { RequestPayload } from '../internals/request'
+
+import { type AnyToCamelCase, convertToCamelcase } from './capitalize'
+import { findRelationships } from './find'
 
 import type {
     GetNormalizedResponsePayload,
@@ -10,7 +11,6 @@ import type {
     NormalizedListRequestPayload,
     NormalizedRequestPayload,
 } from './payload'
-import { BasePatreonQuery, GetResponsePayload } from '../../../v2'
 
 /**
  * Returns if the payload has pagination data

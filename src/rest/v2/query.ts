@@ -1,6 +1,6 @@
-import { RequestPayload } from '../../payloads/v2/internals/request'
+import type { RequestPayload } from '../../payloads/v2/internals/request'
 
-import { Type, RelationshipFields, RelationshipMap } from '../../schemas/v2'
+import type { Type, RelationshipFields, RelationshipMap } from '../../schemas/v2'
 
 export type BasePatreonQuery = {
     /**

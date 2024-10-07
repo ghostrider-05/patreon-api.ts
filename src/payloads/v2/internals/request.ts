@@ -1,7 +1,11 @@
-import { Type, RelationshipMap, RelationshipFields } from '../../../schemas/v2'
+import type {
+    Type,
+    RelationshipMap,
+    RelationshipFields,
+} from '../../../schemas/v2'
 
-import { GetRequestPayload } from './get'
-import { ListRequestPayload } from './list'
+import type { GetRequestPayload } from './get'
+import type { ListRequestPayload } from './list'
 
 export type RequestPayload<
     T extends Type,

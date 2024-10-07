@@ -10,8 +10,8 @@ import type {
 } from '../query'
 
 import {
-    CreatorToken,
     PatreonOauthClient,
+    type CreatorToken,
     type PatreonOauthClientOptions,
     type StoredToken,
 } from '../oauth2/client'

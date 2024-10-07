@@ -1,8 +1,8 @@
 import { createHmac } from 'node:crypto'
 
 import { WebhookClient } from './client'
-import { PatreonWebhookTrigger } from './triggers'
-import { WebhookPayload } from '../../../payloads/v2/webhook'
+import type { PatreonWebhookTrigger } from './triggers'
+import type { WebhookPayload } from '../../../payloads/v2/webhook'
 
 /**
  * Verify an incoming webhook request

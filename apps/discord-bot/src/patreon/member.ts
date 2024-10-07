@@ -1,7 +1,7 @@
 import {
     buildQuery,
-    type PatreonClient,
     Type,
+    type PatreonClient,
     type GetResponsePayload,
     type PatreonQuery,
     type QueryRequestOptions,

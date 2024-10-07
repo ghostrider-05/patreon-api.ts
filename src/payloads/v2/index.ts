@@ -1,5 +1,5 @@
-import { RelationshipFields, RelationshipMap, Type } from '../../schemas/v2'
-import { RequestPayload } from './internals/request'
+import type { RelationshipFields, RelationshipMap, Type } from '../../schemas/v2'
+import type { RequestPayload } from './internals/request'
 
 type GetRequestType =
     | Type.Campaign

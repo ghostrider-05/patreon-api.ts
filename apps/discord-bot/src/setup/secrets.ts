@@ -1,5 +1,9 @@
 import { PatreonWebhookTrigger } from 'patreon-api.ts'
 
+/**
+ *
+ * @param env
+ */
 function validateWebhookSecrets(env: Config.WebhookMessageConfig | undefined) {
     if (env?.discord_webhook) {
         if (typeof env[env.discord_webhook.url_secret_name] !== 'string') {
@@ -14,6 +18,10 @@ function validateWebhookSecrets(env: Config.WebhookMessageConfig | undefined) {
     }
 }
 
+/**
+ *
+ * @param env
+ */
 export function validateSecrets(env: Config.Env) {
     if (env.use_bot_scope && !env.DISCORD_BOT_TOKEN) {
         throw new Error('No Discord bot token configured')

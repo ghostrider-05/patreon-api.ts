@@ -1,4 +1,7 @@
-import { PatreonClient, StoredToken } from './base'
+import {
+    PatreonClient,
+    type StoredToken,
+} from './base'
 
 export class PatreonCreatorClient extends PatreonClient {
     /**

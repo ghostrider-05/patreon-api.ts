@@ -13,7 +13,7 @@ import { Oauth2Routes } from '../oauth2'
 import { createQuery, type BasePatreonQueryType, type GetResponsePayload } from '../query'
 
 import type { Oauth2RouteOptions } from '../clients/baseMethods'
-import { PatreonOauthClient } from '../oauth2/client'
+import type { PatreonOauthClient } from '../oauth2/client'
 import { WebhookPayloadClient } from './payload'
 
 export type Oauth2WebhookRouteOptions = Omit<Oauth2RouteOptions, 'body' | 'contentType'>

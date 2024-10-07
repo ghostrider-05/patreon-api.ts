@@ -32,7 +32,6 @@ export default [
             jsdoc,
         },
         rules: {
-            // "jsdoc/require-description": "error",
             'no-trailing-spaces': [
                 'error'
             ],

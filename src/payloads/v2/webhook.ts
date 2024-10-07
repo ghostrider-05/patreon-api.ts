@@ -1,16 +1,17 @@
 import {
-    PatreonWebhookTrigger,
+    type PatreonWebhookTrigger,
     type PatreonWebhookMemberTrigger,
     type PatreonWebhookPledgeTrigger,
     type PatreonWebhookPostTrigger,
 } from '../../rest/v2/'
+
 import {
-    type RelationshipFields,
-    type RelationshipMap,
     Type,
+    type RelationshipFields,
+    type RelationshipMap
 } from '../../schemas/v2/'
 
-import { RequestPayload } from './internals/request'
+import type { RequestPayload } from './internals/request'
 
 export type CompletePayload<T extends Type> = RequestPayload<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>, false>
 
