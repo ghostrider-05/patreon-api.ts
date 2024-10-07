@@ -309,8 +309,9 @@ export class RestClient {
                     // Invalid request, but not retried
                     const errors = await parseResponse<{ errors: PatreonErrorData[] }>(response)
 
-                    // TODO: can there more than 1 error?
-                    throw new PatreonError(errors.errors[0], this.getHeaders(response))
+                    throw errors.errors.map(error => {
+                        return new PatreonError(error, this.getHeaders(response))
+                    })
                 }
             }
         }
