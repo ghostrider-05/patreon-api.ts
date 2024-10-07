@@ -1,8 +1,7 @@
 import {
     PatreonWebhookTrigger,
-    WebhookToDiscordMessages,
     parseWebhookRequest,
-    webhookToDiscordEmbed,
+    WebhookPayloadClient,
 } from 'patreon-api.ts'
 
 import { renderPost } from './md'
@@ -11,6 +10,12 @@ interface EnvWithSecrets {
     DISCORD_WEBHOOK_URL: string
     PATREON_WEBHOOK_SECRET: string
     HTML_MD_KEY: string
+}
+
+interface Embed extends Record<string, string | number> {
+    title?: string
+    color?: number
+    description?: string
 }
 
 export default <ExportedHandler<EnvWithSecrets>> {
@@ -27,24 +32,16 @@ export default <ExportedHandler<EnvWithSecrets>> {
         const { event, payload } = result
         const description = await renderPost(payload.data.attributes.content, env.HTML_MD_KEY)
 
-        const options: WebhookToDiscordMessages = {
-            [PatreonWebhookTrigger.PostPublished]: {
+        const converter = WebhookPayloadClient.convert<Embed>({
+            default: {
+                title: 'New post: {{title}}',
                 color: 0x5865F2,
-                title: 'New post: {title}',
-                addContextKeys(payload) {
-                    return {
-                        title: payload.data.attributes.title,
-                    }
-                },
-                extends() {
-                    return {
-                        description,
-                    }
-                },
+                description,
             }
-        }
+        })
 
-        const embed = webhookToDiscordEmbed(event, payload, options)
+        const embed = converter(event, payload)
+
         if (embed) {
             return await fetch(env.DISCORD_WEBHOOK_URL, {
                 method: 'POST',
