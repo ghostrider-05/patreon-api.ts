@@ -66,6 +66,20 @@ export interface RESTOptions {
     timeout: number
 
     /**
+     * The time in ms after a request is rate limited to wait before sending new requests
+     * @default 0
+     */
+    ratelimitTimeout: number
+
+    // TODO: check what a good limit is before being ratelimited.
+    /**
+     * The maximum amount of requests per second for this client.
+     * Set to `0` to disable the limit.
+     * @default 0
+     */
+    globalRequestPerSecond: number
+
+    /**
      * The string to append to the user agent header
      */
     userAgentAppendix: string | undefined
@@ -143,6 +157,8 @@ export interface RequestOptions {
 export const PATREON_RESPONSE_HEADERS = {
     Sha: 'x-patreon-sha',
     UUID: 'x-patreon-uuid',
+    CfCacheStatus: 'cf-cache-status',
+    CfRay: 'cf-ray',
 } as const
 
 export const DefaultRestOptions: RESTOptions = {
@@ -150,6 +166,8 @@ export const DefaultRestOptions: RESTOptions = {
     api: RouteBases.oauth2,
     fetch: (...args) => fetch(...args),
     getAccessToken: async () => undefined,
+    globalRequestPerSecond: 0,
+    ratelimitTimeout: 0,
     // Set to number for the typecast to be correct
     retries: 3,
     timeout: 15_000,
@@ -181,6 +199,11 @@ export interface PatreonErrorData {
     source?: {
         parameter?: string
     }
+}
+
+// eslint-disable-next-line jsdoc/require-jsdoc
+async function sleep (ms: number) {
+    return new Promise<void>((resolve) => setTimeout(resolve, ms))
 }
 
 /**
@@ -239,12 +262,18 @@ class PatreonError extends Error implements PatreonErrorData {
     }
 
     public override get name () {
-        return `${this.code_name}[${this.code ?? 'unkown code'}]`
+        return `${this.code_name}[${this.code ?? 'unknown code'}]`
     }
 }
 
 export class RestClient {
+    private static readonly INTERVAL_MS = 1000
+
     public readonly options: RESTOptions
+
+    private ratelimitedUntil: Date | null = null
+    private requestsCounts: number | null = null
+    private requestsReset: Date | null = null
 
     public constructor (
         options: Partial<RESTOptions> = {},
@@ -263,6 +292,11 @@ export class RestClient {
         const userAgentAppendix = VERSION + (this.options.userAgentAppendix?.length ? `, ${this.options.userAgentAppendix}` : '')
 
         return `PatreonBot patreon-api.ts (https://github.com/ghostrider-05/patreon-api.ts, ${userAgentAppendix})`
+    }
+
+    public get limited (): boolean {
+        return this.ratelimitedUntil != null
+            || (this.requestsCounts == null || this.requestsCounts > this.options.globalRequestPerSecond)
     }
 
     public async get<T> (path: string, options?: RequestOptions) {
@@ -290,8 +324,11 @@ export class RestClient {
                 return await tryRequest(++retries)
             } else {
                 if (response.status === 429) {
-                    // TODO: How should libraries handle 429??
-                    throw new Error('This client is currently ratelimited. Please contact Patreon or reduce your requests')
+                    await this.handleRatelimit(response)
+
+                    if (this.shouldRetry(retries, 429)) {
+                        return tryRequest(++retries)
+                    }
                 }
 
                 if (response.ok) {
@@ -321,6 +358,9 @@ export class RestClient {
     }
 
     private async makeRequest (options: InternalRequestOptions & { currentRetries: number }) {
+        await this.waitForRatelimit()
+        await this.waitForRequestLimit()
+
         // copied from @discordjs/rest
         const controller = new AbortController()
 	    const timeout = setTimeout(() => controller.abort(), options.timeout ?? this.options.timeout)
@@ -399,6 +439,48 @@ export class RestClient {
         return amount !== current
     }
 
+    private async waitForRequestLimit (): Promise<void> {
+        const limit = this.options.globalRequestPerSecond
+        if (limit <= 0) return
+
+        this.requestsCounts ??= 0
+        if (this.requestsCounts >= limit) {
+            const remainingMs = this.requestsReset != null
+                ? Math.min(Date.now() - this.requestsReset.getTime(), RestClient.INTERVAL_MS)
+                : RestClient.INTERVAL_MS
+
+            await sleep(remainingMs)
+        }
+
+        this.requestsCounts += 1
+
+        setTimeout(() => {
+            this.requestsCounts = 0
+            this.requestsReset = new Date()
+        }, RestClient.INTERVAL_MS)
+    }
+
+    private async waitForRatelimit (): Promise<number> {
+        if (this.ratelimitedUntil == null) return 0
+
+        console.log('This client is queueing a request to avoid ratelimits')
+        const offset = Date.now() - this.ratelimitedUntil.getTime()
+
+        await sleep(offset)
+        this.ratelimitedUntil = null
+
+        return offset
+    }
+
+    private async handleRatelimit (response: RestResponse) {
+        // TODO: How should libraries handle 429??
+        console.log('This client is currently ratelimited. Please contact Patreon or reduce your requests', this.getHeaders(response))
+
+        if (this.options.ratelimitTimeout !== 0) {
+            this.ratelimitedUntil = new Date(Date.now() + this.options.ratelimitTimeout)
+        }
+    }
+
     /**
      * Get Patreon headers from a response
      * @param response the response from Patreon
@@ -408,6 +490,8 @@ export class RestClient {
         return {
             sha: response.headers.get(PATREON_RESPONSE_HEADERS.Sha),
             uuid: response.headers.get(PATREON_RESPONSE_HEADERS.UUID),
+            cfcachestatus: response.headers.get(PATREON_RESPONSE_HEADERS.CfCacheStatus),
+            cfray: response.headers.get(PATREON_RESPONSE_HEADERS.CfRay),
         }
     }
 }
