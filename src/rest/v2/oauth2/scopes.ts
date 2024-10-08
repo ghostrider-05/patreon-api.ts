@@ -27,7 +27,7 @@ function getRequiredScopesForPath (
     } else if (path.startsWith(Oauth2Routes.identity())) {
         scopes.push(PatreonOauthScope.Identity)
 
-        if (query.params.get(encodeURIComponent('fields[user]'))?.includes('email')) {
+        if (query.params.get('fields[user]')?.includes('email')) {
             scopes.push(PatreonOauthScope.IdentityEmail)
         }
 
@@ -37,7 +37,7 @@ function getRequiredScopesForPath (
     } else if (path.endsWith('/members') || path.startsWith(Oauth2Routes.member(''))) {
         scopes.push(PatreonOauthScope.CampaignMembers)
 
-        if (query.params.get(encodeURIComponent('fields[user]'))?.includes('email')) {
+        if (query.params.get('fields[user]')?.includes('email')) {
             scopes.push(PatreonOauthScope.CampaignMembersEmail)
         }
 
