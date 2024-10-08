@@ -33,6 +33,7 @@
   },
   "files": [
     "dist",
+    "openapi.json",
     "CHANGELOG.md"
   ],
   "keywords": [
