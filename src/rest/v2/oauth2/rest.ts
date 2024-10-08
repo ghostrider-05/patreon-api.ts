@@ -7,7 +7,6 @@ export type RestResponse = Pick<Response,
     | 'bodyUsed'
     | 'headers'
     | 'json'
-    | 'clone'
     | 'ok'
     | 'status'
     | 'statusText'
@@ -61,7 +60,6 @@ export interface RESTOptions {
      * - response
      * - request
      * - ratelimit
-     *
      * @default null
      */
     emitter: NodeJS.EventEmitter<RestEventMap> | null
