@@ -2,6 +2,7 @@ import type { Oauth2FetchOptions } from '../clients'
 import { createQuery, type BasePatreonQuery, type GetResponsePayload } from '../query'
 
 import { type RestClient } from './rest'
+import { getRequiredScopes } from './scopes'
 
 import type { If } from '../../../utils/generics'
 
@@ -25,10 +26,30 @@ export interface BaseOauthClientOptions {
     token?: CreatorToken | Token | StoredToken
 
     /**
+     * The type of token is used.
+     * Used when validating resources with the given scopes.
+     * @default
+     * - 'creator' when using a creator client
+     * - 'oauth' when using an user client
+     */
+    tokenType?: 'creator' | 'oauth' | null
+
+    /**
      * Check if the token is given and not expired before running a request
      * @default true
      */
     validateToken?: boolean
+
+    /**
+     * Whether to validate all requests on Oauth clients before sending to check if the correct scopes are given.
+     *
+     * Options:
+     * - false: disable validation
+     * - true: throw on missing scopes for queries
+     * - 'warn': log message on missing scopes for queries
+     * @default false
+     */
+    validateScopes?: boolean | 'warn'
 
     /**
      * Overwrite the access token Oauth route
@@ -63,8 +84,19 @@ export interface StoredToken extends Token {
     expires_in_epoch: string
 }
 
-type OauthOptions = Partial<Pick<BaseOauthHandlerOptions, 'redirectUri' | 'scopes' | 'state'>>
-    & Required<Pick<BaseOauthClientOptions, 'validateToken' | 'clientId' | 'clientSecret' | 'accessTokenUri' | 'authorizationUri'>>
+type OauthOptions = Partial<Pick<BaseOauthHandlerOptions,
+    | 'redirectUri'
+    | 'scopes'
+    | 'state'
+>> & Required<Pick<BaseOauthClientOptions,
+    | 'validateToken'
+    | 'validateScopes'
+    | 'tokenType'
+    | 'clientId'
+    | 'clientSecret'
+    | 'accessTokenUri'
+    | 'authorizationUri'
+>>
 
 /**
  * Client options for handling Oauth
@@ -97,6 +129,8 @@ export class PatreonOauthClient {
             clientSecret: options.clientSecret,
             scopes: 'scopes' in options ? options.scopes ?? [] : [],
             state: 'state' in options ? options.state : undefined,
+            tokenType: options.tokenType ?? null,
+            validateScopes: options.validateScopes ?? false,
             validateToken: options.validateToken ?? true,
         }
 
@@ -140,6 +174,21 @@ export class PatreonOauthClient {
         return refreshed
     }
 
+    protected validateScopes (
+        path: string,
+        query: BasePatreonQuery,
+    ): void {
+        const validate = this.options.validateScopes
+        if (this.options.tokenType === 'creator' || !validate) return
+
+        const requiredScopes = getRequiredScopes.forPath(path, query)
+        const missingScopes = requiredScopes.filter(scope => !this.options.scopes?.includes(scope))
+
+        const msg = `Missing oauth scopes for ${path}: "${missingScopes.join('", "')}"`
+        if (validate === 'warn') console.log(msg)
+        else throw new Error(msg)
+    }
+
     /**
      * Make a request to the Patreon API
      * @param path the path of the resource
@@ -156,6 +205,8 @@ export class PatreonOauthClient {
             this,
             options?.token
         ) : options?.token
+
+        this.validateScopes(path, query)
 
         return await this.rest.request({
             ...options,
@@ -303,7 +354,9 @@ export class PatreonOauthClient {
      * @param token The token to create a stored version of
      * @returns the same token if `expires_in` is missing. Otherwise the stored token version.
      */
-    public static toStored<SupportsCreator extends boolean = true>(token: Token | CreatorToken): If<SupportsCreator, StoredToken | CreatorToken, StoredToken> {
+    public static toStored<SupportsCreator extends boolean = true>(
+        token: Token | CreatorToken
+    ): If<SupportsCreator, StoredToken | CreatorToken, StoredToken> {
         if (!token.expires_in) return <never>token
         const now = new Date()
         now.setSeconds(now.getSeconds() + parseInt(token.expires_in))

@@ -1,9 +1,14 @@
 import {
     PatreonClient,
+    type PatreonClientOptions,
     type StoredToken,
 } from './base'
 
 export class PatreonCreatorClient extends PatreonClient {
+    public constructor (options: PatreonClientOptions) {
+        super(options, 'creator')
+    }
+
     /**
      * Calls {@link PatreonCreatorClient.fetchApplicationToken}.
      * @returns Whether the call was successful or not
