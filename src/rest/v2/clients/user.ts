@@ -1,5 +1,5 @@
 import { buildQuery } from '../query'
-import { PatreonClient, type StoredToken } from './base'
+import { PatreonClient, type PatreonClientOptions, type StoredToken } from './base'
 import { PatreonClientMethods } from './baseMethods'
 
 export class PatreonUserClientInstance extends PatreonClientMethods {
@@ -32,6 +32,10 @@ export class PatreonUserClientInstance extends PatreonClientMethods {
 /* eslint-disable @typescript-eslint/unified-signatures */
 
 export class PatreonUserClient extends PatreonClient {
+    public constructor (options: PatreonClientOptions) {
+        super(options, 'oauth')
+    }
+
     /**
      * Fetch the token from the incoming redirect request (with a code query).
      * @see {@link PatreonUserClient.oauth.getOauthTokenFromCode}

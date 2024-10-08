@@ -11,6 +11,7 @@ export {
     type PatreonHeadersData,
     type RESTOptions,
     type RequestOptions,
+    type RestEventMap,
     type RestFetcher,
     type RestResponse,
     type RestRetries

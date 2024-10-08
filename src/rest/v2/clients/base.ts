@@ -70,7 +70,9 @@ export abstract class PatreonClient extends PatreonClientMethods {
      */
     public webhooks: WebhookClient
 
-    public constructor(options: PatreonClientOptions) {
+    public constructor(options: PatreonClientOptions, type: 'oauth' | 'creator') {
+        options.oauth.tokenType ??= type
+
         super(options.oauth, options.rest)
         this.webhooks = new WebhookClient(this.oauth)
 

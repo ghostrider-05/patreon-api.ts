@@ -19,6 +19,29 @@ export type RestRetries =
     | number
     | { status: [number, number] | number, retries: number }[]
 
+export interface RestEventMap {
+    request: [data: {
+        url: string
+        headers: Record<string, unknown>
+        method: string
+        body: string | null
+    }]
+    response: [data: {
+        data: PatreonHeadersData
+        response: RestResponse
+    } & Pick<RestResponse,
+        | 'bodyUsed'
+        | 'headers'
+        | 'ok'
+        | 'status'
+        | 'statusText'
+    >]
+    ratelimit: [data: {
+        url: string
+        timeout: number
+    }]
+}
+
 export interface RESTOptions {
     /**
      * The base url of the Patreon API
@@ -31,6 +54,15 @@ export interface RESTOptions {
      * @default 'Bearer'
      */
     authPrefix: string
+
+    /**
+     * The event emitter to use for emitting data for:
+     * - response
+     * - request
+     * - ratelimit
+     * @default null
+     */
+    emitter: NodeJS.EventEmitter<RestEventMap> | null
 
     /**
      * The fetch function to use for making requests
@@ -64,6 +96,20 @@ export interface RESTOptions {
      * @default 15_000
      */
     timeout: number
+
+    /**
+     * The time in ms after a request is rate limited to wait before sending new requests
+     * @default 0
+     */
+    ratelimitTimeout: number
+
+    // TODO: check what a good limit is before being ratelimited.
+    /**
+     * The maximum amount of requests per second for this client.
+     * Set to `0` to disable the limit.
+     * @default 0
+     */
+    globalRequestPerSecond: number
 
     /**
      * The string to append to the user agent header
@@ -143,13 +189,18 @@ export interface RequestOptions {
 export const PATREON_RESPONSE_HEADERS = {
     Sha: 'x-patreon-sha',
     UUID: 'x-patreon-uuid',
+    CfCacheStatus: 'cf-cache-status',
+    CfRay: 'cf-ray',
 } as const
 
 export const DefaultRestOptions: RESTOptions = {
     authPrefix: 'Bearer',
     api: RouteBases.oauth2,
+    emitter: null,
     fetch: (...args) => fetch(...args),
     getAccessToken: async () => undefined,
+    globalRequestPerSecond: 0,
+    ratelimitTimeout: 0,
     // Set to number for the typecast to be correct
     retries: 3,
     timeout: 15_000,
@@ -181,6 +232,11 @@ export interface PatreonErrorData {
     source?: {
         parameter?: string
     }
+}
+
+// eslint-disable-next-line jsdoc/require-jsdoc
+async function sleep (ms: number) {
+    return new Promise<void>((resolve) => setTimeout(resolve, ms))
 }
 
 /**
@@ -239,12 +295,19 @@ class PatreonError extends Error implements PatreonErrorData {
     }
 
     public override get name () {
-        return `${this.code_name}[${this.code ?? 'unkown code'}]`
+        return `${this.code_name}[${this.code ?? 'unknown code'}]`
     }
 }
 
 export class RestClient {
+    private static readonly INTERVAL_MS = 1000
+
     public readonly options: RESTOptions
+
+    private ratelimitedUntil: Date | null = null
+
+    private requestsCounts: number | null = null
+    private requestInterval: NodeJS.Timeout | undefined = undefined
 
     public constructor (
         options: Partial<RESTOptions> = {},
@@ -259,10 +322,28 @@ export class RestClient {
         }
     }
 
+    private initializeRequestInterval () {
+        if (this.requestInterval != null) return
+        this.requestInterval = setInterval(() => {
+            this.requestsCounts = 0
+        }, RestClient.INTERVAL_MS)
+
+        this.requestInterval.unref()
+    }
+
     public get userAgent (): string {
         const userAgentAppendix = VERSION + (this.options.userAgentAppendix?.length ? `, ${this.options.userAgentAppendix}` : '')
 
         return `PatreonBot patreon-api.ts (https://github.com/ghostrider-05/patreon-api.ts, ${userAgentAppendix})`
+    }
+
+    public get limited (): boolean {
+        return this.ratelimitedUntil != null
+            || (this.requestsCounts != null && this.requestsCounts > this.options.globalRequestPerSecond)
+    }
+
+    public clearRequestInterval (): void {
+        clearInterval(this.requestInterval)
     }
 
     public async get<T> (path: string, options?: RequestOptions) {
@@ -290,8 +371,19 @@ export class RestClient {
                 return await tryRequest(++retries)
             } else {
                 if (response.status === 429) {
-                    // TODO: How should libraries handle 429??
-                    throw new Error('This client is currently ratelimited. Please contact Patreon or reduce your requests')
+                    this.handleRatelimit(response)
+
+                    if (this.options.emitter?.listenerCount('ratelimit')) {
+                        this.options.emitter.emit('ratelimit', {
+                            url: this.buildUrl(options),
+                            timeout: this.options.ratelimitTimeout,
+                        })
+                    }
+
+
+                    if (this.shouldRetry(retries, 429)) {
+                        return tryRequest(++retries)
+                    }
                 }
 
                 if (response.ok) {
@@ -316,11 +408,28 @@ export class RestClient {
             }
         }
 
-        return await tryRequest()
-            .then(res => parseResponse<Parsed>(res))
+        const response = await tryRequest()
+        const parsed = parseResponse<Parsed>(response)
+
+        if (this.options.emitter?.listenerCount('response')) {
+            this.options.emitter.emit('response', {
+                data: this.getHeaders(response),
+                bodyUsed: response.bodyUsed,
+                response,
+                headers: response.headers,
+                ok: response.ok,
+                status: response.status,
+                statusText: response.statusText,
+            })
+        }
+
+        return parsed
     }
 
     private async makeRequest (options: InternalRequestOptions & { currentRetries: number }) {
+        await this.waitForRatelimit()
+        await this.waitForRequestLimit()
+
         // copied from @discordjs/rest
         const controller = new AbortController()
 	    const timeout = setTimeout(() => controller.abort(), options.timeout ?? this.options.timeout)
@@ -330,14 +439,24 @@ export class RestClient {
             else options.signal.addEventListener('abort', () => controller.abort())
         }
 
-        const fetchAPI = this.buildRequest(options)
+        const init = this.buildRequest(options), url = this.buildUrl(options)
+        const fetchAPI = async () => await (options.fetch ?? this.options.fetch)(url, init)
+
+        if (this.options.emitter?.listenerCount('request')) {
+            this.options.emitter.emit('request', {
+                headers: init.headers,
+                url,
+                method: init.method,
+                body: init.body,
+            })
+        }
 
         let res: RestResponse
 
         try {
             res = await fetchAPI()
-        } catch (error: unknown) {
-            if (!(error instanceof Error)) throw error
+        } catch (error) {
+            if (!(error instanceof Error)) throw new Error(JSON.stringify(error))
 
             if (this.shouldRetry(options.currentRetries, null, error)) {
                 return null
@@ -351,12 +470,15 @@ export class RestClient {
         return res
     }
 
-    private buildRequest (options: InternalRequestOptions) {
+    private buildUrl (options: InternalRequestOptions): string {
         const route = options.route != undefined
             ? options.route
             : this.options.api + options.path
-        const url = route + (options.query ?? '')
 
+        return route + (options.query ?? '')
+    }
+
+    private buildRequest (options: InternalRequestOptions) {
         const defaultHeaders = {
             'Content-Type': 'application/json',
             'User-Agent': this.userAgent,
@@ -371,7 +493,7 @@ export class RestClient {
 
         const method = <RequestMethod>(options.method ?? RequestMethod.Get)
 
-        return async () => await (options.fetch ?? this.options.fetch)(url, {
+        return {
             headers: {
                 ...defaultHeaders,
                 ...this.options.headers,
@@ -383,7 +505,7 @@ export class RestClient {
                 : null,
             // AbortSignal | undefined is not a possible type...
             signal: <AbortSignal>options.signal,
-        })
+        }
     }
 
     private shouldRetry (current: number, status: number | null, error?: Error): boolean {
@@ -399,6 +521,40 @@ export class RestClient {
         return amount !== current
     }
 
+    private async waitForRequestLimit (): Promise<void> {
+        const limit = this.options.globalRequestPerSecond
+        if (limit <= 0) return
+
+        this.requestsCounts ??= 0
+        if (this.requestsCounts >= limit) {
+            await sleep(RestClient.INTERVAL_MS)
+        }
+
+        this.requestsCounts += 1
+        this.initializeRequestInterval()
+    }
+
+    private async waitForRatelimit (): Promise<number> {
+        if (this.ratelimitedUntil == null) return 0
+
+        console.log('This client is queueing a request to avoid ratelimits')
+        const offset = Date.now() - this.ratelimitedUntil.getTime()
+
+        await sleep(offset)
+        this.ratelimitedUntil = null
+
+        return offset
+    }
+
+    private handleRatelimit (response: RestResponse) {
+        // TODO: How should libraries handle 429??
+        console.log('This client is currently ratelimited. Please contact Patreon or reduce your requests', this.getHeaders(response))
+
+        if (this.options.ratelimitTimeout !== 0) {
+            this.ratelimitedUntil = new Date(Date.now() + this.options.ratelimitTimeout)
+        }
+    }
+
     /**
      * Get Patreon headers from a response
      * @param response the response from Patreon
@@ -408,6 +564,8 @@ export class RestClient {
         return {
             sha: response.headers.get(PATREON_RESPONSE_HEADERS.Sha),
             uuid: response.headers.get(PATREON_RESPONSE_HEADERS.UUID),
+            cfcachestatus: response.headers.get(PATREON_RESPONSE_HEADERS.CfCacheStatus),
+            cfray: response.headers.get(PATREON_RESPONSE_HEADERS.CfRay),
         }
     }
 }
