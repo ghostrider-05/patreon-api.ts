@@ -4,7 +4,10 @@
     "title": "Patreon API",
     "version": "v2",
     "description": "An unofficial OpenAPI schema for the V2 Patreon API. Made based on the official api with https://github.com/ghostrider-05/patreon-api.ts",
-    "termsOfService": "https://patreon.com/legal"
+    "termsOfService": "https://patreon.com/legal",
+    "contact": {
+      "name": "Patreon"
+    }
   },
   "externalDocs": {
     "url": "https://docs.patreon.com"
@@ -29,6 +32,28 @@
     }
   ],
   "components": {
+    "securitySchemes": {
+      "auth": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "tokenUrl": "https://patreon.com/api/oauth2/token",
+            "authorizationUrl": "https://patreon.com/oauth2/authorize",
+            "scopes": {
+              "identity": "Allows to get details about the current authenticated user",
+              "identity[email]": "",
+              "identity.memberships": "",
+              "campaigns": "",
+              "campaigns.members": "",
+              "campaigns.members[email]": "",
+              "campaigns.members.address": "",
+              "campaigns.posts": "",
+              "w:campaigns.webhook": ""
+            }
+          }
+        }
+      }
+    },
     "parameters": {
       "userAgent": {
         "name": "User-Agent",
@@ -40,8 +65,8 @@
       }
     },
     "schemas": {
-      "addressKeys": {
-        "type": "array",
+      "addressKey": {
+        "type": "string",
         "enum": [
           "addressee",
           "city",
@@ -54,8 +79,8 @@
           "state"
         ]
       },
-      "benefitKeys": {
-        "type": "array",
+      "benefitKey": {
+        "type": "string",
         "enum": [
           "app_external_id",
           "app_meta",
@@ -74,8 +99,8 @@
           "title"
         ]
       },
-      "campaignKeys": {
-        "type": "array",
+      "campaignKey": {
+        "type": "string",
         "enum": [
           "vanity",
           "url",
@@ -106,8 +131,8 @@
           "created_at"
         ]
       },
-      "clientKeys": {
-        "type": "array",
+      "clientKey": {
+        "type": "string",
         "enum": [
           "author_name",
           "client_secret",
@@ -122,20 +147,20 @@
           "version"
         ]
       },
-      "deliverableKeys": {
-        "type": "array",
+      "deliverableKey": {
+        "type": "string",
         "enum": [
           "completed_at",
           "delivery_status",
           "due_at"
         ]
       },
-      "goalKeys": {
-        "type": "array",
+      "goalKey": {
+        "type": "string",
         "enum": []
       },
-      "mediaKeys": {
-        "type": "array",
+      "mediaKey": {
+        "type": "string",
         "enum": [
           "created_at",
           "download_url",
@@ -153,8 +178,8 @@
           "upload_url"
         ]
       },
-      "memberKeys": {
-        "type": "array",
+      "memberKey": {
+        "type": "string",
         "enum": [
           "campaign_lifetime_support_cents",
           "currently_entitled_amount_cents",
@@ -172,8 +197,8 @@
           "will_pay_amount_cents"
         ]
       },
-      "postKeys": {
-        "type": "array",
+      "postKey": {
+        "type": "string",
         "enum": [
           "app_id",
           "app_status",
@@ -188,8 +213,8 @@
           "url"
         ]
       },
-      "pledge-eventKeys": {
-        "type": "array",
+      "pledge-eventKey": {
+        "type": "string",
         "enum": [
           "amount_cents",
           "currency_code",
@@ -200,8 +225,8 @@
           "type"
         ]
       },
-      "tierKeys": {
-        "type": "array",
+      "tierKey": {
+        "type": "string",
         "enum": [
           "amount_cents",
           "created_at",
@@ -221,8 +246,8 @@
           "user_limit"
         ]
       },
-      "userKeys": {
-        "type": "array",
+      "userKey": {
+        "type": "string",
         "enum": [
           "about",
           "can_see_nsfw",
@@ -241,8 +266,8 @@
           "vanity"
         ]
       },
-      "webhookKeys": {
-        "type": "array",
+      "webhookKey": {
+        "type": "string",
         "enum": [
           "last_attempted_at",
           "num_consecutive_times_failed",
@@ -251,28 +276,30 @@
           "triggers",
           "uri"
         ]
-      }
-    },
-    "securitySchemes": {
-      "auth": {
-        "type": "oauth2",
-        "flows": {
-          "authorizationCode": {
-            "tokenUrl": "https://patreon.com/api/oauth2/token",
-            "authorizationUrl": "https://patreon.com/oauth2/authorize",
-            "scopes": {
-              "identity": "A description",
-              "identity[email]": "A description",
-              "identity.memberships": "A description",
-              "campaigns": "A description",
-              "campaigns.members": "A description",
-              "campaigns.members[email]": "A description",
-              "campaigns.members.address": "A description",
-              "campaigns.posts": "A description",
-              "w:campaigns.webhook": "A description"
-            }
-          }
-        }
+      },
+      "webhookTrigger": {
+        "type": "array",
+        "enum": [
+          "members:create",
+          "members:update",
+          "members:delete",
+          "members:pledge:create",
+          "members:pledge:update",
+          "members:pledge:delete",
+          "posts:publish",
+          "posts:update",
+          "posts:delete"
+        ],
+        "externalDocs": {
+          "url": "https://docs.patreon.com/#triggers-v2"
+        },
+        "examples": [
+          [
+            "members:pledge:create",
+            "members:update",
+            "members:pledge:delete"
+          ]
+        ]
       }
     },
     "responses": {
@@ -321,19 +348,19 @@
               "type": "object",
               "properties": {
                 "benefit": {
-                  "$ref": "#/components/schemas/benefitKeys"
+                  "$ref": "#/components/schemas/benefitKey"
                 },
                 "user": {
-                  "$ref": "#/components/schemas/userKeys"
+                  "$ref": "#/components/schemas/userKey"
                 },
                 "goal": {
-                  "$ref": "#/components/schemas/goalKeys"
+                  "$ref": "#/components/schemas/goalKey"
                 },
                 "tier": {
-                  "$ref": "#/components/schemas/tierKeys"
+                  "$ref": "#/components/schemas/tierKey"
                 },
                 "campaign": {
-                  "$ref": "#/components/schemas/campaignKeys"
+                  "$ref": "#/components/schemas/campaignKey"
                 }
               }
             }
@@ -393,19 +420,19 @@
               "type": "object",
               "properties": {
                 "benefit": {
-                  "$ref": "#/components/schemas/benefitKeys"
+                  "$ref": "#/components/schemas/benefitKey"
                 },
                 "user": {
-                  "$ref": "#/components/schemas/userKeys"
+                  "$ref": "#/components/schemas/userKey"
                 },
                 "goal": {
-                  "$ref": "#/components/schemas/goalKeys"
+                  "$ref": "#/components/schemas/goalKey"
                 },
                 "tier": {
-                  "$ref": "#/components/schemas/tierKeys"
+                  "$ref": "#/components/schemas/tierKey"
                 },
                 "campaign": {
-                  "$ref": "#/components/schemas/campaignKeys"
+                  "$ref": "#/components/schemas/campaignKey"
                 }
               }
             }
@@ -466,22 +493,22 @@
               "type": "object",
               "properties": {
                 "address": {
-                  "$ref": "#/components/schemas/addressKeys"
+                  "$ref": "#/components/schemas/addressKey"
                 },
                 "campaign": {
-                  "$ref": "#/components/schemas/campaignKeys"
+                  "$ref": "#/components/schemas/campaignKey"
                 },
                 "tier": {
-                  "$ref": "#/components/schemas/tierKeys"
+                  "$ref": "#/components/schemas/tierKey"
                 },
                 "pledge-event": {
-                  "$ref": "#/components/schemas/pledge-eventKeys"
+                  "$ref": "#/components/schemas/pledge-eventKey"
                 },
                 "user": {
-                  "$ref": "#/components/schemas/userKeys"
+                  "$ref": "#/components/schemas/userKey"
                 },
                 "member": {
-                  "$ref": "#/components/schemas/memberKeys"
+                  "$ref": "#/components/schemas/memberKey"
                 }
               }
             }
@@ -539,13 +566,13 @@
               "type": "object",
               "properties": {
                 "user": {
-                  "$ref": "#/components/schemas/userKeys"
+                  "$ref": "#/components/schemas/userKey"
                 },
                 "campaign": {
-                  "$ref": "#/components/schemas/campaignKeys"
+                  "$ref": "#/components/schemas/campaignKey"
                 },
                 "post": {
-                  "$ref": "#/components/schemas/postKeys"
+                  "$ref": "#/components/schemas/postKey"
                 }
               }
             }
@@ -595,13 +622,13 @@
               "type": "object",
               "properties": {
                 "campaign": {
-                  "$ref": "#/components/schemas/campaignKeys"
+                  "$ref": "#/components/schemas/campaignKey"
                 },
                 "member": {
-                  "$ref": "#/components/schemas/memberKeys"
+                  "$ref": "#/components/schemas/memberKey"
                 },
                 "user": {
-                  "$ref": "#/components/schemas/userKeys"
+                  "$ref": "#/components/schemas/userKey"
                 }
               }
             }
@@ -662,22 +689,22 @@
               "type": "object",
               "properties": {
                 "address": {
-                  "$ref": "#/components/schemas/addressKeys"
+                  "$ref": "#/components/schemas/addressKey"
                 },
                 "campaign": {
-                  "$ref": "#/components/schemas/campaignKeys"
+                  "$ref": "#/components/schemas/campaignKey"
                 },
                 "tier": {
-                  "$ref": "#/components/schemas/tierKeys"
+                  "$ref": "#/components/schemas/tierKey"
                 },
                 "pledge-event": {
-                  "$ref": "#/components/schemas/pledge-eventKeys"
+                  "$ref": "#/components/schemas/pledge-eventKey"
                 },
                 "user": {
-                  "$ref": "#/components/schemas/userKeys"
+                  "$ref": "#/components/schemas/userKey"
                 },
                 "member": {
-                  "$ref": "#/components/schemas/memberKeys"
+                  "$ref": "#/components/schemas/memberKey"
                 }
               }
             }
@@ -735,13 +762,13 @@
               "type": "object",
               "properties": {
                 "user": {
-                  "$ref": "#/components/schemas/userKeys"
+                  "$ref": "#/components/schemas/userKey"
                 },
                 "campaign": {
-                  "$ref": "#/components/schemas/campaignKeys"
+                  "$ref": "#/components/schemas/campaignKey"
                 },
                 "post": {
-                  "$ref": "#/components/schemas/postKeys"
+                  "$ref": "#/components/schemas/postKey"
                 }
               }
             }
@@ -791,25 +818,7 @@
                         "required": [],
                         "properties": {
                           "triggers": {
-                            "type": "array",
-                            "enum": [
-                              "members:create",
-                              "members:update",
-                              "members:delete",
-                              "members:pledge:create",
-                              "members:pledge:update",
-                              "members:pledge:delete",
-                              "posts:publish",
-                              "posts:update",
-                              "posts:delete"
-                            ],
-                            "examples": [
-                              [
-                                "members:pledge:create",
-                                "members:update",
-                                "members:pledge:delete"
-                              ]
-                            ]
+                            "$ref": "#components/schemas/webhookTrigger"
                           },
                           "uri": {
                             "type": "string",
@@ -873,13 +882,13 @@
               "type": "object",
               "properties": {
                 "campaign": {
-                  "$ref": "#/components/schemas/campaignKeys"
+                  "$ref": "#/components/schemas/campaignKey"
                 },
                 "client": {
-                  "$ref": "#/components/schemas/clientKeys"
+                  "$ref": "#/components/schemas/clientKey"
                 },
                 "webhook": {
-                  "$ref": "#/components/schemas/webhookKeys"
+                  "$ref": "#/components/schemas/webhookKey"
                 }
               }
             }
@@ -929,13 +938,13 @@
               "type": "object",
               "properties": {
                 "campaign": {
-                  "$ref": "#/components/schemas/campaignKeys"
+                  "$ref": "#/components/schemas/campaignKey"
                 },
                 "client": {
-                  "$ref": "#/components/schemas/clientKeys"
+                  "$ref": "#/components/schemas/clientKey"
                 },
                 "webhook": {
-                  "$ref": "#/components/schemas/webhookKeys"
+                  "$ref": "#/components/schemas/webhookKey"
                 }
               }
             }
@@ -980,25 +989,7 @@
                         ],
                         "properties": {
                           "triggers": {
-                            "type": "array",
-                            "enum": [
-                              "members:create",
-                              "members:update",
-                              "members:delete",
-                              "members:pledge:create",
-                              "members:pledge:update",
-                              "members:pledge:delete",
-                              "posts:publish",
-                              "posts:update",
-                              "posts:delete"
-                            ],
-                            "examples": [
-                              [
-                                "members:pledge:create",
-                                "members:update",
-                                "members:pledge:delete"
-                              ]
-                            ]
+                            "$ref": "#components/schemas/webhookTrigger"
                           },
                           "uri": {
                             "type": "string",
@@ -1076,13 +1067,13 @@
               "type": "object",
               "properties": {
                 "campaign": {
-                  "$ref": "#/components/schemas/campaignKeys"
+                  "$ref": "#/components/schemas/campaignKey"
                 },
                 "client": {
-                  "$ref": "#/components/schemas/clientKeys"
+                  "$ref": "#/components/schemas/clientKey"
                 },
                 "webhook": {
-                  "$ref": "#/components/schemas/webhookKeys"
+                  "$ref": "#/components/schemas/webhookKey"
                 }
               }
             }

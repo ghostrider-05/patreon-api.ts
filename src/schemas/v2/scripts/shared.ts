@@ -32,3 +32,12 @@ export function createTsScriptProgram (outFilename: string): TsScript {
         project,
     }
 }
+
+export function getTypes (file: string) {
+    const program = createTsScriptProgram('temp.ts')
+
+    const sourceFile = program.project.addSourceFileAtPath(file)
+    if (!sourceFile) throw new Error()
+
+    return sourceFile
+}

@@ -1,8 +1,10 @@
 import { writeFile } from 'fs/promises'
 
-import details, { securitySchemes } from '../api/details'
+import { RequestMethod, SchemaRelationshipKeys, Type } from '../../../v2'
+
+import details from '../api/details'
 import paths from '../api/paths'
-import { RequestMethod, SchemaKeys, SchemaRelationshipKeys, Type } from '../../../v2'
+import * as components from '../api/components'
 
 const relationshipKeys = SchemaRelationshipKeys as Record<Type, {
     resourceKey: `${Type}`
@@ -11,40 +13,11 @@ const relationshipKeys = SchemaRelationshipKeys as Record<Type, {
     isRelated: boolean
 }[]>
 
-const schemaKeys = {
-    ...Object.keys(SchemaKeys).reduce((obj, key) => ({ ...obj, [key.toLowerCase()]: SchemaKeys[key] }), {}),
-    [Type.PledgeEvent]: SchemaKeys.PledgeEvent,
-    [Type.Client]: SchemaKeys.OauthClient,
-} as unknown as Record<Type, string[]>
-
 // eslint-disable-next-line jsdoc/require-jsdoc
 export async function writeSchema() {
     await writeFile('./openapi.json', JSON.stringify({
         ...details,
-        components: {
-            parameters: {
-                userAgent: {
-                    name: 'User-Agent',
-                    in: 'header',
-                    required: true,
-                    schema: {
-                        type: 'string',
-                    }
-                },
-            },
-            schemas: {
-                ...Object.values(Type).reduce((schemas, type) => ({
-                    ...schemas,
-                    [`${type}Keys`]: { type: 'array', enum: schemaKeys[type] }
-                }), {}),
-            },
-            securitySchemes,
-            responses: {
-                '200': {
-                    description: 'OK',
-                },
-            },
-        },
+        components,
         paths: paths.reduce((obj, path) => ({
             ...obj,
             ['/api/oauth/v2' + path.route(`{${path.id_name ?? 'id'}}`)]: (path.methods ?? [RequestMethod.Get])
@@ -111,7 +84,7 @@ export async function writeSchema() {
                                                     .find(key => key.includeKey === includeKey)!.resourceKey
                                             })
                                             .concat(path.relationship_type)
-                                            .reduce((props, key) => ({ ...props, [key]: { '$ref': `#/components/schemas/${key}Keys` } }), {})
+                                            .reduce((props, key) => ({ ...props, [key]: { '$ref': `#/components/schemas/${key}Key` } }), {})
                                     }
                                 }
                             ].filter(n => n),

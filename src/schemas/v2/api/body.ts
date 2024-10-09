@@ -1,5 +1,3 @@
-import { PatreonWebhookTrigger } from '../../../v2'
-
 export const postWebhooksBody = {
     required: [
         'data',
@@ -23,16 +21,7 @@ export const postWebhooksBody = {
                     ],
                     properties: {
                         triggers: {
-                            type: 'array',
-                            enum: Object.values(PatreonWebhookTrigger)
-                                .map(t => t.toString()),
-                            examples: [
-                                [
-                                    PatreonWebhookTrigger.MemberPledgeCreated,
-                                    PatreonWebhookTrigger.MemberUpdated,
-                                    PatreonWebhookTrigger.MemberPledgeDeleted,
-                                ],
-                            ]
+                            '$ref': '#components/schemas/webhookTrigger',
                         },
                         uri: {
                             type: 'string',
