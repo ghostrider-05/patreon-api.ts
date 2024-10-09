@@ -40,3 +40,7 @@ github:
     - any-glob-to-any-file:
       - '.github/*'
       - '.github/**'
+openapi:
+ - changed-files:
+    - any-glob-to-any-file:
+      - 'openapi.json'
