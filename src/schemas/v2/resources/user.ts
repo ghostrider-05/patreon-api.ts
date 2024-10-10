@@ -67,7 +67,7 @@ export interface User {
     image_url: string
 
     /**
-     * Whether the user has confirmed their emai
+     * Whether the user has confirmed their email
      */
     is_email_verified: boolean
 
@@ -89,11 +89,11 @@ export interface User {
      * ```ts
      * import 'patreon-api.ts'
      *
-        declare module 'patreon-api.ts' {
-            interface CustomTypeOptions {
-                social_connections: Record<string, { url: string, user_id: string } | null>
-            }
-        }
+     * declare module 'patreon-api.ts' {
+     *    interface CustomTypeOptions {
+     *        social_connections: Record<string, { url: string, user_id: string } | null>
+     *    }
+     * }
      * ```
      */
     social_connections: CustomTypeOption<'social_connections', object>

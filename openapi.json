@@ -6,32 +6,116 @@
     "description": "An unofficial OpenAPI schema for the V2 Patreon API. Made based on the official api with https://github.com/ghostrider-05/patreon-api.ts",
     "termsOfService": "https://patreon.com/legal",
     "contact": {
-      "name": "Patreon"
+      "name": "Patreon",
+      "url": "https://www.patreondevelopers.com/"
     }
   },
   "externalDocs": {
+    "description": "Official Patreon documentation",
     "url": "https://docs.patreon.com"
   },
   "servers": [
     {
+      "description": "API domain",
       "url": "https://patreon.com"
     }
   ],
   "tags": [
     {
-      "name": "Resources",
+      "name": "resource",
       "externalDocs": {
+        "description": "Resource endpoints documentation",
         "url": "https://docs.patreon.com/#apiv2-resource-endpoints"
       }
     },
     {
-      "name": "Webhooks",
+      "name": "webhook",
       "externalDocs": {
+        "description": "Webhook endpoints documentation",
         "url": "https://docs.patreon.com/#apiv2-webhook-endpoints"
       }
     }
   ],
   "components": {
+    "headers": {
+      "x-patreon-uuid": {
+        "schema": {
+          "type": "string"
+        }
+      },
+      "x-patreon-sha": {
+        "schema": {
+          "type": "string"
+        }
+      },
+      "cf-cache-status": {
+        "schema": {
+          "type": "string"
+        }
+      },
+      "cf-ray": {
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "parameters": {
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "campaign_id": {
+        "name": "campaign_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "include": {
+        "name": "include",
+        "in": "query",
+        "required": false,
+        "style": "form",
+        "explode": false,
+        "schema": {
+          "type": "array"
+        }
+      },
+      "userAgent": {
+        "name": "User-Agent",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "OK"
+      },
+      "400": {
+        "description": "Something was wrong with your request (syntax, size too large, etc.)",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/APIError"
+              }
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Authentication failed (bad API key, invalid OAuth token, incorrect scopes, etc.)"
+      }
+    },
     "securitySchemes": {
       "auth": {
         "type": "oauth2",
@@ -54,231 +138,784 @@
         }
       }
     },
-    "parameters": {
-      "userAgent": {
-        "name": "User-Agent",
-        "in": "header",
-        "required": true,
-        "schema": {
-          "type": "string"
-        }
-      }
-    },
     "schemas": {
-      "addressKey": {
-        "type": "string",
-        "enum": [
-          "addressee",
-          "city",
-          "country",
-          "created_at",
-          "line_1",
-          "line_2",
-          "phone_number",
-          "postal_code",
-          "state"
-        ]
+      "address": {
+        "type": "object",
+        "title": "Address",
+        "description": "",
+        "externalDocs": {
+          "description": "Official documentation for the Address resource",
+          "url": "https://docs.patreon.com/#address"
+        },
+        "properties": {
+          "addressee": {
+            "type": "string",
+            "description": "Full recipient name"
+          },
+          "city": {
+            "type": "string",
+            "description": ""
+          },
+          "country": {
+            "type": "string",
+            "description": ""
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Datetime address was first created"
+          },
+          "line_1": {
+            "type": "string",
+            "description": "First line of street address"
+          },
+          "line_2": {
+            "type": "string",
+            "description": "Second line of street address"
+          },
+          "phone_number": {
+            "type": "string",
+            "description": "Telephone number. Specified for non-US addresses"
+          },
+          "postal_code": {
+            "type": "string",
+            "description": "Postal or zip code"
+          },
+          "state": {
+            "type": "string",
+            "description": "State or province name"
+          }
+        }
       },
-      "benefitKey": {
-        "type": "string",
-        "enum": [
-          "app_external_id",
-          "app_meta",
-          "benefit_type",
-          "created_at",
-          "deliverables_due_today_count",
-          "delivered_deliverables_count",
-          "description",
-          "is_deleted",
-          "is_ended",
-          "is_published",
-          "next_deliverable_due_date",
-          "not_delivered_deliverables_count",
-          "rule_type",
-          "tiers_count",
-          "title"
-        ]
+      "benefit": {
+        "type": "object",
+        "title": "Benefit",
+        "description": "",
+        "externalDocs": {
+          "description": "Official documentation for the Benefit resource",
+          "url": "https://docs.patreon.com/#benefit"
+        },
+        "properties": {
+          "app_external_id": {
+            "type": "string",
+            "description": "The third-party external ID this reward is associated with"
+          },
+          "app_meta": {
+            "type": "object",
+            "description": "Any metadata the third-party app included with this benefit on creation"
+          },
+          "benefit_type": {
+            "type": "string",
+            "description": "Type of benefit, such as `custom` for creator-defined benefits"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Datetime this benefit was created"
+          },
+          "deliverables_due_today_count": {
+            "type": "number",
+            "description": "Number of deliverables for this benefit that are due today specifically"
+          },
+          "delivered_deliverables_count": {
+            "type": "number",
+            "description": "Number of deliverables for this benefit that have been marked complete"
+          },
+          "description": {
+            "type": "string",
+            "description": "Display description"
+          },
+          "is_deleted": {
+            "type": "boolean",
+            "description": "Whether this benefit has been deleted"
+          },
+          "is_ended": {
+            "type": "boolean",
+            "description": "Whether this benefit is no longer available to new patrons"
+          },
+          "is_published": {
+            "type": "boolean",
+            "description": "Whether this benefit is ready to be fulfilled to patrons"
+          },
+          "next_deliverable_due_date": {
+            "type": "string",
+            "description": "The next due date (after EOD today) for this benefit"
+          },
+          "not_delivered_deliverables_count": {
+            "type": "number",
+            "description": "Number of deliverables for this benefit that are due, for all dates"
+          },
+          "rule_type": {
+            "type": "string",
+            "description": "A rule type designation, such as `eom_monthly` or `one_time_immediate`"
+          },
+          "tiers_count": {
+            "type": "number",
+            "description": "Number of tiers containing this benefit"
+          },
+          "title": {
+            "type": "string",
+            "description": "Display title"
+          }
+        }
       },
-      "campaignKey": {
-        "type": "string",
-        "enum": [
-          "vanity",
-          "url",
-          "thanks_video_url",
-          "thanks_msg",
-          "thanks_embed",
-          "summary",
-          "show_earnings",
-          "rss_feed_title",
-          "rss_artwork_url",
-          "published_at",
-          "pledge_url",
-          "pay_per_name",
-          "patron_count",
-          "one_liner",
-          "main_video_url",
-          "main_video_embed",
-          "is_nsfw",
-          "is_monthly",
-          "is_charged_immediately",
-          "image_url",
-          "image_small_url",
-          "has_sent_rss_notify",
-          "has_rss",
-          "google_analytics_id",
-          "discord_server_id",
-          "creation_name",
-          "created_at"
-        ]
+      "campaign": {
+        "type": "object",
+        "title": "Campaign",
+        "description": "The creator's page, and the top-level object for accessing lists of members, tiers, etc",
+        "externalDocs": {
+          "description": "Official documentation for the Campaign resource",
+          "url": "https://docs.patreon.com/#campaign-v2"
+        },
+        "properties": {
+          "vanity": {
+            "type": "string",
+            "description": "The campaign's vanity name"
+          },
+          "url": {
+            "type": "string",
+            "description": "The url to visit this campaign"
+          },
+          "thanks_video_url": {
+            "type": "string",
+            "description": "The URL of the video that is shown to patrons after pledging"
+          },
+          "thanks_msg": {
+            "type": "string",
+            "description": "The message that is shown to patrons after pledging"
+          },
+          "thanks_embed": {
+            "type": "string",
+            "description": "The embed that is shown to patrons after pledging"
+          },
+          "summary": {
+            "type": "string",
+            "description": "The summary of this campaign.\r\nCan be viewed in the About section of the campaign"
+          },
+          "show_earnings": {
+            "type": "boolean",
+            "description": "Whether the campaign's total earnings are shown publicly"
+          },
+          "rss_feed_title": {
+            "type": "string",
+            "description": "The title of the campaigns rss feed"
+          },
+          "rss_artwork_url": {
+            "type": "string",
+            "description": "The url for the rss album artwork"
+          },
+          "published_at": {
+            "type": "string",
+            "description": "Datetime that the creator most recently published (made publicly visible) the campaign.\r\nNull when the campaign has not been public."
+          },
+          "pledge_url": {
+            "type": "string",
+            "description": "Relative (to patreon.com) URL for the pledge checkout flow for this campaign"
+          },
+          "pay_per_name": {
+            "type": "string",
+            "description": "The thing which patrons are paying per, as in \"{@link Campaign.vanity} is making $1000 per {@link Campaign.pay_per_name}\""
+          },
+          "patron_count": {
+            "type": "number",
+            "description": "Number of patrons pledging to this creator"
+          },
+          "one_liner": {
+            "type": "string",
+            "description": "Pithy one-liner for this campaign, displayed on the creator page"
+          },
+          "main_video_url": {
+            "type": "string",
+            "description": ""
+          },
+          "main_video_embed": {
+            "type": "string",
+            "description": ""
+          },
+          "is_nsfw": {
+            "type": "boolean",
+            "description": "Whether the creator has marked the campaign as containing nsfw content"
+          },
+          "is_monthly": {
+            "type": "boolean",
+            "description": "Whether the campaign charges per month"
+          },
+          "is_charged_immediately": {
+            "type": "boolean",
+            "description": "Whether the campaign charges upfront"
+          },
+          "image_url": {
+            "type": "string",
+            "description": "Banner image URL for the campaign"
+          },
+          "image_small_url": {
+            "type": "string",
+            "description": "Profile image URL for the campaign"
+          },
+          "has_sent_rss_notify": {
+            "type": "boolean",
+            "description": "Whether the creator has sent a one-time rss notification email"
+          },
+          "has_rss": {
+            "type": "boolean",
+            "description": "Whether this user has opted-in to rss feeds"
+          },
+          "google_analytics_id": {
+            "type": "string",
+            "description": "The ID of the Google Analytics tracker that the creator wants metrics to be sent to"
+          },
+          "discord_server_id": {
+            "type": "string",
+            "description": "The ID of the external discord server that is linked to this campaign"
+          },
+          "creation_name": {
+            "type": "string",
+            "description": "The type of content the creator is creating, as in \"{@link Campaign.vanity} is creating {@link Campaign.creation_name}\""
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Datetime that the creator first began the campaign creation process"
+          }
+        }
       },
-      "clientKey": {
-        "type": "string",
-        "enum": [
-          "author_name",
-          "client_secret",
-          "default_scopes",
-          "description",
-          "domain",
-          "icon_url",
-          "name",
-          "privacy_policy_url",
-          "redirect_uris",
-          "tos_url",
-          "version"
-        ]
+      "client": {
+        "type": "object",
+        "title": "OauthClient",
+        "description": "",
+        "externalDocs": {
+          "description": "Official documentation for the OauthClient resource",
+          "url": "https://docs.patreon.com/#oauthclient"
+        },
+        "properties": {
+          "author_name": {
+            "type": "string",
+            "description": "The author name provided during client setup."
+          },
+          "client_secret": {
+            "type": "string",
+            "description": "The client's secret."
+          },
+          "default_scopes": {
+            "type": "string",
+            "description": "The client's default OAuth scopes for the authorization flow."
+          },
+          "description": {
+            "type": "string",
+            "description": "The description provided during client setup."
+          },
+          "domain": {
+            "type": "string",
+            "description": "The domain provided during client setup."
+          },
+          "icon_url": {
+            "type": "string",
+            "description": "The URL of the icon used in the OAuth authorization flow."
+          },
+          "name": {
+            "type": "string",
+            "description": "The name provided during client setup."
+          },
+          "privacy_policy_url": {
+            "type": "string",
+            "description": "The URL of the privacy policy provided during client setup."
+          },
+          "redirect_uris": {
+            "type": "string",
+            "description": "The allowable redirect URIs for the OAuth authorization flow."
+          },
+          "tos_url": {
+            "type": "string",
+            "description": "The URL of the terms of service provided during client setup."
+          },
+          "version": {
+            "type": "number",
+            "description": "The Patreon API version the client is targeting."
+          }
+        }
       },
-      "deliverableKey": {
-        "type": "string",
-        "enum": [
-          "completed_at",
-          "delivery_status",
-          "due_at"
-        ]
+      "deliverable": {
+        "type": "object",
+        "title": "Deliverable",
+        "description": "",
+        "externalDocs": {
+          "description": "Official documentation for the Deliverable resource",
+          "url": "https://docs.patreon.com/#deliverable"
+        },
+        "properties": {
+          "completed_at": {
+            "type": "string",
+            "description": "When the creator marked the deliverable as completed or fulfilled to the patron"
+          },
+          "delivery_status": {
+            "type": "string",
+            "enum": [
+              "delivered",
+              "not_delivered",
+              "wont_deliver"
+            ],
+            "description": ""
+          },
+          "due_at": {
+            "type": "string",
+            "description": "When the deliverable is due to the patron"
+          }
+        }
       },
-      "goalKey": {
-        "type": "string",
-        "enum": []
+      "goal": {
+        "type": "object",
+        "title": "Goal",
+        "description": "",
+        "externalDocs": {
+          "description": "Official documentation for the Goal resource",
+          "url": "https://docs.patreon.com/#goal"
+        },
+        "properties": {}
       },
-      "mediaKey": {
-        "type": "string",
-        "enum": [
-          "created_at",
-          "download_url",
-          "file_name",
-          "image_urls",
-          "metadata",
-          "mimetype",
-          "owner_id",
-          "owner_relationship",
-          "owner_type",
-          "size_bytes",
-          "state",
-          "upload_expires_at",
-          "upload_parameters",
-          "upload_url"
-        ]
+      "media": {
+        "type": "object",
+        "title": "Media",
+        "description": "",
+        "externalDocs": {
+          "description": "Official documentation for the Media resource",
+          "url": "https://docs.patreon.com/#media"
+        },
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "description": "When the file was created"
+          },
+          "download_url": {
+            "type": "string",
+            "description": "The URL to download this media. Valid for 24 hours."
+          },
+          "file_name": {
+            "type": "string",
+            "description": ""
+          },
+          "image_urls": {
+            "type": "object",
+            "description": "The resized image URLs for this media. Valid for 2 weeks."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Metadata related to the file"
+          },
+          "mimetype": {
+            "type": "string",
+            "description": "Mimetype of uploaded file, eg: \"application/jpeg\""
+          },
+          "owner_id": {
+            "type": "string",
+            "description": "Ownership id (See also {@link Media.owner_type})"
+          },
+          "owner_relationship": {
+            "type": "string",
+            "description": "Ownership relationship type for multi-relationship medias"
+          },
+          "owner_type": {
+            "type": "string",
+            "description": "Type of the resource that owns the file"
+          },
+          "size_bytes": {
+            "type": "number",
+            "description": ""
+          },
+          "state": {
+            "type": "string",
+            "description": ""
+          },
+          "upload_expires_at": {
+            "type": "string",
+            "description": "When the upload URL expires"
+          },
+          "upload_parameters": {
+            "type": "object",
+            "description": "All the parameters that have to be added to the upload form request"
+          },
+          "upload_url": {
+            "type": "string",
+            "description": "The URL to perform a POST request to in order to upload the media file"
+          }
+        }
       },
-      "memberKey": {
-        "type": "string",
-        "enum": [
-          "campaign_lifetime_support_cents",
-          "currently_entitled_amount_cents",
-          "email",
-          "full_name",
-          "is_follower",
-          "last_charge_date",
-          "last_charge_status",
-          "lifetime_support_cents",
-          "next_charge_date",
-          "note",
-          "patron_status",
-          "pledge_cadence",
-          "pledge_relationship_start",
-          "will_pay_amount_cents"
-        ]
+      "member": {
+        "type": "object",
+        "title": "Member",
+        "description": "",
+        "externalDocs": {
+          "description": "Official documentation for the Member resource",
+          "url": "https://docs.patreon.com/#member"
+        },
+        "properties": {
+          "campaign_lifetime_support_cents": {
+            "type": "number",
+            "description": "The total amount that the member has ever paid to the campaign in campaign's currency.\r\n0 if never paid"
+          },
+          "currently_entitled_amount_cents": {
+            "type": "number",
+            "description": "The amount in cents that the member is entitled to.\r\nThis includes a current pledge, or payment that covers the current payment period"
+          },
+          "email": {
+            "type": "string",
+            "description": "The member's email address.\r\nRequires the campaigns.members[email] scope"
+          },
+          "full_name": {
+            "type": "string",
+            "description": "Full name of the member user"
+          },
+          "is_follower": {
+            "type": "boolean",
+            "description": "The user is not a pledging patron but has subscribed to updates about public posts"
+          },
+          "last_charge_date": {
+            "type": "string",
+            "description": "Datetime of last attempted charge.\r\n`null` if never charged"
+          },
+          "last_charge_status": {
+            "type": "string",
+            "enum": [
+              "Paid",
+              "Declined",
+              "Deleted",
+              "Pending",
+              "Refunded",
+              "Fraud",
+              "Other"
+            ],
+            "description": "The result of the last attempted charge.\r\nThe only successful status is `'Paid'`.\r\n`null` if never charged\r\n\r\nNote: this will likely be either `'Paid'` or `'Pending'`"
+          },
+          "lifetime_support_cents": {
+            "type": "number",
+            "description": "The total amount that the member has ever paid to the campaign.\r\n0 if never paid"
+          },
+          "next_charge_date": {
+            "type": "string",
+            "description": "Datetime of next charge.\r\n`null` if annual pledge downgrade"
+          },
+          "note": {
+            "type": "string",
+            "description": "The creator's notes on the member"
+          },
+          "patron_status": {
+            "type": "string",
+            "enum": [
+              "active_patron",
+              "declined_patron",
+              "former_patron"
+            ],
+            "description": "A `null` value indicates the member has never pledged"
+          },
+          "pledge_cadence": {
+            "type": "number",
+            "description": "Number of months between charges\r\n\r\nNote: this will be `1` if Campaign.is_monthly is `true`"
+          },
+          "pledge_relationship_start": {
+            "type": "string",
+            "description": "Datetime of beginning of most recent pledge chainfrom this member to the campaign.\r\nPledge updates do not change this value"
+          },
+          "will_pay_amount_cents": {
+            "type": "number",
+            "description": "The amount in cents the user will pay at the next pay cycle"
+          }
+        }
       },
-      "postKey": {
-        "type": "string",
-        "enum": [
-          "app_id",
-          "app_status",
-          "content",
-          "embed_data",
-          "embed_url",
-          "is_paid",
-          "is_public",
-          "published_at",
-          "tiers",
-          "title",
-          "url"
-        ]
+      "post": {
+        "type": "object",
+        "title": "Post",
+        "description": "",
+        "externalDocs": {
+          "description": "Official documentation for the Post resource",
+          "url": "https://docs.patreon.com/#post-v2"
+        },
+        "properties": {
+          "app_id": {
+            "type": "number",
+            "description": "Platform app id"
+          },
+          "app_status": {
+            "type": "string",
+            "description": "Processing status of the post"
+          },
+          "content": {
+            "type": "string",
+            "description": ""
+          },
+          "embed_data": {
+            "type": "object",
+            "description": "An object containing embed data if media is embedded in the post"
+          },
+          "embed_url": {
+            "type": "string",
+            "description": "Embed media url"
+          },
+          "is_paid": {
+            "type": "boolean",
+            "description": "Whether the post incurs a bill as part of a pay-per-post campaign"
+          },
+          "is_public": {
+            "type": "boolean",
+            "description": "- `true` if the post is viewable by anyone\r\n- `false` if only patrons (or a subset of patrons) can view"
+          },
+          "published_at": {
+            "type": "string",
+            "description": "Datetime that the creator most recently published (made publicly visible) the post"
+          },
+          "tiers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The tier ids that allow the patrons from those tiers to view the post.\r\nEmpty array if no tiers assigned even if {@link Post.is_paid} is true"
+          },
+          "title": {
+            "type": "string",
+            "description": ""
+          },
+          "url": {
+            "type": "string",
+            "description": "A URL to access this post on patreon.com"
+          }
+        }
       },
-      "pledge-eventKey": {
-        "type": "string",
-        "enum": [
-          "amount_cents",
-          "currency_code",
-          "date",
-          "payment_status",
-          "tier_id",
-          "tier_title",
-          "type"
-        ]
+      "pledge-event": {
+        "type": "object",
+        "title": "PledgeEvent",
+        "description": "",
+        "externalDocs": {
+          "description": "Official documentation for the PledgeEvent resource",
+          "url": "https://docs.patreon.com/#pledge-event"
+        },
+        "properties": {
+          "amount_cents": {
+            "type": "number",
+            "description": "Amount (in the currency in which the patron paid) of the underlying event"
+          },
+          "currency_code": {
+            "type": "string",
+            "description": "ISO code of the currency of the event"
+          },
+          "date": {
+            "type": "string",
+            "description": "The date which this event occurred"
+          },
+          "payment_status": {
+            "type": "string",
+            "enum": [
+              "Paid",
+              "Declined",
+              "Pending",
+              "Refunded",
+              "Fraud",
+              "Other"
+            ],
+            "description": "Status of underlying payment"
+          },
+          "tier_id": {
+            "type": "string",
+            "description": "Id of the tier associated with the pledge"
+          },
+          "tier_title": {
+            "type": "string",
+            "description": "Title of the reward tier associated with the pledge"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "pledge_start",
+              "pledge_upgrade",
+              "pledge_downgrade",
+              "pledge_delete",
+              "subscription"
+            ],
+            "description": ""
+          }
+        }
       },
-      "tierKey": {
-        "type": "string",
-        "enum": [
-          "amount_cents",
-          "created_at",
-          "description",
-          "discord_role_ids",
-          "edited_at",
-          "image_url",
-          "patron_count",
-          "post_count",
-          "published",
-          "published_at",
-          "remaining",
-          "requires_shipping",
-          "title",
-          "unpublished_at",
-          "url",
-          "user_limit"
-        ]
+      "tier": {
+        "type": "object",
+        "title": "Tier",
+        "description": "",
+        "externalDocs": {
+          "description": "Official documentation for the Tier resource",
+          "url": "https://docs.patreon.com/#tier"
+        },
+        "properties": {
+          "amount_cents": {
+            "type": "number",
+            "description": "Monetary amount associated with this tier (in U.S. cents)"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Datetime this tier was created"
+          },
+          "description": {
+            "type": "string",
+            "description": "Tier display description"
+          },
+          "discord_role_ids": {
+            "type": "object",
+            "description": "The discord role IDs granted by this tier"
+          },
+          "edited_at": {
+            "type": "string",
+            "description": "Datetime tier was last modified"
+          },
+          "image_url": {
+            "type": "string",
+            "description": "Full qualified image URL associated with this tier"
+          },
+          "patron_count": {
+            "type": "number",
+            "description": "Number of patrons currently registered for this tier"
+          },
+          "post_count": {
+            "type": "number",
+            "description": "Number of posts published to this tier"
+          },
+          "published": {
+            "type": "boolean",
+            "description": "Whether the tier is currently published"
+          },
+          "published_at": {
+            "type": "string",
+            "description": "Datetime this tier was last published"
+          },
+          "remaining": {
+            "type": "number",
+            "description": "Remaining number of patrons who may subscribe, if there is a {@link Tier.user_limit}"
+          },
+          "requires_shipping": {
+            "type": "boolean",
+            "description": "Whether this tier requires a shipping address from patrons"
+          },
+          "title": {
+            "type": "string",
+            "description": "Tier display title"
+          },
+          "unpublished_at": {
+            "type": "string",
+            "description": "Datetime tier was unpublished, while applicable"
+          },
+          "url": {
+            "type": "string",
+            "description": "Fully qualified URL associated with this tier"
+          },
+          "user_limit": {
+            "type": "number",
+            "description": "Maximum number of patrons this tier is limited to, if applicable"
+          }
+        }
       },
-      "userKey": {
-        "type": "string",
-        "enum": [
-          "about",
-          "can_see_nsfw",
-          "created",
-          "email",
-          "first_name",
-          "full_name",
-          "hide_pledges",
-          "image_url",
-          "is_email_verified",
-          "last_name",
-          "like_count",
-          "social_connections",
-          "thumb_url",
-          "url",
-          "vanity"
-        ]
+      "user": {
+        "type": "object",
+        "title": "User",
+        "description": "",
+        "externalDocs": {
+          "description": "Official documentation for the User resource",
+          "url": "https://docs.patreon.com/#user-v2"
+        },
+        "properties": {
+          "about": {
+            "type": "string",
+            "description": "The user's about text, which appears on their profile"
+          },
+          "can_see_nsfw": {
+            "type": "boolean",
+            "description": "Whether this user can view nsfw content"
+          },
+          "created": {
+            "type": "string",
+            "description": "Datetime of this user's account creation"
+          },
+          "email": {
+            "type": "string",
+            "description": "The user's email address.\r\nRequires certain scopes to access.\r\nSee the scopes section of the documentation"
+          },
+          "first_name": {
+            "type": "string",
+            "description": ""
+          },
+          "full_name": {
+            "type": "string",
+            "description": "Combined first and last name"
+          },
+          "hide_pledges": {
+            "type": "boolean",
+            "description": "Whether the user has chosen to keep private which creators they pledge to"
+          },
+          "image_url": {
+            "type": "string",
+            "description": "The user's profile picture URL, scaled to width 400px"
+          },
+          "is_email_verified": {
+            "type": "boolean",
+            "description": "Whether the user has confirmed their email"
+          },
+          "last_name": {
+            "type": "string",
+            "description": ""
+          },
+          "like_count": {
+            "type": "number",
+            "description": "How many posts this user has liked"
+          },
+          "social_connections": {
+            "type": "object",
+            "description": "Mapping from user's connected app names to external user id on the respective app\r\n\r\nNOTE: since the documentation is `object`, this can change without notice.\r\nFor a more accurate representation use the following type using TypeScript module augmentation:\r\n```ts\r\nimport 'patreon-api.ts'\r\n\r\ndeclare module 'patreon-api.ts' {\r\n   interface CustomTypeOptions {\r\n       social_connections: Record<string, { url: string, user_id: string } | null>\r\n   }\r\n}\r\n```"
+          },
+          "thumb_url": {
+            "type": "string",
+            "description": "The user's profile picture URL, scaled to a square of size 100x100px"
+          },
+          "url": {
+            "type": "string",
+            "description": "URL of this user's creator or patron profile"
+          },
+          "vanity": {
+            "type": "string",
+            "description": "The public \"username\" of the user.\r\npatreon.com/ goes to this user's creator page.\r\nNon-creator users might not have a vanity."
+          }
+        }
       },
-      "webhookKey": {
-        "type": "string",
-        "enum": [
-          "last_attempted_at",
-          "num_consecutive_times_failed",
-          "paused",
-          "secret",
-          "triggers",
-          "uri"
-        ]
+      "webhook": {
+        "type": "object",
+        "title": "Webhook",
+        "description": "",
+        "externalDocs": {
+          "description": "Official documentation for the Webhook resource",
+          "url": "https://docs.patreon.com/#webhook"
+        },
+        "properties": {
+          "last_attempted_at": {
+            "type": "string",
+            "description": "Last date that the webhook was attempted or used."
+          },
+          "num_consecutive_times_failed": {
+            "type": "number",
+            "description": "Number of times the webhook has failed consecutively, when in an error state."
+          },
+          "paused": {
+            "type": "boolean",
+            "description": "`true` if the webhook is paused as a result of repeated failed attempts to post to uri.\r\nSet to `false` to attempt to re-enable a previously failing webhook."
+          },
+          "secret": {
+            "type": "string",
+            "description": "Secret used to sign your webhook message body, so you can validate authenticity upon receipt."
+          },
+          "triggers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of events that will trigger this webhook."
+          },
+          "uri": {
+            "type": "string",
+            "description": "Fully qualified uri where webhook will be sent (e.g. https://www.example.com/webhooks/incoming)."
+          }
+        }
       },
       "webhookTrigger": {
         "type": "array",
+        "title": "Webhook trigger",
         "enum": [
           "members:create",
           "members:update",
@@ -300,492 +937,248 @@
             "members:pledge:delete"
           ]
         ]
-      }
-    },
-    "responses": {
-      "200": {
-        "description": "OK"
+      },
+      "APIError": {
+        "type": "object"
       }
     }
   },
   "paths": {
-    "/api/oauth/v2/campaigns": {
-      "get": {
-        "tags": [
-          "Resources"
-        ],
-        "externalDocs": {
-          "description": "Official documentation",
-          "url": "https://docs.patreon.com/#get-api-oauth2-v2-campaigns"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/userAgent"
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "array",
-              "enum": [
-                "benefits",
-                "creator",
-                "goals",
-                "tiers"
-              ]
-            }
-          },
-          {
-            "name": "fields",
-            "in": "query",
-            "required": false,
-            "style": "deepObject",
-            "explode": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "benefit": {
-                  "$ref": "#/components/schemas/benefitKey"
-                },
-                "user": {
-                  "$ref": "#/components/schemas/userKey"
-                },
-                "goal": {
-                  "$ref": "#/components/schemas/goalKey"
-                },
-                "tier": {
-                  "$ref": "#/components/schemas/tierKey"
-                },
-                "campaign": {
-                  "$ref": "#/components/schemas/campaignKey"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/200"
-          }
-        }
-      }
-    },
     "/api/oauth/v2/campaigns/{campaign_id}": {
       "get": {
         "tags": [
-          "Resources"
+          "resource"
         ],
+        "operationId": "getCampaign",
         "externalDocs": {
           "description": "Official documentation",
           "url": "https://docs.patreon.com/#get-api-oauth2-v2-campaigns-campaign_id"
         },
         "parameters": [
           {
-            "name": "campaign_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/campaign_id"
+          },
+          {
+            "$ref": "#/components/parameters/include"
           },
           {
             "$ref": "#/components/parameters/userAgent"
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "array",
-              "enum": [
-                "benefits",
-                "creator",
-                "goals",
-                "tiers"
-              ]
-            }
-          },
-          {
-            "name": "fields",
-            "in": "query",
-            "required": false,
-            "style": "deepObject",
-            "explode": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "benefit": {
-                  "$ref": "#/components/schemas/benefitKey"
-                },
-                "user": {
-                  "$ref": "#/components/schemas/userKey"
-                },
-                "goal": {
-                  "$ref": "#/components/schemas/goalKey"
-                },
-                "tier": {
-                  "$ref": "#/components/schemas/tierKey"
-                },
-                "campaign": {
-                  "$ref": "#/components/schemas/campaignKey"
-                }
-              }
-            }
           }
         ],
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
           }
-        }
+        },
+        "security": [
+          {
+            "auth": []
+          }
+        ]
       }
     },
-    "/api/oauth/v2/campaigns/{campaign_id}/members": {
+    "/api/oauth/v2/campaigns": {
       "get": {
         "tags": [
-          "Resources"
+          "resource"
         ],
+        "operationId": "getCampaigns",
         "externalDocs": {
           "description": "Official documentation",
-          "url": "https://docs.patreon.com/#get-api-oauth2-v2-campaigns-campaign_id-members"
+          "url": "https://docs.patreon.com/#get-api-oauth2-v2-campaigns"
         },
         "parameters": [
           {
-            "name": "campaign_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/include"
           },
           {
             "$ref": "#/components/parameters/userAgent"
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "array",
-              "enum": [
-                "address",
-                "campaign",
-                "currently_entitled_tiers",
-                "pledge_history",
-                "user"
-              ]
-            }
-          },
-          {
-            "name": "fields",
-            "in": "query",
-            "required": false,
-            "style": "deepObject",
-            "explode": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "address": {
-                  "$ref": "#/components/schemas/addressKey"
-                },
-                "campaign": {
-                  "$ref": "#/components/schemas/campaignKey"
-                },
-                "tier": {
-                  "$ref": "#/components/schemas/tierKey"
-                },
-                "pledge-event": {
-                  "$ref": "#/components/schemas/pledge-eventKey"
-                },
-                "user": {
-                  "$ref": "#/components/schemas/userKey"
-                },
-                "member": {
-                  "$ref": "#/components/schemas/memberKey"
-                }
-              }
-            }
           }
         ],
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
           }
-        }
-      }
-    },
-    "/api/oauth/v2/campaigns/{campaign_id}/posts": {
-      "get": {
-        "tags": [
-          "Resources"
-        ],
-        "externalDocs": {
-          "description": "Official documentation",
-          "url": "https://docs.patreon.com/#get-api-oauth2-v2-campaigns-campaign_id-posts"
         },
-        "parameters": [
+        "security": [
           {
-            "name": "campaign_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "$ref": "#/components/parameters/userAgent"
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "array",
-              "enum": [
-                "user",
-                "campaign"
-              ]
-            }
-          },
-          {
-            "name": "fields",
-            "in": "query",
-            "required": false,
-            "style": "deepObject",
-            "explode": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "user": {
-                  "$ref": "#/components/schemas/userKey"
-                },
-                "campaign": {
-                  "$ref": "#/components/schemas/campaignKey"
-                },
-                "post": {
-                  "$ref": "#/components/schemas/postKey"
-                }
-              }
-            }
+            "auth": []
           }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/200"
-          }
-        }
+        ]
       }
     },
     "/api/oauth/v2/identity": {
       "get": {
         "tags": [
-          "Resources"
+          "resource"
         ],
+        "operationId": "getIdentity",
         "externalDocs": {
           "description": "Official documentation",
           "url": "https://docs.patreon.com/#get-api-oauth2-v2-identity"
         },
         "parameters": [
           {
+            "$ref": "#/components/parameters/include"
+          },
+          {
             "$ref": "#/components/parameters/userAgent"
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "array",
-              "enum": [
-                "campaign",
-                "memberships"
-              ]
-            }
-          },
-          {
-            "name": "fields",
-            "in": "query",
-            "required": false,
-            "style": "deepObject",
-            "explode": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "campaign": {
-                  "$ref": "#/components/schemas/campaignKey"
-                },
-                "member": {
-                  "$ref": "#/components/schemas/memberKey"
-                },
-                "user": {
-                  "$ref": "#/components/schemas/userKey"
-                }
-              }
-            }
           }
         ],
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
           }
-        }
+        },
+        "security": [
+          {
+            "auth": []
+          }
+        ]
+      }
+    },
+    "/api/oauth/v2/campaigns/{campaign_id}/members": {
+      "get": {
+        "tags": [
+          "resource"
+        ],
+        "operationId": "getCampaignMembers",
+        "externalDocs": {
+          "description": "Official documentation",
+          "url": "https://docs.patreon.com/#get-api-oauth2-v2-campaigns-campaign_id-members"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/campaign_id"
+          },
+          {
+            "$ref": "#/components/parameters/include"
+          },
+          {
+            "$ref": "#/components/parameters/userAgent"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200"
+          }
+        },
+        "security": [
+          {
+            "auth": []
+          }
+        ]
       }
     },
     "/api/oauth/v2/members/{id}": {
       "get": {
         "tags": [
-          "Resources"
+          "resource"
         ],
+        "operationId": "getMember",
         "externalDocs": {
           "description": "Official documentation",
           "url": "https://docs.patreon.com/#get-api-oauth2-v2-members-id"
         },
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/id"
+          },
+          {
+            "$ref": "#/components/parameters/include"
           },
           {
             "$ref": "#/components/parameters/userAgent"
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "array",
-              "enum": [
-                "address",
-                "campaign",
-                "currently_entitled_tiers",
-                "pledge_history",
-                "user"
-              ]
-            }
-          },
-          {
-            "name": "fields",
-            "in": "query",
-            "required": false,
-            "style": "deepObject",
-            "explode": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "address": {
-                  "$ref": "#/components/schemas/addressKey"
-                },
-                "campaign": {
-                  "$ref": "#/components/schemas/campaignKey"
-                },
-                "tier": {
-                  "$ref": "#/components/schemas/tierKey"
-                },
-                "pledge-event": {
-                  "$ref": "#/components/schemas/pledge-eventKey"
-                },
-                "user": {
-                  "$ref": "#/components/schemas/userKey"
-                },
-                "member": {
-                  "$ref": "#/components/schemas/memberKey"
-                }
-              }
-            }
           }
         ],
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
           }
-        }
+        },
+        "security": [
+          {
+            "auth": []
+          }
+        ]
+      }
+    },
+    "/api/oauth/v2/campaigns/{campaign_id}/posts": {
+      "get": {
+        "tags": [
+          "resource"
+        ],
+        "operationId": "getCampaignPosts",
+        "externalDocs": {
+          "description": "Official documentation",
+          "url": "https://docs.patreon.com/#get-api-oauth2-v2-campaigns-campaign_id-posts"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/campaign_id"
+          },
+          {
+            "$ref": "#/components/parameters/include"
+          },
+          {
+            "$ref": "#/components/parameters/userAgent"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200"
+          }
+        },
+        "security": [
+          {
+            "auth": []
+          }
+        ]
       }
     },
     "/api/oauth/v2/posts/{id}": {
       "get": {
         "tags": [
-          "Resources"
+          "resource"
         ],
+        "operationId": "getPost",
         "externalDocs": {
           "description": "Official documentation",
           "url": "https://docs.patreon.com/#get-api-oauth2-v2-posts-id"
         },
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/id"
+          },
+          {
+            "$ref": "#/components/parameters/include"
           },
           {
             "$ref": "#/components/parameters/userAgent"
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "array",
-              "enum": [
-                "user",
-                "campaign"
-              ]
-            }
-          },
-          {
-            "name": "fields",
-            "in": "query",
-            "required": false,
-            "style": "deepObject",
-            "explode": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "user": {
-                  "$ref": "#/components/schemas/userKey"
-                },
-                "campaign": {
-                  "$ref": "#/components/schemas/campaignKey"
-                },
-                "post": {
-                  "$ref": "#/components/schemas/postKey"
-                }
-              }
-            }
           }
         ],
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
           }
-        }
+        },
+        "security": [
+          {
+            "auth": []
+          }
+        ]
       }
     },
     "/api/oauth/v2/webhooks/{id}": {
       "patch": {
         "tags": [
-          "Webhooks"
+          "webhook"
         ],
+        "operationId": "patchWebhook",
+        "externalDocs": {
+          "description": "Official documentation",
+          "url": "https://docs.patreon.com/#patch-api-oauth2-v2-webhooks-id"
+        },
         "requestBody": {
           "required": true,
           "content": {
@@ -818,7 +1211,7 @@
                         "required": [],
                         "properties": {
                           "triggers": {
-                            "$ref": "#components/schemas/webhookTrigger"
+                            "$ref": "#/components/schemas/webhookTrigger"
                           },
                           "uri": {
                             "type": "string",
@@ -842,124 +1235,64 @@
             }
           }
         },
-        "externalDocs": {
-          "description": "Official documentation",
-          "url": "https://docs.patreon.com/#patch-api-oauth2-v2-webhooks-id"
-        },
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/id"
           },
           {
             "$ref": "#/components/parameters/userAgent"
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "array",
-              "enum": [
-                "campaign",
-                "client"
-              ]
-            }
-          },
-          {
-            "name": "fields",
-            "in": "query",
-            "required": false,
-            "style": "deepObject",
-            "explode": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "campaign": {
-                  "$ref": "#/components/schemas/campaignKey"
-                },
-                "client": {
-                  "$ref": "#/components/schemas/clientKey"
-                },
-                "webhook": {
-                  "$ref": "#/components/schemas/webhookKey"
-                }
-              }
-            }
           }
         ],
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
           }
-        }
+        },
+        "security": [
+          {
+            "auth": []
+          }
+        ]
       }
     },
     "/api/oauth/v2/webhooks": {
       "get": {
         "tags": [
-          "Webhooks"
+          "webhook"
         ],
+        "operationId": "getWebhooks",
         "externalDocs": {
           "description": "Official documentation",
           "url": "https://docs.patreon.com/#get-api-oauth2-v2-webhooks"
         },
         "parameters": [
           {
+            "$ref": "#/components/parameters/include"
+          },
+          {
             "$ref": "#/components/parameters/userAgent"
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "array",
-              "enum": [
-                "campaign",
-                "client"
-              ]
-            }
-          },
-          {
-            "name": "fields",
-            "in": "query",
-            "required": false,
-            "style": "deepObject",
-            "explode": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "campaign": {
-                  "$ref": "#/components/schemas/campaignKey"
-                },
-                "client": {
-                  "$ref": "#/components/schemas/clientKey"
-                },
-                "webhook": {
-                  "$ref": "#/components/schemas/webhookKey"
-                }
-              }
-            }
           }
         ],
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
           }
-        }
+        },
+        "security": [
+          {
+            "auth": []
+          }
+        ]
       },
       "post": {
         "tags": [
-          "Webhooks"
+          "webhook"
         ],
+        "operationId": "postWebhook",
+        "externalDocs": {
+          "description": "Official documentation",
+          "url": "https://docs.patreon.com/#post-api-oauth2-v2-webhooks"
+        },
         "requestBody": {
           "required": true,
           "content": {
@@ -989,7 +1322,7 @@
                         ],
                         "properties": {
                           "triggers": {
-                            "$ref": "#components/schemas/webhookTrigger"
+                            "$ref": "#/components/schemas/webhookTrigger"
                           },
                           "uri": {
                             "type": "string",
@@ -1035,55 +1368,21 @@
             }
           }
         },
-        "externalDocs": {
-          "description": "Official documentation",
-          "url": "https://docs.patreon.com/#post-api-oauth2-v2-webhooks"
-        },
         "parameters": [
           {
             "$ref": "#/components/parameters/userAgent"
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "array",
-              "enum": [
-                "campaign",
-                "client"
-              ]
-            }
-          },
-          {
-            "name": "fields",
-            "in": "query",
-            "required": false,
-            "style": "deepObject",
-            "explode": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "campaign": {
-                  "$ref": "#/components/schemas/campaignKey"
-                },
-                "client": {
-                  "$ref": "#/components/schemas/clientKey"
-                },
-                "webhook": {
-                  "$ref": "#/components/schemas/webhookKey"
-                }
-              }
-            }
           }
         ],
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
           }
-        }
+        },
+        "security": [
+          {
+            "auth": []
+          }
+        ]
       }
     }
   }

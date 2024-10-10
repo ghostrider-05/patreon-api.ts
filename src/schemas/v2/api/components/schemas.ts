@@ -80,6 +80,7 @@ export default {
     }),
     webhookTrigger: {
         type: 'array',
+        title: 'Webhook trigger',
         enum: Object.values(PatreonWebhookTrigger)
             .map(t => t.toString()),
         externalDocs: {
