@@ -3,17 +3,50 @@ import { Oauth2Routes } from './routes'
 
 export enum PatreonOauthScope {
     /**
-     * Allows to get details about the current authenticated user
+     * Provides read access to data about the user.
+     * See the /identity endpoint documentation for details about what data is available.
      */
     Identity = 'identity',
+
+    /**
+     * Provides read access to the user’s email.
+     */
     IdentityEmail = 'identity[email]',
+
+    /**
+     * Provides read access to the user’s memberships.
+     */
     IdentityMemberships = 'identity.memberships',
+
+    /**
+     * Provides read access to basic campaign data.
+     * See the /campaign endpoint documentation for details about what data is available.
+     */
     Campaigns = 'campaigns',
+    /**
+     * Provides read access to data about a campaign’s members.
+     * See the /members endpoint documentation for details about what data is available.
+     * Also allows the same information to be sent via webhooks created by your client.
+     */
     CampaignMembers = 'campaigns.members',
+    /**
+     * Provides read access to the member’s email.
+     * Also allows the same information to be sent via webhooks created by your client.
+     */
     CampaignMembersEmail = 'campaigns.members[email]',
+    /**
+     * Provides read access to the member’s address, if an address was collected in the pledge flow.
+     * Also allows the same information to be sent via webhooks created by your client.
+     */
     CampaignMembersAdress = 'campaigns.members.address',
+    /**
+     * Provides read access to the posts on a campaign.
+     */
     CampaignPosts = 'campaigns.posts',
-    ManageCampaignWebhooks = 'w:campaigns.webhook'
+    /**
+     * Provides read, write, update, and delete access to the campaign’s webhooks created by the client.
+     */
+    ManageCampaignWebhooks = 'w:campaigns.webhook',
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc

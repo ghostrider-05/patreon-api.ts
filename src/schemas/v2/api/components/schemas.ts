@@ -81,8 +81,11 @@ export default {
     webhookTrigger: {
         type: 'array',
         title: 'Webhook trigger',
-        enum: Object.values(PatreonWebhookTrigger)
-            .map(t => t.toString()),
+        items: {
+            type: 'string',
+            enum: Object.values(PatreonWebhookTrigger)
+                .map(t => t.toString()),
+        },
         externalDocs: {
             url: 'https://docs.patreon.com/#triggers-v2',
         },

@@ -124,15 +124,15 @@
             "tokenUrl": "https://patreon.com/api/oauth2/token",
             "authorizationUrl": "https://patreon.com/oauth2/authorize",
             "scopes": {
-              "identity": "Allows to get details about the current authenticated user",
-              "identity[email]": "",
-              "identity.memberships": "",
-              "campaigns": "",
-              "campaigns.members": "",
-              "campaigns.members[email]": "",
-              "campaigns.members.address": "",
-              "campaigns.posts": "",
-              "w:campaigns.webhook": ""
+              "identity": "Provides read access to data about the user.\r\nSee the /identity endpoint documentation for details about what data is available.",
+              "identity[email]": "Provides read access to the user’s email.",
+              "identity.memberships": "Provides read access to the user’s memberships.",
+              "campaigns": "Provides read access to basic campaign data.\r\nSee the /campaign endpoint documentation for details about what data is available.",
+              "campaigns.members": "Provides read access to data about a campaign’s members.\r\nSee the /members endpoint documentation for details about what data is available.\r\nAlso allows the same information to be sent via webhooks created by your client.",
+              "campaigns.members[email]": "Provides read access to the member’s email.\r\nAlso allows the same information to be sent via webhooks created by your client.",
+              "campaigns.members.address": "Provides read access to the member’s address, if an address was collected in the pledge flow.\r\nAlso allows the same information to be sent via webhooks created by your client.",
+              "campaigns.posts": "Provides read access to the posts on a campaign.",
+              "w:campaigns.webhook": "Provides read, write, update, and delete access to the campaign’s webhooks created by the client."
             }
           }
         }
@@ -916,17 +916,20 @@
       "webhookTrigger": {
         "type": "array",
         "title": "Webhook trigger",
-        "enum": [
-          "members:create",
-          "members:update",
-          "members:delete",
-          "members:pledge:create",
-          "members:pledge:update",
-          "members:pledge:delete",
-          "posts:publish",
-          "posts:update",
-          "posts:delete"
-        ],
+        "items": {
+          "type": "string",
+          "enum": [
+            "members:create",
+            "members:update",
+            "members:delete",
+            "members:pledge:create",
+            "members:pledge:update",
+            "members:pledge:delete",
+            "posts:publish",
+            "posts:update",
+            "posts:delete"
+          ]
+        },
         "externalDocs": {
           "url": "https://docs.patreon.com/#triggers-v2"
         },
