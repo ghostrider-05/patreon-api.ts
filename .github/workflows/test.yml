@@ -34,7 +34,6 @@ jobs:
         run: npm run test
 
       - name: Validate OpenAPI definition
-        uses: swaggerexpert/swagger-editor-validate@v1
+        uses: char0n/apidom-validate@v1
         with:
-          definition-file: openapi.json
-          swagger-editor-url: https://editor-next.swagger.io/
+          definition-file: 'openapi.json'
