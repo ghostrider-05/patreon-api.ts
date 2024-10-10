@@ -16,7 +16,5 @@ export * from './resources/tier'
 export * from './resources/user'
 export * from './resources/webhook'
 
-// @ts-ignore
 export * from './generated/keys'
-// @ts-ignore
 export * from './generated/relationships'
