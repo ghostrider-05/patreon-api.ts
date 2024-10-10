@@ -1,0 +1,16 @@
+name: OpenAPI
+on: 
+  - push
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate Patreon API
+        uses: char0n/apidom-validate@v1
+        with:
+          definition-file: 'openapi.json'
