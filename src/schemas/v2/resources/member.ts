@@ -1,6 +1,6 @@
 export interface Member {
     /**
-     * 	The total amount that the member has ever paid to the campaign in campaign's currency.
+     * The total amount that the member has ever paid to the campaign in campaign's currency.
      * 0 if never paid
      */
     campaign_lifetime_support_cents: number

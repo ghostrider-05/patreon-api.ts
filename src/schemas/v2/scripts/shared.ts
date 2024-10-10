@@ -1,5 +1,5 @@
 /* eslint-disable jsdoc/require-jsdoc */
-import { Project, type SourceFile, NewLineKind, ts } from 'ts-morph'
+import { Project, type SourceFile, NewLineKind, ts, JSDocableNode } from 'ts-morph'
 
 export interface TsScript {
     project: Project
@@ -31,4 +31,17 @@ export function createTsScriptProgram (outFilename: string): TsScript {
         addVariableStatement: (...args) => destFile.addVariableStatement(...args),
         project,
     }
+}
+
+export function getTypes (file: string) {
+    const program = createTsScriptProgram('temp.ts')
+
+    const sourceFile = program.project.addSourceFileAtPath(file)
+    if (!sourceFile) throw new Error()
+
+    return sourceFile
+}
+
+export function getJsDocDescription (node: JSDocableNode): string {
+    return node.getJsDocs().at(0)?.getDescription().replace('\r\n', '') ?? ''
 }

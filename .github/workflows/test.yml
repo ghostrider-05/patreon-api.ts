@@ -32,3 +32,8 @@ jobs:
 
       - name: Run tests
         run: npm run test
+
+      - name: Validate OpenAPI definition
+        uses: swaggerexpert/swagger-editor-validate@v1
+        with:
+          definition-file: openapi.json

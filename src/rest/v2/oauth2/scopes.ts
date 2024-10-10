@@ -2,6 +2,9 @@ import { createQuery, type BasePatreonQuery } from '../query'
 import { Oauth2Routes } from './routes'
 
 export enum PatreonOauthScope {
+    /**
+     * Allows to get details about the current authenticated user
+     */
     Identity = 'identity',
     IdentityEmail = 'identity[email]',
     IdentityMemberships = 'identity.memberships',
