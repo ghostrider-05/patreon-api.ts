@@ -28,8 +28,8 @@ function createResourceSchemas <T extends string> (options: ResourceSchemaOption
                 description: getJsDocDescription(declaration),
                 externalDocs: documentation,
                 properties: declaration.getProperties().reduce((properties, property) => {
-                    const type = property.getType()
-                    const nullable = type.isNullable()
+                    const type = property.getType().getNonNullableType(), nullType = '\'null\''
+                    const nullable = property.getType().isNullable()
                     const baseType = type.getBaseTypeOfLiteralType().getText()
                     const format = formatMap?.[property.getName()]
 
@@ -39,12 +39,13 @@ function createResourceSchemas <T extends string> (options: ResourceSchemaOption
                             ...(
                                 type.isArray()
                                     ? {
-                                        type: (nullable ? ['array', 'null'] : 'array'),
+                                        type: (nullable ? ['array', nullType] : 'array'),
                                         items: { type: type.getArrayElementType()?.getText() }
                                     }
-                                    : { type: nullable ? [baseType, 'null'] : baseType }
+                                    : { type: nullable ? [baseType, nullType] : baseType }
                             ),
                             ...(
+                                // Ignore booleans, otherwise the enum will be: ['true', 'false']
                                 type.isUnion() && !type.isBoolean()
                                     ? { enum: type.getUnionTypes().map(t => t.getText().replace(/"/g, '')) }
                                     : {}
