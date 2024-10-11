@@ -43,5 +43,8 @@ export function getTypes (file: string) {
 }
 
 export function getJsDocDescription (node: JSDocableNode): string {
-    return node.getJsDocs().at(0)?.getDescription().replace('\r\n', '') ?? ''
+    return node.getJsDocs().at(0)?.getDescription()
+        .replace('\r\n', '') // Removes trailing line break
+        .replaceAll('\r\n', '\n') // Use LF line endings
+        ?? ''
 }

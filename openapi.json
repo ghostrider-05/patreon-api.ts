@@ -124,13 +124,13 @@
             "tokenUrl": "https://patreon.com/api/oauth2/token",
             "authorizationUrl": "https://patreon.com/oauth2/authorize",
             "scopes": {
-              "identity": "Provides read access to data about the user.\r\nSee the /identity endpoint documentation for details about what data is available.",
+              "identity": "Provides read access to data about the user.\nSee the /identity endpoint documentation for details about what data is available.",
               "identity[email]": "Provides read access to the user’s email.",
               "identity.memberships": "Provides read access to the user’s memberships.",
-              "campaigns": "Provides read access to basic campaign data.\r\nSee the /campaign endpoint documentation for details about what data is available.",
-              "campaigns.members": "Provides read access to data about a campaign’s members.\r\nSee the /members endpoint documentation for details about what data is available.\r\nAlso allows the same information to be sent via webhooks created by your client.",
-              "campaigns.members[email]": "Provides read access to the member’s email.\r\nAlso allows the same information to be sent via webhooks created by your client.",
-              "campaigns.members.address": "Provides read access to the member’s address, if an address was collected in the pledge flow.\r\nAlso allows the same information to be sent via webhooks created by your client.",
+              "campaigns": "Provides read access to basic campaign data.\nSee the /campaign endpoint documentation for details about what data is available.",
+              "campaigns.members": "Provides read access to data about a campaign’s members.\nSee the /members endpoint documentation for details about what data is available.\nAlso allows the same information to be sent via webhooks created by your client.",
+              "campaigns.members[email]": "Provides read access to the member’s email.\nAlso allows the same information to be sent via webhooks created by your client.",
+              "campaigns.members.address": "Provides read access to the member’s address, if an address was collected in the pledge flow.\nAlso allows the same information to be sent via webhooks created by your client.",
               "campaigns.posts": "Provides read access to the posts on a campaign.",
               "w:campaigns.webhook": "Provides read, write, update, and delete access to the campaign’s webhooks created by the client."
             }
@@ -162,6 +162,7 @@
           },
           "created_at": {
             "type": "string",
+            "format": "date-time",
             "description": "Datetime address was first created"
           },
           "line_1": {
@@ -209,6 +210,7 @@
           },
           "created_at": {
             "type": "string",
+            "format": "date-time",
             "description": "Datetime this benefit was created"
           },
           "deliverables_due_today_count": {
@@ -237,6 +239,7 @@
           },
           "next_deliverable_due_date": {
             "type": "string",
+            "format": "date-time",
             "description": "The next due date (after EOD today) for this benefit"
           },
           "not_delivered_deliverables_count": {
@@ -272,10 +275,12 @@
           },
           "url": {
             "type": "string",
+            "format": "uri",
             "description": "The url to visit this campaign"
           },
           "thanks_video_url": {
             "type": "string",
+            "format": "uri",
             "description": "The URL of the video that is shown to patrons after pledging"
           },
           "thanks_msg": {
@@ -288,7 +293,7 @@
           },
           "summary": {
             "type": "string",
-            "description": "The summary of this campaign.\r\nCan be viewed in the About section of the campaign"
+            "description": "The summary of this campaign.\nCan be viewed in the About section of the campaign"
           },
           "show_earnings": {
             "type": "boolean",
@@ -300,11 +305,13 @@
           },
           "rss_artwork_url": {
             "type": "string",
+            "format": "uri",
             "description": "The url for the rss album artwork"
           },
           "published_at": {
             "type": "string",
-            "description": "Datetime that the creator most recently published (made publicly visible) the campaign.\r\nNull when the campaign has not been public."
+            "format": "date-time",
+            "description": "Datetime that the creator most recently published (made publicly visible) the campaign.\nNull when the campaign has not been public."
           },
           "pledge_url": {
             "type": "string",
@@ -324,6 +331,7 @@
           },
           "main_video_url": {
             "type": "string",
+            "format": "uri",
             "description": ""
           },
           "main_video_embed": {
@@ -344,10 +352,12 @@
           },
           "image_url": {
             "type": "string",
+            "format": "uri",
             "description": "Banner image URL for the campaign"
           },
           "image_small_url": {
             "type": "string",
+            "format": "uri",
             "description": "Profile image URL for the campaign"
           },
           "has_sent_rss_notify": {
@@ -372,6 +382,7 @@
           },
           "created_at": {
             "type": "string",
+            "format": "date-time",
             "description": "Datetime that the creator first began the campaign creation process"
           }
         }
@@ -407,6 +418,7 @@
           },
           "icon_url": {
             "type": "string",
+            "format": "uri",
             "description": "The URL of the icon used in the OAuth authorization flow."
           },
           "name": {
@@ -415,6 +427,7 @@
           },
           "privacy_policy_url": {
             "type": "string",
+            "format": "uri",
             "description": "The URL of the privacy policy provided during client setup."
           },
           "redirect_uris": {
@@ -423,6 +436,7 @@
           },
           "tos_url": {
             "type": "string",
+            "format": "uri",
             "description": "The URL of the terms of service provided during client setup."
           },
           "version": {
@@ -442,6 +456,7 @@
         "properties": {
           "completed_at": {
             "type": "string",
+            "format": "date-time",
             "description": "When the creator marked the deliverable as completed or fulfilled to the patron"
           },
           "delivery_status": {
@@ -455,6 +470,7 @@
           },
           "due_at": {
             "type": "string",
+            "format": "date-time",
             "description": "When the deliverable is due to the patron"
           }
         }
@@ -480,10 +496,12 @@
         "properties": {
           "created_at": {
             "type": "string",
+            "format": "date-time",
             "description": "When the file was created"
           },
           "download_url": {
             "type": "string",
+            "format": "uri",
             "description": "The URL to download this media. Valid for 24 hours."
           },
           "file_name": {
@@ -524,6 +542,7 @@
           },
           "upload_expires_at": {
             "type": "string",
+            "format": "date-time",
             "description": "When the upload URL expires"
           },
           "upload_parameters": {
@@ -532,6 +551,7 @@
           },
           "upload_url": {
             "type": "string",
+            "format": "uri",
             "description": "The URL to perform a POST request to in order to upload the media file"
           }
         }
@@ -547,15 +567,15 @@
         "properties": {
           "campaign_lifetime_support_cents": {
             "type": "number",
-            "description": "The total amount that the member has ever paid to the campaign in campaign's currency.\r\n0 if never paid"
+            "description": "The total amount that the member has ever paid to the campaign in campaign's currency.\n0 if never paid"
           },
           "currently_entitled_amount_cents": {
             "type": "number",
-            "description": "The amount in cents that the member is entitled to.\r\nThis includes a current pledge, or payment that covers the current payment period"
+            "description": "The amount in cents that the member is entitled to.\nThis includes a current pledge, or payment that covers the current payment period"
           },
           "email": {
             "type": "string",
-            "description": "The member's email address.\r\nRequires the campaigns.members[email] scope"
+            "description": "The member's email address.\nRequires the campaigns.members[email] scope"
           },
           "full_name": {
             "type": "string",
@@ -567,7 +587,8 @@
           },
           "last_charge_date": {
             "type": "string",
-            "description": "Datetime of last attempted charge.\r\n`null` if never charged"
+            "format": "date-time",
+            "description": "Datetime of last attempted charge.\n`null` if never charged"
           },
           "last_charge_status": {
             "type": "string",
@@ -580,15 +601,16 @@
               "Fraud",
               "Other"
             ],
-            "description": "The result of the last attempted charge.\r\nThe only successful status is `'Paid'`.\r\n`null` if never charged\r\n\r\nNote: this will likely be either `'Paid'` or `'Pending'`"
+            "description": "The result of the last attempted charge.\nThe only successful status is `'Paid'`.\n`null` if never charged\n\nNote: this will likely be either `'Paid'` or `'Pending'`"
           },
           "lifetime_support_cents": {
             "type": "number",
-            "description": "The total amount that the member has ever paid to the campaign.\r\n0 if never paid"
+            "description": "The total amount that the member has ever paid to the campaign.\n0 if never paid"
           },
           "next_charge_date": {
             "type": "string",
-            "description": "Datetime of next charge.\r\n`null` if annual pledge downgrade"
+            "format": "date-time",
+            "description": "Datetime of next charge.\n`null` if annual pledge downgrade"
           },
           "note": {
             "type": "string",
@@ -605,11 +627,12 @@
           },
           "pledge_cadence": {
             "type": "number",
-            "description": "Number of months between charges\r\n\r\nNote: this will be `1` if Campaign.is_monthly is `true`"
+            "description": "Number of months between charges\n\nNote: this will be `1` if Campaign.is_monthly is `true`"
           },
           "pledge_relationship_start": {
             "type": "string",
-            "description": "Datetime of beginning of most recent pledge chainfrom this member to the campaign.\r\nPledge updates do not change this value"
+            "format": "date-time",
+            "description": "Datetime of beginning of most recent pledge chainfrom this member to the campaign.\nPledge updates do not change this value"
           },
           "will_pay_amount_cents": {
             "type": "number",
@@ -644,6 +667,7 @@
           },
           "embed_url": {
             "type": "string",
+            "format": "uri",
             "description": "Embed media url"
           },
           "is_paid": {
@@ -652,10 +676,11 @@
           },
           "is_public": {
             "type": "boolean",
-            "description": "- `true` if the post is viewable by anyone\r\n- `false` if only patrons (or a subset of patrons) can view"
+            "description": "- `true` if the post is viewable by anyone\n- `false` if only patrons (or a subset of patrons) can view"
           },
           "published_at": {
             "type": "string",
+            "format": "date-time",
             "description": "Datetime that the creator most recently published (made publicly visible) the post"
           },
           "tiers": {
@@ -663,7 +688,7 @@
             "items": {
               "type": "string"
             },
-            "description": "The tier ids that allow the patrons from those tiers to view the post.\r\nEmpty array if no tiers assigned even if {@link Post.is_paid} is true"
+            "description": "The tier ids that allow the patrons from those tiers to view the post.\nEmpty array if no tiers assigned even if {@link Post.is_paid} is true"
           },
           "title": {
             "type": "string",
@@ -671,6 +696,7 @@
           },
           "url": {
             "type": "string",
+            "format": "uri",
             "description": "A URL to access this post on patreon.com"
           }
         }
@@ -694,6 +720,7 @@
           },
           "date": {
             "type": "string",
+            "format": "date-time",
             "description": "The date which this event occurred"
           },
           "payment_status": {
@@ -744,6 +771,7 @@
           },
           "created_at": {
             "type": "string",
+            "format": "date-time",
             "description": "Datetime this tier was created"
           },
           "description": {
@@ -756,10 +784,12 @@
           },
           "edited_at": {
             "type": "string",
+            "format": "date-time",
             "description": "Datetime tier was last modified"
           },
           "image_url": {
             "type": "string",
+            "format": "uri",
             "description": "Full qualified image URL associated with this tier"
           },
           "patron_count": {
@@ -776,6 +806,7 @@
           },
           "published_at": {
             "type": "string",
+            "format": "date-time",
             "description": "Datetime this tier was last published"
           },
           "remaining": {
@@ -792,10 +823,12 @@
           },
           "unpublished_at": {
             "type": "string",
+            "format": "date-time",
             "description": "Datetime tier was unpublished, while applicable"
           },
           "url": {
             "type": "string",
+            "format": "uri",
             "description": "Fully qualified URL associated with this tier"
           },
           "user_limit": {
@@ -823,11 +856,12 @@
           },
           "created": {
             "type": "string",
+            "format": "date-time",
             "description": "Datetime of this user's account creation"
           },
           "email": {
             "type": "string",
-            "description": "The user's email address.\r\nRequires certain scopes to access.\r\nSee the scopes section of the documentation"
+            "description": "The user's email address.\nRequires certain scopes to access.\nSee the scopes section of the documentation"
           },
           "first_name": {
             "type": "string",
@@ -843,6 +877,7 @@
           },
           "image_url": {
             "type": "string",
+            "format": "uri",
             "description": "The user's profile picture URL, scaled to width 400px"
           },
           "is_email_verified": {
@@ -859,19 +894,21 @@
           },
           "social_connections": {
             "type": "object",
-            "description": "Mapping from user's connected app names to external user id on the respective app\r\n\r\nNOTE: since the documentation is `object`, this can change without notice.\r\nFor a more accurate representation use the following type using TypeScript module augmentation:\r\n```ts\r\nimport 'patreon-api.ts'\r\n\r\ndeclare module 'patreon-api.ts' {\r\n   interface CustomTypeOptions {\r\n       social_connections: Record<string, { url: string, user_id: string } | null>\r\n   }\r\n}\r\n```"
+            "description": "Mapping from user's connected app names to external user id on the respective app\n\nNOTE: since the documentation is `object`, this can change without notice.\nFor a more accurate representation use the following type using TypeScript module augmentation:\n```ts\nimport 'patreon-api.ts'\n\ndeclare module 'patreon-api.ts' {\n   interface CustomTypeOptions {\n       social_connections: Record<string, { url: string, user_id: string } | null>\n   }\n}\n```"
           },
           "thumb_url": {
             "type": "string",
+            "format": "uri",
             "description": "The user's profile picture URL, scaled to a square of size 100x100px"
           },
           "url": {
             "type": "string",
+            "format": "uri",
             "description": "URL of this user's creator or patron profile"
           },
           "vanity": {
             "type": "string",
-            "description": "The public \"username\" of the user.\r\npatreon.com/ goes to this user's creator page.\r\nNon-creator users might not have a vanity."
+            "description": "The public \"username\" of the user.\npatreon.com/ goes to this user's creator page.\nNon-creator users might not have a vanity."
           }
         }
       },
@@ -886,6 +923,7 @@
         "properties": {
           "last_attempted_at": {
             "type": "string",
+            "format": "date-time",
             "description": "Last date that the webhook was attempted or used."
           },
           "num_consecutive_times_failed": {
@@ -894,7 +932,7 @@
           },
           "paused": {
             "type": "boolean",
-            "description": "`true` if the webhook is paused as a result of repeated failed attempts to post to uri.\r\nSet to `false` to attempt to re-enable a previously failing webhook."
+            "description": "`true` if the webhook is paused as a result of repeated failed attempts to post to uri.\nSet to `false` to attempt to re-enable a previously failing webhook."
           },
           "secret": {
             "type": "string",
@@ -909,6 +947,7 @@
           },
           "uri": {
             "type": "string",
+            "format": "uri",
             "description": "Fully qualified uri where webhook will be sent (e.g. https://www.example.com/webhooks/incoming)."
           }
         }
