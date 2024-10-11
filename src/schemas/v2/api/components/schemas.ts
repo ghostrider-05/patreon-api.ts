@@ -28,7 +28,7 @@ function createResourceSchemas <T extends string> (options: ResourceSchemaOption
                 description: getJsDocDescription(declaration),
                 externalDocs: documentation,
                 properties: declaration.getProperties().reduce((properties, property) => {
-                    const type = property.getType().getNonNullableType(), nullType = '\'null\''
+                    const type = property.getType().getNonNullableType(), nullType = 'null'
                     const nullable = property.getType().isNullable()
                     const baseType = type.getBaseTypeOfLiteralType().getText()
                     const format = formatMap?.[property.getName()]
@@ -121,7 +121,6 @@ export default {
         title: 'Webhook trigger',
         items: {
             type: 'string',
-            name: 'trigger',
             enum: Object.values(PatreonWebhookTrigger)
                 .map(t => t.toString()),
         },

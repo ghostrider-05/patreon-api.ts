@@ -151,7 +151,7 @@
           "addressee": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "Full recipient name"
           },
@@ -171,35 +171,35 @@
           "line_1": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "First line of street address"
           },
           "line_2": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "Second line of street address"
           },
           "phone_number": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "Telephone number. Specified for non-US addresses"
           },
           "postal_code": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "Postal or zip code"
           },
           "state": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "State or province name"
           }
@@ -217,21 +217,21 @@
           "app_external_id": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "The third-party external ID this reward is associated with"
           },
           "app_meta": {
             "type": [
               "object",
-              "'null'"
+              "null"
             ],
             "description": "Any metadata the third-party app included with this benefit on creation"
           },
           "benefit_type": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "Type of benefit, such as `custom` for creator-defined benefits"
           },
@@ -251,7 +251,7 @@
           "description": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "Display description"
           },
@@ -270,7 +270,7 @@
           "next_deliverable_due_date": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "format": "date-time",
             "description": "The next due date (after EOD today) for this benefit"
@@ -282,7 +282,7 @@
           "rule_type": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "A rule type designation, such as `eom_monthly` or `one_time_immediate`"
           },
@@ -308,7 +308,7 @@
           "vanity": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "The campaign's vanity name"
           },
@@ -320,7 +320,7 @@
           "thanks_video_url": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "format": "uri",
             "description": "The URL of the video that is shown to patrons after pledging"
@@ -328,21 +328,21 @@
           "thanks_msg": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "The message that is shown to patrons after pledging"
           },
           "thanks_embed": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "The embed that is shown to patrons after pledging"
           },
           "summary": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "The summary of this campaign.\nCan be viewed in the About section of the campaign"
           },
@@ -353,14 +353,14 @@
           "rss_feed_title": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "The title of the campaigns rss feed"
           },
           "rss_artwork_url": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "format": "uri",
             "description": "The url for the rss album artwork"
@@ -368,7 +368,7 @@
           "published_at": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "format": "date-time",
             "description": "Datetime that the creator most recently published (made publicly visible) the campaign.\nNull when the campaign has not been public."
@@ -380,7 +380,7 @@
           "pay_per_name": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "The thing which patrons are paying per, as in \"{@link Campaign.vanity} is making $1000 per {@link Campaign.pay_per_name}\""
           },
@@ -391,14 +391,14 @@
           "one_liner": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "Pithy one-liner for this campaign, displayed on the creator page"
           },
           "main_video_url": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "format": "uri",
             "description": ""
@@ -406,7 +406,7 @@
           "main_video_embed": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": ""
           },
@@ -443,21 +443,21 @@
           "google_analytics_id": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "The ID of the Google Analytics tracker that the creator wants metrics to be sent to"
           },
           "discord_server_id": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "The ID of the external discord server that is linked to this campaign"
           },
           "creation_name": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "The type of content the creator is creating, as in \"{@link Campaign.vanity} is creating {@link Campaign.creation_name}\""
           },
@@ -480,7 +480,7 @@
           "author_name": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "The author name provided during client setup."
           },
@@ -499,14 +499,14 @@
           "domain": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "The domain provided during client setup."
           },
           "icon_url": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "format": "uri",
             "description": "The URL of the icon used in the OAuth authorization flow."
@@ -518,7 +518,7 @@
           "privacy_policy_url": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "format": "uri",
             "description": "The URL of the privacy policy provided during client setup."
@@ -550,7 +550,7 @@
           "completed_at": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "format": "date-time",
             "description": "When the creator marked the deliverable as completed or fulfilled to the patron"
@@ -611,7 +611,7 @@
           "metadata": {
             "type": [
               "object",
-              "'null'"
+              "null"
             ],
             "description": "Metadata related to the file"
           },
@@ -687,7 +687,7 @@
           "last_charge_date": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "format": "date-time",
             "description": "Datetime of last attempted charge.\n`null` if never charged"
@@ -695,7 +695,7 @@
           "last_charge_status": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "enum": [
               "Paid",
@@ -715,7 +715,7 @@
           "next_charge_date": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "format": "date-time",
             "description": "Datetime of next charge.\n`null` if annual pledge downgrade"
@@ -727,7 +727,7 @@
           "patron_status": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "enum": [
               "active_patron",
@@ -743,7 +743,7 @@
           "pledge_relationship_start": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "format": "date-time",
             "description": "Datetime of beginning of most recent pledge chainfrom this member to the campaign.\nPledge updates do not change this value"
@@ -766,35 +766,35 @@
           "app_id": {
             "type": [
               "number",
-              "'null'"
+              "null"
             ],
             "description": "Platform app id"
           },
           "app_status": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "Processing status of the post"
           },
           "content": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": ""
           },
           "embed_data": {
             "type": [
               "object",
-              "'null'"
+              "null"
             ],
             "description": "An object containing embed data if media is embedded in the post"
           },
           "embed_url": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "format": "uri",
             "description": "Embed media url"
@@ -802,21 +802,21 @@
           "is_paid": {
             "type": [
               "boolean",
-              "'null'"
+              "null"
             ],
             "description": "Whether the post incurs a bill as part of a pay-per-post campaign"
           },
           "is_public": {
             "type": [
               "boolean",
-              "'null'"
+              "null"
             ],
             "description": "- `true` if the post is viewable by anyone\n- `false` if only patrons (or a subset of patrons) can view"
           },
           "published_at": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "format": "date-time",
             "description": "Datetime that the creator most recently published (made publicly visible) the post"
@@ -831,7 +831,7 @@
           "title": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": ""
           },
@@ -879,14 +879,14 @@
           "tier_id": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "Id of the tier associated with the pledge"
           },
           "tier_title": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "Title of the reward tier associated with the pledge"
           },
@@ -928,7 +928,7 @@
           "discord_role_ids": {
             "type": [
               "object",
-              "'null'"
+              "null"
             ],
             "description": "The discord role IDs granted by this tier"
           },
@@ -940,7 +940,7 @@
           "image_url": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "format": "uri",
             "description": "Full qualified image URL associated with this tier"
@@ -960,7 +960,7 @@
           "published_at": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "format": "date-time",
             "description": "Datetime this tier was last published"
@@ -968,7 +968,7 @@
           "remaining": {
             "type": [
               "number",
-              "'null'"
+              "null"
             ],
             "description": "Remaining number of patrons who may subscribe, if there is a {@link Tier.user_limit}"
           },
@@ -983,7 +983,7 @@
           "unpublished_at": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "format": "date-time",
             "description": "Datetime tier was unpublished, while applicable"
@@ -996,7 +996,7 @@
           "user_limit": {
             "type": [
               "number",
-              "'null'"
+              "null"
             ],
             "description": "Maximum number of patrons this tier is limited to, if applicable"
           }
@@ -1014,14 +1014,14 @@
           "about": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "The user's about text, which appears on their profile"
           },
           "can_see_nsfw": {
             "type": [
               "boolean",
-              "'null'"
+              "null"
             ],
             "description": "Whether this user can view nsfw content"
           },
@@ -1037,7 +1037,7 @@
           "first_name": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": ""
           },
@@ -1048,7 +1048,7 @@
           "hide_pledges": {
             "type": [
               "boolean",
-              "'null'"
+              "null"
             ],
             "description": "Whether the user has chosen to keep private which creators they pledge to"
           },
@@ -1064,7 +1064,7 @@
           "last_name": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": ""
           },
@@ -1089,7 +1089,7 @@
           "vanity": {
             "type": [
               "string",
-              "'null'"
+              "null"
             ],
             "description": "The public \"username\" of the user.\npatreon.com/ goes to this user's creator page.\nNon-creator users might not have a vanity."
           }
@@ -1140,7 +1140,6 @@
         "title": "Webhook trigger",
         "items": {
           "type": "string",
-          "name": "trigger",
           "enum": [
             "members:create",
             "members:update",
