@@ -75,9 +75,8 @@ function createPaths (options: PathSchemaOptions) {
                         },
                     ],
                     responses: {
-                        '200': {
-                            '$ref': '#/components/responses/200'
-                        }
+                        '200': { '$ref': '#/components/responses/200' },
+                        '400': { '$ref': '#/components/responses/400' },
                     },
                     security: [
                         {

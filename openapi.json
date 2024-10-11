@@ -1164,7 +1164,27 @@
         ]
       },
       "APIError": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "number"
+          },
+          "code_name": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
       }
     }
   },
@@ -1193,6 +1213,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
           }
         },
         "security": [
@@ -1223,6 +1246,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
           }
         },
         "security": [
@@ -1253,6 +1279,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
           }
         },
         "security": [
@@ -1286,6 +1315,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
           }
         },
         "security": [
@@ -1319,6 +1351,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
           }
         },
         "security": [
@@ -1352,6 +1387,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
           }
         },
         "security": [
@@ -1385,6 +1423,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
           }
         },
         "security": [
@@ -1471,6 +1512,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
           }
         },
         "security": [
@@ -1501,6 +1545,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
           }
         },
         "security": [
@@ -1601,6 +1648,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
           }
         },
         "security": [

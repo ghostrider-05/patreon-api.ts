@@ -135,8 +135,28 @@ export default {
             ],
         ]
     },
+    // TODO: add more details
     APIError: {
         type: 'object',
-        // TODO: add properties
+        properties: {
+            code: {
+                type: 'number',
+            },
+            code_name: {
+                type: 'string',
+            },
+            detail: {
+                type: 'string',
+            },
+            id: {
+                type: 'string',
+            },
+            status: {
+                type: 'string',
+            },
+            title: {
+                type: 'string',
+            },
+        }
     },
 }
