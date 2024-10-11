@@ -114,6 +114,1989 @@
       },
       "401": {
         "description": "Authentication failed (bad API key, invalid OAuth token, incorrect scopes, etc.)"
+      },
+      "campaignResponse": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data",
+                "meta"
+              ],
+              "properties": {
+                "data": {
+                  "required": [
+                    "id",
+                    "type"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "campaign"
+                      ]
+                    },
+                    "attributes": {
+                      "$ref": "#/components/schemas/campaign"
+                    },
+                    "relationships": {
+                      "properties": {
+                        "benefits": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "type": "array",
+                              "items": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "benefit"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "type"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "creator": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "user"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type"
+                              ]
+                            },
+                            "links": {
+                              "properties": {
+                                "related": {
+                                  "type": "string",
+                                  "format": "uri"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "goals": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "type": "array",
+                              "items": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "goal"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "type"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "tiers": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "type": "array",
+                              "items": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "tier"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "type"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "included": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "benefit"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/benefit"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "user"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/user"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "goal"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/goal"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "tier"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/tier"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "links": {
+                  "properties": {
+                    "self": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "campaignsResponse": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data",
+                "links"
+              ],
+              "properties": {
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "required": [
+                      "id",
+                      "type"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "campaign"
+                        ]
+                      },
+                      "attributes": {
+                        "$ref": "#/components/schemas/campaign"
+                      },
+                      "relationships": {
+                        "properties": {
+                          "benefits": {
+                            "required": [
+                              "data"
+                            ],
+                            "properties": {
+                              "data": {
+                                "type": "array",
+                                "items": {
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "benefit"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "type"
+                                  ]
+                                }
+                              }
+                            }
+                          },
+                          "creator": {
+                            "required": [
+                              "data"
+                            ],
+                            "properties": {
+                              "data": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "user"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "type"
+                                ]
+                              },
+                              "links": {
+                                "properties": {
+                                  "related": {
+                                    "type": "string",
+                                    "format": "uri"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "goals": {
+                            "required": [
+                              "data"
+                            ],
+                            "properties": {
+                              "data": {
+                                "type": "array",
+                                "items": {
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "goal"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "type"
+                                  ]
+                                }
+                              }
+                            }
+                          },
+                          "tiers": {
+                            "required": [
+                              "data"
+                            ],
+                            "properties": {
+                              "data": {
+                                "type": "array",
+                                "items": {
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "tier"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "type"
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "included": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "benefit"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/benefit"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "user"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/user"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "goal"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/goal"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "tier"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/tier"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "meta": {
+                  "properties": {
+                    "total": {
+                      "type": "number"
+                    },
+                    "pagination": {
+                      "properties": {
+                        "cursors": {
+                          "properties": {
+                            "next": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "userResponse": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data",
+                "meta"
+              ],
+              "properties": {
+                "data": {
+                  "required": [
+                    "id",
+                    "type"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "user"
+                      ]
+                    },
+                    "attributes": {
+                      "$ref": "#/components/schemas/user"
+                    },
+                    "relationships": {
+                      "properties": {
+                        "campaign": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "campaign"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type"
+                              ]
+                            },
+                            "links": {
+                              "properties": {
+                                "related": {
+                                  "type": "string",
+                                  "format": "uri"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "memberships": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "type": "array",
+                              "items": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "member"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "type"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "included": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "campaign"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/campaign"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "member"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/member"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "links": {
+                  "properties": {
+                    "self": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "membersResponse": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data",
+                "links"
+              ],
+              "properties": {
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "required": [
+                      "id",
+                      "type"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "member"
+                        ]
+                      },
+                      "attributes": {
+                        "$ref": "#/components/schemas/member"
+                      },
+                      "relationships": {
+                        "properties": {
+                          "address": {
+                            "required": [
+                              "data"
+                            ],
+                            "properties": {
+                              "data": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "address"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "type"
+                                ]
+                              },
+                              "links": {
+                                "properties": {
+                                  "related": {
+                                    "type": "string",
+                                    "format": "uri"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "campaign": {
+                            "required": [
+                              "data"
+                            ],
+                            "properties": {
+                              "data": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "campaign"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "type"
+                                ]
+                              },
+                              "links": {
+                                "properties": {
+                                  "related": {
+                                    "type": "string",
+                                    "format": "uri"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "currently_entitled_tiers": {
+                            "required": [
+                              "data"
+                            ],
+                            "properties": {
+                              "data": {
+                                "type": "array",
+                                "items": {
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "tier"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "type"
+                                  ]
+                                }
+                              }
+                            }
+                          },
+                          "pledge_history": {
+                            "required": [
+                              "data"
+                            ],
+                            "properties": {
+                              "data": {
+                                "type": "array",
+                                "items": {
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "pledge-event"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "type"
+                                  ]
+                                }
+                              }
+                            }
+                          },
+                          "user": {
+                            "required": [
+                              "data"
+                            ],
+                            "properties": {
+                              "data": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "user"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "type"
+                                ]
+                              },
+                              "links": {
+                                "properties": {
+                                  "related": {
+                                    "type": "string",
+                                    "format": "uri"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "included": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "address"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/address"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "campaign"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/campaign"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "tier"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/tier"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "pledge-event"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/pledge-event"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "user"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/user"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "meta": {
+                  "properties": {
+                    "total": {
+                      "type": "number"
+                    },
+                    "pagination": {
+                      "properties": {
+                        "cursors": {
+                          "properties": {
+                            "next": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "memberResponse": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data",
+                "meta"
+              ],
+              "properties": {
+                "data": {
+                  "required": [
+                    "id",
+                    "type"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "member"
+                      ]
+                    },
+                    "attributes": {
+                      "$ref": "#/components/schemas/member"
+                    },
+                    "relationships": {
+                      "properties": {
+                        "address": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "address"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type"
+                              ]
+                            },
+                            "links": {
+                              "properties": {
+                                "related": {
+                                  "type": "string",
+                                  "format": "uri"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "campaign": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "campaign"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type"
+                              ]
+                            },
+                            "links": {
+                              "properties": {
+                                "related": {
+                                  "type": "string",
+                                  "format": "uri"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "currently_entitled_tiers": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "type": "array",
+                              "items": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "tier"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "type"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "pledge_history": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "type": "array",
+                              "items": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "pledge-event"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "type"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "user": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "user"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type"
+                              ]
+                            },
+                            "links": {
+                              "properties": {
+                                "related": {
+                                  "type": "string",
+                                  "format": "uri"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "included": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "address"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/address"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "campaign"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/campaign"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "tier"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/tier"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "pledge-event"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/pledge-event"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "user"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/user"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "links": {
+                  "properties": {
+                    "self": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "postsResponse": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data",
+                "links"
+              ],
+              "properties": {
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "required": [
+                      "id",
+                      "type"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "post"
+                        ]
+                      },
+                      "attributes": {
+                        "$ref": "#/components/schemas/post"
+                      },
+                      "relationships": {
+                        "properties": {
+                          "user": {
+                            "required": [
+                              "data"
+                            ],
+                            "properties": {
+                              "data": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "user"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "type"
+                                ]
+                              },
+                              "links": {
+                                "properties": {
+                                  "related": {
+                                    "type": "string",
+                                    "format": "uri"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "campaign": {
+                            "required": [
+                              "data"
+                            ],
+                            "properties": {
+                              "data": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "campaign"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "type"
+                                ]
+                              },
+                              "links": {
+                                "properties": {
+                                  "related": {
+                                    "type": "string",
+                                    "format": "uri"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "included": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "user"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/user"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "campaign"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/campaign"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "meta": {
+                  "properties": {
+                    "total": {
+                      "type": "number"
+                    },
+                    "pagination": {
+                      "properties": {
+                        "cursors": {
+                          "properties": {
+                            "next": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "postResponse": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data",
+                "meta"
+              ],
+              "properties": {
+                "data": {
+                  "required": [
+                    "id",
+                    "type"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "post"
+                      ]
+                    },
+                    "attributes": {
+                      "$ref": "#/components/schemas/post"
+                    },
+                    "relationships": {
+                      "properties": {
+                        "user": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "user"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type"
+                              ]
+                            },
+                            "links": {
+                              "properties": {
+                                "related": {
+                                  "type": "string",
+                                  "format": "uri"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "campaign": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "campaign"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type"
+                              ]
+                            },
+                            "links": {
+                              "properties": {
+                                "related": {
+                                  "type": "string",
+                                  "format": "uri"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "included": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "user"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/user"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "campaign"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/campaign"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "links": {
+                  "properties": {
+                    "self": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "webhookResponse": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data",
+                "meta"
+              ],
+              "properties": {
+                "data": {
+                  "required": [
+                    "id",
+                    "type"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "webhook"
+                      ]
+                    },
+                    "attributes": {
+                      "$ref": "#/components/schemas/webhook"
+                    },
+                    "relationships": {
+                      "properties": {
+                        "campaign": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "campaign"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type"
+                              ]
+                            },
+                            "links": {
+                              "properties": {
+                                "related": {
+                                  "type": "string",
+                                  "format": "uri"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "client": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "client"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type"
+                              ]
+                            },
+                            "links": {
+                              "properties": {
+                                "related": {
+                                  "type": "string",
+                                  "format": "uri"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "included": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "campaign"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/campaign"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "client"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/client"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "links": {
+                  "properties": {
+                    "self": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "webhooksResponse": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data",
+                "links"
+              ],
+              "properties": {
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "required": [
+                      "id",
+                      "type"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "webhook"
+                        ]
+                      },
+                      "attributes": {
+                        "$ref": "#/components/schemas/webhook"
+                      },
+                      "relationships": {
+                        "properties": {
+                          "campaign": {
+                            "required": [
+                              "data"
+                            ],
+                            "properties": {
+                              "data": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "campaign"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "type"
+                                ]
+                              },
+                              "links": {
+                                "properties": {
+                                  "related": {
+                                    "type": "string",
+                                    "format": "uri"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "client": {
+                            "required": [
+                              "data"
+                            ],
+                            "properties": {
+                              "data": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "client"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "type"
+                                ]
+                              },
+                              "links": {
+                                "properties": {
+                                  "related": {
+                                    "type": "string",
+                                    "format": "uri"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "included": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "campaign"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/campaign"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "client"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/client"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "meta": {
+                  "properties": {
+                    "total": {
+                      "type": "number"
+                    },
+                    "pagination": {
+                      "properties": {
+                        "cursors": {
+                          "properties": {
+                            "next": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "securitySchemes": {
@@ -678,7 +2661,10 @@
           },
           "full_name": {
             "type": "string",
-            "description": "Full name of the member user"
+            "description": "Full name of the member user",
+            "examples": [
+              "John Doe"
+            ]
           },
           "is_follower": {
             "type": "boolean",
@@ -738,7 +2724,10 @@
           },
           "pledge_cadence": {
             "type": "number",
-            "description": "Number of months between charges\n\nNote: this will be `1` if Campaign.is_monthly is `true`"
+            "description": "Number of months between charges\n\nNote: this will be `1` if Campaign.is_monthly is `true`",
+            "examples": [
+              "1"
+            ]
           },
           "pledge_relationship_start": {
             "type": [
@@ -750,7 +2739,10 @@
           },
           "will_pay_amount_cents": {
             "type": "number",
-            "description": "The amount in cents the user will pay at the next pay cycle"
+            "description": "The amount in cents the user will pay at the next pay cycle",
+            "examples": [
+              "500"
+            ]
           }
         }
       },
@@ -1212,7 +3204,7 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/200"
+            "$ref": "#/components/responses/campaignResponse"
           },
           "400": {
             "$ref": "#/components/responses/400"
@@ -1245,7 +3237,7 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/200"
+            "$ref": "#/components/responses/campaignsResponse"
           },
           "400": {
             "$ref": "#/components/responses/400"
@@ -1278,7 +3270,7 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/200"
+            "$ref": "#/components/responses/userResponse"
           },
           "400": {
             "$ref": "#/components/responses/400"
@@ -1314,7 +3306,7 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/200"
+            "$ref": "#/components/responses/membersResponse"
           },
           "400": {
             "$ref": "#/components/responses/400"
@@ -1350,7 +3342,7 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/200"
+            "$ref": "#/components/responses/memberResponse"
           },
           "400": {
             "$ref": "#/components/responses/400"
@@ -1386,7 +3378,7 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/200"
+            "$ref": "#/components/responses/postsResponse"
           },
           "400": {
             "$ref": "#/components/responses/400"
@@ -1422,7 +3414,7 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/200"
+            "$ref": "#/components/responses/postResponse"
           },
           "400": {
             "$ref": "#/components/responses/400"
@@ -1511,7 +3503,7 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/200"
+            "$ref": "#/components/responses/webhookResponse"
           },
           "400": {
             "$ref": "#/components/responses/400"
@@ -1544,7 +3536,7 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/200"
+            "$ref": "#/components/responses/webhooksResponse"
           },
           "400": {
             "$ref": "#/components/responses/400"
@@ -1647,7 +3639,7 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/200"
+            "$ref": "#/components/responses/webhooksResponse"
           },
           "400": {
             "$ref": "#/components/responses/400"

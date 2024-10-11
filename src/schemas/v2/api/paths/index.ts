@@ -1,3 +1,4 @@
+import { Route } from '../types/paths'
 import campaign from './campaign'
 import identity  from './identity'
 import member from './member'
@@ -10,4 +11,4 @@ export default [
     ...member,
     ...post,
     ...webhook,
-]
+] as Route[]

@@ -32,6 +32,9 @@ function createResourceSchemas <T extends string> (options: ResourceSchemaOption
                     const nullable = property.getType().isNullable()
                     const baseType = type.getBaseTypeOfLiteralType().getText()
                     const format = formatMap?.[property.getName()]
+                    const examples = property.getJsDocs().at(0)?.getTags()
+                        .filter(tag => tag.getTagName() === 'example')
+                        .map(tag => tag.getCommentText())
 
                     return {
                         ...properties,
@@ -52,6 +55,7 @@ function createResourceSchemas <T extends string> (options: ResourceSchemaOption
                             ),
                             ...(format != undefined ? { format } : {}),
                             description: getJsDocDescription(property),
+                            ...(examples != undefined && examples.length ? { examples: examples } : {}),
                         }
                     }
                 }, {})

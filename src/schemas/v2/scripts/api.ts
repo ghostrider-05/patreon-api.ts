@@ -1,19 +1,12 @@
 import { writeFile } from 'fs/promises'
 
-// import { SchemaRelationshipKeys, Type } from '../../../v2'
+import { RequestMethod } from '../../../v2'
 
 import details from '../api/details'
 import routes from '../api/paths/'
 import * as components from '../api/components/'
+import { createResponse } from '../api/components/responses'
 import type { Route } from '../api/types/paths'
-import { RequestMethod } from '../../../v2'
-
-// const relationshipKeys = SchemaRelationshipKeys as Record<Type, {
-//     resourceKey: Type
-//     includeKey: string
-//     isArray: boolean
-//     isRelated: boolean
-// }[]>
 
 interface SchemaOptions {
     fileName: string
@@ -31,12 +24,6 @@ function createPaths (options: PathSchemaOptions) {
         ...obj,
         [options.base + path.route(`{${path.params?.id ?? 'id'}}`)]: path.methods.reduce((options, data) => {
             const { id, method, body } = data
-            // const includes = relationshipKeys[path.resource].map(key => key.includeKey)
-            // const resources = includes.map(includeKey => {
-            //     // Throw when includes field is not found
-            //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            //     return relationshipKeys[path.resource].find(key => key.includeKey === includeKey)!.resourceKey
-            // }).concat(path.resource)
 
             return {
                 ...options,
@@ -62,21 +49,23 @@ function createPaths (options: PathSchemaOptions) {
                     parameters: [
                         ...(path.params ? [
                             {
-                                '$ref': `#/components/parameters/${path.params.id ?? 'id'}`,
+                                $ref: `#/components/parameters/${path.params.id ?? 'id'}`,
                             }
                         ] : []),
                         ...(method === RequestMethod.Get ? [
                             {
-                                '$ref': '#/components/parameters/include',
+                                $ref: '#/components/parameters/include',
                             }
                         ]: []),
                         {
-                            '$ref': '#/components/parameters/userAgent',
+                            $ref: '#/components/parameters/userAgent',
                         },
                     ],
                     responses: {
-                        '200': { '$ref': '#/components/responses/200' },
-                        '400': { '$ref': '#/components/responses/400' },
+                        '200': {
+                            $ref: `#/components/responses/${path.resource}${path.response?.array ? 's' : ''}Response`
+                        },
+                        '400': { $ref: '#/components/responses/400' },
                     },
                     security: [
                         {
@@ -95,7 +84,23 @@ export async function writeOpenAPISchema(options: SchemaOptions) {
 
     await writeFile(fileName, JSON.stringify({
         ...details,
-        components,
+        components: {
+            ...components,
+            responses: {
+                ...components.responses,
+                ...routes.reduce((obj, route) => ({
+                    ...obj,
+                    [`${route.resource}${route.response?.array ? 's' : ''}Response`]: {
+                        description: 'OK',
+                        content: {
+                            'application/json': {
+                                schema: createResponse(route.resource, route.response?.array),
+                            }
+                        }
+                    }
+                }), {})
+            }
+        },
         paths: createPaths({
             base: '/api/oauth/v2',
             routes,
