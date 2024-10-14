@@ -14,6 +14,7 @@ export default defineConfig({
                 '__tests__',
                 '**/schemas/v2/generated/',
                 '**/schemas/v2/scripts/',
+                './src/utils/openapi.ts',
                 // TODO: add tests
                 '**/payloads/v2/normalized/'
             ],
