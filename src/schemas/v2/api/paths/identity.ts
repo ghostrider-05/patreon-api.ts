@@ -3,7 +3,7 @@ import {
     RequestMethod,
     Type,
 } from '../../../../v2'
-import type { Route } from '../types/paths'
+import type { Route } from '../../../../utils/openapi'
 
 const resource = Type.User
 const tags = [

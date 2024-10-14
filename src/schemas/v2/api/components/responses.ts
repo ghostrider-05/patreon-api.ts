@@ -1,8 +1,10 @@
 import { Type } from '../../../../v2'
+import type { Route } from '../../../../utils/openapi'
+
 import { getResourceParameters } from './parameters'
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-function createBaseItem (resource: Type) {
+function createBaseItem(resource: Type) {
     return {
         id: {
             type: 'string',
@@ -15,7 +17,7 @@ function createBaseItem (resource: Type) {
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-export function createResponse (resource: Type, array?: boolean) {
+function createResponse(resource: Type, array?: boolean) {
     const { includesKeys, resources } = getResourceParameters(resource)
 
     const data = {
@@ -62,42 +64,60 @@ export function createResponse (resource: Type, array?: boolean) {
                 }
             },
             ...(array
-                ? { meta: { properties: {
-                    total: { type: 'number' },
-                    pagination: {
+                ? {
+                    meta: {
                         properties: {
-                            cursors: {
+                            total: { type: 'number' },
+                            pagination: {
                                 properties: {
-                                    next: { type: ['string', 'null'] }
+                                    cursors: {
+                                        properties: {
+                                            next: { type: ['string', 'null'] }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                } } }
+                }
                 : { links: { properties: { self: { type: 'string' } } } }
             )
         }
     }
 }
 
-export default {
-    '200': {
-        description: 'OK',
-    },
-    '400': {
-        description: 'Something was wrong with your request (syntax, size too large, etc.)',
-        content: {
-            'application/json': {
-                schema: {
-                    type: 'array',
-                    items: {
-                        $ref: '#/components/schemas/APIError',
-                    },
+// eslint-disable-next-line jsdoc/require-jsdoc
+export default function (routes: Route[]) {
+    return {
+        '200': {
+            description: 'OK',
+        },
+        '400': {
+            description: 'Something was wrong with your request (syntax, size too large, etc.)',
+            content: {
+                'application/json': {
+                    schema: {
+                        type: 'array',
+                        items: {
+                            $ref: '#/components/schemas/APIError',
+                        },
+                    }
                 }
             }
-        }
-    },
-    '401': {
-        description: 'Authentication failed (bad API key, invalid OAuth token, incorrect scopes, etc.)',
-    },
+        },
+        '401': {
+            description: 'Authentication failed (bad API key, invalid OAuth token, incorrect scopes, etc.)',
+        },
+        ...routes.reduce((obj, route) => ({
+            ...obj,
+            [`${route.resource}${route.response?.array ? 's' : ''}Response`]: {
+                description: 'OK',
+                content: {
+                    'application/json': {
+                        schema: createResponse(route.resource, route.response?.array),
+                    }
+                }
+            }
+        }), {}),
+    }
 }

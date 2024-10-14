@@ -1,4 +1,4 @@
-import { writeOpenAPISchema } from './api'
+import writeOpenAPISchema from './api'
 import { syncResourceKeys } from './keys'
 import { syncRelationships } from './relationships'
 
@@ -7,10 +7,7 @@ async function syncSchemas () {
     await syncResourceKeys()
     await syncRelationships()
 
-    await writeOpenAPISchema({
-        fileName: './openapi.json',
-        spacing: 2,
-    })
+    await writeOpenAPISchema()
 
     process.exit(0)
 }

@@ -17,4 +17,4 @@ jobs:
       - name: Validate Patreon API
         uses: char0n/apidom-validate@v1
         with:
-          definition-file: 'openapi.json'
+          definition-file: './src/schemas/v2/generated/openapi.json'
