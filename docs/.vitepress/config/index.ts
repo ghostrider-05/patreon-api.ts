@@ -1,6 +1,10 @@
 import { defineConfig } from 'vitepress'
 
+import { useSidebar } from 'vitepress-openapi'
+
 import * as shared from './shared'
+
+import { fetchOpenAPISchema, openAPIUrlV2 } from '../theme/openapi'
 
 import {
     author,
@@ -14,7 +18,8 @@ import {
 function createOverview(isSidebar = false) {
     return [
         shared.createGuideItem(isSidebar),
-        shared.createPlaygroundItem(isSidebar),
+        ...(!isSidebar ? [{ text: 'API', link: '/api/', activeMatch: '/api/' }] : []),
+        // shared.createPlaygroundItem(isSidebar),
         shared.createAppsItem(),
         shared.createLinksItem(version),
     ]
@@ -35,7 +40,30 @@ export default defineConfig({
 
     themeConfig: {
         nav: createOverview(),
-        sidebar: createOverview(true),
+        sidebar: {
+            '/guide/': createOverview(true),
+            '/apps/': createOverview(true),
+            '/api/': [
+                {
+                    text: 'Patreon API',
+                    items: [
+                        {
+                            text: 'Overview',
+                            link: '/api',
+                        },
+                        ...useSidebar({
+                            spec: await fetchOpenAPISchema(openAPIUrlV2),
+                            linkPrefix: '/api/',
+                        }).generateSidebarGroups(),
+                        {
+                            text: 'OpenAPI schema',
+                            link: openAPIUrlV2,
+                            target: '_blank',
+                        }
+                    ]
+                }
+            ]
+        },
 
         externalLinkIcon: true,
         editLink: {

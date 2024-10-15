@@ -2,6 +2,7 @@
 
 type SharedItem = {
     text: string
+    activeMatch?: string
 } & ({ link: string } | { items: SharedItem[] } )
 
 export function createAppsItem (): SharedItem {

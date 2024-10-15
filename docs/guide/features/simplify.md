@@ -7,6 +7,51 @@ The Patreon API returns data in the [JSON:API](https://jsonapi.org/) format with
 
 ## normalized
 
+Using a normalized response will combine all `relationships` with `included` data. An example:
+
+```json
+{
+    "data": {
+        "type": "campaign",
+        "id": "id",
+        "attributes": {
+            "created_at": "<date>"
+        },
+        "relationships": {
+            "creator": {
+                "data": {
+                    "type": "user",
+                    "id": "user_id"
+                }
+            }
+        }
+    },
+    "included": [
+        {
+            "type": "user",
+            "id": "user_id",
+            "attributes": {
+                "full_name": "John Doe"
+            }
+        }
+    ]
+}
+```
+
+Will be converted to:
+
+```json
+{
+    "type": "campaign",
+    "id": "id",
+    "created_at": "<date>",
+    "creator": {
+        "type": "user",
+        "id": "user_id",
+        "full_name": "John Doe"
+    }
+}
+```
 
 ## simplified
 
