@@ -115,7 +115,7 @@ export default [
         methods: [
             {
                 method: RequestMethod.Patch,
-                id: 'patchWebhook',
+                id: 'editWebhook',
                 body: patchWebhookBody,
             },
         ],
@@ -134,7 +134,7 @@ export default [
             },
             {
                 method: RequestMethod.Post,
-                id: 'postWebhook',
+                id: 'createWebhook',
                 body: postWebhooksBody,
             },
         ],

@@ -11,6 +11,8 @@ export interface Route {
         | ((id: string) => string)
         | (() => string)
     resource: Type
+    description?: string
+    summary?: string
     tags: string[]
     scopes?: PatreonOauthScope[]
     params?: {
@@ -23,6 +25,9 @@ export interface Route {
         method: RequestMethod
         id: string
         body?: Record<string, unknown>
+        deprecated?: boolean
+        description?: string
+        summary?: string
     }[]
 }
 
@@ -88,9 +93,16 @@ function createPaths (schema: PathSchemaOptions) {
 
             return {
                 ...options,
+                summary: path.summary ?? '',
+                description: path.description ?? '',
                 [method.toLowerCase()]: {
                     tags: path.tags,
                     operationId: id,
+                    description: data.description ?? '',
+                    summary: data.summary
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        ?? (id.at(0)!.toUpperCase() + id.slice(1).split(/(?=[A-Z])/).map(w => w.toLowerCase()).join(' ')),
+                    deprecated: data.deprecated ?? false,
                     ...(externalDocs ? { externalDocs } : {}),
                     ...requestBody,
                     parameters,

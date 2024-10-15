@@ -3182,11 +3182,16 @@
   },
   "paths": {
     "/api/oauth/v2/campaigns/{campaign_id}": {
+      "summary": "",
+      "description": "",
       "get": {
         "tags": [
           "resource"
         ],
         "operationId": "getCampaign",
+        "description": "",
+        "summary": "Get campaign",
+        "deprecated": false,
         "externalDocs": {
           "description": "Official documentation",
           "url": "https://docs.patreon.com/#get-api-oauth2-v2-campaigns-campaign_id"
@@ -3218,11 +3223,16 @@
       }
     },
     "/api/oauth/v2/campaigns": {
+      "summary": "",
+      "description": "",
       "get": {
         "tags": [
           "resource"
         ],
         "operationId": "getCampaigns",
+        "description": "",
+        "summary": "Get campaigns",
+        "deprecated": false,
         "externalDocs": {
           "description": "Official documentation",
           "url": "https://docs.patreon.com/#get-api-oauth2-v2-campaigns"
@@ -3251,11 +3261,16 @@
       }
     },
     "/api/oauth/v2/identity": {
+      "summary": "",
+      "description": "",
       "get": {
         "tags": [
           "resource"
         ],
         "operationId": "getIdentity",
+        "description": "",
+        "summary": "Get identity",
+        "deprecated": false,
         "externalDocs": {
           "description": "Official documentation",
           "url": "https://docs.patreon.com/#get-api-oauth2-v2-identity"
@@ -3284,11 +3299,16 @@
       }
     },
     "/api/oauth/v2/campaigns/{campaign_id}/members": {
+      "summary": "",
+      "description": "",
       "get": {
         "tags": [
           "resource"
         ],
         "operationId": "getCampaignMembers",
+        "description": "",
+        "summary": "Get campaign members",
+        "deprecated": false,
         "externalDocs": {
           "description": "Official documentation",
           "url": "https://docs.patreon.com/#get-api-oauth2-v2-campaigns-campaign_id-members"
@@ -3320,11 +3340,16 @@
       }
     },
     "/api/oauth/v2/members/{id}": {
+      "summary": "",
+      "description": "",
       "get": {
         "tags": [
           "resource"
         ],
         "operationId": "getMember",
+        "description": "",
+        "summary": "Get member",
+        "deprecated": false,
         "externalDocs": {
           "description": "Official documentation",
           "url": "https://docs.patreon.com/#get-api-oauth2-v2-members-id"
@@ -3356,11 +3381,16 @@
       }
     },
     "/api/oauth/v2/campaigns/{campaign_id}/posts": {
+      "summary": "",
+      "description": "",
       "get": {
         "tags": [
           "resource"
         ],
         "operationId": "getCampaignPosts",
+        "description": "",
+        "summary": "Get campaign posts",
+        "deprecated": false,
         "externalDocs": {
           "description": "Official documentation",
           "url": "https://docs.patreon.com/#get-api-oauth2-v2-campaigns-campaign_id-posts"
@@ -3392,11 +3422,16 @@
       }
     },
     "/api/oauth/v2/posts/{id}": {
+      "summary": "",
+      "description": "",
       "get": {
         "tags": [
           "resource"
         ],
         "operationId": "getPost",
+        "description": "",
+        "summary": "Get post",
+        "deprecated": false,
         "externalDocs": {
           "description": "Official documentation",
           "url": "https://docs.patreon.com/#get-api-oauth2-v2-posts-id"
@@ -3428,11 +3463,16 @@
       }
     },
     "/api/oauth/v2/webhooks/{id}": {
+      "summary": "",
+      "description": "",
       "patch": {
         "tags": [
           "webhook"
         ],
-        "operationId": "patchWebhook",
+        "operationId": "editWebhook",
+        "description": "",
+        "summary": "Edit webhook",
+        "deprecated": false,
         "externalDocs": {
           "description": "Official documentation",
           "url": "https://docs.patreon.com/#patch-api-oauth2-v2-webhooks-id"
@@ -3517,11 +3557,16 @@
       }
     },
     "/api/oauth/v2/webhooks": {
+      "summary": "",
+      "description": "",
       "get": {
         "tags": [
           "webhook"
         ],
         "operationId": "getWebhooks",
+        "description": "",
+        "summary": "Get webhooks",
+        "deprecated": false,
         "externalDocs": {
           "description": "Official documentation",
           "url": "https://docs.patreon.com/#get-api-oauth2-v2-webhooks"
@@ -3552,7 +3597,10 @@
         "tags": [
           "webhook"
         ],
-        "operationId": "postWebhook",
+        "operationId": "createWebhook",
+        "description": "",
+        "summary": "Create webhook",
+        "deprecated": false,
         "externalDocs": {
           "description": "Official documentation",
           "url": "https://docs.patreon.com/#post-api-oauth2-v2-webhooks"
