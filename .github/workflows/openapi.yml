@@ -1,7 +1,7 @@
 name: OpenAPI
 on: 
   push:
-    paths: ./src/schemas/v2/generated/openapi.json
+    paths: '**/openapi.json'
     branches: main
   pull_request:
     paths: openapi.json
