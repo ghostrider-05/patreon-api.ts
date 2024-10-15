@@ -1,5 +1,7 @@
 import { SchemaRelationshipKeys, Type } from '../../../../v2'
 
+import { RestClient } from '../../../../rest/v2/oauth2/rest'
+
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function getResourceParameters (resource: Type) {
     const relationshipKeys = SchemaRelationshipKeys as Record<Type, {
@@ -57,6 +59,7 @@ export default {
         required: true,
         schema: {
             type: 'string',
+            default: new RestClient().userAgent,
         }
     },
 }
