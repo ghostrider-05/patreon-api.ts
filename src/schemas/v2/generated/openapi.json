@@ -97,10 +97,8 @@
       }
     },
     "responses": {
-      "200": {
-        "description": "OK"
-      },
       "400": {
+        "summary": "Bad Request",
         "description": "Something was wrong with your request (syntax, size too large, etc.)",
         "content": {
           "application/json": {
@@ -111,13 +109,277 @@
               }
             }
           }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
         }
       },
       "401": {
-        "description": "Authentication failed (bad API key, invalid OAuth token, incorrect scopes, etc.)"
+        "summary": "Unauthorized",
+        "description": "Authentication failed (bad API key, invalid OAuth token, incorrect scopes, etc.)",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/APIError"
+              }
+            }
+          }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
+        }
+      },
+      "403": {
+        "summary": "Forbidden",
+        "description": "The requested is hidden for administrators only.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/APIError"
+              }
+            }
+          }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
+        }
+      },
+      "404": {
+        "summary": "Not Found",
+        "description": "The specified resource could not be found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/APIError"
+              }
+            }
+          }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
+        }
+      },
+      "405": {
+        "summary": "Method Not Allowed",
+        "description": "You tried to access a resource with an invalid method.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/APIError"
+              }
+            }
+          }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
+        }
+      },
+      "406": {
+        "summary": "Not Acceptable",
+        "description": "You requested a format that isn't json.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/APIError"
+              }
+            }
+          }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
+        }
+      },
+      "410": {
+        "summary": "Gone",
+        "description": "The resource requested has been removed from our servers.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/APIError"
+              }
+            }
+          }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
+        }
+      },
+      "429": {
+        "summary": "Too Many Requests",
+        "description": "Slow down!",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/APIError"
+              }
+            }
+          }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
+        }
+      },
+      "500": {
+        "summary": "Internal Server Error",
+        "description": "Our server ran into a problem while processing this request. Please try again later.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/APIError"
+              }
+            }
+          }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
+        }
+      },
+      "503": {
+        "summary": "Service Unavailable",
+        "description": "We're temporarily offline for maintenance. Please try again later.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/APIError"
+              }
+            }
+          }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
+        }
       },
       "campaignResponse": {
-        "description": "OK",
+        "summary": "OK",
+        "description": "Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -365,10 +627,25 @@
               }
             }
           }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
         }
       },
       "campaignsResponse": {
-        "description": "OK",
+        "summary": "OK",
+        "description": "Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -633,10 +910,25 @@
               }
             }
           }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
         }
       },
       "userResponse": {
-        "description": "OK",
+        "summary": "OK",
+        "description": "Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -788,10 +1080,25 @@
               }
             }
           }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
         }
       },
       "membersResponse": {
-        "description": "OK",
+        "summary": "OK",
+        "description": "Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -1114,10 +1421,25 @@
               }
             }
           }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
         }
       },
       "memberResponse": {
-        "description": "OK",
+        "summary": "OK",
+        "description": "Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -1423,10 +1745,25 @@
               }
             }
           }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
         }
       },
       "postsResponse": {
-        "description": "OK",
+        "summary": "OK",
+        "description": "Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -1600,10 +1937,25 @@
               }
             }
           }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
         }
       },
       "postResponse": {
-        "description": "OK",
+        "summary": "OK",
+        "description": "Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -1760,10 +2112,25 @@
               }
             }
           }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
         }
       },
       "webhookResponse": {
-        "description": "OK",
+        "summary": "OK",
+        "description": "Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -1920,10 +2287,25 @@
               }
             }
           }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
         }
       },
       "webhooksResponse": {
-        "description": "OK",
+        "summary": "OK",
+        "description": "Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -2096,6 +2478,20 @@
                 }
               }
             }
+          }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
           }
         }
       }
@@ -3199,10 +3595,73 @@
         },
         "parameters": [
           {
-            "$ref": "#/components/parameters/campaign_id"
+            "name": "include",
+            "in": "query",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "benefits",
+                  "creator",
+                  "goals",
+                  "tiers"
+                ]
+              }
+            }
           },
           {
-            "$ref": "#/components/parameters/include"
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "benefit": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/benefit"
+                  }
+                },
+                "user": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/user"
+                  }
+                },
+                "goal": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/goal"
+                  }
+                },
+                "tier": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/tier"
+                  }
+                },
+                "campaign": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/campaign"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "$ref": "#/components/parameters/campaign_id"
           },
           {
             "$ref": "#/components/parameters/userAgent"
@@ -3214,6 +3673,33 @@
           },
           "400": {
             "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "405": {
+            "$ref": "#/components/responses/405"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "410": {
+            "$ref": "#/components/responses/410"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
           }
         },
         "security": [
@@ -3242,7 +3728,98 @@
         },
         "parameters": [
           {
-            "$ref": "#/components/parameters/include"
+            "name": "include",
+            "in": "query",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "benefits",
+                  "creator",
+                  "goals",
+                  "tiers"
+                ]
+              }
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "benefit": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/benefit"
+                  }
+                },
+                "user": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/user"
+                  }
+                },
+                "goal": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/goal"
+                  }
+                },
+                "tier": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/tier"
+                  }
+                },
+                "campaign": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/campaign"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "cursor": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "number"
+                }
+              }
+            }
           },
           {
             "$ref": "#/components/parameters/userAgent"
@@ -3254,6 +3831,33 @@
           },
           "400": {
             "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "405": {
+            "$ref": "#/components/responses/405"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "410": {
+            "$ref": "#/components/responses/410"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
           }
         },
         "security": [
@@ -3282,7 +3886,54 @@
         },
         "parameters": [
           {
-            "$ref": "#/components/parameters/include"
+            "name": "include",
+            "in": "query",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "campaign",
+                  "memberships"
+                ]
+              }
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "campaign": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/campaign"
+                  }
+                },
+                "member": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/member"
+                  }
+                },
+                "user": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/user"
+                  }
+                }
+              }
+            }
           },
           {
             "$ref": "#/components/parameters/userAgent"
@@ -3294,6 +3945,33 @@
           },
           "400": {
             "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "405": {
+            "$ref": "#/components/responses/405"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "410": {
+            "$ref": "#/components/responses/410"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
           }
         },
         "security": [
@@ -3320,10 +3998,109 @@
         },
         "parameters": [
           {
-            "$ref": "#/components/parameters/campaign_id"
+            "name": "include",
+            "in": "query",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "address",
+                  "campaign",
+                  "currently_entitled_tiers",
+                  "pledge_history",
+                  "user"
+                ]
+              }
+            }
           },
           {
-            "$ref": "#/components/parameters/include"
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "address": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/address"
+                  }
+                },
+                "campaign": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/campaign"
+                  }
+                },
+                "tier": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/tier"
+                  }
+                },
+                "pledge-event": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/pledge-event"
+                  }
+                },
+                "user": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/user"
+                  }
+                },
+                "member": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/member"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "cursor": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          {
+            "$ref": "#/components/parameters/campaign_id"
           },
           {
             "$ref": "#/components/parameters/userAgent"
@@ -3335,6 +4112,33 @@
           },
           "400": {
             "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "405": {
+            "$ref": "#/components/responses/405"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "410": {
+            "$ref": "#/components/responses/410"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
           }
         },
         "security": [
@@ -3363,10 +4167,81 @@
         },
         "parameters": [
           {
-            "$ref": "#/components/parameters/id"
+            "name": "include",
+            "in": "query",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "address",
+                  "campaign",
+                  "currently_entitled_tiers",
+                  "pledge_history",
+                  "user"
+                ]
+              }
+            }
           },
           {
-            "$ref": "#/components/parameters/include"
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "address": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/address"
+                  }
+                },
+                "campaign": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/campaign"
+                  }
+                },
+                "tier": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/tier"
+                  }
+                },
+                "pledge-event": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/pledge-event"
+                  }
+                },
+                "user": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/user"
+                  }
+                },
+                "member": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/member"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "$ref": "#/components/parameters/id"
           },
           {
             "$ref": "#/components/parameters/userAgent"
@@ -3378,6 +4253,33 @@
           },
           "400": {
             "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "405": {
+            "$ref": "#/components/responses/405"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "410": {
+            "$ref": "#/components/responses/410"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
           }
         },
         "security": [
@@ -3406,10 +4308,85 @@
         },
         "parameters": [
           {
-            "$ref": "#/components/parameters/campaign_id"
+            "name": "include",
+            "in": "query",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "user",
+                  "campaign"
+                ]
+              }
+            }
           },
           {
-            "$ref": "#/components/parameters/include"
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/user"
+                  }
+                },
+                "campaign": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/campaign"
+                  }
+                },
+                "post": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/post"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "cursor": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          {
+            "$ref": "#/components/parameters/campaign_id"
           },
           {
             "$ref": "#/components/parameters/userAgent"
@@ -3421,6 +4398,33 @@
           },
           "400": {
             "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "405": {
+            "$ref": "#/components/responses/405"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "410": {
+            "$ref": "#/components/responses/410"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
           }
         },
         "security": [
@@ -3449,10 +4453,57 @@
         },
         "parameters": [
           {
-            "$ref": "#/components/parameters/id"
+            "name": "include",
+            "in": "query",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "user",
+                  "campaign"
+                ]
+              }
+            }
           },
           {
-            "$ref": "#/components/parameters/include"
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/user"
+                  }
+                },
+                "campaign": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/campaign"
+                  }
+                },
+                "post": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/post"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "$ref": "#/components/parameters/id"
           },
           {
             "$ref": "#/components/parameters/userAgent"
@@ -3464,6 +4515,33 @@
           },
           "400": {
             "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "405": {
+            "$ref": "#/components/responses/405"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "410": {
+            "$ref": "#/components/responses/410"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
           }
         },
         "security": [
@@ -3560,6 +4638,33 @@
           },
           "400": {
             "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "405": {
+            "$ref": "#/components/responses/405"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "410": {
+            "$ref": "#/components/responses/410"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
           }
         },
         "security": [
@@ -3588,7 +4693,82 @@
         },
         "parameters": [
           {
-            "$ref": "#/components/parameters/include"
+            "name": "include",
+            "in": "query",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "campaign",
+                  "client"
+                ]
+              }
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "campaign": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/campaign"
+                  }
+                },
+                "client": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/client"
+                  }
+                },
+                "webhook": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/webhook"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "cursor": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "number"
+                }
+              }
+            }
           },
           {
             "$ref": "#/components/parameters/userAgent"
@@ -3600,6 +4780,33 @@
           },
           "400": {
             "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "405": {
+            "$ref": "#/components/responses/405"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "410": {
+            "$ref": "#/components/responses/410"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
           }
         },
         "security": [
@@ -3708,6 +4915,33 @@
           },
           "400": {
             "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "405": {
+            "$ref": "#/components/responses/405"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "410": {
+            "$ref": "#/components/responses/410"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
           }
         },
         "security": [

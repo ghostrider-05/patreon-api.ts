@@ -1,4 +1,4 @@
-import { Type } from '../../../../v2'
+import { PATREON_RESPONSE_HEADERS, Type } from '../../../../v2'
 import type { Route } from '../../../../utils/openapi'
 
 import { getResourceParameters } from './parameters'
@@ -86,37 +86,93 @@ function createResponse(resource: Type, array?: boolean) {
     }
 }
 
+const errorTable = {
+    '400': {
+        summary: 'Bad Request',
+        description: 'Something was wrong with your request (syntax, size too large, etc.)',
+    },
+    '401': {
+        summary: 'Unauthorized',
+        description: 'Authentication failed (bad API key, invalid OAuth token, incorrect scopes, etc.)',
+    },
+    '403': {
+        summary: 'Forbidden',
+        description: 'The requested is hidden for administrators only.',
+    },
+    '404': {
+        summary: 'Not Found',
+        description: 'The specified resource could not be found.',
+    },
+    '405': {
+        summary: 'Method Not Allowed',
+        description: 'You tried to access a resource with an invalid method.',
+    },
+    '406': {
+        summary: 'Not Acceptable',
+        description: 'You requested a format that isn\'t json.',
+    },
+    '410': {
+        summary: 'Gone',
+        description: 'The resource requested has been removed from our servers.',
+    },
+    '429': {
+        summary: 'Too Many Requests',
+        description: 'Slow down!',
+    },
+    '500': {
+        summary: 'Internal Server Error',
+        description: 'Our server ran into a problem while processing this request. Please try again later.',
+    },
+    '503': {
+        summary: 'Service Unavailable',
+        description: 'We\'re temporarily offline for maintenance. Please try again later.',
+    },
+}
+
+export const errorCodes = Object.keys(errorTable) as (keyof typeof errorTable)[]
+
 // eslint-disable-next-line jsdoc/require-jsdoc
 export default function (routes: Route[]) {
-    return {
+    const successTable = {
         '200': {
-            description: 'OK',
+            summary: 'OK',
+            description: 'Completed your request succesfully',
         },
-        '400': {
-            description: 'Something was wrong with your request (syntax, size too large, etc.)',
-            content: {
-                'application/json': {
-                    schema: {
-                        type: 'array',
-                        items: {
-                            $ref: '#/components/schemas/APIError',
-                        },
+    }
+
+    const headers = Object.values(PATREON_RESPONSE_HEADERS).reduce((headers, name) => ({
+        ...headers,
+        [name]: { $ref: `#/components/headers/${name}`}
+    }), {})
+
+    return {
+        ...Object.entries(errorTable).reduce((response, table) => ({
+            ...response,
+            [table[0]]: {
+                ...table[1],
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'array',
+                            items: {
+                                $ref: '#/components/schemas/APIError',
+                            },
+                        }
                     }
-                }
+                },
+                headers,
             }
-        },
-        '401': {
-            description: 'Authentication failed (bad API key, invalid OAuth token, incorrect scopes, etc.)',
-        },
+        }), {}),
         ...routes.reduce((obj, route) => ({
             ...obj,
             [`${route.resource}${route.response?.array ? 's' : ''}Response`]: {
-                description: 'OK',
+                ...successTable[200],
                 content: {
                     'application/json': {
                         schema: createResponse(route.resource, route.response?.array),
                     }
-                }
+                },
+                headers,
             }
         }), {}),
     }

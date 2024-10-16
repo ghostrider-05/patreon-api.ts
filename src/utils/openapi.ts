@@ -41,14 +41,17 @@ interface PathSchemaOptions {
         | string
         | { ref: string | object, methods?: RequestMethod[], param?: keyof NonNullable<Route['params']> }
     )[]
-    responses: (route: Route) => (
-        | number
-        | string
-        | { status: number | string, description?: string, ref?: string }
-    )[]
-    documentation?: (route: Route, method: RequestMethod) => {
-        url: string
-        description?: string
+    getRoute: (route: Route, method: RequestMethod) => {
+        documentation?: {
+            url: string
+            description?: string
+        }
+        parameters?: (string | object)[]
+        responses: (
+            | number
+            | string
+            | { status: number | string, description?: string, ref?: string }
+        )[]
     }
 }
 
@@ -66,7 +69,12 @@ function createPaths (schema: PathSchemaOptions) {
         ...obj,
         [schema.base + path.route(schema.formatId(path.params?.id ?? null))]: path.methods.reduce((options, data) => {
             const { id, method, body } = data
-            const externalDocs = schema.documentation?.(path, method)
+            const {
+                documentation: externalDocs,
+                responses: routeResponses,
+                parameters: routeParameters,
+            } = schema.getRoute(path, method)
+
             const requestBody = body != undefined
                 ? {
                     requestBody: {
@@ -82,7 +90,7 @@ function createPaths (schema: PathSchemaOptions) {
                         && (ref.param ? path.params?.[ref.param] != undefined : true)
                 }).map(ref => ref.param || typeof ref.ref === 'string' ? ({ $ref: `#/components/parameters/${ref.param ? path.params?.[ref.param] : ref.ref}` }) : ref.ref)
 
-            const responses = schema.responses(path)
+            const responses = routeResponses
                 .map(res => typeof res === 'object' ? res : { status: res })
                 .reduce((data, res) => ({
                     ...data,
@@ -106,7 +114,10 @@ function createPaths (schema: PathSchemaOptions) {
                     deprecated: data.deprecated ?? false,
                     ...(externalDocs ? { externalDocs } : {}),
                     ...requestBody,
-                    parameters,
+                    parameters: [
+                        ...(routeParameters ?? []),
+                        ...parameters,
+                    ],
                     responses,
                     security: [
                         {
