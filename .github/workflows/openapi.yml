@@ -4,7 +4,7 @@ on:
     paths: '**/openapi.json'
     branches: main
   pull_request:
-    paths: openapi.json
+    paths: '**/openapi.json'
 jobs:
   validate:
     name: Validate
