@@ -27,6 +27,7 @@ export interface Route {
         body?: Record<string, unknown>
         deprecated?: boolean
         description?: string
+        scopes?: PatreonOauthScope[]
         summary?: string
     }[]
 }
@@ -38,7 +39,7 @@ interface PathSchemaOptions {
     formatId: (id: string | null) => string
     parameters: (
         | string
-        | { ref: string, methods?: RequestMethod[], param?: keyof NonNullable<Route['params']> }
+        | { ref: string | object, methods?: RequestMethod[], param?: keyof NonNullable<Route['params']> }
     )[]
     responses: (route: Route) => (
         | number
@@ -79,7 +80,7 @@ function createPaths (schema: PathSchemaOptions) {
                 .filter((ref) => {
                     return (ref.methods == undefined || ref.methods.includes(method))
                         && (ref.param ? path.params?.[ref.param] != undefined : true)
-                }).map(ref => ({ $ref: `#/components/parameters/${ref.param ? path.params?.[ref.param] : ref.ref}` }))
+                }).map(ref => ref.param || typeof ref.ref === 'string' ? ({ $ref: `#/components/parameters/${ref.param ? path.params?.[ref.param] : ref.ref}` }) : ref.ref)
 
             const responses = schema.responses(path)
                 .map(res => typeof res === 'object' ? res : { status: res })
@@ -109,7 +110,7 @@ function createPaths (schema: PathSchemaOptions) {
                     responses,
                     security: [
                         {
-                            auth: path.scopes ?? [],
+                            auth: data.scopes ?? path.scopes ?? [],
                         }
                     ],
                 }

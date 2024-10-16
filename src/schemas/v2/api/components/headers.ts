@@ -1,4 +1,4 @@
-import { PATREON_RESPONSE_HEADERS } from '../../../../v2'
+import { PATREON_RESPONSE_HEADERS, WebhookClient } from '../../../../v2'
 
 export default {
     [PATREON_RESPONSE_HEADERS.UUID]: {
@@ -17,6 +17,16 @@ export default {
         },
     },
     [PATREON_RESPONSE_HEADERS.CfRay]: {
+        schema: {
+            type: 'string',
+        },
+    },
+    [WebhookClient.headers.event]: {
+        schema: {
+            type: 'string',
+        },
+    },
+    [WebhookClient.headers.signature]: {
         schema: {
             type: 'string',
         },

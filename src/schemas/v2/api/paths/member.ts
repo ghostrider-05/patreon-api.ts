@@ -1,5 +1,6 @@
 import {
     Oauth2Routes,
+    PatreonOauthScope,
     RequestMethod,
     Type,
 } from '../../../../v2'
@@ -27,6 +28,9 @@ export default [
         response: {
             array: true,
         },
+        scopes: [
+            PatreonOauthScope.CampaignMembers,
+        ],
     },
     {
         route: Oauth2Routes.member,
@@ -40,6 +44,9 @@ export default [
         ],
         params: {
             id: 'id',
-        }
+        },
+        scopes: [
+            PatreonOauthScope.CampaignMembers,
+        ],
     },
 ] satisfies Route[]

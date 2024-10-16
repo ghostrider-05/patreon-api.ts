@@ -1,5 +1,6 @@
 import {
     Oauth2Routes,
+    PatreonOauthScope,
     RequestMethod,
     Type,
 } from '../../../../v2'
@@ -122,6 +123,9 @@ export default [
         params: {
             id: 'id',
         },
+        scopes: [
+            PatreonOauthScope.ManageCampaignWebhooks,
+        ],
     },
     {
         route: Oauth2Routes.webhooks,
@@ -141,5 +145,8 @@ export default [
         response: {
             array: true,
         },
+        scopes: [
+            PatreonOauthScope.ManageCampaignWebhooks,
+        ],
     },
 ] satisfies Route[]

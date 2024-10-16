@@ -57,6 +57,16 @@
         "schema": {
           "type": "string"
         }
+      },
+      "X-Patreon-Event": {
+        "schema": {
+          "type": "string"
+        }
+      },
+      "X-Patreon-Signature": {
+        "schema": {
+          "type": "string"
+        }
       }
     },
     "parameters": {
@@ -74,16 +84,6 @@
         "required": true,
         "schema": {
           "type": "string"
-        }
-      },
-      "include": {
-        "name": "include",
-        "in": "query",
-        "required": false,
-        "style": "form",
-        "explode": false,
-        "schema": {
-          "type": "array"
         }
       },
       "userAgent": {
@@ -3218,7 +3218,9 @@
         },
         "security": [
           {
-            "auth": []
+            "auth": [
+              "campaigns"
+            ]
           }
         ]
       }
@@ -3256,7 +3258,9 @@
         },
         "security": [
           {
-            "auth": []
+            "auth": [
+              "campaigns"
+            ]
           }
         ]
       }
@@ -3335,7 +3339,9 @@
         },
         "security": [
           {
-            "auth": []
+            "auth": [
+              "campaigns.members"
+            ]
           }
         ]
       }
@@ -3376,7 +3382,9 @@
         },
         "security": [
           {
-            "auth": []
+            "auth": [
+              "campaigns.members"
+            ]
           }
         ]
       }
@@ -3417,7 +3425,9 @@
         },
         "security": [
           {
-            "auth": []
+            "auth": [
+              "campaigns.posts"
+            ]
           }
         ]
       }
@@ -3458,7 +3468,9 @@
         },
         "security": [
           {
-            "auth": []
+            "auth": [
+              "campaigns.posts"
+            ]
           }
         ]
       }
@@ -3552,7 +3564,9 @@
         },
         "security": [
           {
-            "auth": []
+            "auth": [
+              "w:campaigns.webhook"
+            ]
           }
         ]
       }
@@ -3590,7 +3604,9 @@
         },
         "security": [
           {
-            "auth": []
+            "auth": [
+              "w:campaigns.webhook"
+            ]
           }
         ]
       },
@@ -3696,7 +3712,9 @@
         },
         "security": [
           {
-            "auth": []
+            "auth": [
+              "w:campaigns.webhook"
+            ]
           }
         ]
       }

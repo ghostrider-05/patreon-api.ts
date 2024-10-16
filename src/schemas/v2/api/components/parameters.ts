@@ -43,16 +43,6 @@ export default {
             type: 'string',
         },
     },
-    include: {
-        name: 'include',
-        in: 'query',
-        required: false,
-        style: 'form',
-        explode: false,
-        schema: {
-            type: 'array',
-        },
-    },
     userAgent: {
         name: 'User-Agent',
         in: 'header',
