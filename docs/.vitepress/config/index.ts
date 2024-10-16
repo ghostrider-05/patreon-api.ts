@@ -28,7 +28,7 @@ function createOverview(isSidebar: boolean, stars?: unknown) {
         shared.createGuideItem(isSidebar),
         isSidebar
             ? shared.createAppsItem()
-            : { text: 'API', link: '/api/', activeMatch: '/api/' },
+            : { text: 'API', link: '/api/index.html', activeMatch: '/api/' },
         shared.createLinksItem({
             branch,
             bugsUrl: bugs.url,
