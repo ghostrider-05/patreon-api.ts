@@ -98,8 +98,7 @@
     },
     "responses": {
       "400": {
-        "summary": "Bad Request",
-        "description": "Something was wrong with your request (syntax, size too large, etc.)",
+        "description": "Bad Request: Something was wrong with your request (syntax, size too large, etc.)",
         "content": {
           "application/json": {
             "schema": {
@@ -126,8 +125,7 @@
         }
       },
       "401": {
-        "summary": "Unauthorized",
-        "description": "Authentication failed (bad API key, invalid OAuth token, incorrect scopes, etc.)",
+        "description": "Unauthorized: Authentication failed (bad API key, invalid OAuth token, incorrect scopes, etc.)",
         "content": {
           "application/json": {
             "schema": {
@@ -154,8 +152,7 @@
         }
       },
       "403": {
-        "summary": "Forbidden",
-        "description": "The requested is hidden for administrators only.",
+        "description": "Forbidden: The requested is hidden for administrators only.",
         "content": {
           "application/json": {
             "schema": {
@@ -182,8 +179,7 @@
         }
       },
       "404": {
-        "summary": "Not Found",
-        "description": "The specified resource could not be found.",
+        "description": "Not Found: The specified resource could not be found.",
         "content": {
           "application/json": {
             "schema": {
@@ -210,8 +206,7 @@
         }
       },
       "405": {
-        "summary": "Method Not Allowed",
-        "description": "You tried to access a resource with an invalid method.",
+        "description": "Method Not Allowed: You tried to access a resource with an invalid method.",
         "content": {
           "application/json": {
             "schema": {
@@ -238,8 +233,7 @@
         }
       },
       "406": {
-        "summary": "Not Acceptable",
-        "description": "You requested a format that isn't json.",
+        "description": "Not Acceptable: You requested a format that isn't json.",
         "content": {
           "application/json": {
             "schema": {
@@ -266,8 +260,7 @@
         }
       },
       "410": {
-        "summary": "Gone",
-        "description": "The resource requested has been removed from our servers.",
+        "description": "Gone: The resource requested has been removed from our servers.",
         "content": {
           "application/json": {
             "schema": {
@@ -294,8 +287,7 @@
         }
       },
       "429": {
-        "summary": "Too Many Requests",
-        "description": "Slow down!",
+        "description": "Too Many Requests: Slow down!",
         "content": {
           "application/json": {
             "schema": {
@@ -322,8 +314,7 @@
         }
       },
       "500": {
-        "summary": "Internal Server Error",
-        "description": "Our server ran into a problem while processing this request. Please try again later.",
+        "description": "Internal Server Error: Our server ran into a problem while processing this request. Please try again later.",
         "content": {
           "application/json": {
             "schema": {
@@ -350,8 +341,7 @@
         }
       },
       "503": {
-        "summary": "Service Unavailable",
-        "description": "We're temporarily offline for maintenance. Please try again later.",
+        "description": "Service Unavailable: We're temporarily offline for maintenance. Please try again later.",
         "content": {
           "application/json": {
             "schema": {
@@ -378,8 +368,7 @@
         }
       },
       "campaignResponse": {
-        "summary": "OK",
-        "description": "Completed your request succesfully",
+        "description": "OK: Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -644,8 +633,7 @@
         }
       },
       "campaignsResponse": {
-        "summary": "OK",
-        "description": "Completed your request succesfully",
+        "description": "OK: Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -927,8 +915,7 @@
         }
       },
       "userResponse": {
-        "summary": "OK",
-        "description": "Completed your request succesfully",
+        "description": "OK: Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -1097,8 +1084,7 @@
         }
       },
       "membersResponse": {
-        "summary": "OK",
-        "description": "Completed your request succesfully",
+        "description": "OK: Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -1438,8 +1424,7 @@
         }
       },
       "memberResponse": {
-        "summary": "OK",
-        "description": "Completed your request succesfully",
+        "description": "OK: Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -1762,8 +1747,7 @@
         }
       },
       "postsResponse": {
-        "summary": "OK",
-        "description": "Completed your request succesfully",
+        "description": "OK: Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -1954,8 +1938,7 @@
         }
       },
       "postResponse": {
-        "summary": "OK",
-        "description": "Completed your request succesfully",
+        "description": "OK: Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -2129,8 +2112,7 @@
         }
       },
       "webhookResponse": {
-        "summary": "OK",
-        "description": "Completed your request succesfully",
+        "description": "OK: Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {
@@ -2304,8 +2286,7 @@
         }
       },
       "webhooksResponse": {
-        "summary": "OK",
-        "description": "Completed your request succesfully",
+        "description": "OK: Completed your request succesfully",
         "content": {
           "application/json": {
             "schema": {

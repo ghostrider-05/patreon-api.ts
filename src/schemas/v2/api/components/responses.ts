@@ -149,7 +149,7 @@ export default function (routes: Route[]) {
         ...Object.entries(errorTable).reduce((response, table) => ({
             ...response,
             [table[0]]: {
-                ...table[1],
+                description: `${table[1].summary}: ${table[1].description}`,
                 content: {
                     'application/json': {
                         schema: {
@@ -166,7 +166,7 @@ export default function (routes: Route[]) {
         ...routes.reduce((obj, route) => ({
             ...obj,
             [`${route.resource}${route.response?.array ? 's' : ''}Response`]: {
-                ...successTable[200],
+                description: `${successTable[200].summary}: ${successTable[200].description}`,
                 content: {
                     'application/json': {
                         schema: createResponse(route.resource, route.response?.array),
