@@ -1,9 +1,10 @@
 /* eslint-disable jsdoc/require-jsdoc */
+import type { DefaultTheme } from 'vitepress'
 
-type SharedItem = {
-    text: string
-    activeMatch?: string
-} & ({ link: string } | { items: SharedItem[] } )
+type SharedItem = (
+    | DefaultTheme.NavItemWithChildren
+    | DefaultTheme.NavItemWithLink
+) | DefaultTheme.SidebarItem
 
 export function createAppsItem (): SharedItem {
     return {
@@ -25,17 +26,26 @@ export function createAppsItem (): SharedItem {
     }
 }
 
-export function createLinksItem (version: string): SharedItem {
+export function createLinksItem (options: {
+    version: string
+    repoUrl: string
+    bugsUrl: string
+    branch: string
+}): SharedItem {
     return {
-        text: version,
+        text: options.version,
         items: [
             {
                 text: 'Changelog',
-                link: 'https://github.com/ghostrider-05/patreon-api.ts/blob/main/CHANGELOG.md',
+                link: `${options.repoUrl}/blob/${options.branch}/CHANGELOG.md`,
             },
             {
                 text: 'Roadmap',
                 link: 'https://github.com/users/ghostrider-05/projects/5',
+            },
+            {
+                text: 'Report a bug',
+                link: options.bugsUrl,
             },
             {
                 text: 'Contribute',
@@ -46,7 +56,7 @@ export function createLinksItem (version: string): SharedItem {
                     },
                     {
                         text: 'Contributing guide',
-                        link: 'https://github.com/ghostrider-05/patreon-api.ts/blob/main/CONTRIBUTING.md'
+                        link: `${options.repoUrl}/blob/${options.branch}/CONTRIBUTING.md`,
                     },
                 ]
             }
@@ -54,17 +64,8 @@ export function createLinksItem (version: string): SharedItem {
     }
 }
 
-export function createPlaygroundItem (withHeader = false): SharedItem {
-    const base: SharedItem = {
-        text: 'Playground',
-        link: '/guide/playground',
-    }
-
-    return withHeader ? { text: 'Interactive', items: [base] } : base
-}
-
 export function createGuideItem (expandFeatures = false): SharedItem {
-    const features: SharedItem[] = [
+    const features = [
         {
             text: 'Overview',
             link: '/guide/features/',
@@ -87,6 +88,11 @@ export function createGuideItem (expandFeatures = false): SharedItem {
         },
     ]
 
+    if (!expandFeatures) return {
+        text: 'Guide',
+        link: '/guide/introduction',
+    }
+
     return {
         text: 'Guide',
         items: [
@@ -104,7 +110,8 @@ export function createGuideItem (expandFeatures = false): SharedItem {
             },
             {
                 text: 'Features',
-                ...{ ...(expandFeatures ? { items: features, collapsed: false } : { link: '/guide/features/' }) },
+                items: features,
+                collapsed: false,
             },
         ]
     }

@@ -1,7 +1,13 @@
 {
   "name": "@patreon-api.ts/docs",
+  "description": "The documentation site for the patreon-api.ts",
   "private": true,
   "type": "module",
+  "bugs": {
+    "url": "https://github.com/ghostrider-05/patreon-api.ts/issues/"
+  },
+  "homepage": "https://patreon-api.pages.dev",
+  "license": "MIT",
   "scripts": {
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
