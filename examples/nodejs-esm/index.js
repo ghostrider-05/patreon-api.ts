@@ -37,10 +37,14 @@ const createWebhook = false
 if (createWebhook) {
     const test = await client.webhooks.createWebhook({
         campaignId: process.env.CAMPAIGN_ID,
+        // triggers: [
+        //     PatreonWebhookTrigger.PostPublished,
+        // ],
+        // uri: process.env.WEBHOOK_URI,
         triggers: [
-            PatreonWebhookTrigger.PostPublished,
+            PatreonWebhookTrigger.PostUpdated,
         ],
-        uri: process.env.WEBHOOK_URI,
+        uri: 'https://ghostrider-05.com/webhook'
     })
 
     console.log(JSON.stringify(test, null, 4))
@@ -48,7 +52,7 @@ if (createWebhook) {
     const webhooks = await client.webhooks.fetchWebhooks(buildQuery.webhooks(['campaign'])())
 
     for (const webhook of webhooks.data) {
-        if (webhook.attributes.uri === process.env.WEBHOOK_URI) {
+        if (webhook.attributes.paused) {
             await client.webhooks.unpauseWebhook(webhook.id)
         }
     }
