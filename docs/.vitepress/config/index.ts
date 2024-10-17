@@ -18,12 +18,8 @@ import {
 
 const repoUrl = repository.url.replace('.git', ''), branch = 'main'
 
-const stars = fetch('https://api.github.com/repos/ghostrider-05/patreon-api.ts')
-    .then(res => res.json() as Promise<Record<string, number>>)
-    .then(res => res['watchers'])
-
 // eslint-disable-next-line jsdoc/require-jsdoc
-function createOverview(isSidebar: boolean, stars?: unknown) {
+function createOverview(isSidebar: boolean) {
     return [
         shared.createGuideItem(isSidebar),
         isSidebar
@@ -36,12 +32,20 @@ function createOverview(isSidebar: boolean, stars?: unknown) {
             version,
         }),
         ...(!isSidebar ? [
-            { text: '<span class="vpi-social-github"></span> ' + stars + ' GitHub stars', link: repoUrl, noIcon: true, }
+            {
+                component: 'GitHubStat',
+                props: {
+                    label: 'GitHub stars',
+                    iconClass: 'vpi-social-github',
+                    repo: 'ghostrider-05/patreon-api.ts',
+                    keyName: 'stargazers_count',
+                },
+            } as DefaultTheme.NavItemComponent
         ] : []),
     ]
 }
 
-const createNavItems = async () => createOverview(false, await stars) as DefaultTheme.NavItem[]
+const createNavItems = () => createOverview(false) as DefaultTheme.NavItem[]
 const createSidebarItems = () => createOverview(true) as DefaultTheme.SidebarItem[]
 
 export default defineConfig({
@@ -58,7 +62,7 @@ export default defineConfig({
     },
 
     themeConfig: {
-        nav: await createNavItems(),
+        nav: createNavItems(),
         sidebar: {
             '/guide/': createSidebarItems(),
             '/apps/': createSidebarItems(),

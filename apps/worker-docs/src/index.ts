@@ -9,9 +9,25 @@ import {
     Type,
 } from 'patreon-api.ts'
 
-import routes from './routes'
+interface LibraryData {
+    version: number
+    base: string
+    headers: {
+        userAgent: string
+        response: Record<'id' | 'sha', string>
+    }
 
-import type { LibraryData } from '../../../docs/.vitepress/components/data'
+    relationships: Record<string, {
+        resourceKey: string;
+        includeKey: string;
+        isArray: boolean;
+        isRelated: boolean;
+    }[]>
+    schemas: Record<string, string[] | readonly string[]>
+    webhook: {
+        triggers: string[]
+    }
+}
 
 export default <ExportedHandler>{
     async fetch(request) {
@@ -19,7 +35,7 @@ export default <ExportedHandler>{
 
         const corsHeaders = {
             'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET,HEAD,POST,OPTIONS',
+            'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,POST,PATCH,OPTIONS',
             'Access-Control-Max-Age': '86400',
         }
 
@@ -34,7 +50,6 @@ export default <ExportedHandler>{
                         sha: PATREON_RESPONSE_HEADERS.Sha,
                     }
                 },
-                routes,
                 schemas: {
                     ...Object.keys(SchemaKeys).reduce((obj, key) => ({ ...obj, [key.toLowerCase()]: SchemaKeys[key] }), {}),
                     [Type.PledgeEvent]: SchemaKeys.PledgeEvent,

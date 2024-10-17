@@ -1,10 +1,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import type { DefaultTheme } from 'vitepress'
 
-type SharedItem = (
-    | DefaultTheme.NavItemWithChildren
-    | DefaultTheme.NavItemWithLink
-) | DefaultTheme.SidebarItem
+type SharedItem = DefaultTheme.NavItem | DefaultTheme.SidebarItem
 
 export function createAppsItem (): SharedItem {
     return {

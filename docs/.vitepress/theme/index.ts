@@ -17,6 +17,8 @@ import { VChip as Chip } from 'vuetify/components/VChip'
 import { VTextField as InputText } from 'vuetify/components/VTextField'
 import { VSelect as Select } from 'vuetify/components/VSelect'
 
+import GitHubStat from '../components/GitHubStat.vue'
+
 export default {
     Layout,
     async enhanceApp(ctx) {
@@ -35,5 +37,7 @@ export default {
         ctx.app.component('Chip', Chip)
         ctx.app.component('InputText', InputText)
         ctx.app.component('Select', Select)
+
+        ctx.app.component('GitHubStat', GitHubStat)
     },
 } satisfies Theme
