@@ -37,14 +37,10 @@ const createWebhook = false
 if (createWebhook) {
     const test = await client.webhooks.createWebhook({
         campaignId: process.env.CAMPAIGN_ID,
-        // triggers: [
-        //     PatreonWebhookTrigger.PostPublished,
-        // ],
-        // uri: process.env.WEBHOOK_URI,
         triggers: [
-            PatreonWebhookTrigger.PostUpdated,
+            PatreonWebhookTrigger.PostPublished,
         ],
-        uri: 'https://ghostrider-05.com/webhook'
+        uri: process.env.WEBHOOK_URI,
     })
 
     console.log(JSON.stringify(test, null, 4))
