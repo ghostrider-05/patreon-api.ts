@@ -26,7 +26,7 @@ app.use('/webhook', express.json(), async (request, response, next) => {
         return
     }
 
-    // TODO: solve this
+    // TODO: why is this needed
     // Accessing headers in middleware apperently does not work, so copy them to headers
     for (const header of Object.values(WebhookClient.headers)) {
         request.headers[header] = request.header(header)
@@ -77,9 +77,4 @@ app.post('/webhook', async (request, response) => {
     response.sendStatus(200)
 })
 
-app.get('/', (req, res) => { res.status(200).json('Hello world') })
-
-app.listen('8080', () => console.log(['Listening',
-    process.env.DISCORD_WEBHOOK_URL,
-    process.env.PATREON_WEBHOOK_SECRET,
-]))
+app.listen('8080')
