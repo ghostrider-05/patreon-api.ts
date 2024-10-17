@@ -13,7 +13,9 @@
       "esnext"
     ],
     // Uncomment types to check global modules
-    // "types": [],
+    "types": [
+      "@types/node"
+    ],
     "module": "commonjs",
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,

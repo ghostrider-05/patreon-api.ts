@@ -30,7 +30,7 @@ export default <ExportedHandler<EnvWithSecrets>> {
         }
 
         const { event, payload } = result
-        const description = await renderPost(payload.data.attributes.content, env.HTML_MD_KEY)
+        const description = await renderPost(payload.data.attributes.content ?? '', env.HTML_MD_KEY)
 
         const converter = WebhookPayloadClient.convert<Embed>({
             default: {

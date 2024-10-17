@@ -53,12 +53,18 @@ export class WebhookClient {
         event: 'X-Patreon-Event',
     } as const
 
-    public static getWebhookHeaders (headers: Headers) {
+    public static getWebhookHeaders (headers:
+        | import('undici-types').Headers
+        | import('http').IncomingHttpHeaders
+        | Record<string, string | undefined>
+    ) {
         const types = <(keyof typeof this.headers)[]>Object.keys(this.headers)
 
         return types.reduce((data, key) => ({
             ...data,
-            [key]: headers.get(this.headers[key]),
+            [key]: (typeof headers.get === 'function'
+                ? headers.get(this.headers[key])
+                : headers[this.headers[key]]) ?? null,
         }), {} as Record<keyof typeof this.headers, string | null>)
     }
 

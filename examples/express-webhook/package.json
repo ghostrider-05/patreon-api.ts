@@ -1,0 +1,22 @@
+{
+  "name": "express-webhook",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "index.js",
+  "author": "ghostrider-05",
+  "license": "MIT",
+  "scripts": {
+    "prestart": "tsc --noCheck",
+    "start": "node -r dotenv/config ./dist/index.js"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.7.6"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "patreon-api.ts": "../../"
+  }
+}

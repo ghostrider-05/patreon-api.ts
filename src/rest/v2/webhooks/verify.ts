@@ -25,19 +25,30 @@ export function verify (
 
 /**
  * Verify and parse the incoming Patreon webhook event
- * @param request The incoming request
+ * @param request The incoming request. Can be either:
+ * - Node.js default request (v18+) / Undici request / request with `clone()` method implemented
+ * - HTTP Incoming message (like express) with a JSON parsed body.
  * @param secret The secret of the webhook to use for verifying the request
  * @throws if no secret is given
  * @throws if no event header is not found
  * @returns the parsed request body and event, or indicates if the verification has failed
+ * @example The following examples on GitHub implement this method:
+ * - express-webhook: for usage with express.js
+ * - cloudflare-webhook: for usage with the Node.js Web API on cloudflare workers
  */
 export async function parseWebhookRequest <
     Trigger extends PatreonWebhookTrigger = PatreonWebhookTrigger
->(request: Request, secret: string): Promise<
+>(request:
+    | Pick<Request, 'headers' | 'body' | 'clone'>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    | (import('http').IncomingMessage & { body: any }), secret: string): Promise<
     | { verified: false, event: undefined, payload: undefined }
     | { verified: true, event: Trigger, payload: WebhookPayload<Trigger> }
 >{
-    const body = await request.clone().text()
+    const body = 'clone' in request && typeof request.clone === 'function'
+        ? await request.clone().text()
+        // TODO: do not this
+        : JSON.stringify(request.body)
     const headers = WebhookClient.getWebhookHeaders(request.headers)
 
     const verified = verify(secret, headers.signature, body)
