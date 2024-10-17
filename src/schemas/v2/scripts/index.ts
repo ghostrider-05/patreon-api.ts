@@ -1,3 +1,4 @@
+import writeOpenAPISchema from './api'
 import { syncResourceKeys } from './keys'
 import { syncRelationships } from './relationships'
 
@@ -5,6 +6,8 @@ import { syncRelationships } from './relationships'
 async function syncSchemas () {
     await syncResourceKeys()
     await syncRelationships()
+
+    await writeOpenAPISchema()
 
     process.exit(0)
 }
