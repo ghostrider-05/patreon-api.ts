@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import { VPLink } from 'vitepress/theme'
 
 const stat = ref(0)
 
@@ -21,7 +22,7 @@ onMounted(async () => {
 
 <template>
     <p>
-        <a :href="'https://github.com/' + repo"><span :class="iconClass"></span> {{ stat }} {{ label }}</a>
+        <VPLink :href="'https://github.com/' + repo"><span :class="iconClass"></span> {{ stat }} {{ label }}</VPLink>
     </p>
 </template>
 
@@ -42,10 +43,10 @@ a:hover {
 
 a {
     line-height: 20px;
-    border-radius: 6px;
-    padding: 4px 14px;
-    background-color: var(--vp-c-yellow-2);
-    color: var(--vp-c-white) !important;
+    border-radius: 3px;
+    padding: 0px 4px;
+    background-color: var(--vp-c-bg-soft);
+    color: var(--vp-c-brand-1) !important;
     display: flex;
     align-items: center;
     justify-content: center;
