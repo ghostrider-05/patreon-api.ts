@@ -22,14 +22,14 @@
   ],
   "tags": [
     {
-      "name": "resource",
+      "name": "Resources",
       "externalDocs": {
         "description": "Resource endpoints documentation",
         "url": "https://docs.patreon.com/#apiv2-resource-endpoints"
       }
     },
     {
-      "name": "webhook",
+      "name": "Webhooks",
       "externalDocs": {
         "description": "Webhook endpoints documentation",
         "url": "https://docs.patreon.com/#apiv2-webhook-endpoints"
@@ -348,6 +348,175 @@
               "type": "array",
               "items": {
                 "$ref": "#/components/schemas/APIError"
+              }
+            }
+          }
+        },
+        "headers": {
+          "x-patreon-sha": {
+            "$ref": "#/components/headers/x-patreon-sha"
+          },
+          "x-patreon-uuid": {
+            "$ref": "#/components/headers/x-patreon-uuid"
+          },
+          "cf-cache-status": {
+            "$ref": "#/components/headers/cf-cache-status"
+          },
+          "cf-ray": {
+            "$ref": "#/components/headers/cf-ray"
+          }
+        }
+      },
+      "userResponse": {
+        "description": "OK: Completed your request succesfully",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data",
+                "meta"
+              ],
+              "properties": {
+                "data": {
+                  "required": [
+                    "id",
+                    "type"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "user"
+                      ]
+                    },
+                    "attributes": {
+                      "$ref": "#/components/schemas/user"
+                    },
+                    "relationships": {
+                      "properties": {
+                        "campaign": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "campaign"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "type"
+                              ]
+                            },
+                            "links": {
+                              "properties": {
+                                "related": {
+                                  "type": "string",
+                                  "format": "uri"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "memberships": {
+                          "required": [
+                            "data"
+                          ],
+                          "properties": {
+                            "data": {
+                              "type": "array",
+                              "items": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "member"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "type"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "included": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "campaign"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/campaign"
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "attributes",
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "member"
+                            ]
+                          },
+                          "attributes": {
+                            "$ref": "#/components/schemas/member"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "links": {
+                  "properties": {
+                    "self": {
+                      "type": "string"
+                    }
+                  }
+                }
               }
             }
           }
@@ -892,175 +1061,6 @@
                           }
                         }
                       }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "headers": {
-          "x-patreon-sha": {
-            "$ref": "#/components/headers/x-patreon-sha"
-          },
-          "x-patreon-uuid": {
-            "$ref": "#/components/headers/x-patreon-uuid"
-          },
-          "cf-cache-status": {
-            "$ref": "#/components/headers/cf-cache-status"
-          },
-          "cf-ray": {
-            "$ref": "#/components/headers/cf-ray"
-          }
-        }
-      },
-      "userResponse": {
-        "description": "OK: Completed your request succesfully",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "required": [
-                "data",
-                "meta"
-              ],
-              "properties": {
-                "data": {
-                  "required": [
-                    "id",
-                    "type"
-                  ],
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "type": {
-                      "type": "string",
-                      "enum": [
-                        "user"
-                      ]
-                    },
-                    "attributes": {
-                      "$ref": "#/components/schemas/user"
-                    },
-                    "relationships": {
-                      "properties": {
-                        "campaign": {
-                          "required": [
-                            "data"
-                          ],
-                          "properties": {
-                            "data": {
-                              "properties": {
-                                "id": {
-                                  "type": "string"
-                                },
-                                "type": {
-                                  "type": "string",
-                                  "enum": [
-                                    "campaign"
-                                  ]
-                                }
-                              },
-                              "required": [
-                                "id",
-                                "type"
-                              ]
-                            },
-                            "links": {
-                              "properties": {
-                                "related": {
-                                  "type": "string",
-                                  "format": "uri"
-                                }
-                              }
-                            }
-                          }
-                        },
-                        "memberships": {
-                          "required": [
-                            "data"
-                          ],
-                          "properties": {
-                            "data": {
-                              "type": "array",
-                              "items": {
-                                "properties": {
-                                  "id": {
-                                    "type": "string"
-                                  },
-                                  "type": {
-                                    "type": "string",
-                                    "enum": [
-                                      "member"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "type"
-                                ]
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "included": {
-                  "type": "array",
-                  "items": {
-                    "oneOf": [
-                      {
-                        "required": [
-                          "attributes",
-                          "type",
-                          "id"
-                        ],
-                        "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "campaign"
-                            ]
-                          },
-                          "attributes": {
-                            "$ref": "#/components/schemas/campaign"
-                          }
-                        }
-                      },
-                      {
-                        "required": [
-                          "attributes",
-                          "type",
-                          "id"
-                        ],
-                        "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "member"
-                            ]
-                          },
-                          "attributes": {
-                            "$ref": "#/components/schemas/member"
-                          }
-                        }
-                      }
-                    ]
-                  }
-                },
-                "links": {
-                  "properties": {
-                    "self": {
-                      "type": "string"
                     }
                   }
                 }
@@ -3559,12 +3559,124 @@
     }
   },
   "paths": {
+    "/api/oauth/v2/identity": {
+      "summary": "",
+      "description": "",
+      "get": {
+        "tags": [
+          "Resources"
+        ],
+        "operationId": "getIdentity",
+        "description": "",
+        "summary": "Get identity",
+        "deprecated": false,
+        "externalDocs": {
+          "description": "Official documentation",
+          "url": "https://docs.patreon.com/#get-api-oauth2-v2-identity"
+        },
+        "parameters": [
+          {
+            "name": "include",
+            "in": "query",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "campaign",
+                  "memberships"
+                ]
+              }
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "campaign": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/campaign"
+                  }
+                },
+                "member": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/member"
+                  }
+                },
+                "user": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/user"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "$ref": "#/components/parameters/userAgent"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/userResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "405": {
+            "$ref": "#/components/responses/405"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "410": {
+            "$ref": "#/components/responses/410"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          }
+        },
+        "security": [
+          {
+            "auth": []
+          }
+        ]
+      }
+    },
     "/api/oauth/v2/campaigns/{campaign_id}": {
       "summary": "",
       "description": "",
       "get": {
         "tags": [
-          "resource"
+          "Resources"
         ],
         "operationId": "getCampaign",
         "description": "",
@@ -3697,7 +3809,7 @@
       "description": "",
       "get": {
         "tags": [
-          "resource"
+          "Resources"
         ],
         "operationId": "getCampaigns",
         "description": "",
@@ -3850,124 +3962,12 @@
         ]
       }
     },
-    "/api/oauth/v2/identity": {
-      "summary": "",
-      "description": "",
-      "get": {
-        "tags": [
-          "resource"
-        ],
-        "operationId": "getIdentity",
-        "description": "",
-        "summary": "Get identity",
-        "deprecated": false,
-        "externalDocs": {
-          "description": "Official documentation",
-          "url": "https://docs.patreon.com/#get-api-oauth2-v2-identity"
-        },
-        "parameters": [
-          {
-            "name": "include",
-            "in": "query",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "campaign",
-                  "memberships"
-                ]
-              }
-            }
-          },
-          {
-            "name": "fields",
-            "in": "query",
-            "required": false,
-            "style": "deepObject",
-            "explode": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "campaign": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "$ref": "#/components/schemas/campaign"
-                  }
-                },
-                "member": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "$ref": "#/components/schemas/member"
-                  }
-                },
-                "user": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "$ref": "#/components/schemas/user"
-                  }
-                }
-              }
-            }
-          },
-          {
-            "$ref": "#/components/parameters/userAgent"
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/userResponse"
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "405": {
-            "$ref": "#/components/responses/405"
-          },
-          "406": {
-            "$ref": "#/components/responses/406"
-          },
-          "410": {
-            "$ref": "#/components/responses/410"
-          },
-          "429": {
-            "$ref": "#/components/responses/429"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          },
-          "503": {
-            "$ref": "#/components/responses/503"
-          }
-        },
-        "security": [
-          {
-            "auth": []
-          }
-        ]
-      }
-    },
     "/api/oauth/v2/campaigns/{campaign_id}/members": {
       "summary": "",
       "description": "",
       "get": {
         "tags": [
-          "resource"
+          "Resources"
         ],
         "operationId": "getCampaignMembers",
         "description": "",
@@ -4136,7 +4136,7 @@
       "description": "",
       "get": {
         "tags": [
-          "resource"
+          "Resources"
         ],
         "operationId": "getMember",
         "description": "",
@@ -4277,7 +4277,7 @@
       "description": "",
       "get": {
         "tags": [
-          "resource"
+          "Resources"
         ],
         "operationId": "getCampaignPosts",
         "description": "",
@@ -4422,7 +4422,7 @@
       "description": "",
       "get": {
         "tags": [
-          "resource"
+          "Resources"
         ],
         "operationId": "getPost",
         "description": "",
@@ -4539,7 +4539,7 @@
       "description": "",
       "patch": {
         "tags": [
-          "webhook"
+          "Webhooks"
         ],
         "operationId": "editWebhook",
         "description": "",
@@ -4662,7 +4662,7 @@
       "description": "",
       "get": {
         "tags": [
-          "webhook"
+          "Webhooks"
         ],
         "operationId": "getWebhooks",
         "description": "",
@@ -4800,7 +4800,7 @@
       },
       "post": {
         "tags": [
-          "webhook"
+          "Webhooks"
         ],
         "operationId": "createWebhook",
         "description": "",

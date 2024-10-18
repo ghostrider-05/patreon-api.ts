@@ -26,14 +26,14 @@ export default {
     ],
     tags: [
         {
-            name: 'resource',
+            name: 'Resources',
             externalDocs: {
                 description: 'Resource endpoints documentation',
                 url: 'https://docs.patreon.com/#apiv2-resource-endpoints',
             }
         },
         {
-            name: 'webhook',
+            name: 'Webhooks',
             externalDocs: {
                 description: 'Webhook endpoints documentation',
                 url: 'https://docs.patreon.com/#apiv2-webhook-endpoints',

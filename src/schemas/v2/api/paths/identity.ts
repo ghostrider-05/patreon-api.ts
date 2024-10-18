@@ -7,7 +7,7 @@ import type { Route } from '../../../../utils/openapi'
 
 const resource = Type.User
 const tags = [
-    'resource',
+    'Resources',
 ]
 
 export default [

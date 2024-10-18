@@ -8,7 +8,7 @@ import type { Route } from '../../../../utils/openapi'
 
 const resource = Type.Campaign
 const tags = [
-    'resource',
+    'Resources',
 ]
 
 export default [

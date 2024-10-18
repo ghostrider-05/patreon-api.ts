@@ -8,7 +8,7 @@ import type { Route } from '../../../../utils/openapi'
 
 const resource = Type.Webhook
 const tags = [
-    'webhook',
+    'Webhooks',
 ]
 
 const postWebhooksBody = {
