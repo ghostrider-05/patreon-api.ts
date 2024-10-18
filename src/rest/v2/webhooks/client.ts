@@ -9,7 +9,7 @@ import {
     type Webhook,
 } from '../../../schemas/v2'
 
-import { Oauth2Routes } from '../oauth2'
+import { Oauth2Routes, RequestMethod } from '../oauth2'
 import { createQuery, type BasePatreonQueryType, type GetResponsePayload } from '../query'
 
 import type { Oauth2RouteOptions } from '../clients/baseMethods'
@@ -137,6 +137,22 @@ export class WebhookClient {
                 },
             }),
         }) as unknown as APIPostWebhookResponse | undefined
+    }
+
+    /**
+     * Delete a webhook created by this client
+     * @param webhookId The webhook id
+     * @param options Request options
+     * @returns the webhooks managed by this client
+     */
+    public async deleteWebhook(
+        webhookId: string,
+        options?: Oauth2WebhookRouteOptions,
+    ): Promise<void> {
+        await this.oauth.fetch(Oauth2Routes.webhook(webhookId), createQuery(new URLSearchParams()), {
+            ...(options ?? {}),
+            method: RequestMethod.Delete,
+        })
     }
 
     /**
