@@ -52,3 +52,9 @@ export function getJsDocDescription (node: JSDocableNode): string {
         .replaceAll('\r\n', '\n') // Use LF line endings
         ?? ''
 }
+
+export function getJsDocTags (node: JSDocableNode, type: string): (string | undefined)[] | undefined {
+    return node.getJsDocs().at(0)?.getTags()
+        .filter(tag => tag.getTagName() === type)
+        .map(tag => tag.getCommentText())
+}

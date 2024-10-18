@@ -10,11 +10,13 @@ export interface Campaign {
 
     /**
      * The url to visit this campaign
+     * @format uri
      */
     url: string
 
     /**
      * The URL of the video that is shown to patrons after pledging
+     * @format uri
      */
     thanks_video_url: string | null
 
@@ -47,12 +49,14 @@ export interface Campaign {
 
     /**
      * The url for the rss album artwork
+     * @format uri
      */
     rss_artwork_url: string | null
 
     /**
      * Datetime that the creator most recently published (made publicly visible) the campaign.
      * Null when the campaign has not been public.
+     * @format date-time
      */
     published_at: string | null
 
@@ -78,7 +82,7 @@ export interface Campaign {
 
     // TODO: no documentation
     /**
-     *
+     * @format uri
      */
     main_video_url: string | null
 
@@ -105,11 +109,13 @@ export interface Campaign {
 
     /**
      * Banner image URL for the campaign
+     * @format uri
      */
     image_url: string
 
     /**
      * Profile image URL for the campaign
+     * @format uri
      */
     image_small_url: string
 
@@ -140,8 +146,10 @@ export interface Campaign {
 
     /**
      * Datetime that the creator first began the campaign creation process
+     * @format date-time
      */
     created_at: string
 }
 
+/** @deprecated use keyof Campaign */
 export type CampaignFields = keyof Campaign

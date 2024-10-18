@@ -1,5 +1,5 @@
 import { PatreonWebhookTrigger, Type } from '../../../../v2'
-import { getJsDocDescription, getTypes } from '../../scripts/shared'
+import { getJsDocDescription, getJsDocTags, getTypes } from '../../scripts/shared'
 
 interface ResourceSchemaOptions<T extends string> {
     schemas: T[]
@@ -8,14 +8,13 @@ interface ResourceSchemaOptions<T extends string> {
         interfaceName: string
         fileName: string
         documentation: Record<'description' | 'url', string>
-        formatMap?: Record<string, 'uri' | 'date-time'>
     }
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 function createResourceSchemas <T extends string> (options: ResourceSchemaOptions<T>) {
     return options.schemas.reduce((schemas, schema) => {
-        const { documentation, fileName, interfaceName, formatMap } = options.getDetails(schema)
+        const { documentation, fileName, interfaceName } = options.getDetails(schema)
 
         const declaration = getTypes(`${options.folder}${fileName}.ts`)
             .getInterfaceOrThrow(interfaceName)
@@ -31,10 +30,8 @@ function createResourceSchemas <T extends string> (options: ResourceSchemaOption
                     const type = property.getType().getNonNullableType(), nullType = 'null'
                     const nullable = property.getType().isNullable()
                     const baseType = type.getBaseTypeOfLiteralType().getText()
-                    const format = formatMap?.[property.getName()]
-                    const examples = property.getJsDocs().at(0)?.getTags()
-                        .filter(tag => tag.getTagName() === 'example')
-                        .map(tag => tag.getCommentText())
+                    const format = getJsDocTags(property, 'format')?.at(0)
+                    const examples = getJsDocTags(property, 'example')
 
                     return {
                         ...properties,
@@ -55,7 +52,10 @@ function createResourceSchemas <T extends string> (options: ResourceSchemaOption
                             ),
                             ...(format != undefined ? { format } : {}),
                             description: getJsDocDescription(property),
-                            ...(examples != undefined && examples.length ? { examples: examples } : {}),
+                            ...(examples != undefined && examples.length
+                                ? { examples: baseType === 'number' ? examples.map(Number) : examples }
+                                : {}
+                            ),
                         }
                     }
                 }, {})
@@ -83,40 +83,6 @@ export default {
                     description: `Official documentation for the ${interfaceName} resource`,
                     url: `https://docs.patreon.com/#${header}`
                 },
-                // TODO: temperary solution to use this map
-                formatMap: {
-                    'created_at': 'date-time',
-                    'next_deliverable_due_date': 'date-time',
-                    'completed_at': 'date-time',
-                    'due_at': 'date-time',
-                    'reached_at': 'date-time',
-                    'upload_expires_at': 'date-time',
-                    'last_charge_date': 'date-time',
-                    'next_charge_date': 'date-time',
-                    'pledge_relationship_start': 'date-time',
-                    'published_at': 'date-time',
-                    'edited_at': 'date-time',
-                    'date': 'date-time',
-                    'unpublished_at': 'date-time',
-                    'created': 'date-time',
-                    'last_attempted_at': 'date-time',
-                    'image_small_url': 'uri',
-                    'image_url': 'uri',
-                    'main_video_url': 'uri',
-                    // Campaign.pledge_url is relative, so not typed as uri
-                    'rss_artwork_url': 'uri',
-                    'thanks_video_url': 'uri',
-                    'download_url': 'uri',
-                    'upload_url': 'uri',
-                    'icon_url': 'uri',
-                    'privacy_policy_url': 'uri',
-                    // 'redirect_uris': 'uri',
-                    'tos_url': 'uri',
-                    'embed_url': 'uri',
-                    'url': 'uri',
-                    'thumb_url': 'uri',
-                    'uri': 'uri',
-                }
             }
         }
     }),

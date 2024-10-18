@@ -2503,7 +2503,7 @@
       "address": {
         "type": "object",
         "title": "Address",
-        "description": "",
+        "description": "A patron's shipping address.",
         "externalDocs": {
           "description": "Official documentation for the Address resource",
           "url": "https://docs.patreon.com/#address"
@@ -2569,7 +2569,7 @@
       "benefit": {
         "type": "object",
         "title": "Benefit",
-        "description": "",
+        "description": "A benefit added to the campaign, which can be added to a tier to be delivered to the patron.",
         "externalDocs": {
           "description": "Official documentation for the Benefit resource",
           "url": "https://docs.patreon.com/#benefit"
@@ -2832,7 +2832,7 @@
       "client": {
         "type": "object",
         "title": "OauthClient",
-        "description": "",
+        "description": "A client created by a developer, used for getting OAuth2 access tokens.",
         "externalDocs": {
           "description": "Official documentation for the OauthClient resource",
           "url": "https://docs.patreon.com/#oauthclient"
@@ -2862,6 +2862,7 @@
               "string",
               "null"
             ],
+            "format": "uri",
             "description": "The domain provided during client setup."
           },
           "icon_url": {
@@ -2895,14 +2896,17 @@
           },
           "version": {
             "type": "number",
-            "description": "The Patreon API version the client is targeting."
+            "description": "The Patreon API version the client is targeting.",
+            "examples": [
+              2
+            ]
           }
         }
       },
       "deliverable": {
         "type": "object",
         "title": "Deliverable",
-        "description": "",
+        "description": "The record of whether or not a patron has been delivered the benefit they are owed because of their member tier.",
         "externalDocs": {
           "description": "Official documentation for the Deliverable resource",
           "url": "https://docs.patreon.com/#deliverable"
@@ -2945,7 +2949,7 @@
       "media": {
         "type": "object",
         "title": "Media",
-        "description": "",
+        "description": "A file uploaded to patreon.com, usually an image.",
         "externalDocs": {
           "description": "Official documentation for the Media resource",
           "url": "https://docs.patreon.com/#media"
@@ -2963,7 +2967,7 @@
           },
           "file_name": {
             "type": "string",
-            "description": ""
+            "description": "File name."
           },
           "image_urls": {
             "type": "object",
@@ -3019,7 +3023,7 @@
       "member": {
         "type": "object",
         "title": "Member",
-        "description": "",
+        "description": "The record of a user's membership to a campaign.\nRemains consistent across months of pledging.",
         "externalDocs": {
           "description": "Official documentation for the Member resource",
           "url": "https://docs.patreon.com/#member"
@@ -3104,7 +3108,7 @@
             "type": "number",
             "description": "Number of months between charges\n\nNote: this will be `1` if Campaign.is_monthly is `true`",
             "examples": [
-              "1"
+              1
             ]
           },
           "pledge_relationship_start": {
@@ -3119,7 +3123,7 @@
             "type": "number",
             "description": "The amount in cents the user will pay at the next pay cycle",
             "examples": [
-              "500"
+              500
             ]
           }
         }
@@ -3127,7 +3131,7 @@
       "post": {
         "type": "object",
         "title": "Post",
-        "description": "",
+        "description": "Content posted by a creator on a campaign page.",
         "externalDocs": {
           "description": "Official documentation for the Post resource",
           "url": "https://docs.patreon.com/#post-v2"
@@ -3215,7 +3219,7 @@
       "pledge-event": {
         "type": "object",
         "title": "PledgeEvent",
-        "description": "",
+        "description": "The record of a pledging action taken by the user, or that action's failure.",
         "externalDocs": {
           "description": "Official documentation for the PledgeEvent resource",
           "url": "https://docs.patreon.com/#pledge-event"
@@ -3223,7 +3227,10 @@
         "properties": {
           "amount_cents": {
             "type": "number",
-            "description": "Amount (in the currency in which the patron paid) of the underlying event"
+            "description": "Amount (in the currency in which the patron paid) of the underlying event",
+            "examples": [
+              500
+            ]
           },
           "currency_code": {
             "type": "string",
@@ -3269,14 +3276,14 @@
               "pledge_delete",
               "subscription"
             ],
-            "description": ""
+            "description": "Event type."
           }
         }
       },
       "tier": {
         "type": "object",
         "title": "Tier",
-        "description": "",
+        "description": "A membership level on a campaign, which can have benefits attached to it.",
         "externalDocs": {
           "description": "Official documentation for the Tier resource",
           "url": "https://docs.patreon.com/#tier"
@@ -3375,7 +3382,7 @@
       "user": {
         "type": "object",
         "title": "User",
-        "description": "",
+        "description": "The Patreon user, which can be both patron and creator.",
         "externalDocs": {
           "description": "Official documentation for the User resource",
           "url": "https://docs.patreon.com/#user-v2"
@@ -3402,6 +3409,7 @@
           },
           "email": {
             "type": "string",
+            "format": "email",
             "description": "The user's email address.\nRequires certain scopes to access.\nSee the scopes section of the documentation"
           },
           "first_name": {
@@ -3409,7 +3417,7 @@
               "string",
               "null"
             ],
-            "description": ""
+            "description": "First name."
           },
           "full_name": {
             "type": "string",
@@ -3436,7 +3444,7 @@
               "string",
               "null"
             ],
-            "description": ""
+            "description": "Last name."
           },
           "like_count": {
             "type": "number",
@@ -3468,7 +3476,7 @@
       "webhook": {
         "type": "object",
         "title": "Webhook",
-        "description": "",
+        "description": "Webhooks are fired based on events happening on a particular campaign.",
         "externalDocs": {
           "description": "Official documentation for the Webhook resource",
           "url": "https://docs.patreon.com/#webhook"
@@ -3481,7 +3489,11 @@
           },
           "num_consecutive_times_failed": {
             "type": "number",
-            "description": "Number of times the webhook has failed consecutively, when in an error state."
+            "description": "Number of times the webhook has failed consecutively, when in an error state.",
+            "examples": [
+              0,
+              2
+            ]
           },
           "paused": {
             "type": "boolean",
@@ -3501,7 +3513,10 @@
           "uri": {
             "type": "string",
             "format": "uri",
-            "description": "Fully qualified uri where webhook will be sent (e.g. https://www.example.com/webhooks/incoming)."
+            "description": "Fully qualified uri where webhook will be sent",
+            "examples": [
+              "'https://www.example.com/webhooks/incoming'"
+            ]
           }
         }
       },
