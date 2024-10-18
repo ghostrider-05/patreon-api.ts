@@ -1,6 +1,6 @@
 <script setup lang="ts">
-const greenColor = 'green'
-const redColor = 'red'
+const greenColor = 'var(--vp-c-green-3)'
+const redColor = 'var(--vp-c-red-3)'
 
 const officialText = 'Official'
 

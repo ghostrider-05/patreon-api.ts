@@ -1,3 +1,6 @@
+/**
+ * A benefit added to the campaign, which can be added to a tier to be delivered to the patron.
+ */
 export interface Benefit {
     /**
      * The third-party external ID this reward is associated with
@@ -16,6 +19,7 @@ export interface Benefit {
 
     /**
      * Datetime this benefit was created
+     * @format date-time
      */
     created_at: string
 
@@ -51,6 +55,7 @@ export interface Benefit {
 
     /**
      * The next due date (after EOD today) for this benefit
+     * @format date-time
      */
     next_deliverable_due_date: string | null
 
