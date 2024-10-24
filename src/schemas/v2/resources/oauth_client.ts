@@ -1,3 +1,6 @@
+/**
+ * A client created by a developer, used for getting OAuth2 access tokens.
+ */
 export interface OauthClient {
     /**
      * The author name provided during client setup.
@@ -22,11 +25,13 @@ export interface OauthClient {
 
     /**
      * The domain provided during client setup.
+     * @format uri
      */
     domain: string | null
 
     /**
      * The URL of the icon used in the OAuth authorization flow.
+     * @format uri
      */
     icon_url: string | null
 
@@ -37,6 +42,7 @@ export interface OauthClient {
 
     /**
      * The URL of the privacy policy provided during client setup.
+     * @format uri
      */
     privacy_policy_url: string | null
 
@@ -47,11 +53,13 @@ export interface OauthClient {
 
     /**
      * The URL of the terms of service provided during client setup.
+     * @format uri
      */
     tos_url: string
 
     /**
      * The Patreon API version the client is targeting.
+     * @example 2
      */
     version: number
 }

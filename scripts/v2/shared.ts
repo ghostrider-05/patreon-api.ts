@@ -1,5 +1,5 @@
 /* eslint-disable jsdoc/require-jsdoc */
-import { Project, type SourceFile, NewLineKind, ts } from 'ts-morph'
+import { Project, type SourceFile, NewLineKind, ts, JSDocableNode } from 'ts-morph'
 
 export interface TsScript {
     project: Project
@@ -10,6 +10,7 @@ export interface TsScript {
 
 export function createTsScriptProgram (outFilename: string): TsScript {
     const project = new Project({
+        tsConfigFilePath: './tsconfig.json',
         manipulationSettings: {
             newLineKind: NewLineKind.CarriageReturnLineFeed,
         },
@@ -31,4 +32,26 @@ export function createTsScriptProgram (outFilename: string): TsScript {
         addVariableStatement: (...args) => destFile.addVariableStatement(...args),
         project,
     }
+}
+
+export function getTypes (file: string) {
+    const program = createTsScriptProgram('temp.ts')
+
+    const sourceFile = program.project.addSourceFileAtPath(file)
+    if (!sourceFile) throw new Error()
+
+    return sourceFile
+}
+
+export function getJsDocDescription (node: JSDocableNode): string {
+    return node.getJsDocs().at(0)?.getDescription()
+        .replace('\r\n', '') // Removes trailing line break
+        .replaceAll('\r\n', '\n') // Use LF line endings
+        ?? ''
+}
+
+export function getJsDocTags (node: JSDocableNode, type: string): (string | undefined)[] | undefined {
+    return node.getJsDocs().at(0)?.getTags()
+        .filter(tag => tag.getTagName() === type)
+        .map(tag => tag.getCommentText())
 }

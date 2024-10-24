@@ -1,6 +1,10 @@
+/**
+ * The record of a pledging action taken by the user, or that action's failure.
+ */
 export interface PledgeEvent {
     /**
      * Amount (in the currency in which the patron paid) of the underlying event
+     * @example 500
      */
     amount_cents: number
 
@@ -11,6 +15,7 @@ export interface PledgeEvent {
 
     /**
      * The date which this event occurred
+     * @format date-time
      */
     date: string
 
@@ -35,6 +40,9 @@ export interface PledgeEvent {
      */
     tier_title: string | null
 
+    /**
+     * Event type.
+     */
     type:
         | 'pledge_start'
         | 'pledge_upgrade'

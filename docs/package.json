@@ -1,7 +1,13 @@
 {
   "name": "@patreon-api.ts/docs",
+  "description": "The documentation site for the patreon-api.ts",
   "private": true,
   "type": "module",
+  "bugs": {
+    "url": "https://github.com/ghostrider-05/patreon-api.ts/issues/"
+  },
+  "homepage": "https://patreon-api.pages.dev",
+  "license": "MIT",
   "scripts": {
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
@@ -9,8 +15,9 @@
   },
   "devDependencies": {
     "@vueuse/core": "^11.1.0",
-    "vitepress": "^1.3.4",
-    "vue": "^3.5.3",
-    "vuetify": "^3.7.1"
+    "vitepress": "^1.4.1",
+    "vitepress-openapi": "^0.0.3-alpha.41",
+    "vue": "^3.5.12",
+    "vuetify": "^3.7.2"
   }
 }

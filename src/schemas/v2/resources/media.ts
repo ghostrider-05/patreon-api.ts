@@ -1,16 +1,21 @@
+/**
+ * A file uploaded to patreon.com, usually an image.
+ */
 export interface Media {
     /**
      * When the file was created
+     * @format date-time
      */
     created_at: string
 
     /**
      * The URL to download this media. Valid for 24 hours.
+     * @format uri
      */
     download_url: string
 
     /**
-     *
+     * File name.
      */
     file_name: string
 
@@ -56,6 +61,7 @@ export interface Media {
 
     /**
      * When the upload URL expires
+     * @format date-time
      */
     upload_expires_at: string
 
@@ -66,6 +72,7 @@ export interface Media {
 
     /**
      * The URL to perform a POST request to in order to upload the media file
+     * @format uri
      */
     upload_url: string
 }

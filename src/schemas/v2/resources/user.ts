@@ -23,6 +23,9 @@ export type SocialConnectionPlatform = keyof {
     'youtube': null
 }
 
+/**
+ * The Patreon user, which can be both patron and creator.
+ */
 export interface User {
     /**
      * The user's about text, which appears on their profile
@@ -36,6 +39,7 @@ export interface User {
 
     /**
      * Datetime of this user's account creation
+     * @format date-time
      */
     created: string
 
@@ -43,11 +47,12 @@ export interface User {
      * The user's email address.
      * Requires certain scopes to access.
      * See the scopes section of the documentation
+     * @format email
      */
     email: string
 
     /**
-     *
+     * First name.
      */
     first_name: string | null
 
@@ -63,16 +68,17 @@ export interface User {
 
     /**
      * The user's profile picture URL, scaled to width 400px
+     * @format uri
      */
     image_url: string
 
     /**
-     * Whether the user has confirmed their emai
+     * Whether the user has confirmed their email
      */
     is_email_verified: boolean
 
     /**
-     *
+     * Last name.
      */
     last_name: string | null
 
@@ -89,22 +95,24 @@ export interface User {
      * ```ts
      * import 'patreon-api.ts'
      *
-        declare module 'patreon-api.ts' {
-            interface CustomTypeOptions {
-                social_connections: Record<string, { url: string, user_id: string } | null>
-            }
-        }
+     * declare module 'patreon-api.ts' {
+     *    interface CustomTypeOptions {
+     *        social_connections: Record<string, { url: string, user_id: string } | null>
+     *    }
+     * }
      * ```
      */
     social_connections: CustomTypeOption<'social_connections', object>
 
     /**
      * The user's profile picture URL, scaled to a square of size 100x100px
+     * @format uri
      */
     thumb_url: string
 
     /**
      * URL of this user's creator or patron profile
+     * @format uri
      */
     url: string
 

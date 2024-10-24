@@ -9,6 +9,7 @@ interface RelationshipValue {
     isRelated: boolean
 }
 
+/** @deprecated */
 export async function syncRelationships () {
     const program = createTsScriptProgram('relationships.ts')
 
@@ -46,6 +47,11 @@ export async function syncRelationships () {
     program.file.addVariableStatement({
         declarationKind: VariableDeclarationKind.Const,
         isExported: true,
+        docs: [
+            {
+                tags: [{ tagName: 'deprecated' }],
+            }
+        ],
         declarations: [{
             name: 'SchemaRelationshipKeys',
             initializer: writer =>

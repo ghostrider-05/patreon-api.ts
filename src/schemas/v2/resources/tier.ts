@@ -1,3 +1,6 @@
+/**
+ * A membership level on a campaign, which can have benefits attached to it.
+ */
 export interface Tier {
     /**
      * Monetary amount associated with this tier (in U.S. cents)
@@ -6,6 +9,7 @@ export interface Tier {
 
     /**
      * Datetime this tier was created
+     * @format date-time
      */
     created_at: string
 
@@ -22,11 +26,13 @@ export interface Tier {
 
     /**
      * Datetime tier was last modified
+     * @format date-time
      */
     edited_at: string
 
     /**
      * Full qualified image URL associated with this tier
+     * @format uri
      */
     image_url: string | null
 
@@ -47,6 +53,7 @@ export interface Tier {
 
     /**
      * Datetime this tier was last published
+     * @format date-time
      */
     published_at: string | null
 
@@ -67,11 +74,13 @@ export interface Tier {
 
     /**
      * Datetime tier was unpublished, while applicable
+     * @format date-time
      */
     unpublished_at: string | null
 
     /**
      * Fully qualified URL associated with this tier
+     * @format uri
      */
     url: string
 
