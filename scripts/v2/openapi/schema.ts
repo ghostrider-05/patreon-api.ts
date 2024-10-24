@@ -49,7 +49,7 @@ function createPaths (schema: PathSchemaOptions) {
             const requestBody = body != undefined ? {
                 required: true,
                 content: { [schema.contentType]: { schema: body } }
-            } : {}
+            } : undefined
 
             const parameters = schema.parameters
                 .map(param => typeof param === 'string' ? { ref: param } : param)

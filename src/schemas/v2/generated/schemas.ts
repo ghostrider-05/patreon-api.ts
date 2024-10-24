@@ -20,7 +20,6 @@ export const Address = {
         },
     ],
 }
-
 export const Benefit = {
     resource: 'benefit',
     properties: [
@@ -52,7 +51,6 @@ export const Benefit = {
         },
     ],
 }
-
 export const Campaign = {
     resource: 'campaign',
     properties: [
@@ -99,7 +97,6 @@ export const Campaign = {
         },
     ],
 }
-
 export const Deliverable = {
     resource: 'deliverable',
     properties: [
@@ -122,7 +119,6 @@ export const Deliverable = {
         },
     ],
 }
-
 export const Goal = {
     resource: 'goal',
     properties: [
@@ -133,7 +129,6 @@ export const Goal = {
         },
     ],
 }
-
 export const Media = {
     resource: 'media',
     properties: [
@@ -155,7 +150,6 @@ export const Media = {
     relationships: [
     ],
 }
-
 export const Member = {
     resource: 'member',
     properties: [
@@ -192,7 +186,6 @@ export const Member = {
         },
     ],
 }
-
 export const OauthClient = {
     resource: 'client',
     properties: [
@@ -217,7 +210,6 @@ export const OauthClient = {
         },
     ],
 }
-
 export const PledgeEvent = {
     resource: 'pledge-event',
     properties: [
@@ -241,7 +233,6 @@ export const PledgeEvent = {
         },
     ],
 }
-
 export const Post = {
     resource: 'post',
     properties: [
@@ -266,7 +257,6 @@ export const Post = {
         },
     ],
 }
-
 export const Tier = {
     resource: 'tier',
     properties: [
@@ -299,7 +289,6 @@ export const Tier = {
         },
     ],
 }
-
 export const User = {
     resource: 'user',
     properties: [
@@ -328,7 +317,6 @@ export const User = {
         },
     ],
 }
-
 export const Webhook = {
     resource: 'webhook',
     properties: [
@@ -348,4 +336,3 @@ export const Webhook = {
         },
     ],
 }
-

@@ -104,7 +104,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/components/schemas/APIError"
+                "$ref": "#/components/schemas/JSONAPIError"
               }
             }
           }
@@ -131,7 +131,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/components/schemas/APIError"
+                "$ref": "#/components/schemas/JSONAPIError"
               }
             }
           }
@@ -158,7 +158,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/components/schemas/APIError"
+                "$ref": "#/components/schemas/JSONAPIError"
               }
             }
           }
@@ -185,7 +185,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/components/schemas/APIError"
+                "$ref": "#/components/schemas/JSONAPIError"
               }
             }
           }
@@ -212,7 +212,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/components/schemas/APIError"
+                "$ref": "#/components/schemas/JSONAPIError"
               }
             }
           }
@@ -239,7 +239,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/components/schemas/APIError"
+                "$ref": "#/components/schemas/JSONAPIError"
               }
             }
           }
@@ -266,7 +266,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/components/schemas/APIError"
+                "$ref": "#/components/schemas/JSONAPIError"
               }
             }
           }
@@ -293,7 +293,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/components/schemas/APIError"
+                "$ref": "#/components/schemas/JSONAPIError"
               }
             }
           }
@@ -320,7 +320,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/components/schemas/APIError"
+                "$ref": "#/components/schemas/JSONAPIError"
               }
             }
           }
@@ -347,7 +347,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/components/schemas/APIError"
+                "$ref": "#/components/schemas/JSONAPIError"
               }
             }
           }
@@ -375,10 +375,11 @@
               "type": "object",
               "required": [
                 "data",
-                "meta"
+                "links"
               ],
               "properties": {
                 "data": {
+                  "type": "object",
                   "required": [
                     "id",
                     "type"
@@ -466,6 +467,7 @@
                   "items": {
                     "oneOf": [
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -487,6 +489,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -511,11 +514,7 @@
                   }
                 },
                 "links": {
-                  "properties": {
-                    "self": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/JSONAPIResponseLinks"
                 }
               }
             }
@@ -544,10 +543,11 @@
               "type": "object",
               "required": [
                 "data",
-                "meta"
+                "links"
               ],
               "properties": {
                 "data": {
+                  "type": "object",
                   "required": [
                     "id",
                     "type"
@@ -689,6 +689,7 @@
                   "items": {
                     "oneOf": [
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -710,6 +711,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -731,6 +733,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -752,6 +755,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -776,11 +780,7 @@
                   }
                 },
                 "links": {
-                  "properties": {
-                    "self": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/JSONAPIResponseLinks"
                 }
               }
             }
@@ -809,12 +809,13 @@
               "type": "object",
               "required": [
                 "data",
-                "links"
+                "meta"
               ],
               "properties": {
                 "data": {
                   "type": "array",
                   "items": {
+                    "type": "object",
                     "required": [
                       "id",
                       "type"
@@ -957,6 +958,7 @@
                   "items": {
                     "oneOf": [
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -978,6 +980,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -999,6 +1002,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -1020,6 +1024,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -1044,25 +1049,7 @@
                   }
                 },
                 "meta": {
-                  "properties": {
-                    "total": {
-                      "type": "number"
-                    },
-                    "pagination": {
-                      "properties": {
-                        "cursors": {
-                          "properties": {
-                            "next": {
-                              "type": [
-                                "string",
-                                "null"
-                              ]
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/JSONAPIResponseMeta"
                 }
               }
             }
@@ -1091,12 +1078,13 @@
               "type": "object",
               "required": [
                 "data",
-                "links"
+                "meta"
               ],
               "properties": {
                 "data": {
                   "type": "array",
                   "items": {
+                    "type": "object",
                     "required": [
                       "id",
                       "type"
@@ -1276,6 +1264,7 @@
                   "items": {
                     "oneOf": [
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -1297,6 +1286,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -1318,6 +1308,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -1339,6 +1330,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -1360,6 +1352,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -1384,25 +1377,7 @@
                   }
                 },
                 "meta": {
-                  "properties": {
-                    "total": {
-                      "type": "number"
-                    },
-                    "pagination": {
-                      "properties": {
-                        "cursors": {
-                          "properties": {
-                            "next": {
-                              "type": [
-                                "string",
-                                "null"
-                              ]
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/JSONAPIResponseMeta"
                 }
               }
             }
@@ -1431,10 +1406,11 @@
               "type": "object",
               "required": [
                 "data",
-                "meta"
+                "links"
               ],
               "properties": {
                 "data": {
+                  "type": "object",
                   "required": [
                     "id",
                     "type"
@@ -1613,6 +1589,7 @@
                   "items": {
                     "oneOf": [
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -1634,6 +1611,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -1655,6 +1633,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -1676,6 +1655,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -1697,6 +1677,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -1721,11 +1702,7 @@
                   }
                 },
                 "links": {
-                  "properties": {
-                    "self": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/JSONAPIResponseLinks"
                 }
               }
             }
@@ -1754,12 +1731,13 @@
               "type": "object",
               "required": [
                 "data",
-                "links"
+                "meta"
               ],
               "properties": {
                 "data": {
                   "type": "array",
                   "items": {
+                    "type": "object",
                     "required": [
                       "id",
                       "type"
@@ -1853,6 +1831,7 @@
                   "items": {
                     "oneOf": [
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -1874,6 +1853,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -1898,25 +1878,7 @@
                   }
                 },
                 "meta": {
-                  "properties": {
-                    "total": {
-                      "type": "number"
-                    },
-                    "pagination": {
-                      "properties": {
-                        "cursors": {
-                          "properties": {
-                            "next": {
-                              "type": [
-                                "string",
-                                "null"
-                              ]
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/JSONAPIResponseMeta"
                 }
               }
             }
@@ -1945,10 +1907,11 @@
               "type": "object",
               "required": [
                 "data",
-                "meta"
+                "links"
               ],
               "properties": {
                 "data": {
+                  "type": "object",
                   "required": [
                     "id",
                     "type"
@@ -2041,6 +2004,7 @@
                   "items": {
                     "oneOf": [
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -2062,6 +2026,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -2086,11 +2051,7 @@
                   }
                 },
                 "links": {
-                  "properties": {
-                    "self": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/JSONAPIResponseLinks"
                 }
               }
             }
@@ -2119,10 +2080,11 @@
               "type": "object",
               "required": [
                 "data",
-                "meta"
+                "links"
               ],
               "properties": {
                 "data": {
+                  "type": "object",
                   "required": [
                     "id",
                     "type"
@@ -2215,6 +2177,7 @@
                   "items": {
                     "oneOf": [
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -2236,6 +2199,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -2260,11 +2224,7 @@
                   }
                 },
                 "links": {
-                  "properties": {
-                    "self": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/JSONAPIResponseLinks"
                 }
               }
             }
@@ -2293,12 +2253,13 @@
               "type": "object",
               "required": [
                 "data",
-                "links"
+                "meta"
               ],
               "properties": {
                 "data": {
                   "type": "array",
                   "items": {
+                    "type": "object",
                     "required": [
                       "id",
                       "type"
@@ -2392,6 +2353,7 @@
                   "items": {
                     "oneOf": [
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -2413,6 +2375,7 @@
                         }
                       },
                       {
+                        "type": "object",
                         "required": [
                           "attributes",
                           "type",
@@ -2437,25 +2400,7 @@
                   }
                 },
                 "meta": {
-                  "properties": {
-                    "total": {
-                      "type": "number"
-                    },
-                    "pagination": {
-                      "properties": {
-                        "cursors": {
-                          "properties": {
-                            "next": {
-                              "type": [
-                                "string",
-                                "null"
-                              ]
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/JSONAPIResponseMeta"
                 }
               }
             }
@@ -2478,7 +2423,7 @@
       }
     },
     "securitySchemes": {
-      "auth": {
+      "Oauth2": {
         "type": "oauth2",
         "flows": {
           "authorizationCode": {
@@ -2526,8 +2471,8 @@
           },
           "created_at": {
             "type": "string",
-            "format": "date-time",
-            "description": "Datetime address was first created"
+            "description": "Datetime address was first created",
+            "format": "date-time"
           },
           "line_1": {
             "type": [
@@ -2598,8 +2543,8 @@
           },
           "created_at": {
             "type": "string",
-            "format": "date-time",
-            "description": "Datetime this benefit was created"
+            "description": "Datetime this benefit was created",
+            "format": "date-time"
           },
           "deliverables_due_today_count": {
             "type": "number",
@@ -2633,8 +2578,8 @@
               "string",
               "null"
             ],
-            "format": "date-time",
-            "description": "The next due date (after EOD today) for this benefit"
+            "description": "The next due date (after EOD today) for this benefit",
+            "format": "date-time"
           },
           "not_delivered_deliverables_count": {
             "type": "number",
@@ -2675,16 +2620,16 @@
           },
           "url": {
             "type": "string",
-            "format": "uri",
-            "description": "The url to visit this campaign"
+            "description": "The url to visit this campaign",
+            "format": "uri"
           },
           "thanks_video_url": {
             "type": [
               "string",
               "null"
             ],
-            "format": "uri",
-            "description": "The URL of the video that is shown to patrons after pledging"
+            "description": "The URL of the video that is shown to patrons after pledging",
+            "format": "uri"
           },
           "thanks_msg": {
             "type": [
@@ -2723,16 +2668,16 @@
               "string",
               "null"
             ],
-            "format": "uri",
-            "description": "The url for the rss album artwork"
+            "description": "The url for the rss album artwork",
+            "format": "uri"
           },
           "published_at": {
             "type": [
               "string",
               "null"
             ],
-            "format": "date-time",
-            "description": "Datetime that the creator most recently published (made publicly visible) the campaign.\nNull when the campaign has not been public."
+            "description": "Datetime that the creator most recently published (made publicly visible) the campaign.\nNull when the campaign has not been public.",
+            "format": "date-time"
           },
           "pledge_url": {
             "type": "string",
@@ -2761,8 +2706,8 @@
               "string",
               "null"
             ],
-            "format": "uri",
-            "description": ""
+            "description": "",
+            "format": "uri"
           },
           "main_video_embed": {
             "type": [
@@ -2785,13 +2730,13 @@
           },
           "image_url": {
             "type": "string",
-            "format": "uri",
-            "description": "Banner image URL for the campaign"
+            "description": "Banner image URL for the campaign",
+            "format": "uri"
           },
           "image_small_url": {
             "type": "string",
-            "format": "uri",
-            "description": "Profile image URL for the campaign"
+            "description": "Profile image URL for the campaign",
+            "format": "uri"
           },
           "has_sent_rss_notify": {
             "type": "boolean",
@@ -2824,8 +2769,8 @@
           },
           "created_at": {
             "type": "string",
-            "format": "date-time",
-            "description": "Datetime that the creator first began the campaign creation process"
+            "description": "Datetime that the creator first began the campaign creation process",
+            "format": "date-time"
           }
         }
       },
@@ -2862,16 +2807,16 @@
               "string",
               "null"
             ],
-            "format": "uri",
-            "description": "The domain provided during client setup."
+            "description": "The domain provided during client setup.",
+            "format": "uri"
           },
           "icon_url": {
             "type": [
               "string",
               "null"
             ],
-            "format": "uri",
-            "description": "The URL of the icon used in the OAuth authorization flow."
+            "description": "The URL of the icon used in the OAuth authorization flow.",
+            "format": "uri"
           },
           "name": {
             "type": "string",
@@ -2882,8 +2827,8 @@
               "string",
               "null"
             ],
-            "format": "uri",
-            "description": "The URL of the privacy policy provided during client setup."
+            "description": "The URL of the privacy policy provided during client setup.",
+            "format": "uri"
           },
           "redirect_uris": {
             "type": "string",
@@ -2891,8 +2836,8 @@
           },
           "tos_url": {
             "type": "string",
-            "format": "uri",
-            "description": "The URL of the terms of service provided during client setup."
+            "description": "The URL of the terms of service provided during client setup.",
+            "format": "uri"
           },
           "version": {
             "type": "number",
@@ -2917,8 +2862,8 @@
               "string",
               "null"
             ],
-            "format": "date-time",
-            "description": "When the creator marked the deliverable as completed or fulfilled to the patron"
+            "description": "When the creator marked the deliverable as completed or fulfilled to the patron",
+            "format": "date-time"
           },
           "delivery_status": {
             "type": "string",
@@ -2931,8 +2876,8 @@
           },
           "due_at": {
             "type": "string",
-            "format": "date-time",
-            "description": "When the deliverable is due to the patron"
+            "description": "When the deliverable is due to the patron",
+            "format": "date-time"
           }
         }
       },
@@ -2957,13 +2902,13 @@
         "properties": {
           "created_at": {
             "type": "string",
-            "format": "date-time",
-            "description": "When the file was created"
+            "description": "When the file was created",
+            "format": "date-time"
           },
           "download_url": {
             "type": "string",
-            "format": "uri",
-            "description": "The URL to download this media. Valid for 24 hours."
+            "description": "The URL to download this media. Valid for 24 hours.",
+            "format": "uri"
           },
           "file_name": {
             "type": "string",
@@ -3006,8 +2951,8 @@
           },
           "upload_expires_at": {
             "type": "string",
-            "format": "date-time",
-            "description": "When the upload URL expires"
+            "description": "When the upload URL expires",
+            "format": "date-time"
           },
           "upload_parameters": {
             "type": "object",
@@ -3015,8 +2960,8 @@
           },
           "upload_url": {
             "type": "string",
-            "format": "uri",
-            "description": "The URL to perform a POST request to in order to upload the media file"
+            "description": "The URL to perform a POST request to in order to upload the media file",
+            "format": "uri"
           }
         }
       },
@@ -3057,8 +3002,8 @@
               "string",
               "null"
             ],
-            "format": "date-time",
-            "description": "Datetime of last attempted charge.\n`null` if never charged"
+            "description": "Datetime of last attempted charge.\n`null` if never charged",
+            "format": "date-time"
           },
           "last_charge_status": {
             "type": [
@@ -3085,8 +3030,8 @@
               "string",
               "null"
             ],
-            "format": "date-time",
-            "description": "Datetime of next charge.\n`null` if annual pledge downgrade"
+            "description": "Datetime of next charge.\n`null` if annual pledge downgrade",
+            "format": "date-time"
           },
           "note": {
             "type": "string",
@@ -3116,8 +3061,8 @@
               "string",
               "null"
             ],
-            "format": "date-time",
-            "description": "Datetime of beginning of most recent pledge chainfrom this member to the campaign.\nPledge updates do not change this value"
+            "description": "Datetime of beginning of most recent pledge chainfrom this member to the campaign.\nPledge updates do not change this value",
+            "format": "date-time"
           },
           "will_pay_amount_cents": {
             "type": "number",
@@ -3170,8 +3115,8 @@
               "string",
               "null"
             ],
-            "format": "uri",
-            "description": "Embed media url"
+            "description": "Embed media url",
+            "format": "uri"
           },
           "is_paid": {
             "type": [
@@ -3192,8 +3137,8 @@
               "string",
               "null"
             ],
-            "format": "date-time",
-            "description": "Datetime that the creator most recently published (made publicly visible) the post"
+            "description": "Datetime that the creator most recently published (made publicly visible) the post",
+            "format": "date-time"
           },
           "tiers": {
             "type": "array",
@@ -3211,8 +3156,8 @@
           },
           "url": {
             "type": "string",
-            "format": "uri",
-            "description": "A URL to access this post on patreon.com"
+            "description": "A URL to access this post on patreon.com",
+            "format": "uri"
           }
         }
       },
@@ -3238,8 +3183,8 @@
           },
           "date": {
             "type": "string",
-            "format": "date-time",
-            "description": "The date which this event occurred"
+            "description": "The date which this event occurred",
+            "format": "date-time"
           },
           "payment_status": {
             "type": "string",
@@ -3295,8 +3240,8 @@
           },
           "created_at": {
             "type": "string",
-            "format": "date-time",
-            "description": "Datetime this tier was created"
+            "description": "Datetime this tier was created",
+            "format": "date-time"
           },
           "description": {
             "type": "string",
@@ -3311,16 +3256,16 @@
           },
           "edited_at": {
             "type": "string",
-            "format": "date-time",
-            "description": "Datetime tier was last modified"
+            "description": "Datetime tier was last modified",
+            "format": "date-time"
           },
           "image_url": {
             "type": [
               "string",
               "null"
             ],
-            "format": "uri",
-            "description": "Full qualified image URL associated with this tier"
+            "description": "Full qualified image URL associated with this tier",
+            "format": "uri"
           },
           "patron_count": {
             "type": "number",
@@ -3339,8 +3284,8 @@
               "string",
               "null"
             ],
-            "format": "date-time",
-            "description": "Datetime this tier was last published"
+            "description": "Datetime this tier was last published",
+            "format": "date-time"
           },
           "remaining": {
             "type": [
@@ -3362,13 +3307,13 @@
               "string",
               "null"
             ],
-            "format": "date-time",
-            "description": "Datetime tier was unpublished, while applicable"
+            "description": "Datetime tier was unpublished, while applicable",
+            "format": "date-time"
           },
           "url": {
             "type": "string",
-            "format": "uri",
-            "description": "Fully qualified URL associated with this tier"
+            "description": "Fully qualified URL associated with this tier",
+            "format": "uri"
           },
           "user_limit": {
             "type": [
@@ -3404,13 +3349,13 @@
           },
           "created": {
             "type": "string",
-            "format": "date-time",
-            "description": "Datetime of this user's account creation"
+            "description": "Datetime of this user's account creation",
+            "format": "date-time"
           },
           "email": {
             "type": "string",
-            "format": "email",
-            "description": "The user's email address.\nRequires certain scopes to access.\nSee the scopes section of the documentation"
+            "description": "The user's email address.\nRequires certain scopes to access.\nSee the scopes section of the documentation",
+            "format": "email"
           },
           "first_name": {
             "type": [
@@ -3432,8 +3377,8 @@
           },
           "image_url": {
             "type": "string",
-            "format": "uri",
-            "description": "The user's profile picture URL, scaled to width 400px"
+            "description": "The user's profile picture URL, scaled to width 400px",
+            "format": "uri"
           },
           "is_email_verified": {
             "type": "boolean",
@@ -3456,13 +3401,13 @@
           },
           "thumb_url": {
             "type": "string",
-            "format": "uri",
-            "description": "The user's profile picture URL, scaled to a square of size 100x100px"
+            "description": "The user's profile picture URL, scaled to a square of size 100x100px",
+            "format": "uri"
           },
           "url": {
             "type": "string",
-            "format": "uri",
-            "description": "URL of this user's creator or patron profile"
+            "description": "URL of this user's creator or patron profile",
+            "format": "uri"
           },
           "vanity": {
             "type": [
@@ -3484,8 +3429,8 @@
         "properties": {
           "last_attempted_at": {
             "type": "string",
-            "format": "date-time",
-            "description": "Last date that the webhook was attempted or used."
+            "description": "Last date that the webhook was attempted or used.",
+            "format": "date-time"
           },
           "num_consecutive_times_failed": {
             "type": "number",
@@ -3508,12 +3453,15 @@
             "items": {
               "type": "string"
             },
-            "description": "List of events that will trigger this webhook."
+            "description": "List of events that will trigger this webhook.",
+            "externalDocs": {
+              "url": "://docs.patreon.com/#triggers-v2"
+            }
           },
           "uri": {
             "type": "string",
-            "format": "uri",
             "description": "Fully qualified uri where webhook will be sent",
+            "format": "uri",
             "examples": [
               "'https://www.example.com/webhooks/incoming'"
             ]
@@ -3548,7 +3496,7 @@
           ]
         ]
       },
-      "APIError": {
+      "JSONAPIError": {
         "type": "object",
         "properties": {
           "code": {
@@ -3568,6 +3516,58 @@
           },
           "title": {
             "type": "string"
+          }
+        }
+      },
+      "JSONAPIResource": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "id": {
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ],
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "JSONAPILinksRelated": {},
+      "JSONAPIResponseLinks": {
+        "properties": {
+          "self": {
+            "type": "string"
+          }
+        }
+      },
+      "JSONAPIResponseMeta": {
+        "properties": {
+          "meta": {
+            "properties": {
+              "total": {
+                "type": "number"
+              },
+              "pagination": {
+                "properties": {
+                  "cursors": {
+                    "properties": {
+                      "next": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -3681,7 +3681,7 @@
         },
         "security": [
           {
-            "auth": []
+            "Oauth2": []
           }
         ]
       }
@@ -3812,7 +3812,7 @@
         },
         "security": [
           {
-            "auth": [
+            "Oauth2": [
               "campaigns"
             ]
           }
@@ -3970,7 +3970,7 @@
         },
         "security": [
           {
-            "auth": [
+            "Oauth2": [
               "campaigns"
             ]
           }
@@ -4139,7 +4139,7 @@
         },
         "security": [
           {
-            "auth": [
+            "Oauth2": [
               "campaigns.members"
             ]
           }
@@ -4280,7 +4280,7 @@
         },
         "security": [
           {
-            "auth": [
+            "Oauth2": [
               "campaigns.members"
             ]
           }
@@ -4425,7 +4425,7 @@
         },
         "security": [
           {
-            "auth": [
+            "Oauth2": [
               "campaigns.posts"
             ]
           }
@@ -4542,7 +4542,7 @@
         },
         "security": [
           {
-            "auth": [
+            "Oauth2": [
               "campaigns.posts"
             ]
           }
@@ -4665,7 +4665,7 @@
         },
         "security": [
           {
-            "auth": [
+            "Oauth2": [
               "w:campaigns.webhook"
             ]
           }
@@ -4807,7 +4807,7 @@
         },
         "security": [
           {
-            "auth": [
+            "Oauth2": [
               "w:campaigns.webhook"
             ]
           }
@@ -4942,7 +4942,7 @@
         },
         "security": [
           {
-            "auth": [
+            "Oauth2": [
               "w:campaigns.webhook"
             ]
           }

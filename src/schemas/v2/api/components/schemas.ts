@@ -1,5 +1,11 @@
+import type { OpenAPIV3_1 } from 'openapi-types'
+
 import { PatreonWebhookTrigger, Type } from '../../../../v2'
-import { getJsDocDescription, getJsDocTags, getTypes } from '../../scripts/shared'
+import {
+    getJsDocDescription,
+    getJsDocTags,
+    getTypes,
+} from '../../../../../scripts/v2/shared'
 
 interface ResourceSchemaOptions<T extends string> {
     schemas: T[]
@@ -32,6 +38,7 @@ function createResourceSchemas <T extends string> (options: ResourceSchemaOption
                     const baseType = type.getBaseTypeOfLiteralType().getText()
                     const format = getJsDocTags(property, 'format')?.at(0)
                     const examples = getJsDocTags(property, 'example')
+                    const externalDocs = getJsDocTags(property, 'see')?.at(0)
 
                     return {
                         ...properties,
@@ -50,13 +57,14 @@ function createResourceSchemas <T extends string> (options: ResourceSchemaOption
                                     ? { enum: type.getUnionTypes().map(t => t.getText().replace(/"/g, '')) }
                                     : {}
                             ),
-                            ...(format != undefined ? { format } : {}),
                             description: getJsDocDescription(property),
+                            ...(externalDocs ? { externalDocs: { url: externalDocs } } : {}),
+                            ...(format != undefined ? { format } : {}),
                             ...(examples != undefined && examples.length
                                 ? { examples: baseType === 'number' ? examples.map(Number) : examples }
                                 : {}
                             ),
-                        }
+                        } as NonNullable<OpenAPIV3_1.SchemaObject['properties']>[string]
                     }
                 }, {})
             },
@@ -106,7 +114,7 @@ export default {
         ]
     },
     // TODO: add more details
-    APIError: {
+    JSONAPIError: {
         type: 'object',
         properties: {
             code: {
@@ -129,4 +137,51 @@ export default {
             },
         }
     },
-}
+    JSONAPIResource: {
+        type: 'object',
+        properties: {
+            type: {
+                type: 'string',
+            },
+            id: {
+                readOnly: true,
+                type: 'string',
+            }
+        },
+        required: [
+            'id',
+            'type',
+        ],
+        discriminator: {
+            propertyName: 'type',
+        },
+    },
+    JSONAPILinksRelated: {},
+    JSONAPIResponseLinks: {
+        properties: {
+            self: {
+                type: 'string'
+            }
+        }
+    },
+    JSONAPIResponseMeta: {
+        properties: {
+            meta: {
+                properties: {
+                    total: {
+                        type: 'number',
+                    },
+                    pagination: {
+                        properties: {
+                            cursors: {
+                                properties: {
+                                    next: { type: ['string', 'null'] },
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+} satisfies Record<string, OpenAPIV3_1.SchemaObject>

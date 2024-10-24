@@ -1,9 +1,6 @@
-import { APIErrorCodes, APIErrors  } from './components/errors'
-
-import { RoutesData } from './paths/'
+import { APIErrorCodes, APIErrors } from './components/errors'
 
 export {
     APIErrorCodes,
     APIErrors,
-    RoutesData,
 }

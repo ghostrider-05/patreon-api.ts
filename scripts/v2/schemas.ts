@@ -61,8 +61,6 @@ export async function syncResourceSchemas () {
                         writer.newLine()
                         writer.write('],')
                     })
-
-                    writer.newLine()
                 }
             }]
         })
