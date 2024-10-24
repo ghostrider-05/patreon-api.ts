@@ -11,9 +11,6 @@ export interface TsScript {
 export function createTsScriptProgram (outFilename: string): TsScript {
     const project = new Project({
         tsConfigFilePath: './tsconfig.json',
-        // compilerOptions: {
-        //     strictNullChecks: true
-        // },
         manipulationSettings: {
             newLineKind: NewLineKind.CarriageReturnLineFeed,
         },

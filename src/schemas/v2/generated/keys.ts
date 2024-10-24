@@ -11,4 +11,5 @@ const Post = ['app_id', 'app_status', 'content', 'embed_data', 'embed_url', 'is_
 const Tier = ['amount_cents', 'created_at', 'description', 'discord_role_ids', 'edited_at', 'image_url', 'patron_count', 'post_count', 'published', 'published_at', 'remaining', 'requires_shipping', 'title', 'unpublished_at', 'url', 'user_limit'] as const
 const User = ['about', 'can_see_nsfw', 'created', 'email', 'first_name', 'full_name', 'hide_pledges', 'image_url', 'is_email_verified', 'last_name', 'like_count', 'social_connections', 'thumb_url', 'url', 'vanity'] as const
 const Webhook = ['last_attempted_at', 'num_consecutive_times_failed', 'paused', 'secret', 'triggers', 'uri'] as const
+/** @deprecated */
 export const SchemaKeys = { Address, Benefit, Campaign, Deliverable, Goal, Media, Member, OauthClient, PledgeEvent, Post, Tier, User, Webhook }

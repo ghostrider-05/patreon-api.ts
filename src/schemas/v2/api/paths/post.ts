@@ -4,7 +4,7 @@ import {
     RequestMethod,
     Type,
 } from '../../../../v2'
-import type { Route } from '../../../../utils/openapi'
+import type { Route } from '../types'
 
 const resource = Type.Post
 const tags = [

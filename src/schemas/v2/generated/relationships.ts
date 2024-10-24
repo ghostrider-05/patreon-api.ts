@@ -1,3 +1,4 @@
+/** @deprecated */
 export const SchemaRelationshipKeys = {
     'address': [
         {

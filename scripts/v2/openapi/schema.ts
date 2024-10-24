@@ -1,36 +1,7 @@
 import { writeFile } from 'fs/promises'
 
-import {
-    PatreonOauthScope,
-    RequestMethod,
-    Type,
-} from '../v2'
-
-export interface Route {
-    route:
-        | ((id: string) => string)
-        | (() => string)
-    resource: Type
-    description?: string
-    summary?: string
-    tags: string[]
-    scopes?: PatreonOauthScope[]
-    params?: {
-        id?: string
-    }
-    response?: {
-        array?: boolean
-    }
-    methods: {
-        method: RequestMethod
-        id: string
-        body?: Record<string, unknown>
-        deprecated?: boolean
-        description?: string
-        scopes?: PatreonOauthScope[]
-        summary?: string
-    }[]
-}
+import { RequestMethod } from '../../../src/v2'
+import type { Route } from '../../../src/schemas/v2/api/types'
 
 interface PathSchemaOptions {
     base: string
@@ -75,13 +46,10 @@ function createPaths (schema: PathSchemaOptions) {
                 parameters: routeParameters,
             } = schema.getRoute(path, method)
 
-            const requestBody = body != undefined
-                ? {
-                    requestBody: {
-                        required: true,
-                        content: { [schema.contentType]: { schema: body } }
-                    }
-                }: {}
+            const requestBody = body != undefined ? {
+                required: true,
+                content: { [schema.contentType]: { schema: body } }
+            } : {}
 
             const parameters = schema.parameters
                 .map(param => typeof param === 'string' ? { ref: param } : param)
@@ -113,7 +81,7 @@ function createPaths (schema: PathSchemaOptions) {
                         ?? (id.at(0)!.toUpperCase() + id.slice(1).split(/(?=[A-Z])/).map(w => w.toLowerCase()).join(' ')),
                     deprecated: data.deprecated ?? false,
                     ...(externalDocs ? { externalDocs } : {}),
-                    ...requestBody,
+                    ...(requestBody ? { requestBody } : {}),
                     parameters: [
                         ...(routeParameters ?? []),
                         ...parameters,
@@ -121,7 +89,7 @@ function createPaths (schema: PathSchemaOptions) {
                     responses,
                     security: [
                         {
-                            auth: data.scopes ?? path.scopes ?? [],
+                            Oauth2: data.scopes ?? path.scopes ?? [],
                         }
                     ],
                 }

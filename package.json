@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "prestart": "npx tsc && node ./tsc-generated/src/schemas/v2/scripts/index.js",
+    "prestart": "npx tsc && node ./tsc-generated/scripts/v2/index.js",
     "build": "tsup",
     "test": "vitest --typecheck",
     "test:coverage": "vitest run --typecheck --coverage",
@@ -54,6 +54,7 @@
     "@vitest/coverage-istanbul": "^2.1.2",
     "eslint": "^9.11.1",
     "eslint-plugin-jsdoc": "^50.3.1",
+    "openapi-types": "^12.1.3",
     "ts-morph": "^23.0.0",
     "tsup": "^8.3.0",
     "typescript": "^5.6.2",
