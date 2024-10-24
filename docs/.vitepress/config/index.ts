@@ -71,13 +71,13 @@ export default defineConfig({
                     text: 'Patreon API',
                     items: [
                         {
-                            text: 'Overview',
-                            link: '/api',
-                        },
-                        {
                             text: 'OpenAPI schema',
                             link: openAPIUrlV2,
                             target: '_blank',
+                        },
+                        {
+                            text: 'Overview',
+                            link: '/api/',
                         },
                         ...useSidebar({
                             spec: await fetchOpenAPISchema(openAPIUrlV2),
