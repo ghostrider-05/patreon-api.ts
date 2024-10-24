@@ -47,6 +47,13 @@ export enum PatreonOauthScope {
      * Provides read, write, update, and delete access to the campaign’s webhooks created by the client.
      */
     ManageCampaignWebhooks = 'w:campaigns.webhook',
+
+    // ManageCampaignApps = 'w:campaigns.apps',
+    // ManageCampaignBenefits = 'w:campaigns.benefits',
+    // ManageCampaignPosts = 'w:campaigns.posts',
+    // ManageIdentityClients = 'w:identity.clients',
+    // CampaignsWebhook = 'campaigns.webhook',
+    // AppsTiers = 'apps.tiers',
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
