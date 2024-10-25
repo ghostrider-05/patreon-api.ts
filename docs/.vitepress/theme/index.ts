@@ -7,7 +7,7 @@ import { theme, useOpenapi } from 'vitepress-openapi'
 // @ts-expect-error Style import
 import 'vitepress-openapi/dist/style.css'
 
-import { fetchOpenAPISchema, openAPIUrlV2 } from './openapi'
+import { fetchOpenAPISchema } from './openapi'
 import Layout from './Layout.vue'
 // @ts-expect-error Style import
 import './style.css'
@@ -25,7 +25,7 @@ export default {
         DefaultTheme.enhanceApp(ctx)
         ctx.app.use(createVuetify())
 
-        const spec = await fetchOpenAPISchema(openAPIUrlV2)
+        const spec = await fetchOpenAPISchema()
 
         // @ts-expect-error Unused variable
         // eslint-disable-next-line @typescript-eslint/no-unused-vars

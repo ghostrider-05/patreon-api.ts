@@ -18,35 +18,15 @@ import {
 
 const repoUrl = repository.url.replace('.git', ''), branch = 'main'
 
-// eslint-disable-next-line jsdoc/require-jsdoc
-function createOverview(isSidebar: boolean) {
-    return [
-        shared.createGuideItem(isSidebar),
-        isSidebar
-            ? shared.createAppsItem()
-            : { text: 'API', link: '/api/index.html', activeMatch: '/api/' },
-        shared.createLinksItem({
-            branch,
-            bugsUrl: bugs.url,
-            repoUrl,
-            version,
-        }),
-        ...(!isSidebar ? [
-            {
-                component: 'GitHubStat',
-                props: {
-                    label: 'GitHub stars',
-                    iconClass: 'vpi-social-github',
-                    repo: 'ghostrider-05/patreon-api.ts',
-                    keyName: 'stargazers_count',
-                },
-            } as DefaultTheme.NavItemComponent
-        ] : []),
-    ]
-}
-
-const createNavItems = () => createOverview(false) as DefaultTheme.NavItem[]
-const createSidebarItems = () => createOverview(true) as DefaultTheme.SidebarItem[]
+const createSidebarItems = () => [
+    shared.createGuideItem(true),
+    shared.createLinksItem({
+        branch,
+        bugsUrl: bugs.url,
+        repoUrl,
+        version,
+    }),
+] as DefaultTheme.SidebarItem[]
 
 export default defineConfig({
     title: name,
@@ -62,7 +42,25 @@ export default defineConfig({
     },
 
     themeConfig: {
-        nav: createNavItems(),
+        nav: [
+            shared.createGuideItem(false),
+            { text: 'API', link: '/api/index.html', activeMatch: '/api/' },
+            shared.createLinksItem({
+                branch,
+                bugsUrl: bugs.url,
+                repoUrl,
+                version,
+            }),
+            {
+                component: 'GitHubStat',
+                props: {
+                    label: 'GitHub stars',
+                    iconClass: 'vpi-social-github',
+                    repo: 'ghostrider-05/patreon-api.ts',
+                    keyName: 'stargazers_count',
+                },
+            },
+        ] as DefaultTheme.NavItem[],
         sidebar: {
             '/guide/': createSidebarItems(),
             '/apps/': createSidebarItems(),
@@ -80,7 +78,7 @@ export default defineConfig({
                             link: '/api/',
                         },
                         ...useSidebar({
-                            spec: await fetchOpenAPISchema(openAPIUrlV2),
+                            spec: await fetchOpenAPISchema(),
                             linkPrefix: '/api/',
                         }).generateSidebarGroups(),
                     ]
@@ -91,13 +89,13 @@ export default defineConfig({
         externalLinkIcon: true,
         editLink: {
             text: 'Edit this page on GitHub',
-            pattern: `${repoUrl}/edit/main/docs/:path`,
+            pattern: `${repoUrl}/edit/${branch}/docs/:path`,
         },
         socialLinks: [
             {
                 icon: 'github',
                 link: repoUrl,
-            }
+            },
         ],
 
         outline: 'deep',
