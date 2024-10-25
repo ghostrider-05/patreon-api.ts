@@ -6,6 +6,7 @@ export {
     DefaultRestOptions,
     PATREON_RESPONSE_HEADERS,
     RequestMethod,
+    ResponseHeaders,
     type InternalRequestOptions,
     type PatreonErrorData,
     type PatreonHeadersData,

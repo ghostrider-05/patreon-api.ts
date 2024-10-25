@@ -3,10 +3,15 @@ import {
     type GetResponseMap,
     type Oauth2FetchOptions,
     type Oauth2RouteOptions,
+    type ResponseTransformMap,
+    type ResponseTransformType,
 } from './baseMethods'
 
 import {
     type CreatorToken,
+    type Oauth2CreatorToken,
+    type Oauth2StoredToken,
+    type Oauth2Token,
     type PatreonOauthClientOptions,
     type StoredToken,
     type Token,
@@ -20,6 +25,11 @@ import { WebhookClient } from '../webhooks'
 
 export type {
     GetResponseMap,
+    ResponseTransformMap,
+    ResponseTransformType,
+    Oauth2CreatorToken,
+    Oauth2StoredToken,
+    Oauth2Token,
     Oauth2FetchOptions,
     Oauth2RouteOptions,
     CreatorToken,
@@ -30,7 +40,7 @@ export type {
 /**
  * The constructor options for API applications
  */
-export type PatreonClientOptions = {
+export interface PatreonClientOptions {
     /**
      * The Oauth options for this client.
      * Required for both creator and user clients.

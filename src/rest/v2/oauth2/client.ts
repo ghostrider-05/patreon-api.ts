@@ -70,19 +70,26 @@ export interface BaseOauthHandlerOptions {
     state?: string | undefined
 }
 
-export interface CreatorToken extends Record<string, string> {
+export interface Oauth2CreatorToken extends Record<string, string> {
     access_token: string
     refresh_token: string
 }
 
-export interface Token extends CreatorToken {
+export interface Oauth2Token extends Oauth2CreatorToken {
     expires_in: string
     token_type: string
 }
 
-export interface StoredToken extends Token {
+export interface Oauth2StoredToken extends Oauth2Token {
     expires_in_epoch: string
 }
+
+/** @deprecated */
+export type CreatorToken = Oauth2CreatorToken
+/** @deprecated */
+export type Token = Oauth2Token
+/** @deprecated */
+export type StoredToken = Oauth2StoredToken
 
 type OauthOptions = Partial<Pick<BaseOauthHandlerOptions,
     | 'redirectUri'
@@ -189,6 +196,26 @@ export class PatreonOauthClient {
         else throw new Error(msg)
     }
 
+    protected async getRequestOptions (
+        path: string,
+        query: BasePatreonQuery,
+        options?: Oauth2FetchOptions,
+    ) {
+        const token = this.options.validateToken ? await PatreonOauthClient.validateToken(
+            this,
+            options?.token
+        ) : options?.token
+
+        this.validateScopes(path, query)
+
+        return {
+            ...options,
+            path,
+            query: query.query,
+            accessToken: typeof token === 'string' ? token : token?.access_token,
+        }
+    }
+
     /**
      * Make a request to the Patreon API
      * @param path the path of the resource
@@ -201,19 +228,9 @@ export class PatreonOauthClient {
         query: Query,
         options?: Oauth2FetchOptions,
     ): Promise<GetResponsePayload<Query>> {
-        const token = this.options.validateToken ? await PatreonOauthClient.validateToken(
-            this,
-            options?.token
-        ) : options?.token
+        const rawOptions = await this.getRequestOptions(path, query, options)
 
-        this.validateScopes(path, query)
-
-        return await this.rest.request({
-            ...options,
-            path,
-            query: query.query,
-            accessToken: typeof token === 'string' ? token : token?.access_token,
-        })
+        return await this.rest.request(rawOptions)
     }
 
     /**

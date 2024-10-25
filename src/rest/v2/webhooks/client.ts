@@ -3,7 +3,6 @@ import {
     Type,
     type AttributeItem,
     type DataItem,
-    type PatchWebhookBody,
     type PostWebhookBody,
     type Relationship,
     type Webhook,
@@ -18,6 +17,7 @@ import { WebhookPayloadClient } from './payload'
 
 export type Oauth2WebhookRouteOptions = Omit<Oauth2RouteOptions, 'body' | 'contentType'>
 
+/** @deprecated */
 export type CreateWebhookBody = PostWebhookBody & {
     /**
      * The id of the campaign that this webhook is linked to
@@ -25,9 +25,33 @@ export type CreateWebhookBody = PostWebhookBody & {
     campaignId: string
 }
 
+export interface WebhookAPICreateBody extends Pick<Webhook, 'triggers' | 'uri'> {
+    /**
+     * The id of the campaign that this webhook is linked to
+     */
+    campaignId: string
+}
+
+export interface WebhookAPICreateResult {
+    // TODO: remove Record<string, unknown> constrain
+    data: AttributeItem<Type.Webhook, { [K in keyof Webhook]: Webhook[K] }>
+}
+
+export interface WebhookAPIEditBody extends Partial<Pick<Webhook, 'triggers' | 'uri' | 'paused'>> {
+    /**
+     * The id of the webhook to edit
+     */
+    id: string
+}
+
+export type WebhookAPIEditResult = WebhookAPICreateResult
+
+// Should not have been exported
+/** @deprecated */
 export type APIPostWebhookBody = Omit<AttributeItem<Type.Webhook, PostWebhookBody>, 'id'>
     & Relationship<Type.Webhook, 'campaign'>
 
+/** @deprecated */
 export type APIPostWebhookResponse = DataItem<Type.Webhook, false> & {
     data: {
         attributes: Webhook
@@ -75,9 +99,9 @@ export class WebhookClient {
      * @returns the API response from Patreon: either the created webhook on success or `undefined` when failed.
      */
     public async createWebhook (
-        webhook: CreateWebhookBody,
+        webhook: WebhookAPICreateBody,
         options?: Oauth2WebhookRouteOptions,
-    ): Promise<APIPostWebhookResponse | undefined> {
+    ): Promise<WebhookAPICreateResult | undefined> {
         const body: APIPostWebhookBody = {
             type: Type.Webhook,
             attributes: {
@@ -98,7 +122,7 @@ export class WebhookClient {
             ...(options ?? {}),
             method: 'POST',
             body: JSON.stringify({ data: body }),
-        }) as unknown as APIPostWebhookResponse | undefined
+        }) as unknown as WebhookAPICreateResult | undefined
     }
 
     /**
@@ -121,7 +145,7 @@ export class WebhookClient {
      * @returns The updated webhook or `undefined` when failed to update
      */
     public async editWebhook (
-        webhook: PatchWebhookBody & { id: string },
+        webhook: WebhookAPIEditBody,
         options?: Oauth2WebhookRouteOptions,
     ) {
         const { id, ...body } = webhook
@@ -136,7 +160,7 @@ export class WebhookClient {
                     attributes: body,
                 },
             }),
-        }) as unknown as APIPostWebhookResponse | undefined
+        }) as unknown as WebhookAPIEditResult | undefined
     }
 
     /**

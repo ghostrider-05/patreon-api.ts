@@ -19,11 +19,6 @@ export interface PatreonTokenFetchOptions {
     get: () => Promise<StoredToken | undefined>
 }
 
-export interface KVLikeStore {
-    get: (key: string) => Promise<string | null>
-    put: (key: string, value: string) => Promise<void>
-}
-
 class PatreonFetchStore implements PatreonTokenFetchOptions {
     public get: () => Promise<StoredToken | undefined>
     public put: (token: StoredToken, url?: string | undefined) => Promise<void>
@@ -48,6 +43,14 @@ class PatreonFetchStore implements PatreonTokenFetchOptions {
     }
 }
 
+export interface PatreonStoreKVStorage {
+    get: (key: string) => Promise<string | null>
+    put: (key: string, value: string) => Promise<void>
+}
+
+/** @deprecated */
+export type KVLikeStore = PatreonStoreKVStorage
+
 /**
  * A store for Patreon tokens stored in a KV-like resource.
  */
@@ -60,7 +63,7 @@ class PatreonKVStore implements PatreonTokenFetchOptions {
      * @param store the external KV-like store to use for synchronizing tokens
      * @param tokenKey the key in the store to save the token in
      */
-    public constructor (store: KVLikeStore, tokenKey: string) {
+    public constructor (store: PatreonStoreKVStorage, tokenKey: string) {
         this.get = async () => await store.get(tokenKey)
             .then(value => value ? JSON.parse(value) : undefined)
             .catch(() => undefined)
