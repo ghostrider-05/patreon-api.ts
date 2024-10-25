@@ -1,5 +1,11 @@
 /* eslint-disable jsdoc/require-jsdoc */
-import { Project, type SourceFile, NewLineKind, ts, JSDocableNode } from 'ts-morph'
+import {
+    NewLineKind,
+    Project,
+    ts,
+    type JSDocableNode,
+    type SourceFile,
+} from 'ts-morph'
 
 export interface TsScript {
     project: Project

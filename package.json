@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "prestart": "npx tsc && node ./tsc-generated/scripts/v2/index.js",
+    "prestart": "npx tsc && node ./tsc-generated/src/scripts/v2/index.js",
     "build": "tsup",
     "test": "vitest --typecheck",
     "test:coverage": "vitest run --typecheck --coverage",

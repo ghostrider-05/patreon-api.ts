@@ -5,7 +5,7 @@ import {
     getJsDocDescription,
     getJsDocTags,
     getTypes,
-} from '../../../../../scripts/v2/shared'
+} from '../../../../scripts/v2/shared'
 
 interface ResourceSchemaOptions<T extends string> {
     schemas: T[]

@@ -4,7 +4,7 @@ import { parse, resolve } from 'node:path'
 
 import { VariableDeclarationKind } from 'ts-morph'
 
-import { Type } from '../../src'
+import { Type } from '../../v2'
 
 import { createTsScriptProgram, type TsScript } from './shared'
 

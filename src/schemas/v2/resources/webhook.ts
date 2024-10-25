@@ -28,6 +28,13 @@ export interface Webhook {
 
     /**
      * List of events that will trigger this webhook.
+     * @see https://docs.patreon.com/#triggers-v2
+     * @example
+     * [
+     *    'members:pledge:create',
+     *    'members:update',
+     *    'members:pledge:delete',
+     * ]
      */
     triggers: string[]
 

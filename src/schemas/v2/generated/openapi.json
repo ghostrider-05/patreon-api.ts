@@ -3456,7 +3456,10 @@
             "description": "List of events that will trigger this webhook.",
             "externalDocs": {
               "url": "://docs.patreon.com/#triggers-v2"
-            }
+            },
+            "examples": [
+              "[\r\n   'members:pledge:create',\r\n   'members:update',\r\n   'members:pledge:delete',\r\n]"
+            ]
           },
           "uri": {
             "type": "string",

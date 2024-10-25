@@ -1,7 +1,9 @@
 import { writeFile } from 'fs/promises'
 
-import { RequestMethod } from '../../../src/v2'
-import type { Route } from '../../../src/schemas/v2/api/types'
+import type { OpenAPIV3_1 } from 'openapi-types'
+
+import { RequestMethod } from '../../../v2'
+import type { Route } from '../../../schemas/v2/api/types'
 
 interface PathSchemaOptions {
     base: string
@@ -92,8 +94,8 @@ function createPaths (schema: PathSchemaOptions) {
                             Oauth2: data.scopes ?? path.scopes ?? [],
                         }
                     ],
-                }
-            }
+                } as OpenAPIV3_1.OperationObject
+            } as OpenAPIV3_1.PathsObject
         }, {})
     }), {})
 }

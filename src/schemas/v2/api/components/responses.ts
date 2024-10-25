@@ -1,9 +1,10 @@
+import type { OpenAPIV3_1 } from 'openapi-types'
+
 import { PATREON_RESPONSE_HEADERS, Type } from '../../../../v2'
 import type { Route } from '../types'
 
 import { getResourceParameters } from './parameters'
 import { APIErrors } from './errors'
-import { OpenAPIV3_1 } from 'openapi-types'
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 function createBaseItem(resource: Type) {
