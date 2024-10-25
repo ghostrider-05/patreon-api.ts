@@ -70,7 +70,7 @@ export default defineConfig({
                     items: [
                         {
                             text: 'OpenAPI schema',
-                            link: openAPIUrlV2,
+                            link: openAPIUrlV2('openapi-schema'),
                             target: '_blank',
                         },
                         {
@@ -78,7 +78,7 @@ export default defineConfig({
                             link: '/api/',
                         },
                         ...useSidebar({
-                            spec: await fetchOpenAPISchema(),
+                            spec: await fetchOpenAPISchema('openapi-schema'),
                             linkPrefix: '/api/',
                         }).generateSidebarGroups(),
                     ]

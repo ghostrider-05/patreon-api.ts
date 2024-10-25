@@ -40,7 +40,7 @@ features:
     linkText: Read more
   - title: Webhook server
     details: Verify (and parse) incoming webhook requests to your own server
-    link: /guide/features/webhook
+    link: /guide/features/webhooks
     linkText: Read more
   - title: Sandbox
     details: Test your application before it goes live and without paying to yourself

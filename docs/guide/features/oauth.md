@@ -1,6 +1,6 @@
 # Oauth
 
-The Patreon API is only accessable by authorizing your request with an access token:
+The Patreon API is only accessible by authorizing your request with an access token:
 
 - [Creator token](#creator-token): the tokens you can find in the developer portal. Use this if you are only using the API for your own account
 - [User Oauth](#user-oauth2): user can login to Patreon and be redirect to your application. Use this to grant access to users to a Patreon only part of your application.

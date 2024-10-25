@@ -36,9 +36,6 @@ const createdWebhook = await webhookClient.createWebhook({
 })
 ```
 
-> [!NOTE]
-> While you can create a webhook, it is not possible to delete it (with the public API)
-
 ### Edit a webhook
 
 You can edit the triggers and uri of the webhook you specified [while creating the webhook](#create-a-webhook).
@@ -62,7 +59,18 @@ await webhookClient.editWebhook({
 await webhookClient.unpauseWebhook(webhook.id)
 ```
 
+### Delete a webhook
+
+> [!WARNING]
+> This will be documented once the Patreon documentation has listed this method.
+> See [this issue](https://github.com/Patreon/platform-documentation/issues/89) for more details or [track the implementation](https://github.com/ghostrider-05/patreon-api.ts/pull/102) in this library
+
 ## Webhook server
+
+Both methods for verifying requests will work with the following request libraries:
+
+- Node.js v18+ (Undici) or request / response classes with the same methods
+- HTTP server with `IncomingRequest` (and `{ body: any }` being the JSON parsed request body) or a library that is built on this module.
 
 ### Verify requests
 
