@@ -186,12 +186,15 @@ export interface RequestOptions {
     signal?: AbortSignal | undefined
 }
 
-export const PATREON_RESPONSE_HEADERS = {
+export const ResponseHeaders = {
     Sha: 'x-patreon-sha',
     UUID: 'x-patreon-uuid',
     CfCacheStatus: 'cf-cache-status',
     CfRay: 'cf-ray',
 } as const
+
+/** @deprecated */
+export const PATREON_RESPONSE_HEADERS = ResponseHeaders
 
 export const DefaultRestOptions: RESTOptions = {
     authPrefix: 'Bearer',
@@ -214,7 +217,7 @@ export enum RequestMethod {
     Post = 'POST',
 }
 
-export type PatreonHeadersData = Record<Lowercase<keyof typeof PATREON_RESPONSE_HEADERS>, string | null>
+export type PatreonHeadersData = Record<Lowercase<keyof typeof ResponseHeaders>, string | null>
 
 export interface InternalRequestOptions extends RequestOptions {
     path: string
@@ -562,10 +565,10 @@ export class RestClient {
      */
     public getHeaders (response: RestResponse): PatreonHeadersData {
         return {
-            sha: response.headers.get(PATREON_RESPONSE_HEADERS.Sha),
-            uuid: response.headers.get(PATREON_RESPONSE_HEADERS.UUID),
-            cfcachestatus: response.headers.get(PATREON_RESPONSE_HEADERS.CfCacheStatus),
-            cfray: response.headers.get(PATREON_RESPONSE_HEADERS.CfRay),
+            sha: response.headers.get(ResponseHeaders.Sha),
+            uuid: response.headers.get(ResponseHeaders.UUID),
+            cfcachestatus: response.headers.get(ResponseHeaders.CfCacheStatus),
+            cfray: response.headers.get(ResponseHeaders.CfRay),
         }
     }
 }

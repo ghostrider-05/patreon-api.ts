@@ -1,5 +1,5 @@
 /* eslint-disable jsdoc/require-returns */
-export const Oauth2Routes = {
+export const Routes = {
     /**
      * Routes for:
      *
@@ -89,3 +89,5 @@ export const Oauth2Routes = {
     },
 }
 
+/** @deprecated */
+export const Oauth2Routes = Routes
