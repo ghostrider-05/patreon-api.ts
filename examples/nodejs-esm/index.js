@@ -48,7 +48,7 @@ if (createWebhook) {
     const webhooks = await client.webhooks.fetchWebhooks(buildQuery.webhooks(['campaign'])())
 
     for (const webhook of webhooks.data) {
-        if (webhook.attributes.uri === process.env.WEBHOOK_URI) {
+        if (webhook.attributes.paused) {
             await client.webhooks.unpauseWebhook(webhook.id)
         }
     }
