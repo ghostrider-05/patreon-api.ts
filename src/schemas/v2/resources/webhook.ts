@@ -1,11 +1,17 @@
+/**
+ * Webhooks are fired based on events happening on a particular campaign.
+ */
 export interface Webhook {
     /**
      * Last date that the webhook was attempted or used.
+     * @format date-time
      */
     last_attempted_at: string
 
     /**
      * Number of times the webhook has failed consecutively, when in an error state.
+     * @example 0
+     * @example 2
      */
     num_consecutive_times_failed: number
 
@@ -22,11 +28,20 @@ export interface Webhook {
 
     /**
      * List of events that will trigger this webhook.
+     * @see https://docs.patreon.com/#triggers-v2
+     * @example
+     * [
+     *    'members:pledge:create',
+     *    'members:update',
+     *    'members:pledge:delete',
+     * ]
      */
     triggers: string[]
 
     /**
-     * Fully qualified uri where webhook will be sent (e.g. https://www.example.com/webhooks/incoming).
+     * Fully qualified uri where webhook will be sent
+     * @format uri
+     * @example 'https://www.example.com/webhooks/incoming'
      */
     uri: string
 }

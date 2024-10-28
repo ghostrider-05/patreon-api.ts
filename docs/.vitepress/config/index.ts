@@ -1,24 +1,32 @@
-import { defineConfig } from 'vitepress'
+import { DefaultTheme, defineConfig } from 'vitepress'
+
+import { useSidebar } from 'vitepress-openapi'
 
 import * as shared from './shared'
 
+import { fetchOpenAPISchema, openAPIUrlV2 } from '../theme/openapi'
+
 import {
     author,
+    bugs,
     description,
     license,
     name,
+    repository,
     version,
 } from '../../../package.json'
 
-// eslint-disable-next-line jsdoc/require-jsdoc
-function createOverview(isSidebar = false) {
-    return [
-        shared.createGuideItem(isSidebar),
-        shared.createPlaygroundItem(isSidebar),
-        shared.createAppsItem(),
-        shared.createLinksItem(version),
-    ]
-}
+const repoUrl = repository.url.replace('.git', ''), branch = 'main'
+
+const createSidebarItems = () => [
+    shared.createGuideItem(true),
+    shared.createLinksItem({
+        branch,
+        bugsUrl: bugs.url,
+        repoUrl,
+        version,
+    }),
+] as DefaultTheme.SidebarItem[]
 
 export default defineConfig({
     title: name,
@@ -34,19 +42,60 @@ export default defineConfig({
     },
 
     themeConfig: {
-        nav: createOverview(),
-        sidebar: createOverview(true),
+        nav: [
+            shared.createGuideItem(false),
+            { text: 'API', link: '/api/index.html', activeMatch: '/api/' },
+            shared.createLinksItem({
+                branch,
+                bugsUrl: bugs.url,
+                repoUrl,
+                version,
+            }),
+            {
+                component: 'GitHubStat',
+                props: {
+                    label: 'GitHub stars',
+                    iconClass: 'vpi-social-github',
+                    repo: 'ghostrider-05/patreon-api.ts',
+                    keyName: 'stargazers_count',
+                },
+            },
+        ] as DefaultTheme.NavItem[],
+        sidebar: {
+            '/guide/': createSidebarItems(),
+            '/apps/': createSidebarItems(),
+            '/api/': [
+                {
+                    text: 'Patreon API',
+                    items: [
+                        {
+                            text: 'OpenAPI schema',
+                            link: openAPIUrlV2('openapi-schema'),
+                            target: '_blank',
+                        },
+                        {
+                            text: 'Overview',
+                            link: '/api/',
+                        },
+                        ...useSidebar({
+                            spec: await fetchOpenAPISchema('openapi-schema'),
+                            linkPrefix: '/api/',
+                        }).generateSidebarGroups(),
+                    ]
+                }
+            ]
+        },
 
         externalLinkIcon: true,
         editLink: {
             text: 'Edit this page on GitHub',
-            pattern: 'https://github.com/ghostrider-05/patreon-api.ts/edit/main/docs/:path',
+            pattern: `${repoUrl}/edit/${branch}/docs/:path`,
         },
         socialLinks: [
             {
                 icon: 'github',
-                link: 'https://github.com/ghostrider-05/patreon-api.ts',
-            }
+                link: repoUrl,
+            },
         ],
 
         outline: 'deep',
@@ -55,7 +104,7 @@ export default defineConfig({
         },
 
         footer: {
-            message: `Released under the ${license} License.`,
+            message: `Released under <a href="${repoUrl}/blob/${branch}/LICENSE">the ${license} License</a>.`,
             copyright: `Copyright © 2024 - present | ${author.name}`,
         },
     },

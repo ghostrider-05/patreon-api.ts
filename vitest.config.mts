@@ -12,8 +12,11 @@ export default defineConfig({
             provider: 'istanbul',
             exclude: [
                 '__tests__',
+                // Ignore generated scripts and code that generates it
+                '**/schemas/v2/api/',
                 '**/schemas/v2/generated/',
-                '**/schemas/v2/scripts/',
+                '**/scripts/v2/',
+                '**/utils/openapi.ts',
                 // TODO: add tests
                 '**/payloads/v2/normalized/'
             ],

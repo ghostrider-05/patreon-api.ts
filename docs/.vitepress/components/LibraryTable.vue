@@ -1,16 +1,23 @@
 <script setup lang="ts">
-const greenColor = 'green'
-const redColor = 'red'
+const greenColor = 'var(--vp-c-green-3)'
+const redColor = 'var(--vp-c-red-3)'
 
 const officialText = 'Official'
 
-function getColor (key, value) {
-    if (!key.colors) return undefined
-    else if (key.colors === 'boolean') return value === true ? greenColor : redColor
-    else return { red: redColor, green: greenColor }[key.colors[value]]
+interface Key {
+    id: string
+    name: string
+    title: string
+    colors?: 'boolean' | Record<number, 'green' | 'red'>
 }
 
-function getStyle (key, value) {
+function getColor (key: Key, value: number | boolean) {
+    if (!key.colors) return undefined
+    else if (key.colors === 'boolean') return value === true ? greenColor : redColor
+    else return { red: redColor, green: greenColor }[key.colors[<number>value]]
+}
+
+function getStyle (key: Key, value: number | boolean) {
     const color = getColor(key, value)
     if (color) return { backgroundColor: color, color: 'var(--vp-c-neutral-inverse)', textAlign: 'center' }
     else return {}

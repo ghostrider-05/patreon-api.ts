@@ -1,3 +1,6 @@
+/**
+ * Content posted by a creator on a campaign page.
+ */
 export interface Post {
     /**
      * Platform app id
@@ -23,6 +26,7 @@ export interface Post {
 
     /**
      * Embed media url
+     * @format uri
      */
     embed_url: string | null
 
@@ -39,6 +43,7 @@ export interface Post {
 
     /**
      * Datetime that the creator most recently published (made publicly visible) the post
+     * @format date-time
      */
     published_at: string | null
 
@@ -57,6 +62,7 @@ export interface Post {
 
     /**
      * A URL to access this post on patreon.com
+     * @format uri
      */
     url: string
 }

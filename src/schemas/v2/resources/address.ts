@@ -1,3 +1,6 @@
+/**
+ * A patron's shipping address.
+ */
 export interface Address {
     /**
      * Full recipient name
@@ -16,6 +19,7 @@ export interface Address {
 
     /**
      * Datetime address was first created
+     * @format date-time
      */
     created_at: string
 

@@ -27,21 +27,29 @@ features:
     link: https://docs.patreon.com/#apiv2-resource-endpoints
     linkText: Patreon documentation
   - title: ESM & CJS
-    details: Works with ESM and CJS projects on Node.js and edge platforms, like Cloudflare, and no dependencies
+    details: Works with ESM and CJS projects on Node.js and edge platforms, like Cloudflare, and no dependencies!
     link: /guide/installation#platform
     linkText: See runtime requirements
+  - title: OpenAPI schema
+    details: Use the Patreon API with popular OpenAPI tools
+    link: /api/
+    linkText: Explore the API
   - title: Simplified payloads
     details: Don't want to deal with the JSON:API? Use the simplified payloads
     link: /guide/features/simplify
     linkText: Read more
   - title: Webhook server
     details: Verify (and parse) incoming webhook requests to your own server
-    link: /guide/features/webhook
+    link: /guide/features/webhooks
     linkText: Read more
   - title: Sandbox
     details: Test your application before it goes live and without paying to yourself
     link: /guide/features/sandbox
     linkText: Read more
+  - title: Apps
+    details: Explore applications built with this library to be used as templates
+    link: /apps/dashboard
+    linkText: Explore apps
 ---
 
 <script setup lang="ts">

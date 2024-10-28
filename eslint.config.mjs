@@ -32,6 +32,14 @@ export default [
             jsdoc,
         },
         rules: {
+            'jsdoc/check-tag-names': [
+                'warn',
+                {
+                    definedTags: [
+                        'format',
+                    ]
+                }
+            ],
             'no-trailing-spaces': [
                 'error'
             ],

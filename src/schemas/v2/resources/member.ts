@@ -1,6 +1,10 @@
+/**
+ * The record of a user's membership to a campaign.
+ * Remains consistent across months of pledging.
+ */
 export interface Member {
     /**
-     * 	The total amount that the member has ever paid to the campaign in campaign's currency.
+     * The total amount that the member has ever paid to the campaign in campaign's currency.
      * 0 if never paid
      */
     campaign_lifetime_support_cents: number
@@ -19,6 +23,7 @@ export interface Member {
 
     /**
      * Full name of the member user
+     * @example John Doe
      */
     full_name: string
 
@@ -30,6 +35,7 @@ export interface Member {
     /**
      * Datetime of last attempted charge.
      * `null` if never charged
+     * @format date-time
      */
     last_charge_date: string | null
 
@@ -59,6 +65,7 @@ export interface Member {
     /**
      * Datetime of next charge.
      * `null` if annual pledge downgrade
+     * @format date-time
      */
     next_charge_date: string | null
 
@@ -80,17 +87,20 @@ export interface Member {
      * Number of months between charges
      *
      * Note: this will be `1` if Campaign.is_monthly is `true`
+     * @example 1
      */
     pledge_cadence: number
 
     /**
      * Datetime of beginning of most recent pledge chainfrom this member to the campaign.
      * Pledge updates do not change this value
+     * @format date-time
      */
     pledge_relationship_start: string | null
 
     /**
      * The amount in cents the user will pay at the next pay cycle
+     * @example 500
      */
     will_pay_amount_cents: number
 }

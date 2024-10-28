@@ -1,0 +1,20 @@
+name: OpenAPI
+on: 
+  workflow_dispatch:
+  push:
+    paths:
+      - '**/schemas/v2/api'
+      - '**/schemas/v2/resources'
+      - '**/scripts/v2/openapi'
+    branches: main
+jobs:
+  update:
+    name: Update specs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PAT }}
+          repository: ghostrider-05/patreon-api-spec
+          event-type: spec_update

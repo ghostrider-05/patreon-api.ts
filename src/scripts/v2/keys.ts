@@ -5,6 +5,7 @@ import { parse, resolve } from 'node:path'
 import { VariableDeclarationKind } from 'ts-morph'
 import { createTsScriptProgram, type TsScript } from './shared'
 
+/** @deprecated */
 export async function syncResourceKeys () {
     const program = createTsScriptProgram('keys.ts')
 
@@ -19,6 +20,11 @@ export async function syncResourceKeys () {
     program.addVariableStatement({
         declarationKind: VariableDeclarationKind.Const,
         isExported: true,
+        docs: [
+            {
+                tags: [{ tagName: 'deprecated' }],
+            }
+        ],
         declarations: [{
             name: 'SchemaKeys',
             initializer: writer =>
