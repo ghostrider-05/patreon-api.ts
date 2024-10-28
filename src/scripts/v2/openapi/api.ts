@@ -27,8 +27,10 @@ function getScopes () {
 
 }
 
-export default () => writeOpenAPISchema({
-    fileName: './src/schemas/v2/generated/openapi.json',
+// @ts-expect-error unused preview for now
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default (fileName: string, preview?: boolean) => writeOpenAPISchema({
+    fileName,
     spacing: 2,
     details,
     components(routes) {

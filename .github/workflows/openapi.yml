@@ -1,20 +1,19 @@
 name: OpenAPI
 on: 
   push:
-    paths: '**/openapi.json'
+    paths:
+      - '**/schemas/v2/api'
+      - '**/schemas/v2/resources'
+      - '**/scripts/v2/openapi'
     branches: main
-  pull_request:
-    paths: '**/openapi.json'
 jobs:
-  validate:
-    name: Validate
+  update:
+    name: Update specs
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Validate Patreon API
-        uses: char0n/apidom-validate@v1
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v3
         with:
-          definition-file: './src/schemas/v2/generated/openapi.json'
+          token: ${{ secrets.PAT }}
+          repository: ghostrider-05/patreon-api-spec
+          event-type: spec_update

@@ -15,6 +15,7 @@
   "scripts": {
     "prestart": "npx tsc && node ./tsc-generated/src/scripts/v2/index.js",
     "build": "tsup",
+    "build:openapi": "npx tsc && node ./tsc-generated/src/scripts/v2/openapi/index.js",
     "test": "vitest --typecheck",
     "test:coverage": "vitest run --typecheck --coverage",
     "lint": "npx eslint src/**/*.ts apps/**/*.ts examples/**/*.ts",
