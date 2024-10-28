@@ -74,11 +74,15 @@ Tip: the Patreon API blocks browser requests, so choose a backend to handle Oaut
 
 </details>
 
+### OpenAPI schema
+
+This library is used to create the Patreon OpenAPI for the [`patreon-api-spec`](https://github.com/ghostrider-05/patreon-api-spec) repository. The stable spec is also available on the [API documentation](https://patreon-api.pages.dev/api/) of this library.
+
 ## Examples
 
-- [Commonly used routes](./examples/README.md)
-- [Example Cloudflare worker](./examples/cloudflare-webhook/)
-- [Example Node.js server](./examples/nodejs-esm/)
+- [Commonly used routes](./examples/README.md) and [community resources](./examples/community.md)
+- Example webhook server: [Cloudflare worker](./examples/cloudflare-webhook/) and [express.js server](./examples/express-webhook/)
+- Example Node.js server: [ESM](./examples/nodejs-esm/) and [CJS](./examples/nodejs-cjs/)
 
 ## Changelog
 
