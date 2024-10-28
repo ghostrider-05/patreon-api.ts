@@ -1,10 +1,10 @@
 import { useOpenapi, httpVerbs } from 'vitepress-openapi'
 
-import { fetchOpenAPISchema, openAPIUrlV2 } from '../.vitepress/theme/openapi'
+import { fetchOpenAPISchema } from '../.vitepress/theme/openapi'
 
 export default {
     async paths() {
-        const spec = await fetchOpenAPISchema(openAPIUrlV2)
+        const spec = await fetchOpenAPISchema()
 
         const openapi = useOpenapi({ spec })
 

@@ -4,9 +4,8 @@ outline: [1, 2]
 prev: false
 ---
 
-> [!WARNING] Disclaimer
-> This OpenAPI schema is not created, maintained and associated with Patreon.
-> This schema is only a reflection of the V2 API documentation.
+> [!WARNING]
+> This repository is not created, maintained or associated in any way with Patreon. Both specifications are made from the public documented API and are subject to breaking changes without notice if Patreon updates the public API.
 
 <OAInfo />
 
