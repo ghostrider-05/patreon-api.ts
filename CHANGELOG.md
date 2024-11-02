@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.9.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.8.0...patreon-api.ts-v0.9.0) (2024-11-02)
+
+
+### Features
+
+* add OpenAPI schema ([#100](https://github.com/ghostrider-05/patreon-api.ts/issues/100)) ([bb335e7](https://github.com/ghostrider-05/patreon-api.ts/commit/bb335e7b4309a5de7ad50ddfe3a27ae96e5d71f5))
+* **rest:** add Cloudflare ray id and cache status to headers ([5a5cb50](https://github.com/ghostrider-05/patreon-api.ts/commit/5a5cb50255eb7dda78f50933a21873a07a2ecda0))
+* **rest:** add event emitter option ([5a5cb50](https://github.com/ghostrider-05/patreon-api.ts/commit/5a5cb50255eb7dda78f50933a21873a07a2ecda0))
+* **rest:** add ratelimit sleep option ([5a5cb50](https://github.com/ghostrider-05/patreon-api.ts/commit/5a5cb50255eb7dda78f50933a21873a07a2ecda0))
+* **rest:** add request limit option ([#99](https://github.com/ghostrider-05/patreon-api.ts/issues/99)) ([5a5cb50](https://github.com/ghostrider-05/patreon-api.ts/commit/5a5cb50255eb7dda78f50933a21873a07a2ecda0))
+* **rest:** deprecate certain types ([#107](https://github.com/ghostrider-05/patreon-api.ts/issues/107)) ([ddf065f](https://github.com/ghostrider-05/patreon-api.ts/commit/ddf065f7fbab68ea1ead5ecb804b19cc2b5389e9))
+* **webhooks:** add support for http server verifying ([#101](https://github.com/ghostrider-05/patreon-api.ts/issues/101)) ([ccc2267](https://github.com/ghostrider-05/patreon-api.ts/commit/ccc226789b0996a223b324e3861c061588190953))
+
+
+### Bug Fixes
+
+* **build:** add missing type-checking rules ([ac17495](https://github.com/ghostrider-05/patreon-api.ts/commit/ac1749554c2f5998ef5271c40d8405237d536821))
+* **examples:** update embed converter ([34e62f0](https://github.com/ghostrider-05/patreon-api.ts/commit/34e62f04f33d1dae5d667dfe9ec7df0529436e98))
+* **rest:** retry ratelimited requests ([5a5cb50](https://github.com/ghostrider-05/patreon-api.ts/commit/5a5cb50255eb7dda78f50933a21873a07a2ecda0))
+* **rest:** throw all errors from response ([aaf9847](https://github.com/ghostrider-05/patreon-api.ts/commit/aaf98470e778b3f06da67b7c818159439a0431b4))
+* **rest:** update typo in unknown error code ([5a5cb50](https://github.com/ghostrider-05/patreon-api.ts/commit/5a5cb50255eb7dda78f50933a21873a07a2ecda0))
+
 ## [0.8.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.7.0...patreon-api.ts-v0.8.0) (2024-10-04)
 
 
