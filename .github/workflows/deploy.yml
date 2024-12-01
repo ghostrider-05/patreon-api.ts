@@ -97,6 +97,7 @@ jobs:
 
       - name: Publish to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3.6.0
+        if: ${{ github.actor != 'dependabot[bot]' }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -108,6 +109,7 @@ jobs:
       
       - name: Deploy patreon-docs worker
         uses: cloudflare/wrangler-action@v3.6.0
+        if: ${{ github.actor != 'dependabot[bot]' }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
