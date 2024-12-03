@@ -3,10 +3,25 @@
  */
 export interface Media {
     /**
+     * If closed captions should be enabled or not
+     */
+    closed_captions_enabled: boolean
+
+    /**
+     * Closed captions data for FE display
+     */
+    closed_captions: unknown[]
+
+    /**
      * When the file was created
      * @format date-time
      */
     created_at: string
+
+    /**
+     *
+     */
+    display: object | null
 
     /**
      * The URL to download this media. Valid for 24 hours.
@@ -23,6 +38,11 @@ export interface Media {
      * The resized image URLs for this media. Valid for 2 weeks.
      */
     image_urls: object
+
+    /**
+     * The type of the media
+     */
+    media_type: string | null
 
     /**
      * Metadata related to the file

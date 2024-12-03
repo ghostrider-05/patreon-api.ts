@@ -71,7 +71,7 @@ export interface Campaign {
     pay_per_name: string | null
 
     /**
-     * Number of patrons pledging to this creator
+     * Number of patrons having access to this creator
      */
     patron_count: number
 

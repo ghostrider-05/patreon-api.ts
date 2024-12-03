@@ -73,6 +73,11 @@ export interface User {
     image_url: string
 
     /**
+     * Whether this user has an active campaign.
+     */
+    is_creator: boolean
+
+    /**
      * Whether the user has confirmed their email
      */
     is_email_verified: boolean

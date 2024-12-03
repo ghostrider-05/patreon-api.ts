@@ -31,6 +31,7 @@ interface RelationshipTypeMap extends Record<ItemType, BaseRelationDataItem<Item
         // TODO: add `campaign_installation` when documentated
         // TODO: add `categories` when documentated
         [Type.User]: ['creator', false, false]
+        /** @deprecated Will always be empty */
         [Type.Goal]: Multiple<Type.Goal, false>
         [Type.Tier]: Multiple<Type.Tier, false>
     }
@@ -50,9 +51,11 @@ interface RelationshipTypeMap extends Record<ItemType, BaseRelationDataItem<Item
     goal: {
         [Type.Campaign]: [false, false]
     }
-    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     media: {
-        // Nothing
+        [Type.Media]: ['custom_thumbnail_media', false, false]
+        [Type.Media]: ['teaser_media', false, false]
+        [Type.Media]: ['share_videos', true, false]
+        [Type.Media]: ['images', true, false]
     }
     member: {
         [Type.Address]: [false, false]
