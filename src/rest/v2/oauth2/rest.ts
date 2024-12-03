@@ -191,6 +191,7 @@ export const ResponseHeaders = {
     UUID: 'x-patreon-uuid',
     CfCacheStatus: 'cf-cache-status',
     CfRay: 'cf-ray',
+    RetryAfter: 'Retry-After',
 } as const
 
 /** @deprecated */
@@ -233,6 +234,7 @@ export interface PatreonErrorData {
     detail: string
     status: string
     title: string
+    retry_after_seconds?: number
     source?: {
         parameter?: string
     }
@@ -274,32 +276,21 @@ async function parseResponse <Parsed = unknown>(response: RestResponse) {
     return await response.json() as Promise<Parsed>
 }
 
-class PatreonError extends Error implements PatreonErrorData {
-    public id: string
-    public code: number | null
-    public code_name: string
-    public detail: string
-    public status: string
-    public title: string
-    public code_challenge: null = null
-    public source?: { parameter?: string } = undefined
-
+class PatreonError extends Error {
     public constructor (
-        error: PatreonErrorData,
+        public error: PatreonErrorData,
         public data: PatreonHeadersData,
     ) {
         super(error.title)
 
-        this.id = error.id
-        this.code = error.code
-        this.code_name = error.code_name
-        this.detail = error.detail
-        this.status = error.status
-        this.title = error.title
+    }
+
+    public get retry_after_seconds () {
+        return this.error.retry_after_seconds ?? 0
     }
 
     public override get name () {
-        return `${this.code_name}[${this.code ?? 'unknown code'}]`
+        return `${this.error.code_name}[${this.error.code ?? 'unknown code'}]`
     }
 }
 
@@ -387,7 +378,6 @@ export class RestClient {
                             timeout: this.options.ratelimitTimeout,
                         })
                     }
-
 
                     if (this.shouldRetry(retries, 429)) {
                         return tryRequest(++retries)
@@ -555,11 +545,18 @@ export class RestClient {
     }
 
     private handleRatelimit (response: RestResponse) {
-        // TODO: How should libraries handle 429??
-        console.log('This client is currently ratelimited. Please contact Patreon or reduce your requests', this.getHeaders(response))
+        const headers = this.getHeaders(response)
+        console.log('This client is currently ratelimited. Please contact Patreon or reduce your requests', headers)
 
-        if (this.options.ratelimitTimeout !== 0) {
-            this.ratelimitedUntil = new Date(Date.now() + this.options.ratelimitTimeout)
+        if (!headers.retryafter) {
+            console.warn('Missing retry after header for ratelimited response!')
+        }
+
+        const RetryAfter = (headers.retryafter ? parseInt(headers.retryafter) : 0) * 1000
+        const timeout = this.options.ratelimitTimeout
+
+        if ((RetryAfter + timeout) > 0) {
+            this.ratelimitedUntil = new Date(Date.now() + RetryAfter + timeout)
         }
     }
 
@@ -574,6 +571,7 @@ export class RestClient {
             uuid: response.headers.get(ResponseHeaders.UUID),
             cfcachestatus: response.headers.get(ResponseHeaders.CfCacheStatus),
             cfray: response.headers.get(ResponseHeaders.CfRay),
+            retryafter: response.headers.get(ResponseHeaders.RetryAfter),
         }
     }
 }
