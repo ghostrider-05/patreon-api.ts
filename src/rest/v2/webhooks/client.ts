@@ -8,7 +8,7 @@ import {
     type Webhook,
 } from '../../../schemas/v2'
 
-import { Oauth2Routes, RequestMethod } from '../oauth2'
+import { Routes, RequestMethod } from '../oauth2'
 import { createQuery, type BasePatreonQueryType, type GetResponsePayload } from '../query'
 
 import type { Oauth2RouteOptions } from '../clients/baseMethods'
@@ -115,16 +115,17 @@ export class WebhookClient {
                 triggers: webhook.triggers,
             },
             relationships: {
+                // @ts-expect-error not including links
                 campaign: {
                     data: {
                         id: webhook.campaignId,
                         type: Type.Campaign,
-                    }
+                    },
                 },
             },
         }
 
-        return await this.oauth.fetch(Oauth2Routes.webhooks(), createQuery(new URLSearchParams()), {
+        return await this.oauth.fetch(Routes.webhooks(), createQuery(new URLSearchParams()), {
             ...(options ?? {}),
             method: 'POST',
             body: JSON.stringify({ data: body }),
@@ -141,7 +142,7 @@ export class WebhookClient {
         query: Query,
         options?: Oauth2WebhookRouteOptions,
     ): Promise<GetResponsePayload<Query> | undefined> {
-        return await this.oauth.fetch<Query>(Oauth2Routes.webhooks(), query, options)
+        return await this.oauth.fetch<Query>(Routes.webhooks(), query, options)
     }
 
     /**
@@ -156,7 +157,7 @@ export class WebhookClient {
     ) {
         const { id, ...body } = webhook
 
-        return await this.oauth.fetch(Oauth2Routes.webhook(id), createQuery(new URLSearchParams()), {
+        return await this.oauth.fetch(Routes.webhook(id), createQuery(new URLSearchParams()), {
             ...(options ?? {}),
             method: 'PATCH',
             body: JSON.stringify({
@@ -185,7 +186,7 @@ export class WebhookClient {
         webhookId: string,
         options?: Oauth2WebhookRouteOptions,
     ): Promise<void> {
-        await this.oauth.fetch(Oauth2Routes.webhook(webhookId), createQuery(new URLSearchParams()), {
+        await this.oauth.fetch(Routes.webhook(webhookId), createQuery(new URLSearchParams()), {
             ...(options ?? {}),
             method: RequestMethod.Delete,
         })
