@@ -1,6 +1,6 @@
 export const Address = {
-    resource: 'address',
-    properties: [
+    resource: <const>'address',
+    properties: <const>[
         'addressee',
         'city',
         'country',
@@ -11,7 +11,7 @@ export const Address = {
         'postal_code',
         'state',
     ],
-    relationships: [
+    relationships: <const>[
         {
             resource: 'campaign', name: 'campaigns', type: 'array'
         },
@@ -21,8 +21,8 @@ export const Address = {
     ],
 }
 export const Benefit = {
-    resource: 'benefit',
-    properties: [
+    resource: <const>'benefit',
+    properties: <const>[
         'app_external_id',
         'app_meta',
         'benefit_type',
@@ -39,7 +39,7 @@ export const Benefit = {
         'tiers_count',
         'title',
     ],
-    relationships: [
+    relationships: <const>[
         {
             resource: 'campaign', name: 'campaign', type: 'array'
         },
@@ -52,8 +52,8 @@ export const Benefit = {
     ],
 }
 export const Campaign = {
-    resource: 'campaign',
-    properties: [
+    resource: <const>'campaign',
+    properties: <const>[
         'vanity',
         'url',
         'thanks_video_url',
@@ -82,7 +82,7 @@ export const Campaign = {
         'creation_name',
         'created_at',
     ],
-    relationships: [
+    relationships: <const>[
         {
             resource: 'benefit', name: 'benefits', type: 'array'
         },
@@ -98,13 +98,13 @@ export const Campaign = {
     ],
 }
 export const Deliverable = {
-    resource: 'deliverable',
-    properties: [
+    resource: <const>'deliverable',
+    properties: <const>[
         'completed_at',
         'delivery_status',
         'due_at',
     ],
-    relationships: [
+    relationships: <const>[
         {
             resource: 'benefit', name: 'benefit', type: 'item'
         },
@@ -120,18 +120,18 @@ export const Deliverable = {
     ],
 }
 export const Goal = {
-    resource: 'goal',
-    properties: [
+    resource: <const>'goal',
+    properties: <const>[
     ],
-    relationships: [
+    relationships: <const>[
         {
             resource: 'campaign', name: 'campaign', type: 'item'
         },
     ],
 }
 export const Media = {
-    resource: 'media',
-    properties: [
+    resource: <const>'media',
+    properties: <const>[
         'created_at',
         'download_url',
         'file_name',
@@ -147,12 +147,12 @@ export const Media = {
         'upload_parameters',
         'upload_url',
     ],
-    relationships: [
+    relationships: <const>[
     ],
 }
 export const Member = {
-    resource: 'member',
-    properties: [
+    resource: <const>'member',
+    properties: <const>[
         'campaign_lifetime_support_cents',
         'currently_entitled_amount_cents',
         'email',
@@ -170,7 +170,7 @@ export const Member = {
         'pledge_relationship_start',
         'will_pay_amount_cents',
     ],
-    relationships: [
+    relationships: <const>[
         {
             resource: 'address', name: 'address', type: 'item'
         },
@@ -189,8 +189,8 @@ export const Member = {
     ],
 }
 export const OauthClient = {
-    resource: 'client',
-    properties: [
+    resource: <const>'client',
+    properties: <const>[
         'author_name',
         'category',
         'client_secret',
@@ -204,7 +204,7 @@ export const OauthClient = {
         'tos_url',
         'version',
     ],
-    relationships: [
+    relationships: <const>[
         {
             resource: 'campaign', name: 'campaign', type: 'item'
         },
@@ -214,8 +214,8 @@ export const OauthClient = {
     ],
 }
 export const PledgeEvent = {
-    resource: 'pledge-event',
-    properties: [
+    resource: <const>'pledge-event',
+    properties: <const>[
         'amount_cents',
         'currency_code',
         'date',
@@ -225,7 +225,7 @@ export const PledgeEvent = {
         'tier_title',
         'type',
     ],
-    relationships: [
+    relationships: <const>[
         {
             resource: 'campaign', name: 'campaign', type: 'item'
         },
@@ -238,8 +238,8 @@ export const PledgeEvent = {
     ],
 }
 export const Post = {
-    resource: 'post',
-    properties: [
+    resource: <const>'post',
+    properties: <const>[
         'app_id',
         'app_status',
         'content',
@@ -252,7 +252,7 @@ export const Post = {
         'title',
         'url',
     ],
-    relationships: [
+    relationships: <const>[
         {
             resource: 'user', name: 'user', type: 'item'
         },
@@ -262,8 +262,8 @@ export const Post = {
     ],
 }
 export const Tier = {
-    resource: 'tier',
-    properties: [
+    resource: <const>'tier',
+    properties: <const>[
         'amount_cents',
         'created_at',
         'description',
@@ -281,7 +281,7 @@ export const Tier = {
         'url',
         'user_limit',
     ],
-    relationships: [
+    relationships: <const>[
         {
             resource: 'benefit', name: 'benefits', type: 'array'
         },
@@ -294,8 +294,8 @@ export const Tier = {
     ],
 }
 export const User = {
-    resource: 'user',
-    properties: [
+    resource: <const>'user',
+    properties: <const>[
         'about',
         'can_see_nsfw',
         'created',
@@ -313,7 +313,7 @@ export const User = {
         'url',
         'vanity',
     ],
-    relationships: [
+    relationships: <const>[
         {
             resource: 'campaign', name: 'campaign', type: 'item'
         },
@@ -323,8 +323,8 @@ export const User = {
     ],
 }
 export const Webhook = {
-    resource: 'webhook',
-    properties: [
+    resource: <const>'webhook',
+    properties: <const>[
         'last_attempted_at',
         'num_consecutive_times_failed',
         'paused',
@@ -332,7 +332,7 @@ export const Webhook = {
         'triggers',
         'uri',
     ],
-    relationships: [
+    relationships: <const>[
         {
             resource: 'campaign', name: 'campaign', type: 'item'
         },
