@@ -72,6 +72,7 @@ export const Routes = {
      * Routes for:
      *
      * - PATCH `/webhooks/{webhookId}`
+     * - DELETE `/webhooks/{webhookId}`
      * @param webhookId The id of the webhook
      */
     webhook (webhookId: string) {

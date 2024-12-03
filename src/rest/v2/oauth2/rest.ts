@@ -212,6 +212,7 @@ export const DefaultRestOptions: RESTOptions = {
 }
 
 export enum RequestMethod {
+    Delete = 'DELETE',
     Get = 'GET',
     Patch = 'PATCH',
     Post = 'POST',
@@ -347,6 +348,10 @@ export class RestClient {
 
     public clearRequestInterval (): void {
         clearInterval(this.requestInterval)
+    }
+
+    public async delete<T> (path: string, options?: RequestOptions) {
+        return await this.request<T>({ ...options, method: RequestMethod.Delete, path })
     }
 
     public async get<T> (path: string, options?: RequestOptions) {
