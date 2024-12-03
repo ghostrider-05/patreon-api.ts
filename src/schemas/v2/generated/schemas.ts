@@ -132,10 +132,14 @@ export const Goal = {
 export const Media = {
     resource: 'media',
     properties: [
+        'closed_captions_enabled',
+        'closed_captions',
         'created_at',
+        'display',
         'download_url',
         'file_name',
         'image_urls',
+        'media_type',
         'metadata',
         'mimetype',
         'owner_id',
@@ -148,6 +152,9 @@ export const Media = {
         'upload_url',
     ],
     relationships: [
+        {
+            resource: 'media', name: 'custom_thumbnail_media', type: 'item'
+        },
     ],
 }
 export const Member = {
@@ -158,6 +165,8 @@ export const Member = {
         'email',
         'full_name',
         'is_follower',
+        'is_free_trial',
+        'is_gifted',
         'last_charge_date',
         'last_charge_status',
         'lifetime_support_cents',
@@ -190,6 +199,7 @@ export const OauthClient = {
     resource: 'client',
     properties: [
         'author_name',
+        'category',
         'client_secret',
         'default_scopes',
         'description',
@@ -216,6 +226,7 @@ export const PledgeEvent = {
         'amount_cents',
         'currency_code',
         'date',
+        'pledge_payment_status',
         'payment_status',
         'tier_id',
         'tier_title',
@@ -300,6 +311,7 @@ export const User = {
         'full_name',
         'hide_pledges',
         'image_url',
+        'is_creator',
         'is_email_verified',
         'last_name',
         'like_count',

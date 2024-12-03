@@ -53,8 +53,11 @@ interface RelationshipTypeMap extends Record<ItemType, BaseRelationDataItem<Item
     }
     media: {
         [Type.Media]: ['custom_thumbnail_media', false, false]
+        // @ts-expect-error TODO: fix in PR
         [Type.Media]: ['teaser_media', false, false]
+        // @ts-expect-error TODO: fix in PR
         [Type.Media]: ['share_videos', true, false]
+        // @ts-expect-error TODO: fix in PR
         [Type.Media]: ['images', true, false]
     }
     member: {

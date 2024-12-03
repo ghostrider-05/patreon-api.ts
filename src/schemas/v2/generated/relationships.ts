@@ -108,7 +108,14 @@ export const SchemaRelationshipKeys = {
             'isRelated': false
         }
     ],
-    'media': [],
+    'media': [
+        {
+            'resourceKey': 'media',
+            'includeKey': 'custom_thumbnail_media',
+            'isArray': false,
+            'isRelated': false
+        }
+    ],
     'member': [
         {
             'resourceKey': 'address',
