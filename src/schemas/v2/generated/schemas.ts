@@ -132,14 +132,10 @@ export const Goal = {
 export const Media = {
     resource: 'media',
     properties: [
-        'closed_captions_enabled',
-        'closed_captions',
         'created_at',
-        'display',
         'download_url',
         'file_name',
         'image_urls',
-        'media_type',
         'metadata',
         'mimetype',
         'owner_id',
@@ -152,9 +148,6 @@ export const Media = {
         'upload_url',
     ],
     relationships: [
-        {
-            resource: 'media', name: 'custom_thumbnail_media', type: 'item'
-        },
     ],
 }
 export const Member = {
