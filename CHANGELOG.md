@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.10.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.9.0...patreon-api.ts-v0.10.0) (2024-12-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* Patreon (member) resource updates ([#120](https://github.com/ghostrider-05/patreon-api.ts/issues/120))
+
+### Features
+
+* add DELETE /webhooks/{id} endpoint ([#102](https://github.com/ghostrider-05/patreon-api.ts/issues/102)) ([10fc710](https://github.com/ghostrider-05/patreon-api.ts/commit/10fc710e0b231fb60cdaa9b1cf9a793a7e6c2be4))
+* Patreon (member) resource updates ([#120](https://github.com/ghostrider-05/patreon-api.ts/issues/120)) ([71752d9](https://github.com/ghostrider-05/patreon-api.ts/commit/71752d9f0258030dafef9b8a23561f4206d4e8dc))
+* **rest:** respect Retry-After header on ratelimit ([#119](https://github.com/ghostrider-05/patreon-api.ts/issues/119)) ([0d33950](https://github.com/ghostrider-05/patreon-api.ts/commit/0d33950dc43673a1c3fb8842bff49f8ed19b3081))
+
+
+### Bug Fixes
+
+* add related links to relationships ([#121](https://github.com/ghostrider-05/patreon-api.ts/issues/121)) ([1c40269](https://github.com/ghostrider-05/patreon-api.ts/commit/1c402690f7acd67caa84de443c20df98edf3ecbd))
+
 ## [0.9.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.8.0...patreon-api.ts-v0.9.0) (2024-11-02)
 
 
