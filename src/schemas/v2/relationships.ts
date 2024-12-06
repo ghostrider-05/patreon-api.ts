@@ -29,6 +29,7 @@ interface RelationshipTypeMap extends Record<ItemType, BaseRelationDataItem<Item
         // TODO: add `campaign_installation` when documentated
         // TODO: add `categories` when documentated
         [Type.User]: ['creator', false]
+        /** @deprecated Will always be empty */
         [Type.Goal]: Multiple<Type.Goal>
         [Type.Tier]: Multiple<Type.Tier>
     }
