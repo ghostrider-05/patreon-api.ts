@@ -51,14 +51,8 @@ interface RelationshipTypeMap extends Record<ItemType, BaseRelationDataItem<Item
     goal: {
         [Type.Campaign]: [false, false]
     }
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     media: {
-        [Type.Media]: ['custom_thumbnail_media', false, false]
-        // @ts-expect-error TODO: fix in PR
-        [Type.Media]: ['teaser_media', false, false]
-        // @ts-expect-error TODO: fix in PR
-        [Type.Media]: ['share_videos', true, false]
-        // @ts-expect-error TODO: fix in PR
-        [Type.Media]: ['images', true, false]
     }
     member: {
         [Type.Address]: [false, false]
