@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import type { Route } from '../types'
-import { Oauth2Routes } from '../../../../v2'
+import { Routes } from '../../../../v2'
 
 import campaign from './campaign'
 import identity  from './identity'
@@ -12,7 +12,7 @@ import webhook from './webhook'
 /**
  * For each route, more information about parameters and available methods
  */
-export const RoutesData: Record<keyof typeof Oauth2Routes, Route> = {
+export const RoutesData: Record<keyof typeof Routes, Route> = {
     identity: identity.at(0)!,
     campaign: campaign.at(0)!,
     campaigns: campaign.at(1)!,

@@ -23,7 +23,7 @@ import {
     type RESTOptions,
 } from '../oauth2/rest'
 
-import { Oauth2Routes } from '../oauth2/routes'
+import { Routes } from '../oauth2/routes'
 
 type BaseFetchOptions = Omit<RequestOptions,
     | 'route'
@@ -130,43 +130,43 @@ class GenericPatreonClientMethods<TransformType extends ResponseTransformType> {
     }
 
     public async fetchCampaigns <Query extends BasePatreonQueryType<Type.Campaign, true>>(query: Query, options?: Oauth2RouteOptions) {
-        return await this.fetchOauth2<Query>(Oauth2Routes.campaigns(), query, options)
+        return await this.fetchOauth2<Query>(Routes.campaigns(), query, options)
     }
 
     public async fetchCampaign <Query extends BasePatreonQueryType<Type.Campaign, false>>(campaignId: string, query: Query, options?: Oauth2RouteOptions) {
-        return await this.fetchOauth2<Query>(Oauth2Routes.campaign(campaignId), query, options)
+        return await this.fetchOauth2<Query>(Routes.campaign(campaignId), query, options)
     }
 
     public async fetchCampaignMembers <Query extends BasePatreonQueryType<Type.Member, true>>(campaignId: string, query: Query, options?: Oauth2RouteOptions) {
-        return await this.fetchOauth2<Query>(Oauth2Routes.campaignMembers(campaignId), query, options)
+        return await this.fetchOauth2<Query>(Routes.campaignMembers(campaignId), query, options)
     }
 
     public async fetchCampaignPosts <Query extends BasePatreonQueryType<Type.Post, true>>(campaignId: string, query: Query, options?: Oauth2RouteOptions) {
-        return await this.fetchOauth2<Query>(Oauth2Routes.campaignPosts(campaignId), query, options)
+        return await this.fetchOauth2<Query>(Routes.campaignPosts(campaignId), query, options)
     }
 
     public async fetchMember <Query extends BasePatreonQueryType<Type.Member, false>>(memberId: string, query: Query, options?: Oauth2RouteOptions) {
-        return await this.fetchOauth2<Query>(Oauth2Routes.member(memberId), query, options)
+        return await this.fetchOauth2<Query>(Routes.member(memberId), query, options)
     }
 
     public async fetchPost <Query extends BasePatreonQueryType<Type.Post, false>>(postId: string, query: Query, options?: Oauth2RouteOptions) {
-        return await this.fetchOauth2<Query>(Oauth2Routes.post(postId), query, options)
+        return await this.fetchOauth2<Query>(Routes.post(postId), query, options)
     }
 
     public async fetchIdentity <Query extends BasePatreonQueryType<Type.User, false>>(query: Query, options?: Oauth2RouteOptions) {
-        return await this.fetchOauth2<Query>(Oauth2Routes.identity(), query, options)
+        return await this.fetchOauth2<Query>(Routes.identity(), query, options)
     }
 
     public paginateCampaigns <Query extends BasePatreonQueryType<Type.Campaign, true>>(query: Query, options?: Oauth2RouteOptions) {
-        return this.paginateOauth2<Query>(Oauth2Routes.campaigns(), query, options)
+        return this.paginateOauth2<Query>(Routes.campaigns(), query, options)
     }
 
     public paginateCampaignMembers <Query extends BasePatreonQueryType<Type.Member, true>>(campaignId: string, query: Query, options?: Oauth2RouteOptions) {
-        return this.paginateOauth2<Query>(Oauth2Routes.campaignMembers(campaignId), query, options)
+        return this.paginateOauth2<Query>(Routes.campaignMembers(campaignId), query, options)
     }
 
     public paginateCampaignPosts <Query extends BasePatreonQueryType<Type.Post, true>>(campaignId: string, query: Query, options?: Oauth2RouteOptions) {
-        return this.paginateOauth2<Query>(Oauth2Routes.campaignPosts(campaignId), query, options)
+        return this.paginateOauth2<Query>(Routes.campaignPosts(campaignId), query, options)
     }
 
     /** @deprecated */

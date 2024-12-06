@@ -57,11 +57,11 @@ export interface Item<Type extends ItemType> {
 
 export type DataItem<Type extends ItemType, Related extends boolean = false> = {
     data: Item<Type>
-} & If<Related, { link: { related: string } }, unknown>
+} & If<Related, { links: { related: string } }, unknown>
 
 export type DataItems<Type extends ItemType, Related extends boolean = false> = {
     data: Item<Type>[]
-} & If<Related, { link: { related: string } }, unknown>
+} & If<Related, { links: { related: string } }, unknown>
 
 export interface AttributeItem<
     Type extends ItemType,

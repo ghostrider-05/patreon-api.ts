@@ -1,5 +1,5 @@
 import {
-    Oauth2Routes,
+    Routes,
     PatreonOauthScope,
     RequestMethod,
     Type,
@@ -110,7 +110,7 @@ const patchWebhookBody = {
 
 export default [
     {
-        route: Oauth2Routes.webhook,
+        route: Routes.webhook,
         resource,
         tags,
         methods: [
@@ -128,7 +128,7 @@ export default [
         ],
     },
     {
-        route: Oauth2Routes.webhooks,
+        route: Routes.webhooks,
         resource,
         tags,
         methods: [

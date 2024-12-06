@@ -1,5 +1,5 @@
 import { createQuery, type BasePatreonQuery } from '../query'
-import { Oauth2Routes } from './routes'
+import { Routes } from './routes'
 
 export enum PatreonOauthScope {
     /**
@@ -63,11 +63,11 @@ function getRequiredScopesForPath (
 ): PatreonOauthScope[] {
     const scopes: PatreonOauthScope[] = []
 
-    if (path.startsWith(Oauth2Routes.post('')) || path.endsWith('/posts')) {
+    if (path.startsWith(Routes.post('')) || path.endsWith('/posts')) {
         scopes.push(PatreonOauthScope.CampaignPosts)
-    } else if (path.startsWith(Oauth2Routes.webhooks())) {
+    } else if (path.startsWith(Routes.webhooks())) {
         scopes.push(PatreonOauthScope.ManageCampaignWebhooks)
-    } else if (path.startsWith(Oauth2Routes.identity())) {
+    } else if (path.startsWith(Routes.identity())) {
         scopes.push(PatreonOauthScope.Identity)
 
         if (query.params.get('fields[user]')?.includes('email')) {
@@ -77,7 +77,7 @@ function getRequiredScopesForPath (
         if (query.params.get('include')?.includes('campaign')) {
             scopes.push(PatreonOauthScope.Campaigns)
         }
-    } else if (path.endsWith('/members') || path.startsWith(Oauth2Routes.member(''))) {
+    } else if (path.endsWith('/members') || path.startsWith(Routes.member(''))) {
         scopes.push(PatreonOauthScope.CampaignMembers)
 
         if (query.params.get('fields[user]')?.includes('email')) {
@@ -87,7 +87,7 @@ function getRequiredScopesForPath (
         if (query.params.get('include')?.includes('address')) {
             scopes.push(PatreonOauthScope.CampaignMembersAdress)
         }
-    } else if (path.startsWith(Oauth2Routes.campaigns())) {
+    } else if (path.startsWith(Routes.campaigns())) {
         scopes.push(PatreonOauthScope.Campaigns)
     }
 
@@ -104,7 +104,7 @@ function getRequiredScopesForAttributes (
         memberEmail?: boolean
         memberAddress?: boolean
     },
-    ...routes: (keyof typeof Oauth2Routes)[]
+    ...routes: (keyof typeof Routes)[]
 ) {
     const scopes: PatreonOauthScope[] = []
 
@@ -127,7 +127,7 @@ function getRequiredScopesForAttributes (
         }
 
         return {
-            path: Oauth2Routes[route](''),
+            path: Routes[route](''),
             query: createQuery(query),
         }
     })

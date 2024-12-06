@@ -1,5 +1,5 @@
 import {
-    Oauth2Routes,
+    Routes,
     PatreonOauthScope,
     RequestMethod,
     Type,
@@ -13,7 +13,7 @@ const tags = [
 
 export default [
     {
-        route: Oauth2Routes.campaign,
+        route: Routes.campaign,
         resource,
         tags,
         methods: [
@@ -30,7 +30,7 @@ export default [
         ],
     },
     {
-        route: Oauth2Routes.campaigns,
+        route: Routes.campaigns,
         resource,
         tags,
         methods: [

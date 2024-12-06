@@ -1,5 +1,5 @@
 import {
-    Oauth2Routes,
+    Routes,
     RequestMethod,
     Type,
 } from '../../../../v2'
@@ -12,7 +12,7 @@ const tags = [
 
 export default [
     {
-        route: Oauth2Routes.identity,
+        route: Routes.identity,
         resource,
         tags,
         methods: [

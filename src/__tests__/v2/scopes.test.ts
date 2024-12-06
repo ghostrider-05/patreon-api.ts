@@ -1,31 +1,31 @@
 import { expect, describe, test } from 'vitest'
 
-import { PatreonOauthScope, Oauth2Routes, getRequiredScopes, createQuery } from '../../v2'
+import { PatreonOauthScope, Routes, getRequiredScopes, createQuery } from '../../v2'
 
 describe('oauth scopes', () => {
     describe('for path', () => {
         test('campaigns', () => {
             expect(getRequiredScopes.forPath(
-                Oauth2Routes.campaign(':id'),
+                Routes.campaign(':id'),
                 createQuery(new URLSearchParams())
             )).toEqual([PatreonOauthScope.Campaigns])
         })
 
         test('webhooks', () => {
             expect(getRequiredScopes.forPath(
-                Oauth2Routes.webhooks(),
+                Routes.webhooks(),
                 createQuery(new URLSearchParams())
             )).toEqual([PatreonOauthScope.ManageCampaignWebhooks])
         })
 
         test('posts', () => {
             expect(getRequiredScopes.forPath(
-                Oauth2Routes.post(':id'),
+                Routes.post(':id'),
                 createQuery(new URLSearchParams())
             )).toEqual([PatreonOauthScope.CampaignPosts])
 
             expect(getRequiredScopes.forPath(
-                Oauth2Routes.campaignPosts(':id'),
+                Routes.campaignPosts(':id'),
                 createQuery(new URLSearchParams())
             )).toEqual([PatreonOauthScope.CampaignPosts])
         })
@@ -37,7 +37,7 @@ describe('oauth scopes', () => {
             }))
 
             expect(getRequiredScopes.forPath(
-                Oauth2Routes.member(':id'),
+                Routes.member(':id'),
                 query
             )).toEqual([
                 PatreonOauthScope.CampaignMembers,
@@ -46,7 +46,7 @@ describe('oauth scopes', () => {
             ])
 
             expect(getRequiredScopes.forPath(
-                Oauth2Routes.campaignMembers(':id'),
+                Routes.campaignMembers(':id'),
                 query
             )).toEqual([
                 PatreonOauthScope.CampaignMembers,
@@ -62,7 +62,7 @@ describe('oauth scopes', () => {
             }))
 
             expect(getRequiredScopes.forPath(
-                Oauth2Routes.identity(),
+                Routes.identity(),
                 query
             )).toEqual([
                 PatreonOauthScope.Identity,
