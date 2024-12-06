@@ -18,11 +18,10 @@ export interface Tier {
      */
     description: string
 
-    // TODO: what type of object for IDs??
     /**
      * The discord role IDs granted by this tier
      */
-    discord_role_ids: object | null
+    discord_role_ids: string[] | null
 
     /**
      * Datetime tier was last modified

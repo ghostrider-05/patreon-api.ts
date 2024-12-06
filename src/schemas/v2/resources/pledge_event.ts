@@ -20,14 +20,29 @@ export interface PledgeEvent {
     date: string
 
     /**
+     * The payment status of the pledge
+     */
+    pledge_payment_status:
+        | 'queued'
+        | 'pending'
+        | 'valid'
+        | 'declined'
+        | 'fraud'
+        | 'disabled'
+
+    /**
      * Status of underlying payment
      */
     payment_status:
         | 'Paid'
         | 'Declined'
+        | 'Deleted'
         | 'Pending'
         | 'Refunded'
+        | 'Refunded by Patreon'
+        | 'Partially Refunded'
         | 'Fraud'
+        | 'Free Trial'
         | 'Other'
 
     /**

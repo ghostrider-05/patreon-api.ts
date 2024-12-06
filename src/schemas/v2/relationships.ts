@@ -51,7 +51,6 @@ interface RelationshipTypeMap extends Record<ItemType, BaseRelationDataItem<Item
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     media: {
-        // Nothing
     }
     member: {
         [Type.Address]: [false]
