@@ -8,6 +8,11 @@ export interface OauthClient {
     author_name: string | null
 
     /**
+     *
+     */
+    category: string
+
+    /**
      * The client's secret.
      */
     client_secret: string

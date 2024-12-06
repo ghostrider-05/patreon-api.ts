@@ -47,12 +47,10 @@ export interface Post {
      */
     published_at: string | null
 
-    // TODO: why is the type Tier[], but description string[]?
     /**
-     * The tier ids that allow the patrons from those tiers to view the post.
-     * Empty array if no tiers assigned even if {@link Post.is_paid} is true
+     * The tier ids that the post is locked for if only patrons (or a subset of patrons) can view.
      */
-    tiers: string[]
+    tiers: string[] | null
 
     // TODO: no description
     /**

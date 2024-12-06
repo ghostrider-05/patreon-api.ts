@@ -4,7 +4,7 @@
  */
 export interface Member {
     /**
-     * The total amount that the member has ever paid to the campaign in campaign's currency.
+     * The total amount that the member has ever paid to the campaign in the campaign's currency.
      * 0 if never paid
      */
     campaign_lifetime_support_cents: number
@@ -28,9 +28,21 @@ export interface Member {
     full_name: string
 
     /**
-     * The user is not a pledging patron but has subscribed to updates about public posts
+     * The user is not a pledging patron but has subscribed to updates about public posts.
+     * This will always be false, following has been replaced by free membership.
+     * @deprecated
      */
     is_follower: boolean
+
+    /**
+     * The user is in a free trial period.
+     */
+    is_free_trial: boolean
+
+    /**
+     * The user's membership is from a free gift
+     */
+    is_gifted: boolean
 
     /**
      * Datetime of last attempted charge.
@@ -52,13 +64,19 @@ export interface Member {
         | 'Deleted'
         | 'Pending'
         | 'Refunded'
+        | 'Refunded by Patreon'
+        | 'Partially Refunded'
         | 'Fraud'
+        | 'Free Trial'
         | 'Other'
         | null
 
     /**
-     * The total amount that the member has ever paid to the campaign.
-     * 0 if never paid
+     * The total amount that the member has ever paid to the campaign in the campaign's currency.
+     * 0 if never paid.
+     *
+     * Use {@link campaign_lifetime_support_cents}.
+     * @deprecated
      */
     lifetime_support_cents: number
 
@@ -89,7 +107,7 @@ export interface Member {
      * Note: this will be `1` if Campaign.is_monthly is `true`
      * @example 1
      */
-    pledge_cadence: number
+    pledge_cadence: number | null
 
     /**
      * Datetime of beginning of most recent pledge chainfrom this member to the campaign.
