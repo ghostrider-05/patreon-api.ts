@@ -119,6 +119,11 @@ export default [
                 id: 'editWebhook',
                 body: patchWebhookBody,
             },
+            {
+                method: RequestMethod.Delete,
+                id: 'deleteWebhook',
+                experimental: true,
+            },
         ],
         params: {
             id: 'id',

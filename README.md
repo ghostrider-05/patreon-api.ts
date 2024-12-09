@@ -9,10 +9,10 @@
 
 Typescript Oauth library for the [V2 Patreon API](https://docs.patreon.com/) with:
 
-- Support for Creator access tokens and Oauth tokens.
+- Support for Creator access tokens and Oauth tokens
 - Client with methods for calling every endpoint, both resource and webhook endpoints
 - Methods to create a webhook server
-- Typescript types that strongly reflect your query for raw or normalized responses.
+- Typescript types that strongly reflect your query for raw or normalized responses
 
 ```ts
 const query = buildQuery.campaign([])({ campaign: ['title']})
@@ -76,7 +76,7 @@ Tip: the Patreon API blocks browser requests, so choose a backend to handle Oaut
 
 ### OpenAPI schema
 
-This library is used to create the Patreon OpenAPI for the [`patreon-api-spec`](https://github.com/ghostrider-05/patreon-api-spec) repository. The stable spec is also available on the [API documentation](https://patreon-api.pages.dev/api/) of this library.
+This library is used to create the Patreon OpenAPI schemas for the [`patreon-api-spec`](https://github.com/ghostrider-05/patreon-api-spec) repository.
 
 ## Examples
 

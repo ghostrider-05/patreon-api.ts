@@ -1,22 +1,27 @@
-import { PATREON_RESPONSE_HEADERS, WebhookClient } from '../../../../v2'
+import { ResponseHeaders, WebhookClient } from '../../../../v2'
 
 export default {
-    [PATREON_RESPONSE_HEADERS.UUID]: {
+    [ResponseHeaders.UUID]: {
         schema: {
             type: 'string',
         },
     },
-    [PATREON_RESPONSE_HEADERS.Sha]: {
+    [ResponseHeaders.Sha]: {
         schema: {
             type: 'string',
         },
     },
-    [PATREON_RESPONSE_HEADERS.CfCacheStatus]: {
+    [ResponseHeaders.CfCacheStatus]: {
         schema: {
             type: 'string',
         },
     },
-    [PATREON_RESPONSE_HEADERS.CfRay]: {
+    [ResponseHeaders.CfRay]: {
+        schema: {
+            type: 'string',
+        },
+    },
+    [ResponseHeaders.RetryAfter]: {
         schema: {
             type: 'string',
         },

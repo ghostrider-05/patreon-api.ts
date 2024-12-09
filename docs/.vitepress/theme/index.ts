@@ -25,7 +25,7 @@ export default {
         DefaultTheme.enhanceApp(ctx)
         ctx.app.use(createVuetify())
 
-        const spec = await fetchOpenAPISchema('openapi-schema')
+        const spec = await fetchOpenAPISchema()
 
         // @ts-expect-error Unused variable
         // eslint-disable-next-line @typescript-eslint/no-unused-vars

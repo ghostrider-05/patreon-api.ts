@@ -44,7 +44,7 @@ export default defineConfig({
     themeConfig: {
         nav: [
             shared.createGuideItem(false),
-            { text: 'API', link: '/api/index.html', activeMatch: '/api/' },
+            { text: 'API Reference', link: 'https://patreon.apidocumentation.com/v2-stable/reference', },
             shared.createLinksItem({
                 branch,
                 bugsUrl: bugs.url,

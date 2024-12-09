@@ -26,6 +26,7 @@ export interface Route {
         body?: Record<string, unknown>
         deprecated?: boolean
         description?: string
+        experimental?: boolean
         scopes?: PatreonOauthScope[]
         summary?: string
     }[]

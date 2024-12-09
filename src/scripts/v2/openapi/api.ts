@@ -10,6 +10,8 @@ import { PatreonOauthScope } from '../../../rest/v2'
 import { writeOpenAPISchema } from './schema'
 import { getJsDocDescription, getTypes } from '../shared'
 
+const baseAPIPath = '/api/oauth2/v2'
+
 // eslint-disable-next-line jsdoc/require-jsdoc
 function getScopes () {
     const scopeEnum = getTypes('./src/rest/v2/oauth2/scopes.ts')
@@ -27,8 +29,13 @@ function getScopes () {
 
 }
 
-// @ts-expect-error unused preview for now
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// eslint-disable-next-line jsdoc/require-jsdoc
+function getDocumentationUrl (route: string, method: string) {
+    return 'https://docs.patreon.com/#'
+        + method.toLowerCase()
+        + (baseAPIPath + route).replace(/\//g, '-')
+}
+
 export default (fileName: string, preview?: boolean) => writeOpenAPISchema({
     fileName,
     spacing: 2,
@@ -41,8 +48,9 @@ export default (fileName: string, preview?: boolean) => writeOpenAPISchema({
         }
     },
     paths: {
-        base: '/api/oauth/v2',
+        base: baseAPIPath,
         routes,
+        includeExperimentalRoutes: !!preview,
         formatId: (id) => `{${id ?? 'id'}}`,
         contentType: 'application/json',
         parameters: [
@@ -53,9 +61,7 @@ export default (fileName: string, preview?: boolean) => writeOpenAPISchema({
             return {
                 documentation: {
                     description: 'Official documentation',
-                    url: `https://docs.patreon.com/#${method.toLowerCase()}-api-oauth2-v2${
-                        route.route(route.params?.id ?? 'id').replace(/\//g, '-')
-                    }`,
+                    url: getDocumentationUrl(route.route(route.params?.id ?? 'id'), method),
                 },
                 responses: [
                     {

@@ -9,6 +9,7 @@ interface PathSchemaOptions {
     base: string
     routes: Route[]
     contentType: string
+    includeExperimentalRoutes: boolean
     formatId: (id: string | null) => string
     parameters: (
         | string
@@ -41,7 +42,12 @@ function createPaths (schema: PathSchemaOptions) {
     return schema.routes.reduce((obj, path) => ({
         ...obj,
         [schema.base + path.route(schema.formatId(path.params?.id ?? null))]: path.methods.reduce((options, data) => {
-            const { id, method, body } = data
+            const { id, method, body, experimental } = data
+
+            if (experimental && !schema.includeExperimentalRoutes) {
+                return options
+            }
+
             const {
                 documentation: externalDocs,
                 responses: routeResponses,

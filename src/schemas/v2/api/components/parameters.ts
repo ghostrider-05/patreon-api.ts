@@ -122,7 +122,9 @@ export default {
         required: true,
         schema: {
             type: 'string',
-            default: new RestClient().userAgent,
+            examples: [
+                new RestClient().userAgent,
+            ],
         }
     },
 }

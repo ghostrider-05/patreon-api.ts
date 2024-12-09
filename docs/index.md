@@ -32,7 +32,7 @@ features:
     linkText: See runtime requirements
   - title: OpenAPI schema
     details: Use the Patreon API with popular OpenAPI tools
-    link: /api/
+    link: https://patreon.apidocumentation.com/v2-stable/reference
     linkText: Explore the API
   - title: Simplified payloads
     details: Don't want to deal with the JSON:API? Use the simplified payloads
