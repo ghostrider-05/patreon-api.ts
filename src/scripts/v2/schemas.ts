@@ -31,11 +31,11 @@ export async function syncResourceSchemas () {
                 initializer: writer => {
                     writer.block(() => {
                         writer.indent()
-                        writer.write('resource: \'' + type + '\',')
+                        writer.write('resource: <const>\'' + type + '\',')
                         writer.newLine()
 
                         writer.indent()
-                        writer.write('properties: [')
+                        writer.write('properties: <const>[')
                         for (const name of properties) {
                             writer.newLine()
                             writer.indent(2)
@@ -46,7 +46,7 @@ export async function syncResourceSchemas () {
 
                         writer.newLine()
                         writer.indent()
-                        writer.write('relationships: [')
+                        writer.write('relationships: <const>[')
                         for (const relation of relationships[type]) {
                             writer.newLine()
                             writer.indent(2)

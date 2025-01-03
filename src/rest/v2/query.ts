@@ -1,6 +1,6 @@
 import type { RequestPayload } from '../../payloads/v2/internals/request'
 
-import type { Type, RelationshipFields, RelationshipMap } from '../../schemas/v2'
+import { type Type, type RelationshipFields, type RelationshipMap, QueryBuilder } from '../../schemas/v2'
 
 export type BasePatreonQuery = {
     /**
@@ -14,23 +14,6 @@ export type BasePatreonQuery = {
      * Use {@link BasePatreonQuery.query} for the stringified params.
      */
     params: URLSearchParams
-}
-
-type ValueOrArray<T> = T | T[]
-
-type PaginationQuerySort =
-    | string
-    | { key: string, descending?: boolean }
-
-export type PaginationQuery = {
-    cursor?: string
-    count?: number
-    sort?: ValueOrArray<PaginationQuerySort>
-}
-
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface QueryRequestOptions extends PaginationQuery {
-
 }
 
 export type PatreonQuery<
@@ -64,36 +47,6 @@ export type GetResponsePayload<Query extends BasePatreonQuery> = Query extends P
     : never
 
 /**
- * Helper function to convert pagination sort options to a parameter
- * @param options the sort options
- * @returns the parameter to include in the query
- */
-function resolveSortOptions(options: ValueOrArray<PaginationQuerySort>): string {
-    return (Array.isArray(options) ? options : [options])
-        .map(option => {
-            return typeof option === 'string'
-                ? option
-                : (option.descending ? `-${option.key}` : option.key)
-        })
-        .join(',')
-}
-
-/**
- * Helper function to convert query options to parameter options
- * @param options the request options
- * @returns the parameters options
- */
-function resolveQueryOptions(options?: QueryRequestOptions): Record<string, string> {
-    const params: Record<string, string> = {}
-
-    if (options?.count != undefined) params['page[count]'] = options.count.toString()
-    if (options?.cursor != undefined) params['page[cursor]'] = options.cursor
-    if (options?.sort != undefined) params['sort'] = resolveSortOptions(options.sort)
-
-    return params
-}
-
-/**
  * Helper function to create a Patreon query from URLSearchParams
  * @param params the parameters for the request.
  * @returns the Patreon query to pass to client methods
@@ -116,47 +69,13 @@ export function createQuery<Q extends BasePatreonQueryType<Type, boolean>>(param
     } as Q
 }
 
-/**
- * Create a stronly typed query for the Patreon API
- * @returns to add include, attributes and options to the query
- */
-function _buildQuery<
-    T extends Extract<
-        Type,
-        | Type.Campaign
-        | Type.Member
-        | Type.Post
-        | Type.User
-        | Type.Webhook
-    >,
-    Listing extends boolean = false
->() {
-    return function <Includes extends RelationshipFields<`${T}`> = never>(include?: Includes[]) {
-        return function <
-            Attributes extends RelationshipMap<T, Includes>,
-        >(attributes?: Attributes, options?: QueryRequestOptions): PatreonQuery<T, Includes, Attributes, Listing> {
-            const attr: Partial<Attributes> = attributes ?? {}
-
-            const params = new URLSearchParams({
-                ...(include ? { include: include.join(',') } : {}),
-                ...Object
-                    .keys(attr)
-                    .reduce((params, key) => ({ ...params, [`fields[${key}]`]: attr[key].join(',') }), {}),
-                ...resolveQueryOptions(options),
-            })
-
-            return createQuery(params)
-        }
-    }
-}
-
 export const buildQuery = {
-    identity: _buildQuery<Type.User, false>(),
-    campaign: _buildQuery<Type.Campaign, false>(),
-    campaigns: _buildQuery<Type.Campaign, true>(),
-    campaignMembers: _buildQuery<Type.Member, true>(),
-    member: _buildQuery<Type.Member, false>(),
-    campaignPosts: _buildQuery<Type.Post, true>(),
-    post: _buildQuery<Type.Post, false>(),
-    webhooks: _buildQuery<Type.Webhook, true>(),
+    identity: QueryBuilder.createFunctionBuilder(QueryBuilder.identity),
+    campaign: QueryBuilder.createFunctionBuilder(QueryBuilder.campaign),
+    campaigns: QueryBuilder.createFunctionBuilder(QueryBuilder.campaigns),
+    campaignMembers: QueryBuilder.createFunctionBuilder(QueryBuilder.campaignMembers),
+    member: QueryBuilder.createFunctionBuilder(QueryBuilder.member),
+    campaignPosts: QueryBuilder.createFunctionBuilder(QueryBuilder.campaignPosts),
+    post: QueryBuilder.createFunctionBuilder(QueryBuilder.post),
+    webhooks: QueryBuilder.createFunctionBuilder(QueryBuilder.webhooks),
 }
