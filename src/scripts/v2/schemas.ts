@@ -87,7 +87,7 @@ function getRelationships (program: TsScript) {
             const elements = child.getValueDeclarationOrThrow().getType().getTupleElements()
             const getElement = (index: number) => elements.at(index)?.getText() ?? ''
 
-            const hasName = elements.length > 2
+            const hasName = elements.length > 1
             const resource = <Type>child.getName()
             const name = hasName ? getElement(0).replaceAll('"', '') ?? '' : resource
 
