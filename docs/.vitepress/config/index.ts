@@ -1,10 +1,6 @@
 import { DefaultTheme, defineConfig } from 'vitepress'
 
-import { useSidebar } from 'vitepress-openapi'
-
 import * as shared from './shared'
-
-import { fetchOpenAPISchema, openapiUrl } from '../theme/openapi'
 
 import {
     author,
@@ -64,36 +60,6 @@ export default defineConfig({
         sidebar: {
             '/guide/': createSidebarItems(),
             '/apps/': createSidebarItems(),
-            '/api/': [
-                {
-                    text: 'Patreon API',
-                    items: [
-                        {
-                            text: 'Overview',
-                            link: '/api/',
-                        },
-                        ...useSidebar({
-                            spec: await fetchOpenAPISchema(),
-                            linkPrefix: '/api/',
-                        }).generateSidebarGroups(),
-                        {
-                            text: 'OpenAPI schema',
-                            link: openapiUrl,
-                            target: '_blank',
-                        },
-                        {
-                            text: 'GitHub',
-                            link: 'https://github.com/ghostrider-05/patreon-api-spec',
-                            target: '_blank',
-                        },
-                        {
-                            text: 'Report an issue',
-                            link: 'https://github.com/ghostrider-05/patreon-api-spec/issues',
-                            target: '_blank',
-                        },
-                    ]
-                }
-            ]
         },
 
         externalLinkIcon: true,

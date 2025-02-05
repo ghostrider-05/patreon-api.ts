@@ -1,6 +1,8 @@
 # Oauth routes
 
-## Fetch campaigns
+## Client
+
+### Fetch campaigns
 
 ```ts
 import { buildQuery } from 'patreon-api.ts'
@@ -14,7 +16,7 @@ const campaigns = await <Client>.fetchCampaigns(query)
 console.log('The first campaign id of the current user is: ' + campaigns?.data[0].id)
 ```
 
-You can also use `list*` methods to iterate paginated requests:
+You can also use `paginate*` methods to iterate paginated requests:
 
 ```ts
 import { buildQuery } from 'patreon-api.ts'
@@ -24,14 +26,14 @@ const query = buildQuery.campaigns()({
     campaign: ['patron_count']
 })
 
-const campaigns = <Client>.paginateCampaigns(query)
+const pages = <Client>.paginateCampaigns(query)
 
-for await (const campaign of campaigns) {
-    console.log('Campaign id: ' + campaign.data[0].id)
+for await (const campaigns of pages) {
+    console.log('Campaign ids: ' + campaign.data.map(c => c.id))
 }
 ```
 
-## Fetch single campaign
+### Fetch single campaign
 
 ```ts
 import { Type, buildQuery, type AttributeItem } from 'patreon-api.ts'

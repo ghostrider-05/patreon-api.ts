@@ -15,11 +15,13 @@ Typescript Oauth library for the [V2 Patreon API](https://docs.patreon.com/) wit
 - Typescript types that strongly reflect your query for raw or normalized responses
 
 ```ts
-const query = buildQuery.campaign([])({ campaign: ['title']})
+const query = QueryBuilder.campaign
+    .setAttributes({ campaign: ['patron_count']})
+
 const payload = await client.fetchCampaign(query)
-    // ^? { data: { attributes: { title: string } }, ... }
+    // ^? { data: { attributes: { patron_count: number } }, ... }
 const campaign = await client.normalized.fetchCampaign(query)
-    // ^? { title: string, id: string, type: Type.Campaign }
+    // ^? { patron_count: number, id: string, type: Type.Campaign }
 ```
 
 <!-- #endregion introduction -->

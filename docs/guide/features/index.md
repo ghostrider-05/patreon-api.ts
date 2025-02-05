@@ -18,77 +18,20 @@ When you have created the application, you're ready to make a request.
 
 You can use the methods on the client:
 
-```ts
-function fetchPatreon (client) {
-    // Get the full name of the creator of the campaign
-    const query = buildQuery.campaigns(['creator'])({ creator: ['full_name']})
+::: code-group
 
-    // get the campaigns
-    const campaigns = await client.fetchCampaigns(query)
-    // or fetch the post(s), member(s), post(s) or current user 
+<<< @/examples.ts#fetch [client example]
 
-    // Or list resources to paginate multiple pages
-    for await (const campaign of client.listCampaigns(query)) {
-        console.log(campaign.id)
-    }
-}
-```
+<<< @/examples.ts#fetch-raw [raw example]
 
-Or use the raw request methods:
-
-```ts
-function fetchPatreon (client) {
-    const query = createQuery(new URLSearchParams())
-
-    // get the campaigns
-    const campaigns = await client.fetchOauth2(OauthRoutes.campaigns(), query)
-    // or fetch the post(s), member(s), post(s) or current user 
-
-    // Or list resources to paginate multiple pages
-    for await (const campaign of client.listOauth2(OauthRoutes.campaigns(), query)) {
-        console.log(campaign.id)
-    }
-}
-```
+:::
 
 > [!NOTE] Tip
 > My advice is to write your own wrapper / class that uses a client with all attributes and included resources configured.
 
 :::details Wrapper example
 
-```ts
-export class PatreonWrapper {
-    public client: PatreonCreatorClient
-
-    public constructor () {
-        this.client = new PatreonCreatorClient({
-            // Add your own token to the options
-            oauth: {
-                clientId: process.env.CLIENT_ID!,
-                clientSecret: process.env.CLIENT_SECRET!,
-            },
-        })
-    }
-
-    public async fetchCampaign () {
-        const query = buildQuery.campaign(['tiers'])({
-            campaign: [
-                'is_monthly',
-                'is_charged_immediately',
-                'image_url',
-                'patron_count',
-            ],
-            tier: [
-                'amount_cents',
-                'title',
-                'patron_count',
-            ],
-        })
-
-        return await this.client.fetchCampaign('id', query) 
-    }
-}
-```
+<<< @/examples.ts#fetch-wrapper
 
 :::
 

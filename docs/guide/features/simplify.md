@@ -5,6 +5,8 @@
 
 The Patreon API returns data in the [JSON:API](https://jsonapi.org/) format with the data spread over `attributes`, `relationships` and `included` fields.
 
+Since this format is not the easiest to work, I'd advice to use 
+
 ## normalized
 
 Using a normalized response will combine all `relationships` with `included` data. An example:
@@ -55,7 +57,7 @@ Will be converted to:
 
 ## simplified
 
-The `simplify` method will both [normalize](#normalized) the response and convert all keys to camelCase.
+The `simplify` method will both [`normalize`](#normalized) the response and convert all keys to camelCase.
 
 ```ts
 import { simplify } from 'patreon-api.ts'
@@ -105,7 +107,7 @@ const client = new PatreonCreatorClient({
 // ...
 
 // Use the same key as in the module augmentation above
-const parser = PatreonCreatorClient.createCustomParser(client, 'custom', (res) => ({
+const parser = PatreonCreatorClient.createCustomParser(client, 'custom', false, (res) => ({
     response: res,
     campaign_id: '123',
 }))
