@@ -40,7 +40,7 @@ export type {
 /**
  * The constructor options for API applications
  */
-export interface PatreonClientOptions {
+export interface PatreonClientOptions<IncludeAll extends boolean = false> {
     /**
      * The Oauth options for this client.
      * Required for both creator and user clients.
@@ -55,7 +55,7 @@ export interface PatreonClientOptions {
     /**
      * The rest options for this client
      */
-    rest?: Partial<RESTOptions>
+    rest?: Partial<RESTOptions<IncludeAll>>
 
     /**
      * Options for storing and getting API (creator) tokens.
@@ -64,7 +64,7 @@ export interface PatreonClientOptions {
     store?: PatreonTokenFetchOptions
 }
 
-export abstract class PatreonClient extends PatreonClientMethods {
+export abstract class PatreonClient<IncludeAll extends boolean = false> extends PatreonClientMethods<IncludeAll> {
     private store: PatreonTokenFetchOptions | undefined = undefined
 
     /**
@@ -80,7 +80,7 @@ export abstract class PatreonClient extends PatreonClientMethods {
      */
     public webhooks: WebhookClient
 
-    public constructor(options: PatreonClientOptions, type: 'oauth' | 'creator') {
+    public constructor(options: PatreonClientOptions<IncludeAll>, type: 'oauth' | 'creator') {
         options.oauth.tokenType ??= type
 
         super(options.oauth, options.rest)

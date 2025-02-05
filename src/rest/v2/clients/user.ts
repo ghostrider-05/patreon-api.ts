@@ -2,11 +2,11 @@ import { buildQuery } from '../query'
 import { PatreonClient, type PatreonClientOptions, type StoredToken } from './base'
 import { PatreonClientMethods } from './baseMethods'
 
-export class PatreonUserClientInstance extends PatreonClientMethods {
+export class PatreonUserClientInstance extends PatreonClientMethods<boolean> {
     public readonly token: StoredToken
-    public client: PatreonUserClient
+    public client: PatreonUserClient<boolean>
 
-    public constructor (client: PatreonUserClient, token: StoredToken) {
+    public constructor (client: PatreonUserClient<boolean>, token: StoredToken) {
         super(client['rawOauthOptions'], client.oauth['rest'].options, token)
         this.client = client
         this.token = token
@@ -31,8 +31,8 @@ export class PatreonUserClientInstance extends PatreonClientMethods {
 
 /* eslint-disable @typescript-eslint/unified-signatures */
 
-export class PatreonUserClient extends PatreonClient {
-    public constructor (options: PatreonClientOptions) {
+export class PatreonUserClient<IncludeAll extends boolean = false> extends PatreonClient<IncludeAll> {
+    public constructor (options: PatreonClientOptions<IncludeAll>) {
         super(options, 'oauth')
     }
 

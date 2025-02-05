@@ -1,6 +1,8 @@
 /* eslint-disable jsdoc/require-returns */
 import { RequestPayload } from '../../payloads/v2/internals/request'
 
+import { BasePatreonQueryType, type PatreonQuery } from '../../rest/v2'
+
 import type {
     RelationshipFields,
     RelationshipFieldToFieldType,
@@ -9,7 +11,9 @@ import type {
 
 import * as SchemaResourcesData from './generated/schemas'
 
-import { Type } from './item'
+import { ItemType, Type } from './item'
+
+import type { If } from '../../utils/generics'
 
 type ValueOrArray<T> = T | T[]
 
@@ -30,7 +34,7 @@ export interface QueryRequestOptions extends PaginationQuery {
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-function getResource <T extends Type>(t: T) {
+function getResource <T extends Type | ItemType>(t: T) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return Object.values(SchemaResourcesData).find(d => d.resource === t)! as (
         typeof SchemaResourcesData[keyof typeof SchemaResourcesData] extends infer D
@@ -61,6 +65,11 @@ function createCompleteQueryOptions <
         } as RelationshipMap<T, RelationshipFields<T>>
     }
 }
+
+export type QueryDefault<IncludeAll extends boolean, T extends Type, L extends boolean> = If<IncludeAll,
+    PatreonQuery<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>, L>,
+    PatreonQuery<T, never, never, L>
+>
 
 export class QueryBuilder<
     T extends Type,
@@ -201,9 +210,11 @@ export class QueryBuilder<
         // @ts-expect-error Weird TS typing stuff
         this._attributes[relationResource]?.push(attributes)
 
-        return this as unknown as QueryBuilder<T, Listing, Relationships | R, (Attributes extends never ? object : Attributes) & {
-            [Item in `${RelationshipFieldToFieldType<T, R>}`]: A
-        }>
+        return this as unknown as QueryBuilder<T, Listing, Relationships | R,
+            (Attributes extends never ? object : Attributes) & {
+                [Item in `${RelationshipFieldToFieldType<T, R>}`]: A
+            }
+        >
     }
 
     public setRelationshipAttributes <
@@ -217,7 +228,10 @@ export class QueryBuilder<
         // @ts-expect-error Weird TS typing stuff
         this._attributes[relationship] = attributes
 
-        return this as unknown as QueryBuilder<T, Listing, Relationships | R, Omit<Attributes, RelationshipFieldToFieldType<T, R>> & { [K in RelationshipFieldToFieldType<T, R>]: A }>
+        return this as unknown as QueryBuilder<T, Listing, Relationships | R,
+            Omit<Attributes, RelationshipFieldToFieldType<T, R>>
+                & { [K in RelationshipFieldToFieldType<T, R>]: A }
+        >
     }
 
     public static get campaign () {
@@ -270,6 +284,19 @@ export class QueryBuilder<
                     .setAttributes<Attributes>((attributes ?? {}) as Attributes)
             }
         }
+    }
+
+    public static fromParams<Q extends BasePatreonQueryType<Type, boolean>>(params: URLSearchParams): Q {
+        return {
+            params,
+            query: this.toQuery(params),
+            // @ts-expect-error Ignore Typescript error for private property
+            _payload_type: <Q['_payload_type']>'',
+        } as Q
+    }
+
+    protected static getResource <T extends Type | ItemType>(t: T) {
+        return getResource(t)
     }
 
     protected static toQuery(params: URLSearchParams): string {

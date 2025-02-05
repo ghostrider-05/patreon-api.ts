@@ -42,7 +42,7 @@ export interface RestEventMap {
     }]
 }
 
-export interface RESTOptions {
+export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
     /**
      * The base url of the Patreon API
      * @default 'https://patreon.com/api/oauth/v2'
@@ -89,6 +89,12 @@ export interface RESTOptions {
      * @default 3
      */
     retries: RestRetries
+
+    /**
+     * Whether to include all relationships and attributes in the query
+     * @default false
+     */
+    includeAllQueries?: IncludeAllQuery
 
     /**
      * The time in ms after the request will be aborted.

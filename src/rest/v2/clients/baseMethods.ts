@@ -1,7 +1,7 @@
 /* eslint-disable jsdoc/require-returns */
 /* eslint-disable jsdoc/require-param */
 import { normalizeFromQuery, simplifyFromQuery } from '../../../payloads/v2'
-import type { Type } from '../../../schemas/v2'
+import { QueryBuilder, type QueryDefault, type Type } from '../../../schemas/v2'
 
 import type {
     BasePatreonQuery,
@@ -66,16 +66,21 @@ export type GetResponseMap<Query extends BasePatreonQuery> = ResponseTransformMa
 
 export type ResponseTransformType = keyof GetResponseMap<BasePatreonQuery>
 
-class GenericPatreonClientMethods<TransformType extends ResponseTransformType> {
+class GenericPatreonClientMethods<TransformType extends ResponseTransformType, IncludeAll extends boolean> {
     public constructor (
         protected _oauth: PatreonOauthClient,
         protected transformType: TransformType,
         private parser: ResponseTransformMap<BasePatreonQuery>[TransformType],
+        protected _include_all_query: IncludeAll,
         private _token?: StoredToken,
     ) {}
 
     private _replace <Query extends BasePatreonQuery> (res: GetResponsePayload<Query>): ReturnType<ResponseTransformMap<Query>[TransformType]> {
         return this.parser(<never>res)
+    }
+
+    private getDefault <T extends Type, L extends boolean>(builder: QueryBuilder<T, L>): QueryDefault<IncludeAll, T, L> {
+        return this._include_all_query ? builder.includeAll() : builder
     }
 
     /**
@@ -129,57 +134,124 @@ class GenericPatreonClientMethods<TransformType extends ResponseTransformType> {
         return page.value
     }
 
-    public async fetchCampaigns <Query extends BasePatreonQueryType<Type.Campaign, true>>(query: Query, options?: Oauth2RouteOptions) {
+    public async fetchCampaigns <
+        Query extends BasePatreonQueryType<Type.Campaign, true> = QueryDefault<IncludeAll, Type.Campaign, true>
+    >(
+        // @ts-expect-error Nothing is wrong?
+        query?: Query = this.getDefault(QueryBuilder.campaigns),
+        options?: Oauth2RouteOptions
+    ) {
         return await this.fetchOauth2<Query>(Routes.campaigns(), query, options)
     }
 
-    public async fetchCampaign <Query extends BasePatreonQueryType<Type.Campaign, false>>(campaignId: string, query: Query, options?: Oauth2RouteOptions) {
+    public async fetchCampaign <
+        Query extends BasePatreonQueryType<Type.Campaign, false> = QueryDefault<IncludeAll, Type.Campaign, false>
+    >(
+        campaignId: string,
+        // @ts-expect-error Nothing is wrong?
+        query?: Query = this.getDefault(QueryBuilder.campaign),
+        options?: Oauth2RouteOptions
+    ) {
         return await this.fetchOauth2<Query>(Routes.campaign(campaignId), query, options)
     }
 
-    public async fetchCampaignMembers <Query extends BasePatreonQueryType<Type.Member, true>>(campaignId: string, query: Query, options?: Oauth2RouteOptions) {
+    public async fetchCampaignMembers <
+        Query extends BasePatreonQueryType<Type.Member, true> = QueryDefault<IncludeAll, Type.Member, true>
+    >(
+        campaignId: string,
+        // @ts-expect-error Nothing is wrong?
+        query?: Query = this.getDefault(QueryBuilder.member),
+        options?: Oauth2RouteOptions
+    ) {
         return await this.fetchOauth2<Query>(Routes.campaignMembers(campaignId), query, options)
     }
 
-    public async fetchCampaignPosts <Query extends BasePatreonQueryType<Type.Post, true>>(campaignId: string, query: Query, options?: Oauth2RouteOptions) {
+    public async fetchCampaignPosts <
+        Query extends BasePatreonQueryType<Type.Post, true> = QueryDefault<IncludeAll, Type.Post, true>
+    >(
+        campaignId: string,
+        // @ts-expect-error Nothing is wrong?
+        query?: Query = this.getDefault(QueryBuilder.campaignPosts),
+        options?: Oauth2RouteOptions
+    ) {
         return await this.fetchOauth2<Query>(Routes.campaignPosts(campaignId), query, options)
     }
 
-    public async fetchMember <Query extends BasePatreonQueryType<Type.Member, false>>(memberId: string, query: Query, options?: Oauth2RouteOptions) {
+    public async fetchMember <
+        Query extends BasePatreonQueryType<Type.Member, false> = QueryDefault<IncludeAll, Type.Member, false>
+    >(
+        memberId: string,
+        // @ts-expect-error Nothing is wrong?
+        query?: Query = this.getDefault(QueryBuilder.member),
+        options?: Oauth2RouteOptions
+    ) {
         return await this.fetchOauth2<Query>(Routes.member(memberId), query, options)
     }
 
-    public async fetchPost <Query extends BasePatreonQueryType<Type.Post, false>>(postId: string, query: Query, options?: Oauth2RouteOptions) {
+    public async fetchPost <
+        Query extends BasePatreonQueryType<Type.Post, false> = QueryDefault<IncludeAll, Type.Post, false>
+    >(
+        postId: string,
+        // @ts-expect-error Nothing is wrong?
+        query?: Query = this.getDefault(QueryBuilder.post),
+        options?: Oauth2RouteOptions
+    ) {
         return await this.fetchOauth2<Query>(Routes.post(postId), query, options)
     }
 
-    public async fetchIdentity <Query extends BasePatreonQueryType<Type.User, false>>(query: Query, options?: Oauth2RouteOptions) {
+    public async fetchIdentity <
+        Query extends BasePatreonQueryType<Type.User, false> = QueryDefault<IncludeAll, Type.User, false>
+    >(
+        // @ts-expect-error Nothing is wrong?
+        query?: Query = this.getDefault(QueryBuilder.identity),
+        options?: Oauth2RouteOptions
+    ) {
         return await this.fetchOauth2<Query>(Routes.identity(), query, options)
     }
 
-    public paginateCampaigns <Query extends BasePatreonQueryType<Type.Campaign, true>>(query: Query, options?: Oauth2RouteOptions) {
+    public paginateCampaigns <
+        Query extends BasePatreonQueryType<Type.Campaign, true> = QueryDefault<IncludeAll, Type.Campaign, true>
+    >(
+        // @ts-expect-error Nothing is wrong?
+        query?: Query = this.getDefault(QueryBuilder.campaigns),
+        options?: Oauth2RouteOptions
+    ) {
         return this.paginateOauth2<Query>(Routes.campaigns(), query, options)
     }
 
-    public paginateCampaignMembers <Query extends BasePatreonQueryType<Type.Member, true>>(campaignId: string, query: Query, options?: Oauth2RouteOptions) {
+    public paginateCampaignMembers <
+        Query extends BasePatreonQueryType<Type.Member, true> = QueryDefault<IncludeAll, Type.Member, true>
+    >(
+        campaignId: string,
+        // @ts-expect-error Nothing is wrong?
+        query?: Query = this.getDefault(QueryBuilder.campaignMembers),
+        options?: Oauth2RouteOptions
+    ) {
         return this.paginateOauth2<Query>(Routes.campaignMembers(campaignId), query, options)
     }
 
-    public paginateCampaignPosts <Query extends BasePatreonQueryType<Type.Post, true>>(campaignId: string, query: Query, options?: Oauth2RouteOptions) {
+    public paginateCampaignPosts <
+        Query extends BasePatreonQueryType<Type.Post, true> = QueryDefault<IncludeAll, Type.Post, true>
+    >(
+        campaignId: string,
+        // @ts-expect-error Nothing is wrong?
+        query?: Query = this.getDefault(QueryBuilder.campaignPosts),
+        options?: Oauth2RouteOptions
+    ) {
         return this.paginateOauth2<Query>(Routes.campaignPosts(campaignId), query, options)
     }
 
     /** @deprecated */
-    public listOauth2: GenericPatreonClientMethods<TransformType>['paginateOauth2'] = (...args) => this.paginateOauth2(...args)
+    public listOauth2: GenericPatreonClientMethods<TransformType, IncludeAll>['paginateOauth2'] = (...args) => this.paginateOauth2(...args)
     /** @deprecated */
-    public listCampaignPosts: GenericPatreonClientMethods<TransformType>['paginateCampaignPosts'] = (...args) => this.paginateCampaignPosts(...args)
+    public listCampaignPosts: GenericPatreonClientMethods<TransformType, IncludeAll>['paginateCampaignPosts'] = (...args) => this.paginateCampaignPosts(...args)
     /** @deprecated */
-    public listCampaignMembers: GenericPatreonClientMethods<TransformType>['paginateCampaignMembers'] = (...args) => this.paginateCampaignMembers(...args)
+    public listCampaignMembers: GenericPatreonClientMethods<TransformType, IncludeAll>['paginateCampaignMembers'] = (...args) => this.paginateCampaignMembers(...args)
     /** @deprecated */
-    public listCampaigns: GenericPatreonClientMethods<TransformType>['paginateCampaigns'] = (...args) => this.paginateCampaigns(...args)
+    public listCampaigns: GenericPatreonClientMethods<TransformType, IncludeAll>['paginateCampaigns'] = (...args) => this.paginateCampaigns(...args)
 }
 
-export abstract class PatreonClientMethods extends GenericPatreonClientMethods<'default'> {
+export abstract class PatreonClientMethods<IncludeAll extends boolean> extends GenericPatreonClientMethods<'default', IncludeAll> {
     public oauth: PatreonOauthClient
 
     /**
@@ -187,37 +259,50 @@ export abstract class PatreonClientMethods extends GenericPatreonClientMethods<'
      *
      * Issue a bug if something is broken
      */
-    public simplified: GenericPatreonClientMethods<'simplified'>
+    public simplified: GenericPatreonClientMethods<'simplified', IncludeAll>
 
     /**
      * EXPERIMENTAL
      *
      * Issue a bug if something is broken
      */
-    public normalized: GenericPatreonClientMethods<'normalized'>
+    public normalized: GenericPatreonClientMethods<'normalized', IncludeAll>
 
     public constructor (
         protected rawOauthOptions: PatreonOauthClientOptions,
-        rest: Partial<RESTOptions> = {},
+        rest: Partial<RESTOptions<IncludeAll>> = {},
         _token?: StoredToken,
     ) {
         const restClient = new RestClient(rest)
         const oauth = new PatreonOauthClient(rawOauthOptions, restClient)
+        const includeAllQueries = rest.includeAllQueries ?? <IncludeAll>false
 
-        super(oauth, 'default', (res) => res, _token)
+        super(oauth, 'default', (res) => res, includeAllQueries,  _token)
 
         this.oauth = oauth
 
-        this.normalized = new GenericPatreonClientMethods(oauth, 'normalized', normalizeFromQuery, _token)
-        this.simplified = new GenericPatreonClientMethods(oauth, 'simplified', simplifyFromQuery, _token)
+        this.normalized = new GenericPatreonClientMethods(oauth, 'normalized', normalizeFromQuery, includeAllQueries, _token)
+        this.simplified = new GenericPatreonClientMethods(oauth, 'simplified', simplifyFromQuery, includeAllQueries, _token)
+    }
+
+    public static hasAllQueriesEnabled <
+        Client extends PatreonClientMethods<boolean>
+    >(client: Client): client is Client & PatreonClientMethods<true> {
+        return client._include_all_query
     }
 
     public static createCustomParser <
-        Type extends keyof ResponseTransformMap<BasePatreonQuery>
-    >(client: PatreonClientMethods, type: Type, parser: ResponseTransformMap<BasePatreonQuery>[Type]) {
-        return new GenericPatreonClientMethods(client.oauth, type, parser, client['_token'])
+        Type extends keyof ResponseTransformMap<BasePatreonQuery>,
+        IncludeAll extends boolean = boolean
+    >(
+        client: PatreonClientMethods<IncludeAll>,
+        type: Type,
+        parser: ResponseTransformMap<BasePatreonQuery>[Type],
+        includeAllQueries: IncludeAll
+    ) {
+        return new GenericPatreonClientMethods(client.oauth, type, parser, includeAllQueries, client['_token'])
     }
 }
 
 /** @deprecated */
-export class BasePatreonClientMethods extends PatreonClientMethods {}
+export class BasePatreonClientMethods extends PatreonClientMethods<boolean> {}

@@ -4,8 +4,8 @@ import {
     type StoredToken,
 } from './base'
 
-export class PatreonCreatorClient extends PatreonClient {
-    public constructor (options: PatreonClientOptions) {
+export class PatreonCreatorClient<IncludeAll extends boolean = false> extends PatreonClient<IncludeAll> {
+    public constructor (options: PatreonClientOptions<IncludeAll>) {
         super(options, 'creator')
     }
 

@@ -10,6 +10,7 @@ import type {
     NormalizedGetRequestPayload,
     NormalizedListRequestPayload,
     NormalizedRequestPayload,
+    NormalizeRequest,
 } from './payload'
 
 /**
@@ -34,7 +35,7 @@ export function isListingNormalizedPayload<
     T extends Type,
     Includes extends RelationshipFields<T> = never,
     Attributes extends RelationshipMap<T, Includes> = never,
->(payload: NormalizedRequestPayload<T, Includes, Attributes>): payload is NormalizedListRequestPayload<T, Includes, Attributes> {
+>(payload: NormalizedRequestPayload<T, Includes, Attributes, boolean>): payload is NormalizedListRequestPayload<T, Includes, Attributes> {
     return 'pagination' in payload ? payload.pagination != undefined : false
 }
 
@@ -45,10 +46,14 @@ export function isListingNormalizedPayload<
  */
 export function normalize <
     T extends Type,
-    Includes extends RelationshipFields<T> = never,
-    Attributes extends RelationshipMap<T, Includes> = never,
->(payload: RequestPayload<T, Includes, Attributes, boolean>): NormalizedRequestPayload<T, Includes, Attributes> {
-    if (isListingPayload(payload)) {
+    Includes extends RelationshipFields<T>,
+    Attributes extends RelationshipMap<T, Includes>,
+    Listing extends boolean,
+    Request extends RequestPayload<T, Includes, Attributes, Listing>
+>(payload: Request): NormalizeRequest<Request> {
+    if (Array.isArray(payload.data)) {
+        const { pagination } = (payload as RequestPayload<T, Includes, Attributes, true>).meta
+
         const normalized: NormalizedListRequestPayload<Type, Includes, Attributes> = {
             data: payload.data.map(item => {
                 const relationships = findRelationships<T, Includes, Attributes>(
@@ -66,13 +71,14 @@ export function normalize <
                 }
             }),
             pagination: {
-                total: payload.meta.pagination.total,
-                next_cursor: payload.meta.pagination.cursors?.next ?? null,
+                total: pagination.total,
+                next_cursor: pagination.cursors?.next ?? null,
             },
         }
 
-        return normalized as NormalizedRequestPayload<T, Includes, Attributes>
+        return normalized as NormalizeRequest<Request>
     } else {
+        const { links } = (payload as RequestPayload<T, Includes, Attributes, false>)
         const relationships = findRelationships<T, Includes, Attributes>(
             payload.data.type,
             // TODO: figure out why type is unknown
@@ -85,10 +91,10 @@ export function normalize <
             ...relationships,
             id: payload.data.id,
             type: payload.data.type,
-            link: payload.links.self,
+            link: links.self,
         }
 
-        return normalized as NormalizedRequestPayload<T, Includes, Attributes>
+        return normalized as NormalizeRequest<Request>
     }
 }
 
@@ -100,6 +106,7 @@ export function normalize <
 export function normalizeFromQuery<
     Query extends BasePatreonQuery
 >(payload: GetResponsePayload<Query>): GetNormalizedResponsePayload<Query> {
+    // @ts-expect-error ??????????
     return normalize(payload) as GetNormalizedResponsePayload<Query>
 }
 
@@ -110,9 +117,11 @@ export function normalizeFromQuery<
  */
 export function simplify<
     T extends Type,
-    Includes extends RelationshipFields<T> = never,
-    Attributes extends RelationshipMap<T, Includes> = never,
->(payload: RequestPayload<T, Includes, Attributes, boolean>): AnyToCamelCase<NormalizedRequestPayload<T, Includes, Attributes>> {
+    Includes extends RelationshipFields<T>,
+    Attributes extends RelationshipMap<T, Includes>,
+    Listing extends boolean,
+    Request extends RequestPayload<T, Includes, Attributes, Listing>
+>(payload: Request): AnyToCamelCase<NormalizeRequest<Request>> {
     return convertToCamelcase(normalize(payload))
 }
 

@@ -11,9 +11,12 @@ import type {
     RelationshipMainItemAttributes,
     RelationshipMap,
     RelationshipTypeFields,
+    Type,
 } from '../../../schemas/v2/'
 
 import type { AdditionalKeys } from '../../../utils'
+import { ListRequestPayload } from '../internals/list'
+import type { RequestPayload } from '../internals/request'
 
 export type NormalizedAttributeItem<
     Type extends ItemType,
@@ -59,9 +62,18 @@ export type NormalizedRequestPayload<
     Type extends `${ItemType}`,
     Keys extends RelationshipFields<Type>,
     Attributes extends RelationshipMap<Type, Keys>,
-> =
-    | NormalizedGetRequestPayload<Type, Keys, Attributes>
-    | NormalizedListRequestPayload<Type, Keys, Attributes>
+    Listing extends boolean
+> = Listing extends true
+    ? NormalizedListRequestPayload<Type, Keys, Attributes>
+    : NormalizedGetRequestPayload<Type, Keys, Attributes>
+
+export type NormalizeRequest<
+    Request extends RequestPayload<Type, RelationshipFields<Type>, RelationshipMap<Type, RelationshipFields<Type>>, boolean>
+> = Request extends RequestPayload<infer T, infer R, infer M, boolean>
+    ? ListRequestPayload<T, R, M> extends Request
+        ? NormalizedListRequestPayload<T, R, M>
+        : NormalizedGetRequestPayload<T, R, M>
+    : never
 
 export type GetNormalizedResponsePayload<Query extends BasePatreonQuery> = Query extends PatreonQuery<infer T, infer I, infer A, infer L>
     ? L extends true ? NormalizedListRequestPayload<T, I, A> : NormalizedGetRequestPayload<T, I, A>
