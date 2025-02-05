@@ -8,6 +8,7 @@ import type {
     ItemType,
     RelationshipFieldToFieldType,
     RelationshipFields,
+    RelationshipIsArray,
     RelationshipMainItemAttributes,
     RelationshipMap,
     RelationshipTypeFields,
@@ -32,7 +33,9 @@ export type NormalizedRelationshipItem<
     Key extends RelationshipFields<T>,
     Map extends RelationshipMap<T, Key>
 > = {
-    [K in RelationshipFieldToFieldType<T, Key>]: NormalizedAttributeItem<K, Pick<ItemMap[K], NormalizedRelationshipItemProperty<T, RelationshipFieldToFieldType<T, Key>, Map>[K]>>
+    [K in RelationshipFieldToFieldType<T, Key>]: RelationshipIsArray<T, K> extends true
+        ? NormalizedAttributeItem<K, Pick<ItemMap[K], NormalizedRelationshipItemProperty<T, RelationshipFieldToFieldType<T, Key>, Map>[K]>>[]
+        : NormalizedAttributeItem<K, Pick<ItemMap[K], NormalizedRelationshipItemProperty<T, RelationshipFieldToFieldType<T, Key>, Map>[K]>>
 }[RelationshipFieldToFieldType<T, Key>]
 
 export type NormalizedGetRequestPayload<

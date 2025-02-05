@@ -27,7 +27,7 @@ function getTypeForIncludeKey <Type extends ItemType, Field extends Relationship
 
     // Can exclude never[] as it is an empty array
     const resourceKey = (fields as Exclude<typeof fields, never[]>)
-        .find(f => f.resource === includeKey)?.resource
+        .find(f => f.name === includeKey)?.name
 
     if (resourceKey == undefined) throw new NormalizedError(`No resource key found for ${includeKey} on ${type}`)
     return resourceKey as RelationshipFieldToFieldType<Type, Field>
@@ -73,6 +73,6 @@ export function findRelationships <
 
     return keys.reduce((found, key) => ({
         ...found,
-        [getTypeForIncludeKey(type, key)]: findRelation<Type, Fields, Map>(relationships[key]['data'], included),
+        [getTypeForIncludeKey(type, key)]: findRelation<Type, Fields, Map>(relationships[key], included),
     }), {} as Record<RelationshipFieldToFieldType<Type, Fields>, NormalizedRelationshipItem<Type, Fields, Map>>)
 }

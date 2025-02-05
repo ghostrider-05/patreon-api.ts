@@ -132,6 +132,8 @@ export type RelationshipFieldToFieldType<T extends Type | `${Type}`, F extends R
             : I extends Item<Type> ? I['type'] : never
         : never
 
+export type RelationshipIsArray<T extends `${Type}`, R extends RelationshipFields<T>> = ResolvedRelation<T>[R][2]
+
 export type Relationship<T extends Type | `${Type}`, Keys extends RelationshipFields<T>> = {
     relationships: Pick<RelationDataItem<T, 1>, Keys>
 }

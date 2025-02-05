@@ -37,7 +37,7 @@ client.fetchCampaigns(query)
 const parser = PatreonCreatorClient.createCustomParser(client, 'custom', (res) => ({
     response: res,
     campaign_id: '',
-}))
+}), false)
 
 parser.fetchCampaigns(query)
     .then(payload => payload.response.data[0].relationships.creator.data.id)

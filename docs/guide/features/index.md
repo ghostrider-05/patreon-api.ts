@@ -24,10 +24,13 @@ You can use the methods on the client:
 
 <<< @/examples.ts#fetch-raw [raw example]
 
+<<< @/examples.ts#transform-default [default includes]
+
 :::
 
 > [!NOTE] Tip
 > My advice is to write your own wrapper / class that uses a client with all attributes and included resources configured.
+> If you need all the relationships and attributes, you can also use the client option `includeAllQueries` (see example above).
 
 :::details Wrapper example
 

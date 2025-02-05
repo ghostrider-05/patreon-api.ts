@@ -62,8 +62,12 @@ await webhookClient.unpauseWebhook(webhook.id)
 ### Delete a webhook
 
 > [!WARNING]
-> This will be documented once the Patreon documentation has listed this method.
-> See [this issue](https://github.com/Patreon/platform-documentation/issues/89) for more details or [track the implementation](https://github.com/ghostrider-05/patreon-api.ts/pull/102) in this library
+> This will be unstable until the Patreon documentation has added this method.
+> See [this issue](https://github.com/Patreon/platform-documentation/issues/89) for more details.
+
+```ts
+await webhookClient.deleteWebhook(webhook.id)
+```
 
 ## Webhook server
 

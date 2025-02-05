@@ -239,3 +239,22 @@ for (const post of posts.data) {
 }
 
 // #endregion transform-simplify
+
+
+// #region transform-default
+const defaultIncludeClient = new PatreonCreatorClient({
+    oauth: {
+        clientId: env.CLIENT_ID,
+        clientSecret: env.CLIENT_SECRET,
+    },
+    rest: {
+        includeAllQueries: true,
+    }
+})
+
+const campaigns = await defaultIncludeClient.simplified.fetchCampaigns()
+
+for (const campaign of campaigns.data) {
+    console.log(campaign.tiers[0].patronCount, campaign.creator.isCreator, campaign.url)
+}
+// #endregion transform-default

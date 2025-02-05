@@ -3,11 +3,13 @@
     "compilerOptions": {
         "target": "ES2022",
         "module": "ES2022",
-        "moduleResolution": "Bundler"
+        "moduleResolution": "Bundler",
+        "noUnusedLocals": false,
+        "noUncheckedIndexedAccess": false
     },
     "include": [
         ".vitepress/**/*.ts",
-        "./examples.ts"
+        "./examples.ts",
     ],
     "exclude": [
         ".vitepress/cache",

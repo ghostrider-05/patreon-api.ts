@@ -5,7 +5,7 @@
 
 The Patreon API returns data in the [JSON:API](https://jsonapi.org/) format with the data spread over `attributes`, `relationships` and `included` fields.
 
-Since this format is not the easiest to work, I'd advice to use 
+Since this format is not the easiest to work, I'd advice to use the [normalize](#normalized), [simplified](#simplified) or [your own](#custom) response parsers.
 
 ## normalized
 
@@ -59,22 +59,14 @@ Will be converted to:
 
 The `simplify` method will both [`normalize`](#normalized) the response and convert all keys to camelCase.
 
-```ts
-import { simplify } from 'patreon-api.ts'
-
-const query = buildQuery.campaign(['creator'])({ creator: ['full_name'], campaign: ['created_at' ]})
-const rawCampaign = await <Client>.fetchCampaign('campaign_id', query)
-
-const campaign = simplify(rawCampaign)
-console.log(`Campaign by ${campaign.creator.fullName} created at ${campaign.createdAt}`)
-```
+<<< @/examples.ts#transform-simplify
 
 ## custom
 
 You can also create a custom payload parser to append certain attributes or modify the request in a different way.
 
 To register a custom parser, use [module augmentation](../configuration#module-augmentation) for the correct types.
-Add a key to `GetResponseMap` with a function that satisfies `(res: GetResponsePayload<Query>) => any`.
+Add a key to `ResponseTransformMap` with a function that satisfies `(res: GetResponsePayload<Query>) => any`.
 
 > [!WARNING]
 > Since I don't know how (or it is not possible) to do module augmentation with generics, `response` will be typed as `never`.
@@ -86,7 +78,7 @@ An example for adding a `campaign_id` to every campaign:
 import type { BasePatreonQuery, GetResponsePayload } from 'patreon-api.ts'
 
 module 'patreon-api.ts' {
-    interface GetResponseMap<Query extends BasePatreonQuery> {
+    interface ResponseTransformMap<Query extends BasePatreonQuery> {
         custom: (response: GetResponsePayload<Query>) => {
             response: GetResponsePayload<Query>
             campaign_id: string
