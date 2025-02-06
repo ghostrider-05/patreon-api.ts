@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.10.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.9.0...patreon-api.ts-v0.10.0) (2025-02-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* Patreon (member) resource updates ([#120](https://github.com/ghostrider-05/patreon-api.ts/issues/120))
+
+### Features
+
+* add better query builder ([#122](https://github.com/ghostrider-05/patreon-api.ts/issues/122)) ([b64a95e](https://github.com/ghostrider-05/patreon-api.ts/commit/b64a95e9252f97d76fc00628eb7d45f96635f0bf))
+* add client option for including all in query ([#133](https://github.com/ghostrider-05/patreon-api.ts/issues/133)) ([1b19772](https://github.com/ghostrider-05/patreon-api.ts/commit/1b19772d601e5e9acb5ebe7cf5c9c020cf513ac5))
+* add DELETE /webhooks/{id} endpoint ([#102](https://github.com/ghostrider-05/patreon-api.ts/issues/102)) ([10fc710](https://github.com/ghostrider-05/patreon-api.ts/commit/10fc710e0b231fb60cdaa9b1cf9a793a7e6c2be4))
+* mark normalize and simplify APIs as stable ([#134](https://github.com/ghostrider-05/patreon-api.ts/issues/134)) ([dea5a6e](https://github.com/ghostrider-05/patreon-api.ts/commit/dea5a6e5348915722d9f553fe67d4be6fb2b7cdb))
+* Patreon (member) resource updates ([#120](https://github.com/ghostrider-05/patreon-api.ts/issues/120)) ([71752d9](https://github.com/ghostrider-05/patreon-api.ts/commit/71752d9f0258030dafef9b8a23561f4206d4e8dc))
+* **rest:** respect Retry-After header on ratelimit ([#119](https://github.com/ghostrider-05/patreon-api.ts/issues/119)) ([0d33950](https://github.com/ghostrider-05/patreon-api.ts/commit/0d33950dc43673a1c3fb8842bff49f8ed19b3081))
+
+
+### Bug Fixes
+
+* add related links to relationships ([#121](https://github.com/ghostrider-05/patreon-api.ts/issues/121)) ([1c40269](https://github.com/ghostrider-05/patreon-api.ts/commit/1c402690f7acd67caa84de443c20df98edf3ecbd))
+* **docs:** update broken code examples ([1b19772](https://github.com/ghostrider-05/patreon-api.ts/commit/1b19772d601e5e9acb5ebe7cf5c9c020cf513ac5))
+* **types:** return correct requests for normalize and simplify methods ([1b19772](https://github.com/ghostrider-05/patreon-api.ts/commit/1b19772d601e5e9acb5ebe7cf5c9c020cf513ac5))
+* update normalize and simplify methods to not crash ([1b19772](https://github.com/ghostrider-05/patreon-api.ts/commit/1b19772d601e5e9acb5ebe7cf5c9c020cf513ac5))
+
 ## [0.9.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.8.0...patreon-api.ts-v0.9.0) (2024-11-02)
 
 
