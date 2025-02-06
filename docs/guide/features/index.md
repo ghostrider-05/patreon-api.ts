@@ -20,7 +20,7 @@ You can use the methods on the client:
 
 ::: code-group
 
-<<< @/examples.ts#fetch [client example]
+<<< @/examples.ts#fetch{ts twoslash} [client example]
 
 <<< @/examples.ts#fetch-raw [raw example]
 

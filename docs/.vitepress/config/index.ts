@@ -1,5 +1,7 @@
 import { DefaultTheme, defineConfig } from 'vitepress'
 
+import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
+
 import * as shared from './shared'
 
 import {
@@ -30,6 +32,20 @@ export default defineConfig({
 
     cleanUrls: true,
     lastUpdated: true,
+
+    markdown: {
+        codeTransformers: [
+            transformerTwoslash({
+                twoslashOptions: {
+                    compilerOptions: {
+                        paths: {
+                            'patreon-api.ts': ['../']
+                        }
+                    }
+                }
+            }),
+        ],
+    },
 
     vite: {
         ssr: {

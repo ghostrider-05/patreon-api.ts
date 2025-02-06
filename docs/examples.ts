@@ -39,6 +39,8 @@ const campaign = await client.normalized.fetchCampaign('campaign_id', query)
 
 // #endregion readme
 // #region fetch
+import { type PatreonClient, QueryBuilder } from 'patreon-api.ts'
+
 async function fetchPatreon (client: PatreonClient) {
     // Get the full name of the creator of the campaign
     const query = QueryBuilder.campaigns
