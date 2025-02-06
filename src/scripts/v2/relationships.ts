@@ -24,7 +24,7 @@ export async function syncRelationships () {
             const elements = child.getValueDeclaration()!.getType().getTupleElements()
             const getElement = (index: number) => elements.at(index)?.getText() ?? ''
 
-            const hasName = elements.length > 2
+            const hasName = elements.length > 1
             const resourceKey = child.getName()
             const includeKey = hasName ? getElement(0).replaceAll('"', '') ?? '' : resourceKey
             const isArray = getElement(hasName ? 1 : 0) === 'true'

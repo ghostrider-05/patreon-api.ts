@@ -52,21 +52,7 @@ export type GetResponsePayload<Query extends BasePatreonQuery> = Query extends P
  * @returns the Patreon query to pass to client methods
  */
 export function createQuery<Q extends BasePatreonQueryType<Type, boolean>>(params: URLSearchParams): Q {
-    /**
-     * Convert params to a query string
-     * @param params The search params to create a query with
-     * @returns the stringified parameters
-     */
-    function toQuery(params: URLSearchParams): string {
-        return params.size > 0 ? '?' + params.toString() : ''
-    }
-
-    return {
-        params,
-        query: toQuery(params),
-        // @ts-expect-error Ignore Typescript error for private property
-        _payload_type: <Q['_payload_type']>'',
-    } as Q
+    return QueryBuilder.fromParams<Q>(params)
 }
 
 export const buildQuery = {

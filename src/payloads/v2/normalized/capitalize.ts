@@ -33,11 +33,13 @@ function toCamelcase <T extends string>(key: T): CamelCase<T> {
  * @returns the object with camelCase string keys
  */
 export function convertToCamelcase <T> (item: T): AnyToCamelCase<T>{
-    if (Array.isArray(item)) return <never>item.map(convertToCamelcase)
-    else if (typeof item === 'object' && item) {
+    if (Array.isArray(item)) return <never>item.map(child => convertToCamelcase(child))
+    else if (typeof item === 'object' && item != null) {
         return <never>Object.keys(item).reduce((obj, key) => ({
             ...obj,
-            [toCamelcase(key)]: convertToCamelcase(obj[key]),
+            [toCamelcase(key)]: convertToCamelcase(item[key]),
         }), {} as KeysToCamelCase<T>)
-    } else return <never>item
+    } else {
+        return <never>item
+    }
 }

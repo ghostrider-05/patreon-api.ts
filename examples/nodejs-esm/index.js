@@ -2,8 +2,10 @@
 
 import {
     buildQuery,
+    normalize,
     PatreonCreatorClient,
     PatreonWebhookTrigger,
+    simplify,
 } from 'patreon-api.ts'
 
 const client = new PatreonCreatorClient({
@@ -30,7 +32,11 @@ const query = buildQuery.campaigns(['creator'])({
 })
 
 const payload = await client.fetchCampaigns(query)
-console.log(JSON.stringify(payload, null, 4))
+console.log(
+    JSON.stringify(payload, null, 4),
+    JSON.stringify(normalize(payload), null, 4),
+    JSON.stringify(simplify(payload), null, 4),
+)
 
 const createWebhook = false
 
