@@ -1,8 +1,5 @@
 # Normalized responses
 
-> [!WARNING]
-> This is experimental, see [#26](https://github.com/ghostrider-05/patreon-api.ts/issues/26)
-
 The Patreon API returns data in the [JSON:API](https://jsonapi.org/) format with the data spread over `attributes`, `relationships` and `included` fields.
 
 Since this format is not the easiest to work, I'd advice to use the [normalize](#normalized), [simplified](#simplified) or [your own](#custom) response parsers.

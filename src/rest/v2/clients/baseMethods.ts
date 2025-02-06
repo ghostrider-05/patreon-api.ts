@@ -254,18 +254,8 @@ class GenericPatreonClientMethods<TransformType extends ResponseTransformType, I
 export abstract class PatreonClientMethods<IncludeAll extends boolean> extends GenericPatreonClientMethods<'default', IncludeAll> {
     public oauth: PatreonOauthClient
 
-    /**
-     * EXPERIMENTAL
-     *
-     * Issue a bug if something is broken
-     */
     public simplified: GenericPatreonClientMethods<'simplified', IncludeAll>
 
-    /**
-     * EXPERIMENTAL
-     *
-     * Issue a bug if something is broken
-     */
     public normalized: GenericPatreonClientMethods<'normalized', IncludeAll>
 
     public constructor (
