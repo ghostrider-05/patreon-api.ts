@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import { assertType, describe, expectTypeOf, test } from 'vitest'
+import { assertType, describe, expect, expectTypeOf, test } from 'vitest'
 
 import {
     Type,
     buildQuery,
     type PatreonQuery
 } from '../../v2'
+
+import { convertToCamelcase } from '../../payloads/v2/normalized/capitalize'
 
 // TODO: add all queries
 describe('campaign payload', () => {
@@ -75,5 +77,12 @@ describe('campaigns payload', () => {
             meta: { pagination: { total: number, cursors?: { next: string } } }
             data: { type: Type.Campaign, id: string, attributes: {} }[]
         }>(buildQuery.campaigns()()._payload_type)
+    })
+})
+
+describe('to camel case', () => {
+    test('objects', () => {
+        expect(convertToCamelcase({})).toEqual({})
+        expect(convertToCamelcase({ test: 1 })).toEqual({ test: 1 })
     })
 })
