@@ -2,10 +2,15 @@ name: Deploy
 on:
   push:
     paths: 
+      # Examples
       - 'examples/cloudflare-webhook/**'
+      # Documentation
       - 'docs/**' 
       - 'apps/worker-docs/**'
+      # Trigger when this file is updated
       - '.github/workflows/deploy.yml'
+      # Trigger a new deploy when a release is made
+      - '.release-please-manifest.json'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

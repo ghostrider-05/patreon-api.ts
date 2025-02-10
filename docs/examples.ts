@@ -36,8 +36,8 @@ const query = QueryBuilder.campaign
 
 const payload = await client.fetchCampaign('campaign_id', query)
     // ^? { data: { attributes: { patron_count: number } }, ... }
-const campaign = await client.normalized.fetchCampaign('campaign_id', query)
-    // ^? { patron_count: number, id: string, type: Type.Campaign }
+const campaign = await client.simplified.fetchCampaign('campaign_id', query)
+    // ^? { patronCount: number, id: string, type: Type.Campaign }
 
 // #endregion readme
 // @ts-expect-error duplicate-imports
