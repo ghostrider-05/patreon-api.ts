@@ -15,9 +15,45 @@ export type RestResponse = Pick<Response,
 
 export type RestFetcher = (url: string, init: RequestInit) => Promise<RestResponse>
 
+export interface RestRetriesBackoffOptions {
+    /**
+     * The time (in ms) to wait between a retried request.
+     * Combined with the strategy it will result in a final backoff time.
+     */
+    time: number
+
+    /**
+     * The maximum time (in ms) to add to each backoff.
+     * Will be pseudorandom number between 0 and jitter.
+     */
+    jitter?: number
+
+    /**
+     * The strategy to use.
+     * - linear: (retries * time)
+     * - exponential: (retries * retries * time)
+     * - custom
+     */
+    strategy:
+        | 'linear'
+        | 'exponential'
+        | ((retries: number, backoff: number) => number)
+
+    /**
+     * The maximum time (in ms) the backoff can be (excluding jitter)
+     */
+    limit?: number
+}
+
+export interface RestRetriesOptions {
+    retries: number
+    backoff?: RestRetriesBackoffOptions
+}
+
 export type RestRetries =
     | number
-    | { status: [number, number] | number, retries: number }[]
+    | RestRetriesOptions
+    | ({ status: [number, number] | number } & RestRetriesOptions)[]
 
 export interface RestEventMap {
     request: [data: {
@@ -83,7 +119,7 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
     headers: Record<string, string>
 
     /**
-     * The amount of times to retry failed or aborted requests.
+     * The amount of times to retry failed (defaults to 5XX responses) or aborted requests.
      *
      * Can be applied to all statuses, ranges or a specific status.
      * @default 3
@@ -94,7 +130,7 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
      * Whether to include all relationships and attributes in the query
      * @default false
      */
-    includeAllQueries?: IncludeAllQuery
+    includeAllQueries: IncludeAllQuery
 
     /**
      * The time in ms after the request will be aborted.
@@ -207,6 +243,7 @@ export const DefaultRestOptions: RESTOptions = {
     authPrefix: 'Bearer',
     api: RouteBases.oauth2,
     emitter: null,
+    includeAllQueries: false,
     fetch: (...args) => fetch(...args),
     getAccessToken: async () => undefined,
     globalRequestPerSecond: 0,
@@ -251,25 +288,65 @@ async function sleep (ms: number) {
     return new Promise<void>((resolve) => setTimeout(resolve, ms))
 }
 
+interface InternalRetryData {
+    retries: number
+    backoff: (current: number) => number
+}
+
+// eslint-disable-next-line jsdoc/require-jsdoc
+function createBackoff (options: RestRetriesBackoffOptions) {
+    return (currentRetries: number) => {
+        const { strategy, time, limit } = options
+        const jitter = options.jitter ? (Math.random() * options.jitter) : 0
+
+        if (strategy === 'linear') {
+            return Math.max(limit ?? 0, time * currentRetries) + jitter
+        } else if (strategy === 'exponential') {
+            return Math.max(limit ?? 0, time * (currentRetries * currentRetries)) + jitter
+        } else {
+            return Math.max(limit ?? 0, strategy(currentRetries, time)) + jitter
+        }
+    }
+}
+
+// eslint-disable-next-line jsdoc/require-jsdoc
+function isRetryable (status: number | null) {
+    return status == null || status >= 500
+}
+
+// eslint-disable-next-line jsdoc/require-jsdoc
+function isMissingAuthorization (status: number) {
+    return [401].includes(status)
+}
+
 /**
  * Get the amount to retry the failed request
  * @param options the client options for retrying requests
  * @param status The response status. `null` if no response is assiocated
- * @returns the final retry amount
+ * @returns the final retry options
  */
-function getRetryAmount (options: RestRetries, status: number | null): number {
-    if (status == null) {
-        return <number>DefaultRestOptions.retries
-    } else if (typeof options === 'number') {
-        return status >= 500 ? options : 0
-    } else {
+function getRetryAmount (options: RestRetries, status: number | null): InternalRetryData {
+    const defaultRetries = DefaultRestOptions.retries as number
+    const createRetryOptions = (retries: number, backoff?: RestRetriesBackoffOptions): InternalRetryData => ({
+        retries: isRetryable(status) ? retries : 0,
+        backoff: backoff ? createBackoff(backoff) : (() => 0),
+    })
+
+    if (typeof options === 'number') {
+        return createRetryOptions(options)
+    } else if (Array.isArray(options)) {
+        if (status == null) return createRetryOptions(defaultRetries)
+
         const option = options.find(({ status: optionStatus }) => {
             return typeof optionStatus === 'number'
                 ? optionStatus === status
                 : optionStatus[0] <= status && optionStatus[1] >= status
         })
 
-        return option?.retries ?? 0
+        if (!option) return createRetryOptions(defaultRetries)
+        return createRetryOptions(option.retries, option.backoff)
+    } else {
+        return createRetryOptions(options.retries, options.backoff)
     }
 }
 
@@ -385,16 +462,23 @@ export class RestClient {
                         })
                     }
 
-                    if (this.shouldRetry(retries, 429)) {
+                    const data = this.shouldRetry(retries, 429)
+                    if (data != null) {
+                        await sleep(data.backoff(retries))
                         return tryRequest(++retries)
                     }
                 }
 
                 if (response.ok) {
                     return response
-                } else if (this.shouldRetry(retries, response.status)) {
+                }
+
+                const data = this.shouldRetry(retries, response.status)
+                if (data != null) {
+                    await sleep(data.backoff(retries))
+
                     // Retry with updated access token
-                    if ([401].includes(response.status)) {
+                    if (isMissingAuthorization(response.status)) {
                         const updatedToken = await this.options.getAccessToken()
 
                         if (updatedToken) options.accessToken = updatedToken
@@ -462,7 +546,8 @@ export class RestClient {
         } catch (error) {
             if (!(error instanceof Error)) throw new Error(JSON.stringify(error))
 
-            if (this.shouldRetry(options.currentRetries, null, error)) {
+            const data = this.shouldRetry(options.currentRetries, null, error)
+            if (data != null) {
                 return null
             }
 
@@ -512,17 +597,17 @@ export class RestClient {
         }
     }
 
-    private shouldRetry (current: number, status: number | null, error?: Error): boolean {
-        const amount = getRetryAmount(this.options.retries, status)
+    private shouldRetry (current: number, status: number | null, error?: Error): InternalRetryData | null {
+        const data = getRetryAmount(this.options.retries, status)
 
         if (error) {
             const shouldRetry = error.name === 'AbortError'
                 || (('code' in error && error.code === 'ECONNRESET') || error.message.includes('ECONNRESET'))
 
-            return shouldRetry && amount !== current
+            return (shouldRetry && current < data.retries) ? data : null
         }
 
-        return amount !== current
+        return (current < data.retries) ? data : null
     }
 
     private async waitForRequestLimit (): Promise<void> {
