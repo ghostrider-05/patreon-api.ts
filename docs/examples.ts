@@ -4,12 +4,14 @@
 import {
     createQuery,
     Oauth2StoredToken,
+    // @ts-expect-error duplicate-imports
     PatreonClient,
     PatreonCreatorClient,
     PatreonQuery,
     PatreonStore,
     PatreonStoreKVStorage,
     PatreonUserClient,
+    // @ts-expect-error duplicate-imports
     QueryBuilder,
     Routes,
     simplify,
@@ -38,6 +40,7 @@ const campaign = await client.normalized.fetchCampaign('campaign_id', query)
     // ^? { patron_count: number, id: string, type: Type.Campaign }
 
 // #endregion readme
+// @ts-expect-error duplicate-imports
 // #region fetch
 import { type PatreonClient, QueryBuilder } from 'patreon-api.ts'
 
@@ -257,6 +260,10 @@ const defaultIncludeClient = new PatreonCreatorClient({
 const campaigns = await defaultIncludeClient.simplified.fetchCampaigns()
 
 for (const campaign of campaigns.data) {
-    console.log(campaign.tiers[0].patronCount, campaign.creator.isCreator, campaign.url)
+    console.log(
+        campaign.tiers[0].patronCount,
+        campaign.creator.isCreator,
+        campaign.url,
+    )
 }
 // #endregion transform-default

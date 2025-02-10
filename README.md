@@ -12,16 +12,16 @@ Typescript Oauth library for the [V2 Patreon API](https://docs.patreon.com/) wit
 - Support for Creator access tokens and Oauth tokens
 - Client with methods for calling every endpoint, both resource and webhook endpoints
 - Methods to create a webhook server
-- Typescript types that strongly reflect your query for raw or normalized responses
+- Typescript types that strongly reflect your query for raw or simplified responses
 
 ```ts
 const query = QueryBuilder.campaign
-    .setAttributes({ campaign: ['patron_count']})
+    .setAttributes({ campaign: ['patron_count'] })
 
-const payload = await client.fetchCampaign(query)
+const payload = await client.fetchCampaign('campaign_id', query)
     // ^? { data: { attributes: { patron_count: number } }, ... }
-const campaign = await client.normalized.fetchCampaign(query)
-    // ^? { patron_count: number, id: string, type: Type.Campaign }
+const campaign = await client.simplified.fetchCampaign('campaign_id', query)
+    // ^? { patronCount: number, id: string, type: Type.Campaign }
 ```
 
 <!-- #endregion introduction -->
@@ -69,8 +69,6 @@ To check for compatibility with this package, look if your platform:
 
 > [!WARNING]
 > This is a server-side API & Oauth package and requires your application tokens. Make sure you do not share or expose your tokens or run this code client-side.
-
-Tip: the Patreon API blocks browser requests, so choose a backend to handle Oauth2 request and return the data to your frontend.
 
 <!-- #endregion compatibility -->
 
