@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.11.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.10.0...patreon-api.ts-v0.11.0) (2025-02-12)
+
+
+### Features
+
+* **rest:** add backoff to retries ([#135](https://github.com/ghostrider-05/patreon-api.ts/issues/135)) ([38b6731](https://github.com/ghostrider-05/patreon-api.ts/commit/38b67312f32737e50e14ae47c743cf8790b69e0d))
+
+
+### Bug Fixes
+
+* **client:** use default token without validation ([c0680c6](https://github.com/ghostrider-05/patreon-api.ts/commit/c0680c6fb92b92fca4fff277c35becef29ee5fe0))
+
 ## [0.10.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.9.0...patreon-api.ts-v0.10.0) (2025-02-06)
 
 
