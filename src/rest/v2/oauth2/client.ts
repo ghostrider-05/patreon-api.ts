@@ -204,7 +204,7 @@ export class PatreonOauthClient {
         const token = this.options.validateToken ? await PatreonOauthClient.validateToken(
             this,
             options?.token
-        ) : options?.token
+        ) : (options?.token ?? this.cachedToken)
 
         this.validateScopes(path, query)
 
