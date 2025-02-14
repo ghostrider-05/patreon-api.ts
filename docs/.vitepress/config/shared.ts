@@ -72,7 +72,7 @@ export function createGuideItem (expandFeatures = false): SharedItem {
             link: '/guide/features/oauth',
         },
         {
-            text: 'Sandbox',
+            text: 'Testing & sandbox',
             link: '/guide/features/sandbox',
         },
         {

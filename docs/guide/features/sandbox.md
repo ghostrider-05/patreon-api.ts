@@ -1,4 +1,13 @@
-# Sandbox
+# Testing & sandbox
 
-> [!WARNING]
-> This is WIP, see [#24](https://github.com/ghostrider-05/patreon-api.ts/issues/24)
+Since the Patreon API is readonly, you can mock responses to test if your application works.
+
+## Testing & Mocking
+
+### MockAgent
+
+### MSW
+
+### Other
+
+## Webhooks
