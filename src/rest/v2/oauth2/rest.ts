@@ -294,7 +294,7 @@ interface InternalRetryData {
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-function createBackoff (options: RestRetriesBackoffOptions) {
+export function createBackoff (options: RestRetriesBackoffOptions) {
     return (currentRetries: number) => {
         const { strategy, time, limit } = options
         const jitter = options.jitter ? (Math.random() * options.jitter) : 0
