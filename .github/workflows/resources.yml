@@ -1,0 +1,32 @@
+name: Resource schemas
+on:
+  push:
+    paths:
+      - 'src/schemas/v2/resources/*'
+      - 'src/schemas/v2/relationships.ts'
+permissions:
+  contents: write
+jobs:
+  update:
+    name: Update v2 schemas
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tsc
+        run: npm run prestart
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Update generated schemas
