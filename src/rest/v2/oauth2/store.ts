@@ -39,10 +39,10 @@ class PatreonFetchStore<Value, Options> implements PatreonFetchOptions<Value, Op
     /**
      * WARNING: The list API will probably be different from the default KV,
      * so this functionality is not implemented yet!
-     * @param options The options for listing values
+     * @param _options The options for listing values
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    public list (options: Options): Promise<Value[]> {
+    public list: (options: Options) => Promise<Value[]> = (_options) => {
         throw new Error('This method has not been implemented')
     }
 
