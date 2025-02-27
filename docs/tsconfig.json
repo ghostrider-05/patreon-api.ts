@@ -13,6 +13,7 @@
     "include": [
         ".vitepress/**/*.ts",
         "./examples.ts",
+        "./examples/**/*.ts"
     ],
     "exclude": [
         ".vitepress/cache",

@@ -65,7 +65,7 @@ To check for compatibility with this package, look if your platform:
   - for node.js: `v18` or higher
   - for Cloudflare workers: [enable Node.js](https://developers.cloudflare.com/workers/runtime-apis/nodejs/#enable-nodejs-with-workers)
 - supports `ES2020`
-- supports `createHmac` of the `node:crypto` module (to verify Patreon webhook requests)
+- supports the `node:crypto` module: `createHmac` and `randomUUID`
 
 > [!WARNING]
 > This is a server-side API & Oauth package and requires your application tokens. Make sure you do not share or expose your tokens or run this code client-side.
