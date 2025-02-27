@@ -5,6 +5,7 @@ import {
     type ItemMap,
     type Relationship,
     type RelationshipFields,
+    type RelationshipFieldToFieldType,
     type RelationshipItem,
     type RelationshipMap,
     type Type,
@@ -15,6 +16,7 @@ import type { GetRequestPayload } from '../../../payloads/v2/internals/get'
 
 import type { RandomDataGenerator } from './random'
 import RandomDataResources from '../generated/random'
+import { PatreonErrorData } from '../../../v2'
 
 export interface PatreonMockDataOptions {
     resources?: Partial<{ [T in keyof ItemMap]: (id: string) => Partial<ItemMap[T]> }>
@@ -34,7 +36,7 @@ interface MockDataManager {
         attributes: Pick<ItemMap[T], A>
     }
 
-    getRelationships<T extends Type, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
+    filterRelationships<T extends Type, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
         type: T,
         items: RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[],
         query: {
@@ -66,15 +68,18 @@ interface MockDataManager {
         },
         data: {
             items: {
-                id: string
-                item: Partial<ItemMap[T]>
-                relatedItems: RelationshipItem<T, I, A>[]
+                item: {
+                    id: string
+                    attributes: Partial<ItemMap[T]>
+                }
+                included: RelationshipItem<T, I, A>[]
             }[]
         },
     ): ListRequestPayload<T, I, A>
 }
 
 const _random = <T>(list: T[]): T => list[list.length * Math.random() | 0] as T
+const _random_int = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min
 
 export class PatreonMockData implements MockDataManager {
     public options: PatreonMockDataOptions
@@ -120,7 +125,7 @@ export class PatreonMockData implements MockDataManager {
                 data: attributeItem,
             } as GetRequestPayload<T, I, A>
         } else {
-            const { included, relationships } = this.getRelationships(type, data.relatedItems, query)
+            const { included, relationships } = this.filterRelationships(type, data.relatedItems, query)
 
             return {
                 links: { self: url },
@@ -138,15 +143,24 @@ export class PatreonMockData implements MockDataManager {
         query: { includes: I[]; attributes: A; },
         data: {
             items: {
-                id: string
-                item: Partial<ItemMap[T]>
-                relatedItems: RelationshipItem<T, I, A>[]
+                item: {
+                    id: string
+                    attributes: Partial<ItemMap[T]>
+                }
+                included: RelationshipItem<T, I, A>[]
             }[]
         },
     ): ListRequestPayload<T, I, A> {
-        const items = data.items.map(({ id, item }) => {
-            return this.getAttributeItem(type, id, item, query.attributes[type] as (keyof ItemMap[T])[] ?? [])
+        const items = data.items.map(({ item }) => {
+            // @ts-expect-error TODO: add a new type to remove this error
+            return this.getAttributeItem<T, A[T]>(
+                type,
+                item.id,
+                item.attributes,
+                query.attributes[type]
+            )
         })
+
         const meta = {
             pagination: {
                 total: items.length,
@@ -160,16 +174,17 @@ export class PatreonMockData implements MockDataManager {
                 meta,
             } as ListRequestPayload<T, I, A>
         } else {
-            const mappedItems = data.items.map(({ id, item, relatedItems }) => {
-                const { included, relationships } = this.getRelationships(type, relatedItems, query)
-                const attributes = this.getAttributeItem(type, id, item, query.attributes[type] as (keyof ItemMap[T])[] ?? [])
+            const mappedItems = data.items.map(({ included }, i) => {
+                const { included: relatedItems, relationships } = this.filterRelationships(type, included, query)
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                const attributes = items[i]!
 
                 return {
                     item: {
                         ...attributes,
                         relationships,
                     },
-                    included,
+                    included: relatedItems,
                 }
             })
 
@@ -181,18 +196,57 @@ export class PatreonMockData implements MockDataManager {
         }
     }
 
-    public createId (type: Type): string {
+    public createId (type: Type | keyof ItemMap): string {
         if (type === 'member') return randomUUID()
-        else return ''
+        else return Array.from({ length: _random_int(5, 10) }, () => _random_int(0, 9)).join('')
     }
 
-    public createAPIUrl (type: keyof ItemMap, id: string): string {
-        return `https://patreon.com/api/oauth2/v2/${type}/${id}`
+    /**
+     * Creates the API url for a resource
+     * @param type The type of the resource.
+     * The documentation currently allows requests (see documentation for the allowed methods) for:
+     * - campaign
+     * - member
+     * - post
+     * - webhook
+     * @param id The id of the resource
+     * @returns `https://patreon.com/api/oauth2/v2/${type}s/${id}`
+     * @see https://docs.patreon.com/#apiv2-resource-endpoints
+     */
+    public createAPIUrl (type: Type | keyof ItemMap, id: string): string {
+        return `https://patreon.com/api/oauth2/v2/${type}s/${id}`
     }
 
-    // public createRelatedItems (type: keyof ItemMap, length: number) {}
+    public createError (status: number, data?: Partial<Omit<PatreonErrorData, 'status'>>): PatreonErrorData {
+        return {
+            status: status.toString(),
+            code_challenge: null,
+            code: 0,
+            code_name: 'MockedError',
+            id: 'MockError',
+            title: 'The mock API errored',
+            detail: 'An error was thrown by the mock API for the Patreon API',
+            ...(data ?? {}),
+        }
+    }
 
-    public getAttributeItem<T extends keyof ItemMap, A extends keyof ItemMap[T]>(
+    public createRelatedItems <T extends keyof ItemMap>(type: T, options?: {
+        items?: RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[]
+    }): RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[] {
+        const relationMap = QueryBuilder.createRelationMap(type)
+        const relationTypes = Object.values(relationMap) as RelationshipFieldToFieldType<T, RelationshipFields<T>>[]
+
+        return relationTypes.flatMap(key => {
+            const relatedItems = options?.items?.filter(item => item.type === key) ?? []
+            if (relatedItems.length > 0) return relatedItems
+
+            // TODO: make the amount of items configurable
+            const id = this.createId(key)
+            return this.getAttributeItem(key, id)
+        })
+    }
+
+    public getAttributeItem<T extends keyof ItemMap, A extends keyof ItemMap[T] = keyof ItemMap[T]>(
         type: T,
         id: string,
         data?: Partial<ItemMap[T]>,
@@ -203,15 +257,37 @@ export class PatreonMockData implements MockDataManager {
         return {
             type,
             id,
-            attributes: (attributes == undefined || attributes.length === 0
+            attributes: (attributes == undefined ? item : (attributes.length === 0
                 ? {}
                 : Object.keys(item)
                     .filter(k => attributes.includes(<A>k))
-                    .reduce((obj, key) => ({ ...obj, [key]: item[key ]}), {})) as Pick<ItemMap[T], A>,
+                    .reduce((obj, key) => ({ ...obj, [key]: item[key ]}), {}))) as Pick<ItemMap[T], A>,
         }
     }
 
-    public getRelationships<
+    public getAttributeItems<T extends keyof ItemMap, A extends keyof ItemMap[T]>(
+        type: T,
+        items?: { id?: string, data?: Partial<ItemMap[T]> }[],
+        attributes?: A[],
+        options?: {
+            length?: number | { min: number, max: number }
+        }
+    ) {
+        const length = options?.length != undefined
+            ? (typeof options.length === 'number'
+                ? options.length
+                : _random_int(options.length.min, options.length.max)
+            ) : (items != undefined && items.length > 0 ? items.length : _random_int(1, 10))
+
+        return Array.from({ length }, (_, i) => this.getAttributeItem(
+            type,
+            items?.at(i)?.id ?? this.createId(type),
+            items?.at(i)?.data,
+            attributes,
+        ))
+    }
+
+    public filterRelationships<
         T extends Type,
         I extends RelationshipFields<T>,
         A extends RelationshipMap<T, I>
@@ -228,17 +304,24 @@ export class PatreonMockData implements MockDataManager {
             const rel = getRelation(relation)
             const items = relatedItems.filter(i => i.type === rel.resource)
 
-            return {
-                ...obj,
-                [relation]: rel.type === 'item'
-                    ? {
-                        // @ts-expect-error TODO: fix this
-                        data: { type: rel.resource, id: items[0].id },
-                        // @ts-expect-error TODO: fix this
-                        links: { related: this.createAPIUrl(rel.resource, items[0].id) },
-                    } : {
+            if (rel.type === 'item') {
+                const firstItem = items[0]
+                if (!firstItem) throw new Error()
+
+                return {
+                    ...obj,
+                    [relation]: {
+                        data: { type: rel.resource, id: firstItem.id },
+                        links: { related: this.createAPIUrl(rel.resource, firstItem.id) },
+                    },
+                }
+            } else {
+                return {
+                    ...obj,
+                    [relation]: {
                         data: items.map(i => ({ type: i.type, id: i.id })),
-                    }
+                    },
+                }
             }
         }, {} as never)
 

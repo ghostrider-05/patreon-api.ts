@@ -7,6 +7,8 @@ import type {
     RelationshipFields,
     RelationshipFieldToFieldType,
     RelationshipMap,
+    RelationshipTypeFields,
+    RelationshipTypeToRelationshipField,
 } from './relationships'
 
 import * as SchemaResourcesData from './generated/schemas'
@@ -284,6 +286,33 @@ export class QueryBuilder<
                     .setAttributes<Attributes>((attributes ?? {}) as Attributes)
             }
         }
+    }
+
+    public static createRelationMap <T extends ItemType> (type: T) {
+        const resource = this.getResource<T>(type).relationships
+
+        return resource.reduce((obj, relation) => ({
+            [relation.name]: relation.resource,
+            ...obj,
+        }), {} as { [R in RelationshipFields<T>]: RelationshipFieldToFieldType<T, R> })
+    }
+
+    public static convertRelationToType <
+        T extends ItemType,
+        R extends RelationshipFields<T>
+    >(type: T, relation: R): RelationshipFieldToFieldType<T, R> {
+        return this.createRelationMap(type)[relation]
+    }
+
+    public static convertTypeToRelation <
+        T extends ItemType,
+        R extends RelationshipTypeFields<T>
+    >(type: T, relationType: R): RelationshipTypeToRelationshipField<T, R> {
+        const map = this.createRelationMap(type)
+
+        const key = (Object.keys(map) as RelationshipFields<T>[]).find(name => map[name] === relationType)
+        if (!key) throw new Error('No relationship with type ' + relationType + 'found on resource: ' + type)
+        return map[key]
     }
 
     public static fromParams<Q extends BasePatreonQueryType<Type, boolean>>(params: URLSearchParams): Q {

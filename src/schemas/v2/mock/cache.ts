@@ -1,15 +1,14 @@
-import { PatreonCacheStore } from '../../../rest/v2/oauth2/store'
-
 import { type ItemMap, Type } from '../item'
-import { QueryBuilder } from '../query'
 
 import type {
     Relationship,
     RelationshipFields,
-    RelationshipFieldToFieldType,
+    RelationshipFieldsToItem,
     RelationshipItem,
     RelationshipMap,
 } from '../relationships'
+
+import { PatreonMockCacheStore } from './cache_store'
 
 type ItemRawRelationship<T extends keyof ItemMap> = Relationship<T, RelationshipFields<T>>['relationships']
 
@@ -24,23 +23,14 @@ type ItemCache<T extends keyof ItemMap> = {
     relationships: ItemCacheRelationship<T>
 }
 
-type MockCache = {
-    [K in keyof ItemMap]: Map<string, ItemCache<K>>
-}
-
 export interface PatreonMockCacheOptions {
-    initial?: Partial<MockCache>
+    initial?: {
+        [K in keyof ItemMap]?: Map<string, ItemCache<K>>
+    }
     onMissingRelationship?: 'error' | 'warn'
 }
 
-// eslint-disable-next-line jsdoc/require-jsdoc
-function mergeMaps <K, V>(from: Map<K, V>, to: Map<K, V>) {
-    for (const [key, value] of from.entries()) {
-        to.set(key, value)
-    }
-}
-
-export class PatreonMockCache implements MockCache {
+export class PatreonMockCache {
     public address: Map<string, ItemCache<'address'>> = new Map()
     public benefit: Map<string, ItemCache<'benefit'>> = new Map()
     public campaign: Map<string, ItemCache<'campaign'>> = new Map()
@@ -55,10 +45,7 @@ export class PatreonMockCache implements MockCache {
     public webhook: Map<string, ItemCache<'webhook'>> = new Map()
     public 'pledge-event': Map<string, ItemCache<Type.PledgeEvent>> = new Map()
 
-    public store = new PatreonCacheStore.Memory<ItemCache<'address'>, { id: string }>(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        (options) => options!.id
-    )
+    public store: PatreonMockCacheStore
 
     private onMissinRelationship: 'warn' | 'error' | undefined
 
@@ -68,43 +55,15 @@ export class PatreonMockCache implements MockCache {
         }
 
         this.onMissinRelationship = options.onMissingRelationship
+
+        this.store = new PatreonMockCacheStore()
     }
 
-    private getRelationMap <T extends keyof ItemMap>(type: T) {
-        const resource = QueryBuilder['getResource']<T>(type).relationships
-
-        return resource.reduce((obj, relation) => ({
-            [relation.name]: relation.resource,
-            ...obj,
-        }))
-    }
-
-    private getCache <T extends keyof ItemMap>(type: T): Map<string, ItemCache<T>> {
-        return this[type] as Map<string, ItemCache<T>>
-    }
-
-    private convertRelationshipsFromCache <T extends keyof ItemMap>(type: T, cached: ItemCacheRelationship<T>) {
-        const relationMap = this.getRelationMap(type)
-        const relationFields = Object.keys(cached) as (keyof typeof cached)[]
-
-        return {
-            relationships: relationFields.reduce<Relationship<T, RelationshipFields<T>>['relationships']>((obj, key) => {
-                return {
-                    ...obj,
-                    [key]: Array.isArray(cached[key])
-                        ? { data: cached[key].map(id => ({ id, type: relationMap[key] })) }
-                        : { data: { id: cached[key], type: relationMap[key] }, links: { related: '' } }
-                }
-            }, {} as never),
-            items: relationFields.flatMap(relation => {
-                const relationType = relationMap[relation]
-
-                const ids: string[] = Array.isArray(cached[relation])
-                    ? cached[relation]
-                    : [cached[relation]]
-
-                return ids.map(id => ({ id, type: relationType }))
-            })
+    protected setAll (items: NonNullable<PatreonMockCacheOptions['initial']>): void {
+        for (const [type, item] of Object.entries(items)) {
+            for (const [id, value] of Object.entries(item)) {
+                this.store.set(type as keyof ItemMap, id, value)
+            }
         }
     }
 
@@ -114,14 +73,12 @@ export class PatreonMockCache implements MockCache {
     ): Relationship<T, RelationshipFields<T>> & {
         included: RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[]
     } {
-        const converted = this.convertRelationshipsFromCache(type, relationship)
+        const converted = this.store.getRelationships(type, relationship)
 
         return {
             relationships: converted.relationships,
-            included: converted.items.map(({ id, type }) => {
-                const item = this.getCache(type).get(id)
-
-                if (item == undefined) {
+            included: converted.items.map(({ id, type, item }) => {
+                if (item == null) {
                     const message = `Unable to find relationship ${type} (${id}) on ${type} (${id})`
 
                     if (this.onMissinRelationship === 'error') throw new Error(message)
@@ -144,8 +101,8 @@ export class PatreonMockCache implements MockCache {
         included: RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[]
         id: string
     }) | null {
-        const item = this.getCache(type).get(id)
-        if (item == undefined) return null
+        const item = this.store.get(type, id)
+        if (item == null) return null
 
         const { item: resource, relationships } = item
         const relations = this.getRelations(type, relationships)
@@ -159,71 +116,42 @@ export class PatreonMockCache implements MockCache {
 
     public getRelated <
         T extends keyof ItemMap,
-        R extends RelationshipFieldToFieldType<T, RelationshipFields<T>>
+        R extends RelationshipFieldsToItem<T>,
     >(type: T, id: string, relatedType: R): {
         data: (Relationship<T, RelationshipFields<T>> & {
-            attributes: ItemMap[T]
-            id: string
-            type: R
-        })[]
-        included: RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[]
-        combined: (Relationship<R, RelationshipFields<R>> & {
             attributes: ItemMap[R]
             id: string
             type: R
-            included: RelationshipItem<R, RelationshipFields<R>, RelationshipMap<R, RelationshipFields<R>>>[]
         })[]
+        included: RelationshipItem<R, RelationshipFields<R>, RelationshipMap<R, RelationshipFields<R>>>[]
+        combined: {
+            item: Relationship<R, RelationshipFields<R>> & {
+                attributes: ItemMap[R]
+                id: string
+                type: R
+            }
+            included: RelationshipItem<R, RelationshipFields<R>, RelationshipMap<R, RelationshipFields<R>>>[]
+        }[]
     } | null {
-        const item = this.getCache(type).get(id)
-        if (item == undefined) return null
+        const items = this.store.getRelatedToResource(type, id, relatedType)
+            .map(({ id, value }) => {
+                const related = this.getRelations(relatedType, value.relationships)
 
-        const { relationships } = item
-        const converted = this.convertRelationshipsFromCache(type, relationships).items
-            .filter((item): item is typeof item & { type: R } => item.type === relatedType)
-
-        const items = converted.map(item => this.get(relatedType, item.id))
-            .filter((n): n is NonNullable<typeof n> => n != null)
+                return {
+                    item: {
+                        type: relatedType,
+                        id,
+                        attributes: value.item,
+                        relationships: related.relationships,
+                    },
+                    included: related.included,
+                }
+            })
 
         return {
             included: items.flatMap(item => item.included),
-            data: items.flatMap(item => ({
-                relationships: item.relationships,
-                attributes: item.attributes,
-                type: relatedType,
-                id: item.id,
-            })),
+            data: items.flatMap(({ item }) => item),
             combined: items.map(item => ({ type: relatedType, ...item })),
         }
-
-    }
-
-    protected setAll (items: Partial<MockCache>): void {
-        for (const [type, item] of Object.entries(items)) {
-            mergeMaps(item, this.getCache(type as keyof ItemMap))
-        }
-    }
-
-    public clearAll (): void {
-        for (const type of Object.values(Type)) {
-            this[type].clear()
-        }
-    }
-
-    public edit <T extends keyof ItemMap>(type: T, id: string, data: Partial<ItemMap[T]>) {
-        const item = this[type].get(id)
-        if (!item) return undefined
-
-        const merged = {
-            ...item.item,
-            ...data,
-        } as ItemMap[T]
-
-        // @ts-expect-error something needs to be fixed
-        this[type].set(id, {
-            item: merged,
-            relationships: item.relationships,
-        } as ItemCache<T>)
-
-        return merged as ItemMap[T]
     }
 }

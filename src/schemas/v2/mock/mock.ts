@@ -2,34 +2,47 @@ import type { MockInterceptor } from 'undici-types/mock-interceptor'
 
 import paths from '../api/paths'
 
-import { RouteBases } from '../../../rest/v2/routes'
-import type { PatreonErrorData } from '../../../rest/v2/oauth2'
-import { ItemType, QueryBuilder, Type } from '../../../v2'
+import { RouteBases, RequestMethod, Routes } from '../../../rest/v2/'
 
-import { PatreonMockData, PatreonMockDataOptions } from './data'
-import { PatreonMockCache, PatreonMockCacheOptions } from './cache'
-import { PatreonMockWebhooks, PatreonMockWebhooksOptions } from './webhooks'
+import {
+    type ItemType,
+    QueryBuilder,
+    type RelationshipFieldsToItem,
+    RelationshipMap,
+    Type,
+} from '../../../schemas/v2/'
+
+import { PatreonMockData, type PatreonMockDataOptions } from './data'
+import { PatreonMockCache, type PatreonMockCacheOptions } from './cache'
+import { PatreonMockWebhooks, type PatreonMockWebhooksOptions } from './webhooks'
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 function findAPIPath (path: string) {
     const escapeDots = (s: string) => Array.from(s, c => c === '.' ? '\\.' : c).join('')
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const pathWithoutQuery = path.split('?')[0]!
 
-    return paths.find(o => new RegExp(`^${o.route(':id')
+    const route = paths.find(o => new RegExp(`^${o.route(':id')
         .split('/')
         .map((s: string) => s.startsWith(':') ? '[^\\/]+': escapeDots(s))
         .join('\\/')
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    }$`).test(path.split('?')[0]!))
+    }$`).test(pathWithoutQuery))
+    if (!route) return
+    const routeId = route.route(':id')
+
+    return {
+        param: pathWithoutQuery.split('/').find((_, i) => routeId.split('/')[i] === ':id'),
+        routeId,
+        path: route,
+    }
 }
 
-/**
- *
- * @param status
- */
-// @ts-expect-error TODO: fix this
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function createErrors (status: number): PatreonErrorData[] {
-    return []
+// eslint-disable-next-line jsdoc/require-jsdoc
+function getAPIRouteKey (route: typeof paths[number]): keyof typeof Routes {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return Object
+        .entries(Routes)
+        .find(key => key[1](':id') === route.route(':id'))![0] as keyof typeof Routes
 }
 
 export interface PatreonMockOptions {
@@ -48,7 +61,20 @@ export interface PatreonMockOptions {
     webhooks?: PatreonMockWebhooksOptions
 }
 
-// type PatreonMockRoutes = ReturnType<typeof Routes[keyof typeof Routes]>
+export interface PatreonMockHandler {
+    url: string
+    method: Lowercase<RequestMethod>
+    handler: (request: {
+        url: string
+        headers: Record<string, string>
+        body?: string
+        method?: string
+    }) => {
+        headers: Record<string, string>
+        body: string
+        status: number
+    }
+}
 
 export class PatreonMock {
     public static origin = new URL(RouteBases.oauth2).origin
@@ -65,7 +91,7 @@ export class PatreonMock {
     public webhooks: PatreonMockWebhooks
 
     public constructor (
-        public options: PatreonMockOptions,
+        public options: PatreonMockOptions = {},
     ) {
         this.cache = new PatreonMockCache(options.cache ?? {})
         this.data = options.data != undefined && options.data instanceof PatreonMockData
@@ -74,6 +100,28 @@ export class PatreonMock {
 
         // @ts-expect-error TODO: fix this
         this.webhooks = new PatreonMockWebhooks(options.webhooks ?? {})
+    }
+
+    private validateHeaders (headers: Record<string, string> | Headers): void {
+        const validation = this.options.validation?.headers
+        if (validation == undefined) return
+        const headersRecord = typeof headers.entries === 'function'
+            ? [...headers.entries()].reduce<Record<string, string>>((obj, [key, value]) => ({ ...obj, [key]: value }), {})
+            : headers as Record<string, string>
+
+        const missing = (Array.isArray(validation) ? validation : Object.keys(validation))
+            .filter(name => !headersRecord[name] && !headersRecord[name.toLowerCase()])
+
+        if (missing.length > 0) {
+            throw new Error('Missing required header on mocked request: ' + missing.join(','))
+        }
+
+        if (!Array.isArray(validation)) {
+            for (const [name, value] of Object.entries(validation)) {
+                const header = headersRecord[name] ?? headersRecord[name.toLowerCase()]
+                if (header !== value) throw new Error('Invalid header on mocked request: ' + name)
+            }
+        }
     }
 
     private validateProperties (key: ItemType, attributes: string[]): void {
@@ -113,37 +161,47 @@ export class PatreonMock {
         }
     }
 
-    private buildResponseFromUrl (url: string) {
+    private buildResponseFromUrl (url: string, resourceId?: string) {
         const { pathname, searchParams } = new URL(url)
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const path = findAPIPath(pathname)!
+        const { path, param } = findAPIPath(pathname)!
         if (path.response?.status != undefined && path.response.status !== 200) return null
 
         const parsed = this.parseQueryRelationships(searchParams, path.resource)
-        // const { attributes, includes } = parsed
+        // Add typed query?
+        const query = parsed as unknown as { includes: never[], attributes: RelationshipMap<Type, never> }
+        const id = resourceId ?? param
 
         if (path.response?.array) {
-            // @ts-expect-error TODO: fix this
-            const cached = this.cache.getRelated<Type, Type>(path.resource, '', path.resource)
+            // All current list endpoints are related to a campaign
+            // E.g campaign members, campaign posts
+            // TODO: in the future make this configurable when new endpoints are added
+            const cached = id
+                ? this.cache.getRelated(Type.Campaign, id, path.resource as RelationshipFieldsToItem<Type.Campaign>)
+                : null
 
             if (cached) {
-                // @ts-expect-error TODO: fix this
-                const payload = this.data.getListResponsePayload(path.resource, parsed, {
-                    items: cached?.combined,
+                const payload = this.data.getListResponsePayload(path.resource, query, {
+                    items: cached.combined,
                 })
 
                 return JSON.stringify(payload)
             } else {
-                // TODO: generate random data
-                return JSON.stringify('')
+                const payload = this.data.getListResponsePayload(path.resource, query, {
+                    items: this.data.getAttributeItems(path.resource).map(item => ({
+                        item,
+                        included: this.data.createRelatedItems(item.type)
+                    })),
+                })
+
+                return JSON.stringify(payload)
             }
         } else {
-            const cached = this.cache.get(path.resource, '')
+            const cached = id ? this.cache.get(path.resource, id) : null
 
-            if (cached) {
-                // @ts-expect-error TODO: fix this
-                const payload = this.data.getSingleResponsePayload(path.resource, parsed, {
-                    id: cached.id,
+            if (id && cached) {
+                const payload = this.data.getSingleResponsePayload(path.resource, query, {
+                    id,
                     item: cached.attributes,
                     relatedItems: cached.included,
                 })
@@ -153,11 +211,10 @@ export class PatreonMock {
                 const id = this.data.createId(path.resource)
                 const attributes = this.data.random[path.resource](id)
 
-                // @ts-expect-error TODO: fix this
-                const payload = this.data.getSingleResponsePayload(path.resource, parsed, {
+                const payload = this.data.getSingleResponsePayload(path.resource, query, {
                     id,
                     item: attributes,
-                    relatedItems: [],
+                    relatedItems: this.data.createRelatedItems(path.resource),
                 })
 
                 return JSON.stringify(payload)
@@ -170,37 +227,78 @@ export class PatreonMock {
      * If you don't have `undici` or `undici-types` installed, ts will be not be able to import the types.
      *
      * Creates a callback for an intercepted request on a mock agent.
-     * @param statusCode The status code that the intercepted response should have.
-     * Default: `200`.
+     * @param options Options for the mocked response
+     * @param options.statusCode The status code the response should have, defaults to `200`
+     * @param options.headers The headers to include in the response
      * @returns the intercept callback
      */
-    public getMockAgentReplyCallback (statusCode: number = 200) {
-        const headers = {
+    public getMockAgentReplyCallback (options?: {
+        statusCode?: number
+        headers?: Record<string, string>
+    }) {
+        const statusCode = options?.statusCode ?? 200
+        const headers: Record<string, string> = {
             'Content-Type': 'application/json',
-            ...(this.options.responseOptions?.headers ?? {})
+            ...(this.options.responseOptions?.headers ?? {}),
+            ...(options?.headers ?? {}),
         }
 
-        if (this.statusCodesWithNoContent.includes(statusCode)) return () => ({
-            statusCode,
-            responseOptions: { headers },
-        })
-        else if (statusCode === 200) return (options: MockInterceptor.MockResponseCallbackOptions) => {
-            const data = this.buildResponseFromUrl(options.origin + options.path)
+        const data = (this.statusCodesWithNoContent.includes(statusCode))
+            ? () => ''
+            : (statusCode === 200
+                ? (options: MockInterceptor.MockResponseCallbackOptions) => {
+                    return this.buildResponseFromUrl(options.origin + options.path) ?? ''
+                }
+                : () => JSON.stringify(([
+                    this.data.createError(statusCode)
+                ]))
+            )
+
+        return (options: MockInterceptor.MockResponseCallbackOptions) => {
+            this.validateHeaders(options.headers)
 
             return {
                 statusCode,
-                data: data ?? undefined,
+                data: data(options),
                 responseOptions: { headers },
             }
         }
-        else return () => ({
-            statusCode,
-            data: JSON.stringify(createErrors(statusCode)),
-            responseOptions: { headers },
-        })
     }
 
-    public getMockHandlers () {
+    /**
+     * Get handlers for mocking a route
+     * @param options Options for generating the routes
+     * @param options.pathParam The path param template value, defaults to `*`
+     * @param options.includeOrigin Whether to include the API origin in the url of the handler, defaults to `true`
+     * @see https://patreon-api.pages.dev/guide/features/sandbox#msw
+     * @returns Handlers for each route that returns a successful response.
+     */
+    public getMockHandlers (options?: {
+        pathParam?: string
+        includeOrigin?: boolean
+    }) {
+        return paths.reduce<Record<keyof typeof Routes, PatreonMockHandler>>((handlers, route) => {
+            const handler: PatreonMockHandler['handler'] = (request) => {
+                this.validateHeaders(request.headers)
+                const response = this.buildResponseFromUrl(request.url)
 
+                return {
+                    body: response ?? '',
+                    status: route.response?.status ?? 200,
+                    headers: {},
+                }
+            }
+
+            return {
+                ...handlers,
+                [getAPIRouteKey(route)]: {
+                    handler,
+                    method: RequestMethod.Get.toLowerCase(),
+                    url: ((options?.includeOrigin ?? true) ? PatreonMock.origin : '')
+                        + PatreonMock.path
+                        + route.route(options?.pathParam ?? '*'),
+                }
+            }
+        }, {} as never)
     }
 }

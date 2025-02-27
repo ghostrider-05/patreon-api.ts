@@ -7,18 +7,21 @@ import {
 
 import type { If } from '../../../utils/generics'
 
-export interface PatreonFetchOptions<Value, Options, IsAsync extends boolean = true> {
+export interface PatreonFetchOptions<Value, Options, IsAsync extends boolean = true, ListOptions = Options, ListValue = Value> {
     /**
-     * Store the token from the client to an external resource
-     * @param token The token to store
-     * @param isCreatorToken Whether the token should be saved as the new creator token
+     * Store the value from the client to an external resource
+     * @param value The value to store
+     * @param options
      */
     put: (value: Value, options?: Options) => If<IsAsync, Promise<void>, void>
 
     /**
-     * Method to retreive the stored token.
+     * Method to retreive the stored value.
      */
     get: (options?: Options) => If<IsAsync, Promise<Value | undefined>, Value | undefined>
+
+    delete: (options?: Options) => If<IsAsync, Promise<void>, void>
+    list: (options: ListOptions) => If<IsAsync, Promise<ListValue[]>, ListValue[]>
 }
 
 export type PatreonTokenFetchOptions<IsAsync extends boolean = true> = PatreonFetchOptions<
@@ -30,10 +33,22 @@ export type PatreonTokenFetchOptions<IsAsync extends boolean = true> = PatreonFe
 class PatreonFetchStore<Value, Options> implements PatreonFetchOptions<Value, Options, true> {
     public get: (options?: Options) => Promise<Value | undefined>
     public put: (value: Value, options?: Options) => Promise<void>
+    public delete: (options?: Options | undefined) => Promise<void>
+
+    // TODO:
+    /**
+     * WARNING: The list API will probably be different from the default KV,
+     * so this functionality is not implemented yet!
+     * @param options The options for listing values
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    public list (options: Options): Promise<Value[]> {
+        throw new Error('This method has not been implemented')
+    }
 
     /**
      * Sync tokens in a remote server
-     * @param url The server URL that accepts GET and PUT requests
+     * @param url The server URL that accepts DELETE, GET and PUT requests
      * @param [fetchFn] The fetch function to use. Defaults to the globally available `fetch` function.
      */
     public constructor (url: string | ((options?: Options) => string), fetchFn?: RestFetcher) {
@@ -48,12 +63,18 @@ class PatreonFetchStore<Value, Options> implements PatreonFetchOptions<Value, Op
                 body: JSON.stringify(token),
             })
         }
+
+        this.delete = async (options) => {
+            await _fetch(typeof url === 'string' ? url : url(options), { method: 'DELETE' })
+        }
     }
 }
 
 export interface PatreonStoreKVStorage {
     get: (key: string) => Promise<string | null>
     put: (key: string, value: string) => Promise<void>
+    delete: (key: string) => Promise<void>
+    list: (options: object) => Promise<never[]>
 }
 
 /** @deprecated */
@@ -65,6 +86,8 @@ export type KVLikeStore = PatreonStoreKVStorage
 class PatreonKVStore<Value, Options extends object> implements PatreonFetchOptions<Value, Options, true> {
     public get: (options?: Options) => Promise<Value | undefined>
     public put: (value: Value, options?: Options) => Promise<void>
+    public delete: (options?: Options | undefined) => Promise<void>
+    public list: (options: Options) => Promise<Value[]>
 
     /**
      * Sync values in a KV-like store
@@ -77,17 +100,36 @@ class PatreonKVStore<Value, Options extends object> implements PatreonFetchOptio
             .catch(() => undefined)
 
         this.put = async (token, options) => await store.put(getKey(options), JSON.stringify(token))
+        this.delete = async (options) => await store.delete(getKey(options))
+        this.list = async (options) => await store.list(options)
     }
 }
 
-class PatreonMemoryStore<Value, Options> implements PatreonFetchOptions<Value, Options, false> {
+class PatreonMemoryStore<Value, Options, ListOptions = Options, ListValue = Value> implements
+    PatreonFetchOptions<Value, Options, false, ListOptions, ListValue> {
     public values: Map<string, Value>
 
     public getKey: (options?: Options) => string
+    protected filter: (key: string, value: Value, options: ListOptions) => boolean
+    protected toListValue: (key: string, value: Value, options: ListOptions) => ListValue
 
-    public constructor (getKey: (options?: Options) => string) {
-        this.getKey = getKey
+    public constructor (options: {
+        getKey: (options?: Options) => string
+        filter: (key: string, value: Value, options: ListOptions) => boolean
+        toListValue: (key: string, value: Value, options: ListOptions) => ListValue
+    }) {
+        this.getKey = options.getKey
+        this.filter = options.filter
+        this.toListValue = options.toListValue
+
         this.values = new Map()
+    }
+
+    public list (options: ListOptions): ListValue[] {
+        return this.values.entries()
+            .filter(([key, value]) => this.filter(key, value, options))
+            .map(n => this.toListValue(n[0], n[1], options))
+            .toArray()
     }
 
     public put (value: Value, options?: Options): void {
@@ -96,6 +138,10 @@ class PatreonMemoryStore<Value, Options> implements PatreonFetchOptions<Value, O
 
     public get (options?: Options): Value | undefined {
         return this.values.get(this.getKey(options))
+    }
+
+    public delete (options?: Options | undefined): void {
+        this.values.delete(this.getKey(options))
     }
 }
 
@@ -135,7 +181,11 @@ class PatreonMemoryTokenStore extends PatreonMemoryStore<Oauth2StoredToken, { is
     public creatorKey: string = 'creator'
 
     public constructor (tokenKey: string) {
-        super((options) => options?.key ?? (options?.isCreatorToken ? this.creatorKey : tokenKey))
+        super({
+            getKey: (options) => options?.key ?? (options?.isCreatorToken ? this.creatorKey : tokenKey),
+            filter: (key, _value, options) => key === options?.key,
+            toListValue: (_key, value) => value,
+        })
     }
 }
 

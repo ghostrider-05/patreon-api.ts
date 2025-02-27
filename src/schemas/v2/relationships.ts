@@ -131,6 +131,15 @@ export type RelationshipFieldToFieldType<T extends Type | `${Type}`, F extends R
             : I extends Item<Type> ? I['type'] : never
         : never
 
+export type RelationshipTypeToRelationshipField<T extends Type | `${Type}`, F extends RelationshipTypeFields<T>> =
+    RelationshipFields<T> extends infer R ? R extends RelationshipFields<T>
+    ? RelationDataItem<T, 1>[R]['data'] extends infer I
+        ? I extends unknown []
+            ? I[number] extends Item<F> ? R : never
+            : I extends Item<F> ? R : never
+        : never
+    : never : never
+
 export type RelationshipIsArray<T extends `${Type}`, R extends RelationshipFields<T>> = ResolvedRelation<T>[R][2]
 
 export type Relationship<T extends Type | `${Type}`, Keys extends RelationshipFields<T>> = {
@@ -155,3 +164,11 @@ export type RelationshipItem<T extends `${Type}`, Keys extends RelationshipField
 
 export type RelationshipMainItemAttributes<T extends `${Type}`, Keys extends `${RelationshipTypeFields<T>}`, Map extends RelationshipMap<T, Keys>> =
     Pick<ItemMap[T], Map[T] extends infer Value ? Value extends string[] ? Value[number] : never : never>
+
+/**
+ * Returns the item types to which the input has a relation with.
+ * Returns `never` if the item is no relation of any other resource.
+ */
+export type RelationshipFieldsToItem<T extends `${Type}`> = ItemType extends infer R ? R extends ItemType
+    ? T extends `${RelationshipTypeFields<R>}` ? R : never
+    : never : never
