@@ -1,4 +1,5 @@
 export * from './item'
+export * from './modifiable'
 export * from './query'
 export * from './relationships'
 
