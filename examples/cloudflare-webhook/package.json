@@ -11,8 +11,8 @@
     "deploy": "npx wrangler deploy"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20250129.0",
+    "@cloudflare/workers-types": "4.20250224.0",
     "patreon-api.ts": "../../",
-    "wrangler": "^3.107.2"
+    "wrangler": "^3.111.0"
   }
 }
