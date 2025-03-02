@@ -123,6 +123,7 @@ export default [
                 method: RequestMethod.Delete,
                 id: <const>'deleteWebhook',
                 experimental: true,
+                responseStatus: 204,
             },
         ],
         params: {

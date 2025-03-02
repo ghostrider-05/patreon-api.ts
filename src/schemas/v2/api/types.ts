@@ -29,5 +29,6 @@ export interface Route {
         experimental?: boolean
         scopes?: PatreonOauthScope[]
         summary?: string
+        responseStatus?: number
     }[]
 }
