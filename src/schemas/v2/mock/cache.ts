@@ -1,4 +1,9 @@
-import { type ItemMap, Type } from '../item'
+import { RequestMethod } from '../../../v2'
+import { Type, type ItemMap } from '../item'
+import type {
+    WriteResourcePayload,
+    WriteResourceType,
+} from '../modifiable'
 
 import type {
     Relationship,
@@ -8,20 +13,7 @@ import type {
     RelationshipMap,
 } from '../relationships'
 
-import { PatreonMockCacheStore } from './cache_store'
-
-type ItemRawRelationship<T extends keyof ItemMap> = Relationship<T, RelationshipFields<T>>['relationships']
-
-type ItemCacheRelationship<T extends keyof ItemMap> = {
-    [R in keyof ItemRawRelationship<T>]: ItemRawRelationship<T>[R]['data'] extends unknown[]
-        ? string[]
-        : string
-}
-
-type ItemCache<T extends keyof ItemMap> = {
-    item: ItemMap[T]
-    relationships: ItemCacheRelationship<T>
-}
+import { PatreonMockCacheStore, type ItemCache } from './cache_store'
 
 export interface PatreonMockCacheOptions {
     initial?: {
@@ -30,26 +22,68 @@ export interface PatreonMockCacheOptions {
     onMissingRelationship?: 'error' | 'warn'
 }
 
-export class PatreonMockCache {
-    public address: Map<string, ItemCache<'address'>> = new Map()
-    public benefit: Map<string, ItemCache<'benefit'>> = new Map()
-    public campaign: Map<string, ItemCache<'campaign'>> = new Map()
-    public client: Map<string, ItemCache<'client'>> = new Map()
-    public deliverable: Map<string, ItemCache<'deliverable'>> = new Map()
-    public goal: Map<string, ItemCache<'goal'>> = new Map()
-    public media: Map<string, ItemCache<'media'>> = new Map()
-    public member: Map<string, ItemCache<'member'>> = new Map()
-    public post: Map<string, ItemCache<'post'>> = new Map()
-    public tier: Map<string, ItemCache<'tier'>> = new Map()
-    public user: Map<string, ItemCache<'user'>> = new Map()
-    public webhook: Map<string, ItemCache<'webhook'>> = new Map()
-    public 'pledge-event': Map<string, ItemCache<Type.PledgeEvent>> = new Map()
+type ModifyCacheHook = {
+    [T in WriteResourceType]: {
+        [RequestMethod.Delete]: () => void
+        [RequestMethod.Post]: (body: WriteResourcePayload<T, RequestMethod.Post>) => {
+            cache: ItemCache<T>
+            id: string
+        }
+        [RequestMethod.Patch]: (stored: ItemCache<T> | null, body: WriteResourcePayload<T, RequestMethod.Patch>) => {
+            cache: ItemCache<T> | null
+        }
+    }
+}
 
+export class PatreonMockCache {
     public store: PatreonMockCacheStore
 
     private onMissinRelationship: 'warn' | 'error' | undefined
+    private onModify: ModifyCacheHook = {
+        webhook: {
+            [RequestMethod.Delete]() {},
+            [RequestMethod.Patch](stored, body) {
+                if (stored == null) return { cache: null }
 
-    public constructor (options: PatreonMockCacheOptions) {
+                return {
+                    cache: {
+                        item: {
+                            ...stored.item,
+                            ...body.data.attributes,
+                        },
+                        relationships: stored.relationships,
+                    }
+                }
+            },
+            [RequestMethod.Post]: (body) => {
+                const { id } = this.onPostRequest(Type.Webhook)
+
+                return {
+                    id,
+                    cache: {
+                        item: {
+                            ...body.data.attributes,
+                            paused: false,
+                            last_attempted_at: <never>null,
+                            num_consecutive_times_failed: 0,
+                            secret: '',
+                        },
+                        relationships: {
+                            campaign: body.data.relationships.campaign.data.id,
+                            client: '', // TODO: set
+                        }
+                    }
+                }
+            },
+        }
+    }
+
+    public constructor (
+        options: PatreonMockCacheOptions,
+        private onPostRequest: (type: Type) => {
+            id: string
+        }
+    ) {
         if (options.initial != undefined) {
             this.setAll(options.initial)
         }
@@ -69,30 +103,24 @@ export class PatreonMockCache {
 
     public getRelations <T extends keyof ItemMap>(
         type: T,
-        relationship: ItemCacheRelationship<T>,
+        item: ItemCache<T>,
     ): Relationship<T, RelationshipFields<T>> & {
         included: RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[]
     } {
-        const converted = this.store.getRelationships(type, relationship)
+        const converted = this.store.getRelationships(type, item.relationships, (type, id, resource) => {
+            const message = `Unable to find relationship ${type} (${id}) on ${resource}`
+
+            if (this.onMissinRelationship === 'error') throw new Error(message)
+            if (this.onMissinRelationship === 'warn') console.warn(message)
+        })
 
         return {
             relationships: converted.relationships,
-            included: converted.items.map(({ id, type, item }) => {
-                if (item == null) {
-                    const message = `Unable to find relationship ${type} (${id}) on ${type} (${id})`
-
-                    if (this.onMissinRelationship === 'error') throw new Error(message)
-                    if (this.onMissinRelationship === 'warn') console.warn(message)
-
-                    return undefined
-                }
-
-                return {
-                    attributes: item.item,
-                    type,
-                    id,
-                }
-            }).filter((item): item is NonNullable<typeof item> => item != undefined)
+            included: converted.items.map(({ id, item, type }) => ({
+                id,
+                type,
+                attributes: item.item,
+            })),
         }
     }
 
@@ -104,13 +132,10 @@ export class PatreonMockCache {
         const item = this.store.get(type, id)
         if (item == null) return null
 
-        const { item: resource, relationships } = item
-        const relations = this.getRelations(type, relationships)
-
         return {
             id,
-            attributes: resource,
-            ...relations,
+            attributes: item.item,
+            ...this.getRelations(type, item),
         }
     }
 
@@ -135,7 +160,7 @@ export class PatreonMockCache {
     } | null {
         const items = this.store.getRelatedToResource(type, id, relatedType)
             .map(({ id, value }) => {
-                const related = this.getRelations(relatedType, value.relationships)
+                const related = this.getRelations(relatedType, value)
 
                 return {
                     item: {
@@ -152,6 +177,44 @@ export class PatreonMockCache {
             included: items.flatMap(item => item.included),
             data: items.flatMap(({ item }) => item),
             combined: items.map(item => ({ type: relatedType, ...item })),
+        }
+    }
+
+    /**
+     * For requests that change the storage, sync the request body with the cache
+     * @param method The request method. Must be one of: delete, patch, post
+     * @param type The type of resource. Only types that allow write requests are allowed
+     * @param id The id of the resource (the path parameter). For post requests this can be undefined.
+     * @param body The request body (stringified JSON). For delete requests this can be undefined.
+     * @returns A promise for async storage
+     * @throws When a parameter is undefined, but required for a request method.
+     */
+    public setRequestBody <T extends WriteResourceType>(method: string, type: T, id: string | undefined, body?: string) {
+        if (method.toLowerCase() === 'delete') {
+            if (id == undefined) throw new Error()
+            this.onModify[type][RequestMethod.Delete]()
+
+            return this.store.delete(type, id)
+        }
+
+        if (body == undefined) throw new Error()
+
+        if (method.toLowerCase() === 'post') {
+            const payload: WriteResourcePayload<T, RequestMethod.Post> = JSON.parse(body)
+            const { cache, id } = this.onModify[type][RequestMethod.Post](payload)
+
+            return this.store.set(type, id, cache)
+        }
+
+        if (method.toLowerCase() === 'patch') {
+            const payload: WriteResourcePayload<T, RequestMethod.Patch> = JSON.parse(body)
+            const current = this.store.get(type, payload.data.id)
+
+            const { cache } = this.onModify[type][RequestMethod.Patch](current, payload)
+
+            if (cache != null) {
+                return this.store.set(type, payload.data.id, cache)
+            }
         }
     }
 }

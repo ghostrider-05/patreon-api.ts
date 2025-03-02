@@ -23,65 +23,10 @@ export interface PatreonMockDataOptions {
     random?: Partial<RandomDataGenerator>
 }
 
-interface MockDataManager {
-    randomGenerators: RandomDataGenerator
-    random: RandomDataResources
-
-    createId: (type: Type) => string
-    createAPIUrl (type: keyof ItemMap, id: string): string
-
-    getAttributeItem<T extends Type, A extends keyof ItemMap[T]>(type: T, id?: string, data?: Partial<ItemMap[T]>, attributes?: A[]): {
-        id: string
-        type: T
-        attributes: Pick<ItemMap[T], A>
-    }
-
-    filterRelationships<T extends Type, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
-        type: T,
-        items: RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[],
-        query: {
-            includes: I[]
-            attributes: A
-        }
-    ): {
-        included: RelationshipItem<T, I, A>[]
-    } & Relationship<T, I>
-
-    getSingleResponsePayload<T extends Type, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
-        type: T,
-        query: {
-            includes: I[]
-            attributes: A
-        },
-        data: {
-            id: string
-            item: Partial<ItemMap[T]>
-            relatedItems: RelationshipItem<T, I, A>[]
-        },
-    ): GetRequestPayload<T, I, A>
-
-    getListResponsePayload<T extends Type, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
-        type: T,
-        query: {
-            includes: I[]
-            attributes: A
-        },
-        data: {
-            items: {
-                item: {
-                    id: string
-                    attributes: Partial<ItemMap[T]>
-                }
-                included: RelationshipItem<T, I, A>[]
-            }[]
-        },
-    ): ListRequestPayload<T, I, A>
-}
-
 const _random = <T>(list: T[]): T => list[list.length * Math.random() | 0] as T
 const _random_int = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min
 
-export class PatreonMockData implements MockDataManager {
+export class PatreonMockData {
     public options: PatreonMockDataOptions
     public random: RandomDataResources
     public randomGenerators: RandomDataGenerator

@@ -9,6 +9,7 @@ import type {
     RelationshipFields,
     RelationshipFieldsToItem,
     RelationshipFieldToFieldType,
+    RelationshipTypeFields,
 } from '../relationships'
 
 type ItemRawRelationship<T extends keyof ItemMap> = Relationship<T, RelationshipFields<T>>['relationships']
@@ -19,7 +20,7 @@ type ItemCacheRelationship<T extends keyof ItemMap> = {
         : string
 }
 
-type ItemCache<T extends keyof ItemMap> = {
+export type ItemCache<T extends keyof ItemMap> = {
     item: ItemMap[T]
     relationships: ItemCacheRelationship<T>
 }
@@ -129,12 +130,16 @@ export class PatreonMockCacheStore implements CacheStore<false> {
         }) as { id: string, value: ItemCache<R> }[]
     }
 
-    public getRelationships <T extends keyof ItemMap> (type: T, relationships: ItemCache<T>['relationships']): Relationship<T, RelationshipFields<T>> & {
+    public getRelationships <T extends keyof ItemMap> (
+        type: T,
+        relationships: ItemCache<T>['relationships'],
+        onMissingItem: (type: RelationshipTypeFields<T>, id: string, resourceType: T) => void,
+    ): Relationship<T, RelationshipFields<T>> & {
         items: {
             [R in RelationshipFields<R>]: {
                 id: string
                 type: RelationshipFieldToFieldType<T, R>
-                item: ItemCache<RelationshipFieldToFieldType<T, R>> | null
+                item: ItemCache<RelationshipFieldToFieldType<T, R>>
             }
         }[RelationshipFields<T>][]
     } {
@@ -157,12 +162,21 @@ export class PatreonMockCacheStore implements CacheStore<false> {
                     ? relationships[relation]
                     : [relationships[relation]]
 
-                return ids.map(id => ({
-                    id,
-                    type: relationType,
-                    item: this.get(relationType, id),
-                }))
-            })
+                return ids.map(id => {
+                    const item = this.get(relationType, id)
+
+                    if (!item) {
+                        onMissingItem(relationType, id, type)
+                        return
+                    }
+
+                    return {
+                        id,
+                        type: relationType,
+                        item,
+                    }
+                })
+            }).filter((n): n is NonNullable<typeof n> => n != undefined)
         }
     }
 }
