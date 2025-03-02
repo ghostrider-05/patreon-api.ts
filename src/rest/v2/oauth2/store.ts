@@ -73,8 +73,8 @@ class PatreonFetchStore<Value, Options> implements PatreonFetchOptions<Value, Op
 export interface PatreonStoreKVStorage {
     get: (key: string) => Promise<string | null>
     put: (key: string, value: string) => Promise<void>
-    delete: (key: string) => Promise<void>
-    list: (options: object) => Promise<never[]>
+    delete?: (key: string) => Promise<void>
+    list?: (options: object) => Promise<never[]>
 }
 
 /** @deprecated */
@@ -100,8 +100,8 @@ class PatreonKVStore<Value, Options extends object> implements PatreonFetchOptio
             .catch(() => undefined)
 
         this.put = async (token, options) => await store.put(getKey(options), JSON.stringify(token))
-        this.delete = async (options) => await store.delete(getKey(options))
-        this.list = async (options) => await store.list(options)
+        this.delete = async (options) => await store.delete?.(getKey(options))
+        this.list = async (options) => await store.list?.(options) ?? []
     }
 }
 
