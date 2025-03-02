@@ -19,7 +19,7 @@ export default [
         methods: [
             {
                 method: RequestMethod.Get,
-                id: 'getCampaignPosts',
+                id: <const>'getCampaignPosts',
             },
         ],
         params: {
@@ -39,7 +39,7 @@ export default [
         methods: [
             {
                 method: RequestMethod.Get,
-                id: 'getPost',
+                id: <const>'getPost',
             },
         ],
         params: {

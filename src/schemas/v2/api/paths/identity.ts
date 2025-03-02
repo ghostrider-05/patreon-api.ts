@@ -18,7 +18,7 @@ export default [
         methods: [
             {
                 method: RequestMethod.Get,
-                id: 'getIdentity',
+                id: <const>'getIdentity',
             },
         ],
     },

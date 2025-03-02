@@ -116,12 +116,12 @@ export default [
         methods: [
             {
                 method: RequestMethod.Patch,
-                id: 'editWebhook',
+                id: <const>'editWebhook',
                 body: patchWebhookBody,
             },
             {
                 method: RequestMethod.Delete,
-                id: 'deleteWebhook',
+                id: <const>'deleteWebhook',
                 experimental: true,
             },
         ],
@@ -139,11 +139,11 @@ export default [
         methods: [
             {
                 method: RequestMethod.Get,
-                id: 'getWebhooks',
+                id: <const>'getWebhooks',
             },
             {
                 method: RequestMethod.Post,
-                id: 'createWebhook',
+                id: <const>'createWebhook',
                 body: postWebhooksBody,
             },
         ],
