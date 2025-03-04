@@ -262,6 +262,7 @@ declare global {
 }
 
 // Used only for schema generation
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface Vars {
 	vars: Config.Options
 	$schema: 'schema.json'
