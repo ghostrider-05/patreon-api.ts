@@ -1,9 +1,8 @@
-import { createHmac, randomUUID } from 'node:crypto'
+import { createHmac } from 'node:crypto'
 
-import { ResponseHeaders } from '../../../rest/v2/oauth2'
 import { PatreonWebhookTrigger, WebhookClient } from '../../../rest/v2/webhooks'
-import { Webhook, WebhookPayload } from '../../../v2'
-import { createBackoff, RestRetriesBackoffOptions } from '../../../rest/v2/oauth2/rest'
+import { PatreonMockData, Webhook, WebhookPayload } from '../../../v2'
+import { createBackoff, type RestRetriesOptions } from '../../../rest/v2/oauth2/rest'
 
 interface PatreonMockWebhookHeaderData {
     signature: string
@@ -17,34 +16,30 @@ interface PatreonMockWebhookHeaderData {
 }
 
 export interface PatreonMockWebhooksOptions {
+    /**
+     * Additional headers to send on every mocked webhook request
+     */
     headers?: Record<string, string>
-    backoff?: RestRetriesBackoffOptions & {
-        /**
-         * @default 7
-         */
-        maxRetries?: number
-    }
-    queue?: {
-        /**
-         * @default 1000
-         */
-        limit?: number
-        /**
-         * @default 'webhook'
-         */
-        scope?: 'webhook' | 'global'
-        jitter?: number
-    }
+
+    /**
+     * The method to use when sending the mocked webhook request
+     * @default 'POST'
+     */
+    method?: string
+
+    retries?: Required<RestRetriesOptions>
+}
+
+interface PatreonMockWebhookQueuedMessage {
+    body: string
+    headers: Record<string, string>
+    retries: number
+    timer: NodeJS.Timeout
+    last_attempted_at: string
 }
 
 export class PatreonMockWebhooks {
-    public queuedMessages: Map<string, Map<string, {
-        body: string
-        headers: Record<string, string>
-        retries: number
-        timer: NodeJS.Timeout
-        last_attempted_at: string
-    }>> = new Map()
+    public queuedMessages: Map<string, PatreonMockWebhookQueuedMessage> = new Map()
 
     protected lastWebhookMessage: Map<string, {
         signature: string
@@ -55,15 +50,21 @@ export class PatreonMockWebhooks {
 
     public constructor (
         public options: PatreonMockWebhooksOptions,
+        protected data: PatreonMockData,
         protected createTestPayload: <T extends PatreonWebhookTrigger>(trigger: T) => WebhookPayload<T>,
     ) {}
 
+    public static getQueuedKey (webhookId: string, signature: string) {
+        return webhookId + '/' + signature
+    }
+
     public deleteQueuedMessage(webhookId: string, signature: string): boolean {
-        const item = this.queuedMessages.get(webhookId)?.get(signature)
+        const key = PatreonMockWebhooks.getQueuedKey(webhookId, signature)
+        const item = this.queuedMessages.get(key)
         if (!item) return false
 
         clearTimeout(item.timer)
-        return this.queuedMessages.get(webhookId)?.delete(signature) ?? false
+        return this.queuedMessages.delete(key) ?? false
     }
 
     public createSignature (secret: string, data: string): string {
@@ -74,16 +75,26 @@ export class PatreonMockWebhooks {
         return {
             [WebhookClient.headers.signature]: data.signature,
             [WebhookClient.headers.event]: data.event,
-            [ResponseHeaders.UUID]: data.uuid ?? randomUUID(),
-            [ResponseHeaders.CfCacheStatus]: 'DYNAMIC',
-            [ResponseHeaders.Sha]: data.sha ?? '',
-            [ResponseHeaders.CfRay]: data.rayId ?? '',
-            ...(data.ratelimit != undefined ? {
-                [ResponseHeaders.RetryAfter]: data.ratelimit.retryAfter,
-            } : {}),
-            'Content-Type': 'application/json',
+            ...this.data.createHeaders(data),
             ...(this.options.headers ?? {}),
         }
+    }
+
+    public createRequest <T extends PatreonWebhookTrigger>(
+        webhook: Pick<Webhook, 'secret' | 'uri'>,
+        event: T,
+        data: WebhookPayload<T>,
+    ): Request {
+        const body = JSON.stringify(data)
+
+        return new Request(webhook.uri, {
+            method: 'POST',
+            body,
+            headers: this.createHeaders({
+                event,
+                signature: this.createSignature(webhook.secret, body),
+            })
+        })
     }
 
     public getWebhook (webhookId: string): Pick<Webhook,
@@ -107,7 +118,7 @@ export class PatreonMockWebhooks {
         headers: Record<string, string>,
         retries: number,
     ): NodeJS.Timeout | undefined {
-        if (!this.options.backoff) return
+        if (!this.options.retries) return
 
         const timer = setTimeout(async () => {
             const response = await fetch(webhook.uri, {
@@ -126,10 +137,10 @@ export class PatreonMockWebhooks {
             if (response.ok) {
                 this.deleteQueuedMessage(webhook.id, signature)
                 this.sendQueuedMessages(webhook)
-            } else if (retries < (this.options.backoff?.maxRetries ?? 7)){
+            } else if (retries < (this.options.retries?.retries ?? 7)){
                 this.retrySendingMessage(webhook, body, signature, headers, retries + 1)
 
-                this.queuedMessages.get(webhook.id)?.set(signature, {
+                this.queuedMessages.set(PatreonMockWebhooks.getQueuedKey(webhook.id, signature), {
                     body,
                     headers,
                     retries,
@@ -137,8 +148,7 @@ export class PatreonMockWebhooks {
                     last_attempted_at: new Date().toISOString(),
                 })
             }
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        }, retries === -1 ? 0 : createBackoff(this.options.backoff!)(retries))
+        }, retries === -1 ? 0 : createBackoff(this.options.retries.backoff)(retries))
 
         return timer
     }
@@ -147,7 +157,7 @@ export class PatreonMockWebhooks {
         webhook: Pick<Webhook, 'secret' | 'uri'> & { id: string },
         signature: string,
     ): boolean {
-        const item = this.queuedMessages.get(webhook.id)?.get(signature)
+        const item = this.queuedMessages.get(PatreonMockWebhooks.getQueuedKey(webhook.id, signature))
         if (!item) return false
 
         const timer = this.retrySendingMessage(webhook, item.body, signature, item.headers, -1)
@@ -157,11 +167,12 @@ export class PatreonMockWebhooks {
     public sendQueuedMessages (
         webhook: Pick<Webhook, 'secret' | 'uri'> & { id: string },
     ): boolean {
-        const messages = this.queuedMessages.get(webhook.id)
-        if (!messages || messages.size === 0) return false
+        const messages = this.queuedMessages.keys().filter(n => n.startsWith(webhook.id)).toArray()
+        if (!messages || messages.length === 0) return false
 
-        for (const [signature, { body, headers }] of messages) {
-            this.retrySendingMessage(webhook, body, signature, headers, -1)
+        for (const [signature, { body, headers }] of this.queuedMessages.entries().filter(([key]) => key.startsWith(webhook.id))) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.retrySendingMessage(webhook, body, signature.split('/')[1]!, headers, -1)
         }
 
         return true
@@ -206,25 +217,9 @@ export class PatreonMockWebhooks {
             return response.status
         }
 
-        if (!this.queuedMessages.has(webhook.id)) {
-            this.queuedMessages.set(webhook.id, new Map())
-        }
-
-        if (this.options.queue != undefined) {
-            const size = this.options.queue.scope === 'global'
-                ? this.queuedMessages.values().reduce((size, m) => size + m.size, 0)
-                : this.queuedMessages.get(webhook.id)?.size ?? 0
-
-            if (size > (this.options.queue.limit ?? 1000)) {
-                console.warn('Not keeping message in queue')
-
-                return response.status
-            }
-        }
-
         const timer = this.retrySendingMessage(webhook, body, signature, headers, 1)
         if (timer != undefined) {
-            this.queuedMessages.get(webhook.id)?.set(signature, {
+            this.queuedMessages.set(PatreonMockWebhooks.getQueuedKey(webhook.id, signature), {
                 body,
                 headers,
                 retries: 0,

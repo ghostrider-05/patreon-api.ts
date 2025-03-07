@@ -11,12 +11,25 @@ import {
     type Type,
 } from '..'
 
+import {
+    type PatreonErrorData,
+    ResponseHeaders,
+} from '../../../rest/v2/'
+
 import type { ListRequestPayload } from '../../../payloads/v2/internals/list'
 import type { GetRequestPayload } from '../../../payloads/v2/internals/get'
 
 import type { RandomDataGenerator } from './random'
 import RandomDataResources from '../generated/random'
-import { PatreonErrorData } from '../../../v2'
+
+export interface PatreonMockHeaderData {
+    uuid?: string
+    sha?: string
+    rayId?: string
+    ratelimit?: {
+        retryAfter: string
+    }
+}
 
 export interface PatreonMockDataOptions {
     resources?: Partial<{ [T in keyof ItemMap]: (id: string) => Partial<ItemMap[T]> }>
@@ -29,7 +42,6 @@ const _random_int = (min: number, max: number) => Math.floor(Math.random() * (ma
 export class PatreonMockData {
     public options: PatreonMockDataOptions
     public random: RandomDataResources
-    public randomGenerators: RandomDataGenerator
 
     // @ts-expect-error TODO: fix this
     protected static defaultRandom: Required<NonNullable<PatreonMockDataOptions['random']>> = {
@@ -41,12 +53,12 @@ export class PatreonMockData {
 
     public constructor (options?: PatreonMockDataOptions) {
         this.options = options ?? {}
-        this.randomGenerators = {
+        const randomGenerators = {
             ...PatreonMockData.defaultRandom,
             ...options?.random ?? {},
         }
 
-        this.random = new RandomDataResources(this.randomGenerators, options?.resources)
+        this.random = new RandomDataResources(randomGenerators, options?.resources)
     }
 
     public getSingleResponsePayload<T extends Type, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
@@ -160,6 +172,19 @@ export class PatreonMockData {
      */
     public createAPIUrl (type: Type | keyof ItemMap, id: string): string {
         return `https://patreon.com/api/oauth2/v2/${type}s/${id}`
+    }
+
+    public createHeaders (data?: PatreonMockHeaderData): Record<string, string> {
+        return {
+            [ResponseHeaders.UUID]: data?.uuid ?? randomUUID(),
+            [ResponseHeaders.CfCacheStatus]: 'DYNAMIC',
+            [ResponseHeaders.Sha]: data?.sha ?? '',
+            [ResponseHeaders.CfRay]: data?.rayId ?? '',
+            ...(data?.ratelimit != undefined ? {
+                [ResponseHeaders.RetryAfter]: data.ratelimit.retryAfter,
+            } : {}),
+            'Content-Type': 'application/json',
+        }
     }
 
     public createError (status: number, data?: Partial<Omit<PatreonErrorData, 'status'>>): PatreonErrorData {

@@ -62,8 +62,8 @@ export interface PatreonMockHandler {
     method: Lowercase<RequestMethod>
     handler: (request: {
         url: string
-        headers: Record<string, string>
-        body?: string
+        headers: Record<string, string> | Headers
+        body?: string | null
     }) => {
         headers: Record<string, string>
         body: string
@@ -79,10 +79,28 @@ interface ParsedRoute {
     param: string | undefined
 }
 
+/**
+ * A class with utitilies to mock the Patreon API
+ * @see https://patreon-api.pages.dev/guide/features/sandbox
+ */
 export class PatreonMock {
+    /**
+     * The origin url for the Patreon API
+     * @constant 'https://patreon.com'
+     */
     public static origin = new URL(RouteBases.oauth2).origin
+
+    /**
+     * The API path that every route starts with
+     * @constant '/api/oauth2/v2'
+     */
     public static path = new URL(RouteBases.oauth2).pathname
 
+    /**
+     * A filter to check if a random path is an API route
+     * @param path The path to check. Can include query parameters
+     * @returns if the path is valid route for the V2 Patreon API
+     */
     public static pathFilter = (path: string): boolean => {
         return findAPIPath(path) != undefined
     }
@@ -105,7 +123,7 @@ export class PatreonMock {
             : new PatreonMockData(options.data)
 
         // @ts-expect-error TODO: fix this
-        this.webhooks = new PatreonMockWebhooks(options.webhooks ?? {})
+        this.webhooks = new PatreonMockWebhooks(options.webhooks ?? {}, this.data)
     }
 
     private validateHeaders (headers: Record<string, string> | Headers): void {
@@ -193,6 +211,8 @@ export class PatreonMock {
     private buildResponseFromUrl (route: ParsedRoute, options?: {
         resourceId?: string
         method?: string
+        cache?: boolean | undefined
+        random?: boolean | undefined
     }) {
         const { param, path, searchParams } = route
 
@@ -212,13 +232,13 @@ export class PatreonMock {
                 ? this.cache.getRelated(Type.Campaign, id, path.resource as RelationshipFieldsToItem<Type.Campaign>)
                 : null
 
-            if (cached) {
+            if (cached && options?.cache !== false) {
                 const payload = this.data.getListResponsePayload(path.resource, query, {
                     items: cached.combined,
                 })
 
                 return JSON.stringify(payload)
-            } else {
+            } else if (options?.random !== false) {
                 const payload = this.data.getListResponsePayload(path.resource, query, {
                     items: this.data.getAttributeItems(path.resource).map(item => ({
                         item,
@@ -227,11 +247,11 @@ export class PatreonMock {
                 })
 
                 return JSON.stringify(payload)
-            }
+            } else return ''
         } else {
             const cached = id ? this.cache.get(path.resource, id) : null
 
-            if (id && cached) {
+            if (id && cached && options?.cache !== false) {
                 const payload = this.data.getSingleResponsePayload(path.resource, query, {
                     id,
                     item: cached.attributes,
@@ -239,7 +259,7 @@ export class PatreonMock {
                 })
 
                 return JSON.stringify(payload)
-            } else {
+            } else if (options?.random !== false) {
                 const id = this.data.createId(path.resource)
                 const attributes = this.data.random[path.resource](id)
 
@@ -250,13 +270,13 @@ export class PatreonMock {
                 })
 
                 return JSON.stringify(payload)
-            }
+            } else return ''
         }
     }
 
     private getResponseHeaders (headers?: Record<string, string>): Record<string, string> {
         return {
-            'Content-Type': 'application/json',
+            ...this.data.createHeaders(),
             ...(this.options.responseOptions?.headers ?? {}),
             ...(headers ?? {}),
         }
@@ -270,11 +290,15 @@ export class PatreonMock {
      * @param options Options for the mocked response
      * @param options.statusCode The status code the response should have, defaults to `200`
      * @param options.headers The headers to include in the response
+     * @param options.random
+     * @param options.cache
      * @returns the intercept callback
      */
     public getMockAgentReplyCallback (options?: {
         statusCode?: number
         headers?: Record<string, string>
+        random?: boolean
+        cache?: boolean
     }) {
         const statusCode = options?.statusCode ?? 200
         const headers = this.getResponseHeaders(options?.headers)
@@ -283,16 +307,20 @@ export class PatreonMock {
             ? () => ''
             : (statusCode === 200
                 ? (
-                    options: MockInterceptor.MockResponseCallbackOptions,
-                    route: ParsedRoute
+                    _options: MockInterceptor.MockResponseCallbackOptions,
+                    route: ParsedRoute,
                 ) => {
                     return this.buildResponseFromUrl(route, {
-                        method: options.method,
+                        cache: options?.cache,
+                        random: options?.random,
+                        method: _options.method,
                     }) ?? ''
                 }
-                : () => JSON.stringify(([
-                    this.data.createError(statusCode)
-                ]))
+                : () => JSON.stringify({
+                    errors: [
+                        this.data.createError(statusCode)
+                    ]
+                })
             )
 
         return (options: MockInterceptor.MockResponseCallbackOptions) => {
@@ -314,29 +342,49 @@ export class PatreonMock {
      * @param options Options for generating the routes
      * @param options.pathParam The path param template value, defaults to `*`
      * @param options.includeOrigin Whether to include the API origin in the url of the handler, defaults to `true`
+     * @param options.transformResponse Method to transform the default response for a handler
+     * @param options.random
+     * @param options.cache
      * @see https://patreon-api.pages.dev/guide/features/sandbox#msw
      * @returns Handlers for each route that returns a successful response.
      */
-    public getMockHandlers (options?: {
+    public getMockHandlers <
+        R = ReturnType<PatreonMockHandler['handler']>
+    >(options?: {
         pathParam?: string
         includeOrigin?: boolean
+        transformResponse?: (response: ReturnType<PatreonMockHandler['handler']>) => R
+        random?: boolean
+        cache?: boolean
     }) {
-        return paths.reduce<Record<PatreonMockRouteId, PatreonMockHandler>>((handlers, route) => {
+        type Handler = Omit<PatreonMockHandler, 'handler'> & {
+            handler: (...args: Parameters<PatreonMockHandler['handler']>) => R
+        }
+
+        return paths.reduce<Record<PatreonMockRouteId, Handler>>((handlers, route) => {
             return {
                 ...handlers,
-                ...route.methods.reduce<Record<PatreonMockRouteId, PatreonMockHandler>>((obj, method) => {
-                    const handler: PatreonMockHandler['handler'] = (request) => {
+                ...route.methods.reduce<Record<PatreonMockRouteId, Handler>>((obj, method) => {
+                    const handler: Handler['handler'] = (request) => {
                         this.validateHeaders(request.headers)
                         const route = this.parseAPIPath(request.url)
                         this.cache.setRequestBody(method.method, Type.Webhook, route.param, request.body?.toString())
 
-                        const response = this.buildResponseFromUrl(route)
+                        const response = this.buildResponseFromUrl(route, {
+                            cache: options?.cache,
+                            random: options?.random,
+                            method: method.method,
+                        })
 
-                        return {
+                        const data = {
                             body: response ?? '',
                             status: this.getResponseStatus(route.path, method.method),
                             headers: this.getResponseHeaders(),
                         }
+
+                        return options?.transformResponse != undefined
+                            ? options.transformResponse(data)
+                            : <R>data
                     }
 
                     return {
