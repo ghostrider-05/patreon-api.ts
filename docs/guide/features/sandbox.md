@@ -49,6 +49,23 @@ To add relationships to the response, define the included items:
 
 ### Cache
 
+The cache for mocking requests holds all attributes and relationships to act as a consistent server.
+
+:::info Relationships
+
+The cache will only require an id for relationships and rebuild a response using the relation map for that resource.
+When a resource is not in the cache, the `onMissingRelationship` option will decide what action is taken: throw an error, log a warning or nothing (default).
+
+:::
+
+To define items in the cache, use the `intitial` option:
+
+<<< @/examples/mock/cache.ts{ts twoslash}
+
+#### Write requests
+
+For `POST`, `PATCH` and `DELETE` the cache will update the cache using `setRequestBody`, .e.g delete an item (will not delete or change relationships), update attributes or add a new item. This is done by the exposed handlers or callbacks and the only supported resource is `'webhook'`.
+
 ## Frameworks
 
 ### OpenAPI
@@ -94,4 +111,17 @@ Is there another popular testing / mocking framework that uses a completely diff
 
 ## Webhooks
 
+You can use webhook mocking to test your implementation of your server. You can create a request with `createRequest` or send it with `send` to an external server.
+
 ### Retries
+
+The `retries` option (this uses the same implementation as [client `rest.retries`](../configuration#restretries) option) allows you to implement the same [retry system Patreon has](https://docs.patreon.com/#robust-retries).
+
+The `send` method has a return type of `Promise<number | null>`. If the type is a `number`, the server has returned a succesful response. Otherwise (with `retries` enabled), it will return `null` and add / update the message to the `queuedMessages`. With no retry options, it will return the status of the failed request. When a message is retried succesfully:
+
+- the message will be deleted from the queue
+- all other messages from the same webhook will be retried immediately
+
+The `sendQueuedMessage` / `sendQueuedMessages` methods will trigger a retry manually for one / all queued messages.
+
+When a webhook is stored in the [mock cache](#cache), the `paused`, `last_attempted_at` and `num_consecutive_times_failed` attributes will be updated to reflect the queue of the webhook.

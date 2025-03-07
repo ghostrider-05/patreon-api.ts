@@ -1,8 +1,13 @@
 import { createHmac } from 'node:crypto'
 
 import { PatreonWebhookTrigger, WebhookClient } from '../../../rest/v2/webhooks'
-import { PatreonMockData, Webhook, WebhookPayload } from '../../../v2'
 import { createBackoff, type RestRetriesOptions } from '../../../rest/v2/oauth2/rest'
+
+import type { WebhookPayload } from '../../../payloads/v2/'
+import type { Webhook } from '../resources/webhook'
+
+import { type PatreonMockCache } from './cache'
+import { type PatreonMockData } from './data'
 
 interface PatreonMockWebhookHeaderData {
     signature: string
@@ -38,20 +43,22 @@ interface PatreonMockWebhookQueuedMessage {
     last_attempted_at: string
 }
 
+interface PatreonMockWebhookStatus {
+    signature: string
+    success: boolean
+    errors: number
+    attempted_at: string
+}
+
 export class PatreonMockWebhooks {
     public queuedMessages: Map<string, PatreonMockWebhookQueuedMessage> = new Map()
 
-    protected lastWebhookMessage: Map<string, {
-        signature: string
-        success: boolean
-        errors: number
-        attempted_at: string
-    }> = new Map()
+    protected lastWebhookMessage: Map<string, PatreonMockWebhookStatus> = new Map()
 
     public constructor (
         public options: PatreonMockWebhooksOptions,
         protected data: PatreonMockData,
-        protected createTestPayload: <T extends PatreonWebhookTrigger>(trigger: T) => WebhookPayload<T>,
+        protected cache: PatreonMockCache,
     ) {}
 
     public static getQueuedKey (webhookId: string, signature: string) {
@@ -122,12 +129,12 @@ export class PatreonMockWebhooks {
 
         const timer = setTimeout(async () => {
             const response = await fetch(webhook.uri, {
-                method: 'POST',
+                method: this.options.method ?? 'POST',
                 body,
                 headers,
             })
 
-            this.lastWebhookMessage.set(webhook.id, {
+            this.setWebhookStatus(webhook.id, {
                 attempted_at: new Date().toISOString(),
                 signature,
                 success: response.ok,
@@ -148,9 +155,22 @@ export class PatreonMockWebhooks {
                     last_attempted_at: new Date().toISOString(),
                 })
             }
-        }, retries === -1 ? 0 : createBackoff(this.options.retries.backoff)(retries))
+        }, retries === -1 ? 1 : createBackoff(this.options.retries.backoff)(retries))
 
         return timer
+    }
+
+    private setWebhookStatus (id: string, status: PatreonMockWebhookStatus): void {
+        this.lastWebhookMessage.set(id, status)
+
+        const cached = this.cache.get('webhook', id)
+        if (cached != null) {
+            this.cache.store.edit('webhook', id, {
+                last_attempted_at: status.attempted_at,
+                num_consecutive_times_failed: status.errors,
+                paused: !status.success,
+            })
+        }
     }
 
     public sendQueuedMessage (
@@ -178,13 +198,6 @@ export class PatreonMockWebhooks {
         return true
     }
 
-    public async sendTestPayload <T extends PatreonWebhookTrigger>(
-        webhook: Pick<Webhook, 'secret' | 'uri'> & { id: string },
-        event: T
-    ): Promise<number | null> {
-        return await this.send(webhook, event, this.createTestPayload(event))
-    }
-
     public async send <T extends PatreonWebhookTrigger>(
         webhook: Pick<Webhook, 'secret' | 'uri'> & { id: string },
         event: T,
@@ -199,13 +212,13 @@ export class PatreonMockWebhooks {
         })
 
         const response = await fetch(webhook.uri, {
-            method: 'POST',
+            method: this.options.method ?? 'POST',
             body,
             headers,
         })
 
         if (response.ok) {
-            this.lastWebhookMessage.set(webhook.id, {
+            this.setWebhookStatus(webhook.id, {
                 attempted_at: new Date().toISOString(),
                 errors: 0,
                 signature,

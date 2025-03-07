@@ -122,8 +122,7 @@ export class PatreonMock {
             ? options.data
             : new PatreonMockData(options.data)
 
-        // @ts-expect-error TODO: fix this
-        this.webhooks = new PatreonMockWebhooks(options.webhooks ?? {}, this.data)
+        this.webhooks = new PatreonMockWebhooks(options.webhooks ?? {}, this.data, this.cache)
     }
 
     private validateHeaders (headers: Record<string, string> | Headers): void {

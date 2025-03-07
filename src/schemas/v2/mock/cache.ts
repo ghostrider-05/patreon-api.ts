@@ -66,7 +66,7 @@ export class PatreonMockCache {
                             paused: false,
                             last_attempted_at: <never>null,
                             num_consecutive_times_failed: 0,
-                            secret: '',
+                            secret: '', // TODO: generate
                         },
                         relationships: {
                             campaign: body.data.relationships.campaign.data.id,
