@@ -32,6 +32,9 @@ export interface PatreonMockWebhooksOptions {
      */
     method?: string
 
+    /**
+     * Options to retry failed webhook requests
+     */
     retries?: Required<RestRetriesOptions>
 }
 

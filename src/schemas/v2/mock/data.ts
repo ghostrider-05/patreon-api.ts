@@ -32,7 +32,15 @@ export interface PatreonMockHeaderData {
 }
 
 export interface PatreonMockDataOptions {
+    /**
+     * Overwrite attributes when creating a random resource
+     */
     resources?: Partial<{ [T in keyof ItemMap]: (id: string) => Partial<ItemMap[T]> }>
+    /**
+     * Methods to create a random type.
+     *
+     * Note: I recommend to overwrite it with your own fake data generation methods.
+     */
     random?: Partial<RandomDataGenerator>
 }
 
@@ -43,12 +51,30 @@ export class PatreonMockData {
     public options: PatreonMockDataOptions
     public random: RandomDataResources
 
-    // @ts-expect-error TODO: fix this
     protected static defaultRandom: Required<NonNullable<PatreonMockDataOptions['random']>> = {
         arrayElement: _random,
         boolean: () => _random([true, false]),
         number: () => _random(Array.from({ length: 40 }, (_, i) => i)),
         countryCode: () => _random(['NL', 'BE', 'DE']),
+        arrayElements(array) {
+            return Array.from({ length: _random_int(1, array.length) }, () => _random(array))
+        },
+        city: () => 'Amsterdam',
+        currencyCode: () => 'EUR',
+        description: () => 'A mocked description',
+        email: () => 'john.doe@gmail.com',
+        firstName: () => 'John',
+        fullName: () => 'John Doe',
+        lastName: () => 'Doe',
+        phonenumber: () => '+31612345678',
+        state: () => '',
+        username: () => 'john_doe',
+        title: () => 'A mocked title',
+        uri: () => 'https://patreon.com/',
+        imageUri: () => '',
+        videoUri: () => '',
+        futureDate: () => new Date(Date.now() + _random_int(10_000, 100_000)).toISOString(),
+        pastDate: () => new Date(Date.now() - _random_int(10_000, 100_000)).toISOString(),
     }
 
     public constructor (options?: PatreonMockDataOptions) {
@@ -61,6 +87,18 @@ export class PatreonMockData {
         this.random = new RandomDataResources(randomGenerators, options?.resources)
     }
 
+    /**
+     * Get a response body for a single resource to mock a response payload
+     * @param type The type of the resource that is returned
+     * @param query The query to select the relationships and attributes returned
+     * @param query.includes The requested relationships on the item
+     * @param query.attributes The attribute map to filter the returned attributes
+     * @param data The resource item, id and related items
+     * @param data.id The id of the resource
+     * @param data.item The attributes of the resource. If partial, the other attributes will be generated randomly.
+     * @param data.relatedItems If requesting relationships, all items that can be returned as a relationship
+     * @returns the JSON:API response payload
+     */
     public getSingleResponsePayload<T extends Type, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
         type: T,
         query: {
@@ -95,6 +133,16 @@ export class PatreonMockData {
         }
     }
 
+    /**
+     * Get a response body for multiple resources to mock a response payload
+     * @param type The type of the resource that is returned
+     * @param query The query to select the relationships and attributes returned
+     * @param query.includes The requested relationships on the item
+     * @param query.attributes The attribute map to filter the returned attributes
+     * @param data The resource item, id and related items
+     * @param data.items The attributes of the resources. If partial, the other attributes will be generated randomly.
+     * @returns the JSON:API response payload
+     */
     public getListResponsePayload<T extends Type, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
         type: T,
         query: { includes: I[]; attributes: A; },
@@ -153,6 +201,11 @@ export class PatreonMockData {
         }
     }
 
+    /**
+     * Creates a random ID (UUID for a member) for a resource
+     * @param type The type of the resource
+     * @returns a random string
+     */
     public createId (type: Type | keyof ItemMap): string {
         if (type === 'member') return randomUUID()
         else return Array.from({ length: _random_int(5, 10) }, () => _random_int(0, 9)).join('')
@@ -174,6 +227,17 @@ export class PatreonMockData {
         return `https://patreon.com/api/oauth2/v2/${type}s/${id}`
     }
 
+    /**
+     * Creates some headers that are generally returned by the Patreon API
+     * @param data The header values
+     * @returns The following headers:
+     * - `x-patreon-uuid`
+     * - `x-patreon-sha`
+     * - `Retry-After` (if a ratelimit is given)
+     * - `Content-Type`
+     * - `cf-ray`
+     * - `cf-cache-status`
+     */
     public createHeaders (data?: PatreonMockHeaderData): Record<string, string> {
         return {
             [ResponseHeaders.UUID]: data?.uuid ?? randomUUID(),
@@ -187,6 +251,12 @@ export class PatreonMockData {
         }
     }
 
+    /**
+     * Create an error-like object. An error response is of type `{ errors: PatreonErrorData[] }`
+     * @param status The response status
+     * @param data Optional data to better mock the error
+     * @returns the mocked error
+     */
     public createError (status: number, data?: Partial<Omit<PatreonErrorData, 'status'>>): PatreonErrorData {
         return {
             status: status.toString(),

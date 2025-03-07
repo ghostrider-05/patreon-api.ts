@@ -39,7 +39,7 @@ const mock = new PatreonMock({
     }
 })
 
-export function getCachedCampaign () {
+export function getCachedCampaignResponse () {
     return mock.getMockHandlers().getCampaign.handler({
         url: RouteBases.oauth2 + Routes.campaign('my-campaign-id'),
         headers: mock.data.createHeaders(),
