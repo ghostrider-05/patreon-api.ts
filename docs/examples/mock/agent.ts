@@ -4,7 +4,7 @@ import { PatreonMock, Routes } from 'patreon-api.ts'
 
 declare const agent: import('undici-types').MockAgent
 
-const mockAPI = new PatreonMock({})
+const mockAPI = new PatreonMock()
 
 // Intercept any API call
 agent

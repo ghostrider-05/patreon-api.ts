@@ -4,11 +4,57 @@ Since the Patreon API is readonly, you can mock responses to test if your applic
 
 ## Testing & Mocking
 
+### Random vs cache
+
+All methods that return mocked data implement the following flow:
+
+- by default: if an item is found in the cache, it returns that item. Otherwise it will create a random item of the same resource
+- with `options.cache` equal to `false`: returns a random item of the resource
+- with `options.random` equal to `false`: if an item is found in the cache, it returns that item. Otherwise returns an empty string.
+- with `options.random` equal to `false` and `options.cache` equal to `false`: returns an empty string
+
+### Validation
+
+You can also enable validation to ensure your mocked requests are valid. If validation fails, it will throw an error (does not change the response). The following items can be validated:
+
+- request path (always validated): whether the url of the request is a valid API url
+- `headers`: specify the headers (and values) that must be present on the request
+- `query`: whether the query of the url will be validated, such that every relationship is valid for the url and each attribute exists
+
+<<< @/examples/mock/validation.ts{ts twoslash}
+
 ### Random data
+
+You can create a random:
+
+- id: `PatreonMockData.createId(type: Type)`
+- resource: `PatreonMockData.random[Type](id: string)`
+
+:::warning External library
+
+The random data generator in this library is quite simple at the moment, so I suggest to use a random generator library like `faker-js`.
+
+Also note that each value is generated independent from other attributes.
+
+:::
+
+With an id and (partial) resource, you can create an API response.
+The response attributes (and relationships) will be reflected from the query.
+
+<<< @/examples/mock/random.ts#resource{ts twoslash}
+
+To add relationships to the response, define the included items:
+
+<<< @/examples/mock/random.ts#resource-relationships{ts twoslash}
 
 ### Cache
 
 ## Frameworks
+
+### OpenAPI
+
+See [the API reference](https://patreon.apidocumentation.com/v2-stable/reference) for an OpenAPI schema for the Patreon V2 API.
+This is an unofficial schema and based on the official documentation, made with this library.
 
 ### MockAgent
 
@@ -24,10 +70,28 @@ To intercept a request to the Patreon API you can use undici's [`MockAgent` API]
 
 ### MSW
 
-<<< @/examples/mock/msw.ts{ts twoslash}
+You can also intercept requests by using request handlers for some or all routes. A popular API using handlers is [Mock Service Worker](https://mswjs.io/docs/getting-started).
+
+:::info `transformResponse`
+
+By default a handler will return an object with a status, body and headers. You can use this option to transform this object into a `Response` or something else for every handler.
+
+:::
+
+:::code-group
+
+<<< @/examples/mock/msw.ts#handler{ts twoslash} [Route handler]
+
+<<< @/examples/mock/msw.ts#all-handlers{ts twoslash} [All routes]
+
+<<< @/examples/mock/msw.ts#error-handler{ts twoslash} [Error handler]
+
+:::
 
 ### Other
 
 Is there another popular testing / mocking framework that uses a completely different API? Open an issue on GitHub to add new mocking functionality and/or guides.
 
 ## Webhooks
+
+### Retries

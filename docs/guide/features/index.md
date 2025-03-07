@@ -7,7 +7,7 @@ The patreon API is only accessible by using Oauth. You can choose between two ty
 - [Creator account](./oauth#creator-token)
 - [User Oauth](./oauth#user-oauth2)
 
-For both types of applications you will need to create a client in the developer portal. Copy the client id and secret and store them in your secrets. You can also find the creator access and refresh tokens in the client information.
+For both types of applications you will need to [create a client in the developer portal](https://www.patreon.com/portal/registration/register-clients). Copy the client id and secret and store them in your secrets. You can also find the creator access and refresh tokens in the client information.
 
 ## Request
 
