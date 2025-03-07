@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { Routes } from '../../../../rest/v2/'
+
 import type { Route } from '../types'
-import { Routes } from '../../../../v2'
 
 import campaign from './campaign'
 import identity  from './identity'
