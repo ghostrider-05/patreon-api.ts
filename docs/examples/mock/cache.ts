@@ -3,6 +3,7 @@ import { PatreonMock, RouteBases, Routes } from 'patreon-api.ts'
 const mock = new PatreonMock({
     cache: {
         initial: {
+            // @ts-expect-error Remove this when all attributes are added
             campaign: new Map([
                 ['my-campaign-id', {
                     item: {
@@ -20,6 +21,7 @@ const mock = new PatreonMock({
                     }
                 }],
             ]),
+            // @ts-expect-error Remove this when all attributes are added
             user: new Map([
                 ['creator-id', {
                     item: {
