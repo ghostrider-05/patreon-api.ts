@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.11.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.10.0...patreon-api.ts-v0.11.0) (2025-03-07)
+
+
+### Features
+
+* add support for testing and mocking (sandbox) ([#137](https://github.com/ghostrider-05/patreon-api.ts/issues/137)) ([5aba4f7](https://github.com/ghostrider-05/patreon-api.ts/commit/5aba4f75c4954a3123e56e01c6a38faa29fd4d61))
+* add types and methods to convert between relation name and resource type ([5aba4f7](https://github.com/ghostrider-05/patreon-api.ts/commit/5aba4f75c4954a3123e56e01c6a38faa29fd4d61))
+* add types for write requests (body and response) ([5aba4f7](https://github.com/ghostrider-05/patreon-api.ts/commit/5aba4f75c4954a3123e56e01c6a38faa29fd4d61))
+* **rest:** add backoff to retries ([#135](https://github.com/ghostrider-05/patreon-api.ts/issues/135)) ([38b6731](https://github.com/ghostrider-05/patreon-api.ts/commit/38b67312f32737e50e14ae47c743cf8790b69e0d))
+* **rest:** include client name in User-Agent header ([5aba4f7](https://github.com/ghostrider-05/patreon-api.ts/commit/5aba4f75c4954a3123e56e01c6a38faa29fd4d61))
+* **store:** add delete and list options ([5aba4f7](https://github.com/ghostrider-05/patreon-api.ts/commit/5aba4f75c4954a3123e56e01c6a38faa29fd4d61))
+* **store:** add Map / memory token store ([5aba4f7](https://github.com/ghostrider-05/patreon-api.ts/commit/5aba4f75c4954a3123e56e01c6a38faa29fd4d61))
+
+
+### Bug Fixes
+
+* **client:** use default token without validation ([c0680c6](https://github.com/ghostrider-05/patreon-api.ts/commit/c0680c6fb92b92fca4fff277c35becef29ee5fe0))
+* **openapi:** return 204 response for delete webhook endpoint ([5aba4f7](https://github.com/ghostrider-05/patreon-api.ts/commit/5aba4f75c4954a3123e56e01c6a38faa29fd4d61))
+
 ## [0.10.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.9.0...patreon-api.ts-v0.10.0) (2025-02-06)
 
 
