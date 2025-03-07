@@ -258,17 +258,27 @@ export abstract class PatreonClientMethods<IncludeAll extends boolean> extends G
 
     public normalized: GenericPatreonClientMethods<'normalized', IncludeAll>
 
+    /**
+     * The application name of the client.
+     * @default null
+     */
+    public name: string | null = null
+
     public constructor (
         protected rawOauthOptions: PatreonOauthClientOptions,
         rest: Partial<RESTOptions<IncludeAll>> = {},
+        name: string | null,
         _token?: StoredToken,
     ) {
         const restClient = new RestClient(rest)
+        restClient.name = name
+
         const oauth = new PatreonOauthClient(rawOauthOptions, restClient)
         const includeAllQueries = rest.includeAllQueries ?? <IncludeAll>false
 
         super(oauth, 'default', (res) => res, includeAllQueries,  _token)
 
+        this.name = name
         this.oauth = oauth
 
         this.normalized = new GenericPatreonClientMethods(oauth, 'normalized', normalizeFromQuery, includeAllQueries, _token)

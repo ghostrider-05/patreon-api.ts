@@ -42,6 +42,8 @@ yarn add patreon-api.ts
 
 <!-- @include: ../../README.md#api-versions -->
 
+## Examples
+
 To get started you can see one of the examples:
 
 <Features />

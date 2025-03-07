@@ -3,7 +3,7 @@ libraries:
     - title: patreon-api.ts
       link: https://github.com/ghostrider-05/patreon-api.ts
       api: 2
-      sandbox: false
+      sandbox: true
       user: true
       creator: true
       webhooks: true

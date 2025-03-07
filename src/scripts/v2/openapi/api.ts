@@ -58,13 +58,16 @@ export default (fileName: string, preview?: boolean) => writeOpenAPISchema({
             'userAgent',
         ],
         getRoute(route, method) {
+            const statusCode = route.methods.find(m => m.method === method)?.responseStatus
+                ?? route.response?.status
+
             return {
                 documentation: {
                     description: 'Official documentation',
                     url: getDocumentationUrl(route.route(route.params?.id ?? 'id'), method),
                 },
                 responses: [
-                    {
+                    statusCode ? { status: statusCode, description: '' } : {
                         status: 200,
                         ref: `${route.resource}${route.response?.array ? 's' : ''}Response`
                     },

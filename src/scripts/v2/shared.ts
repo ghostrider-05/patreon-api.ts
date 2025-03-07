@@ -2,6 +2,7 @@
 import {
     NewLineKind,
     Project,
+    QuoteKind,
     ts,
     type JSDocableNode,
     type SourceFile,
@@ -19,6 +20,7 @@ export function createTsScriptProgram (outFilename: string): TsScript {
         tsConfigFilePath: './tsconfig.json',
         manipulationSettings: {
             newLineKind: NewLineKind.CarriageReturnLineFeed,
+            quoteKind: QuoteKind.Single,
         },
     })
 

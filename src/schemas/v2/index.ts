@@ -1,4 +1,5 @@
 export * from './item'
+export * from './modifiable'
 export * from './query'
 export * from './relationships'
 
@@ -19,3 +20,5 @@ export * from './resources/webhook'
 export * from './generated/keys'
 export * from './generated/relationships'
 export * as SchemaResourcesData from './generated/schemas'
+
+export * from './mock/'

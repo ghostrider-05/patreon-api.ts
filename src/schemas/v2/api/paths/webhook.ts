@@ -2,8 +2,9 @@ import {
     Routes,
     PatreonOauthScope,
     RequestMethod,
-    Type,
-} from '../../../../v2'
+} from '../../../../rest/v2/'
+
+import { Type } from '../../item'
 import type { Route } from '../types'
 
 const resource = Type.Webhook
@@ -116,13 +117,14 @@ export default [
         methods: [
             {
                 method: RequestMethod.Patch,
-                id: 'editWebhook',
+                id: <const>'editWebhook',
                 body: patchWebhookBody,
             },
             {
                 method: RequestMethod.Delete,
-                id: 'deleteWebhook',
+                id: <const>'deleteWebhook',
                 experimental: true,
+                responseStatus: 204,
             },
         ],
         params: {
@@ -139,11 +141,11 @@ export default [
         methods: [
             {
                 method: RequestMethod.Get,
-                id: 'getWebhooks',
+                id: <const>'getWebhooks',
             },
             {
                 method: RequestMethod.Post,
-                id: 'createWebhook',
+                id: <const>'createWebhook',
                 body: postWebhooksBody,
             },
         ],

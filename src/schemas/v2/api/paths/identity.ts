@@ -1,8 +1,9 @@
 import {
     Routes,
     RequestMethod,
-    Type,
-} from '../../../../v2'
+} from '../../../../rest/v2/'
+
+import { Type } from '../../item'
 import type { Route } from '../types'
 
 const resource = Type.User
@@ -18,7 +19,7 @@ export default [
         methods: [
             {
                 method: RequestMethod.Get,
-                id: 'getIdentity',
+                id: <const>'getIdentity',
             },
         ],
     },

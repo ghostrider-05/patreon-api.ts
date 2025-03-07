@@ -294,7 +294,7 @@ interface InternalRetryData {
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-function createBackoff (options: RestRetriesBackoffOptions) {
+export function createBackoff (options: RestRetriesBackoffOptions) {
     return (currentRetries: number) => {
         const { strategy, time, limit } = options
         const jitter = options.jitter ? (Math.random() * options.jitter) : 0
@@ -381,6 +381,7 @@ export class RestClient {
     private static readonly INTERVAL_MS = 1000
 
     public readonly options: RESTOptions
+    public name: string | null = null
 
     private ratelimitedUntil: Date | null = null
 
@@ -412,7 +413,7 @@ export class RestClient {
     public get userAgent (): string {
         const userAgentAppendix = VERSION + (this.options.userAgentAppendix?.length ? `, ${this.options.userAgentAppendix}` : '')
 
-        return `PatreonBot patreon-api.ts (https://github.com/ghostrider-05/patreon-api.ts, ${userAgentAppendix})`
+        return `${this.name ?? 'PatreonBot'} patreon-api.ts (https://github.com/ghostrider-05/patreon-api.ts, ${userAgentAppendix})`
     }
 
     public get limited (): boolean {

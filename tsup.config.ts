@@ -2,6 +2,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 
 import { defineConfig } from 'tsup'
 
+// eslint-disable-next-line jsdoc/require-jsdoc
 async function updateDistFile (
     path: string,
     mod: string,

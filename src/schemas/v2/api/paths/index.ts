@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { Routes } from '../../../../rest/v2/'
+
 import type { Route } from '../types'
-import { Routes } from '../../../../v2'
 
 import campaign from './campaign'
 import identity  from './identity'
@@ -12,7 +13,7 @@ import webhook from './webhook'
 /**
  * For each route, more information about parameters and available methods
  */
-export const RoutesData: Record<keyof typeof Routes, Route> = {
+export const RoutesData = {
     identity: identity.at(0)!,
     campaign: campaign.at(0)!,
     campaigns: campaign.at(1)!,
@@ -22,7 +23,7 @@ export const RoutesData: Record<keyof typeof Routes, Route> = {
     post: post.at(1)!,
     webhook: webhook.at(0)!,
     webhooks: webhook.at(1)!,
-}
+} satisfies Record<keyof typeof Routes, Route>
 
 // Use the same order of endpoints on the Patreon documentation
 export default [
@@ -31,4 +32,4 @@ export default [
     ...member,
     ...post,
     ...webhook,
-] as Route[]
+] satisfies Route[]

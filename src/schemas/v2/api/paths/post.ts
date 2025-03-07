@@ -2,8 +2,9 @@ import {
     Routes,
     PatreonOauthScope,
     RequestMethod,
-    Type,
-} from '../../../../v2'
+} from '../../../../rest/v2/'
+
+import { Type } from '../../item'
 import type { Route } from '../types'
 
 const resource = Type.Post
@@ -19,7 +20,7 @@ export default [
         methods: [
             {
                 method: RequestMethod.Get,
-                id: 'getCampaignPosts',
+                id: <const>'getCampaignPosts',
             },
         ],
         params: {
@@ -39,7 +40,7 @@ export default [
         methods: [
             {
                 method: RequestMethod.Get,
-                id: 'getPost',
+                id: <const>'getPost',
             },
         ],
         params: {

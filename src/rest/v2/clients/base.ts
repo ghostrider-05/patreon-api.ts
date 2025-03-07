@@ -68,12 +68,6 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
     private store: PatreonTokenFetchOptions | undefined = undefined
 
     /**
-     * The application name of the client.
-     * @default null
-     */
-    public name: string | null = null
-
-    /**
      * Interact with the webhooks API.
      *
      * Client to use for creating, updating and getting webhooks from the current client.
@@ -83,10 +77,9 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
     public constructor(options: PatreonClientOptions<IncludeAll>, type: 'oauth' | 'creator') {
         options.oauth.tokenType ??= type
 
-        super(options.oauth, options.rest)
+        super(options.oauth, options.rest, options.name ?? null)
         this.webhooks = new WebhookClient(this.oauth)
 
-        this.name = options.name ?? null
         this.store = options.store
 
         this.oauth.onTokenRefreshed = async (token) => {

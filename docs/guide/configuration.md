@@ -1,6 +1,48 @@
 # Configuration
 
-This page will cover some general topics for configuring this library, see the [features overview](./features/) for how to use the clients and methods.
+This page will cover some general topics for configuring this library, see the [features overview](./features/) for how to use the client methods.
+
+## Client options
+
+### name
+
+To track spam and more, Patreon has made it a requirement to send a `User-Agent` header. This library will send a user agent in the form of:
+`{name} (library, version, {rest.userAgentAppendix})`
+
+### oauth
+
+See [the oauth guide](./features/oauth) for configuration of the oauth client.
+
+### store
+
+See [the oauth guide](./features/oauth#store) for configuration of the store for the oauth client.
+
+### rest.emitter
+
+Connect an event emitter to listen to rest events (such as `request`, `response` or `ratelimit`)
+
+<<< @/examples/config/emitter.ts#config{ts twoslash}
+
+### rest.fetch
+
+Overwrite the global fetch function. This can also be overwritten per request.
+This will default to the global `fetch` variable on the runtime.
+
+### rest.retries
+
+Retry a failed request (network lost or 5XX response) a certain amount (defaults to `3`).
+You can also change:
+
+- the range of status codes that can be retried
+- the backoff strategy for delaying repeated retries
+
+### rest.\{timeout\}
+
+The following timeout options can be configured:
+
+- `rest.timeout`: the default timeout for a request. Can be overwritten per request.
+- `rest.ratelimitTimeout`: the timeout to wait after a request is rate limited.
+- `rest.globalRequestPerSecond`: the maximum amount of request / second for this client.
 
 ## Module augmentation
 
@@ -27,7 +69,7 @@ The following keys can be used in `CustomTypeOptions`:
 | -------------------- | -------- | -------- | ---------------------------------------------------------- |
 | `social_connections` | `User`   | `object` | `Record<string, { url: string, user_id: string } \| null>` |
 
-Examples for all keys can be found in the [CMS example](https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/node-cjs/).
+An example for the configuration can be found in the [CJS example](https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/node-cjs/).
 
 ### Customization
 
