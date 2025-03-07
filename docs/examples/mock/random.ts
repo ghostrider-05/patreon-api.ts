@@ -1,3 +1,4 @@
+// @ts-expect-error duplicate-imports
 // #region resource
 import { PatreonMockData, Type } from 'patreon-api.ts'
 
@@ -29,10 +30,14 @@ export const randomCampaignPayload = data.getSingleResponsePayload(
 )
 
 // #endregion resource
+// @ts-expect-error duplicate-imports
 // #region resource-relationships
 import { PatreonMockData, Type } from 'patreon-api.ts'
 
 const data = new PatreonMockData()
+
+const creatorId = data.createId(Type.User)
+const campaignId = data.createId(Type.Campaign)
 
 export const randomCampaignWithCreatorPayload = data.getSingleResponsePayload(
     Type.Campaign,
@@ -41,10 +46,14 @@ export const randomCampaignWithCreatorPayload = data.getSingleResponsePayload(
         includes: ['creator'],
     }, {
         id: data.createId(Type.Campaign),
-        item: randomCampaign,
+        item: data.random.campaign(campaignId),
         relatedItems: data.createRelatedItems(Type.Campaign, {
             items: [
-                data.getAttributeItem(Type.User, data.createId(Type.User))
+                {
+                    attributes: data.random.user(creatorId),
+                    id: creatorId,
+                    type: Type.User,
+                }
             ]
         }),
     }
