@@ -204,11 +204,24 @@ export class PatreonMockData {
     /**
      * Creates a random ID (UUID for a member) for a resource
      * @param type The type of the resource
+     * @param options For certain resources, additional information is required to create an ID
+     * @param options.pledgeType For `'pledge-event'` resource: the type of the event. Defaults to `'subscription'`
      * @returns a random string
      */
-    public createId (type: Type | keyof ItemMap): string {
+    public createId (
+        type: Type | keyof ItemMap,
+        options?: {
+            pledgeType?: ItemMap[Type.PledgeEvent]['type']
+        }
+    ): string {
         if (type === 'member') return randomUUID()
-        else return Array.from({ length: _random_int(5, 10) }, () => _random_int(0, 9)).join('')
+
+        const randomString = Array.from({ length: _random_int(5, 10) }, () => _random_int(0, 9)).join('')
+
+        if (type === 'pledge-event') {
+            return `${options?.pledgeType ?? 'subscription'}:${randomString}`
+        }
+        else return randomString
     }
 
     /**
