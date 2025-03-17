@@ -1,5 +1,6 @@
 import { type WebhookPayload } from '../../../payloads/v2'
 import {
+    QueryBuilder,
     Type,
     type AttributeItem,
     type DataItem,
@@ -9,7 +10,7 @@ import {
 } from '../../../schemas/v2'
 
 import { Routes, RequestMethod } from '../oauth2'
-import { createQuery, type BasePatreonQueryType, type GetResponsePayload } from '../query'
+import { type BasePatreonQueryType, type GetResponsePayload } from '../query'
 
 import type { Oauth2RouteOptions } from '../clients/baseMethods'
 import type { PatreonOauthClient } from '../oauth2/client'
@@ -69,6 +70,10 @@ export function getWebhookUserId (payload: WebhookPayload): string {
 }
 
 export class WebhookClient {
+    private static get emptyQuery () {
+        return QueryBuilder.fromParams(new URLSearchParams())
+    }
+
     /**
      * The headers that are sent on webhook requests
      */
@@ -125,9 +130,9 @@ export class WebhookClient {
             },
         }
 
-        return await this.oauth.fetch(Routes.webhooks(), createQuery(new URLSearchParams()), {
+        return await this.oauth.fetch(Routes.webhooks(), WebhookClient.emptyQuery, {
             ...(options ?? {}),
-            method: 'POST',
+            method: RequestMethod.Post,
             body: JSON.stringify({ data: body }),
         }) as unknown as WebhookAPICreateResult | undefined
     }
@@ -157,7 +162,7 @@ export class WebhookClient {
     ) {
         const { id, ...body } = webhook
 
-        return await this.oauth.fetch(Routes.webhook(id), createQuery(new URLSearchParams()), {
+        return await this.oauth.fetch(Routes.webhook(id), WebhookClient.emptyQuery, {
             ...(options ?? {}),
             method: 'PATCH',
             body: JSON.stringify({
@@ -186,7 +191,7 @@ export class WebhookClient {
         webhookId: string,
         options?: Oauth2WebhookRouteOptions,
     ): Promise<void> {
-        await this.oauth.fetch(Routes.webhook(webhookId), createQuery(new URLSearchParams()), {
+        await this.oauth.fetch(Routes.webhook(webhookId), WebhookClient.emptyQuery, {
             ...(options ?? {}),
             method: RequestMethod.Delete,
         })

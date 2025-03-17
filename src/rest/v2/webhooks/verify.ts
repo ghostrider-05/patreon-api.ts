@@ -27,6 +27,8 @@ export function verify (
  * Verify and parse the incoming Patreon webhook event
  * @param request The incoming request. Can be either:
  * - Node.js default request (v18+) / Undici request / request with `clone()` method implemented
+ * - or a request without a `clone()` method. This function reads the request body and thus assumes that the body is not already read
+ * and afterwards the body cannot be read again.
  * - HTTP Incoming message (like express) with a JSON parsed body.
  * @param secret The secret of the webhook to use for verifying the request
  * @throws if no secret is given
@@ -38,17 +40,24 @@ export function verify (
  */
 export async function parseWebhookRequest <
     Trigger extends PatreonWebhookTrigger = PatreonWebhookTrigger
->(request:
-    | Pick<Request, 'headers' | 'body' | 'clone'>
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    | (import('http').IncomingMessage & { body: any }), secret: string): Promise<
+>(
+    request:
+        | Pick<Request, 'headers' | 'body' | 'clone'>
+        | Pick<Request, 'headers' | 'text'>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        | (import('http').IncomingMessage & { body: any }),
+    secret: string
+): Promise<
     | { verified: false, event: undefined, payload: undefined }
     | { verified: true, event: Trigger, payload: WebhookPayload<Trigger> }
 >{
     const body = 'clone' in request && typeof request.clone === 'function'
         ? await request.clone().text()
         // TODO: do not this
-        : JSON.stringify(request.body)
+        : ('text' in request && typeof request.text === 'function'
+            ? await request.text()
+            : JSON.stringify(request['body'])
+        )
     const headers = WebhookClient.getWebhookHeaders(request.headers)
 
     const verified = verify(secret, headers.signature, body)
