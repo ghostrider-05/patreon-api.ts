@@ -1,7 +1,10 @@
 /* eslint-disable jsdoc/require-returns */
 import { RequestPayload } from '../../payloads/v2/internals/request'
 
-import { BasePatreonQueryType, type PatreonQuery } from '../../rest/v2'
+import type {
+    BasePatreonQueryType,
+    PatreonQuery,
+} from '../../rest/v2'
 
 import type {
     RelationshipFields,
@@ -325,7 +328,10 @@ export class QueryBuilder<
     }
 
     protected static getResource <T extends Type | ItemType>(t: T) {
-        return getResource(t)
+        const resource = getResource(t)
+        if (!resource) throw new Error('No resource found for type: ' + t)
+
+        return resource
     }
 
     protected static toQuery(params: URLSearchParams): string {

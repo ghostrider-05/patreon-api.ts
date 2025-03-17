@@ -1,7 +1,5 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     QueryBuilder,
     type DataItem,
     type DataItems,
@@ -22,14 +20,9 @@ class NormalizedError extends Error {
 }
 
 function getTypeForIncludeKey <Type extends ItemType, Field extends RelationshipFields<Type>>(type: Type, includeKey: Field): RelationshipFieldToFieldType<Type, Field> {
-    const fields = QueryBuilder['getResource'](type).relationships
-    if (fields == undefined) throw new NormalizedError('No relationships found for type: ' + type)
-
-    // Can exclude never[] as it is an empty array
-    const resourceKey = (fields as Exclude<typeof fields, never[]>)
-        .find(f => f.name === includeKey)?.name
-
+    const resourceKey = QueryBuilder.convertRelationToType(type, includeKey)
     if (resourceKey == undefined) throw new NormalizedError(`No resource key found for ${includeKey} on ${type}`)
+
     return resourceKey as RelationshipFieldToFieldType<Type, Field>
 }
 
@@ -64,7 +57,6 @@ export function findRelationships <
     Map extends RelationshipMap<Type, Fields>
 >(
     type: Type,
-    // keys: Fields[],
     relationships: Relationship<Type, Fields>['relationships'] | undefined,
     included: RelationshipItem<Type, Fields, Map>[] | undefined,
 ) {
