@@ -5,9 +5,12 @@ import {
     type AttributeItem,
     Type,
     type ItemMap,
+} from './item'
+
+import {
     type Relationship,
     type RelationshipFields,
-} from '.'
+} from './relationships'
 
 export type WriteResourceType =
     | Type.Webhook

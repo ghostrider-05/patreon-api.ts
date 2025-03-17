@@ -10,7 +10,7 @@ import type { WebhookPayload } from '../../../payloads/v2/webhook'
  * @param signature The signature of the request. Can be found in the request headers
  * @param body The raw request body
  * @throws if no secret is given
- * @returns whether the signature is valid for the assiocated body
+ * @returns whether the signature is valid for the associated body
  */
 export function verify (
     secret: string,

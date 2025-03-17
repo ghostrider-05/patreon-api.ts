@@ -7,13 +7,21 @@ import {
     type PostWebhookBody,
     type Relationship,
     type Webhook,
+    type WriteResourcePayload,
+    type WriteResourceResponse,
 } from '../../../schemas/v2'
 
-import { Routes, RequestMethod } from '../oauth2'
-import { type BasePatreonQueryType, type GetResponsePayload } from '../query'
+import { Routes, RequestMethod, type RestHeaders } from '../oauth2'
+import type { PatreonOauthClient } from '../oauth2/client'
+import { RestClient } from '../oauth2/rest'
+
+import {
+    type BasePatreonQueryType,
+    type GetResponsePayload,
+} from '../query'
 
 import type { Oauth2RouteOptions } from '../clients/baseMethods'
-import type { PatreonOauthClient } from '../oauth2/client'
+
 import { WebhookPayloadClient } from './payload'
 
 export type Oauth2WebhookRouteOptions = Omit<Oauth2RouteOptions, 'body' | 'contentType'>
@@ -26,26 +34,23 @@ export type CreateWebhookBody = PostWebhookBody & {
     campaignId: string
 }
 
-export interface WebhookAPICreateBody extends Pick<Webhook, 'triggers' | 'uri'> {
+export type WebhookAPICreateBody = WriteResourcePayload<Type.Webhook, RequestMethod.Post>['data']['attributes'] & {
     /**
      * The id of the campaign that this webhook is linked to
      */
     campaignId: string
 }
 
-export interface WebhookAPICreateResult {
-    // TODO: remove Record<string, unknown> constrain
-    data: AttributeItem<Type.Webhook, { [K in keyof Webhook]: Webhook[K] }>
-}
+export type WebhookAPICreateResult = WriteResourceResponse<Type.Webhook>
 
-export interface WebhookAPIEditBody extends Partial<Pick<Webhook, 'triggers' | 'uri' | 'paused'>> {
+export type WebhookAPIEditBody = WriteResourcePayload<Type.Webhook, RequestMethod.Patch>['data']['attributes'] & {
     /**
      * The id of the webhook to edit
      */
     id: string
 }
 
-export type WebhookAPIEditResult = WebhookAPICreateResult
+export type WebhookAPIEditResult = WriteResourceResponse<Type.Webhook>
 
 // Should not have been exported
 /** @deprecated */
@@ -82,18 +87,13 @@ export class WebhookClient {
         event: 'X-Patreon-Event',
     } as const
 
-    public static getWebhookHeaders (headers:
-        | import('undici-types').Headers
-        | import('http').IncomingHttpHeaders
-        | Record<string, string | undefined>
-    ) {
+    public static getWebhookHeaders (headers: RestHeaders) {
         const types = <(keyof typeof this.headers)[]>Object.keys(this.headers)
+        const resolved = RestClient.resolveHeaders(headers)
 
         return types.reduce((data, key) => ({
             ...data,
-            [key]: (typeof headers.get === 'function'
-                ? headers.get(this.headers[key])
-                : headers[this.headers[key]]) ?? null,
+            [key]: resolved[this.headers[key]] ?? null,
         }), {} as Record<keyof typeof this.headers, string | null>)
     }
 
@@ -112,19 +112,20 @@ export class WebhookClient {
     public async createWebhook (
         webhook: WebhookAPICreateBody,
         options?: Oauth2WebhookRouteOptions,
-    ): Promise<WebhookAPICreateResult | undefined> {
-        const body: APIPostWebhookBody = {
-            type: Type.Webhook,
-            attributes: {
-                uri: webhook.uri,
-                triggers: webhook.triggers,
-            },
-            relationships: {
-                // @ts-expect-error not including links
-                campaign: {
-                    data: {
-                        id: webhook.campaignId,
-                        type: Type.Campaign,
+    ): Promise<WriteResourceResponse<Type.Webhook>> {
+        const body: WriteResourcePayload<Type.Webhook, RequestMethod.Post> = {
+            data: {
+                type: Type.Webhook,
+                attributes: {
+                    uri: webhook.uri,
+                    triggers: webhook.triggers,
+                },
+                relationships: {
+                    campaign: {
+                        data: {
+                            id: webhook.campaignId,
+                            type: Type.Campaign,
+                        },
                     },
                 },
             },
@@ -133,8 +134,9 @@ export class WebhookClient {
         return await this.oauth.fetch(Routes.webhooks(), WebhookClient.emptyQuery, {
             ...(options ?? {}),
             method: RequestMethod.Post,
-            body: JSON.stringify({ data: body }),
-        }) as unknown as WebhookAPICreateResult | undefined
+            body: JSON.stringify(body),
+        // Typecast needed because of empty query
+        }) as unknown as WriteResourceResponse<Type.Webhook>
     }
 
     /**
@@ -146,7 +148,7 @@ export class WebhookClient {
     public async fetchWebhooks<Query extends BasePatreonQueryType<Type.Webhook, true>>(
         query: Query,
         options?: Oauth2WebhookRouteOptions,
-    ): Promise<GetResponsePayload<Query> | undefined> {
+    ): Promise<GetResponsePayload<Query>> {
         return await this.oauth.fetch<Query>(Routes.webhooks(), query, options)
     }
 
@@ -159,20 +161,23 @@ export class WebhookClient {
     public async editWebhook (
         webhook: WebhookAPIEditBody,
         options?: Oauth2WebhookRouteOptions,
-    ) {
-        const { id, ...body } = webhook
+    ): Promise<WriteResourceResponse<Type.Webhook>> {
+        const { id, ...attributes } = webhook
+
+        const body: WriteResourcePayload<Type.Webhook, RequestMethod.Patch> = {
+            data: {
+                type: Type.Webhook,
+                id,
+                attributes,
+            }
+        }
 
         return await this.oauth.fetch(Routes.webhook(id), WebhookClient.emptyQuery, {
             ...(options ?? {}),
-            method: 'PATCH',
-            body: JSON.stringify({
-                data: {
-                    type: Type.Webhook,
-                    id,
-                    attributes: body,
-                },
-            }),
-        }) as unknown as WebhookAPIEditResult | undefined
+            method: RequestMethod.Patch,
+            body: JSON.stringify(body),
+        // Typecast needed because of empty query
+        }) as unknown as WriteResourceResponse<Type.Webhook>
     }
 
     /**
