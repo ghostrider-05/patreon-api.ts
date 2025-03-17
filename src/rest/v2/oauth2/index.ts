@@ -19,6 +19,9 @@ export {
     type RequestOptions,
     type RestEventMap,
     type RestFetcher,
+    type RestHeaders,
     type RestResponse,
+    type RestRetriesOptions,
+    type RestRetriesBackoffOptions,
     type RestRetries
 } from './rest'

@@ -1,17 +1,19 @@
 import { VERSION } from '../../../utils'
 import { RouteBases } from '../routes'
 
+export type RestHeaders =
+    | import('undici-types').Headers
+    | import('http').IncomingHttpHeaders
+    | Record<string, string>
+
 export type RestResponse = Pick<Response,
     | 'body'
-    | 'arrayBuffer'
     | 'bodyUsed'
-    | 'headers'
     | 'json'
     | 'ok'
     | 'status'
-    | 'statusText'
     | 'text'
->
+> & { headers: RestHeaders }
 
 export type RestFetcher = (url: string, init: RequestInit) => Promise<RestResponse>
 
@@ -70,7 +72,6 @@ export interface RestEventMap {
         | 'headers'
         | 'ok'
         | 'status'
-        | 'statusText'
     >]
     ratelimit: [data: {
         url: string
@@ -491,7 +492,7 @@ export class RestClient {
                     const errors = await parseResponse<{ errors: PatreonErrorData[] }>(response)
 
                     throw errors.errors.map(error => {
-                        return new PatreonError(error, this.getHeaders(response))
+                        return new PatreonError(error, this.getHeaders(response.headers))
                     })
                 }
             }
@@ -502,13 +503,12 @@ export class RestClient {
 
         if (this.options.emitter?.listenerCount('response')) {
             this.options.emitter.emit('response', {
-                data: this.getHeaders(response),
+                data: this.getHeaders(response.headers),
                 bodyUsed: response.bodyUsed,
                 response,
                 headers: response.headers,
                 ok: response.ok,
                 status: response.status,
-                statusText: response.statusText,
             })
         }
 
@@ -637,7 +637,7 @@ export class RestClient {
     }
 
     private handleRatelimit (response: RestResponse) {
-        const headers = this.getHeaders(response)
+        const headers = this.getHeaders(response.headers)
         console.log('This client is currently ratelimited. Please contact Patreon or reduce your requests', headers)
 
         if (!headers.retryafter) {
@@ -654,16 +654,27 @@ export class RestClient {
 
     /**
      * Get Patreon headers from a response
-     * @param response the response from Patreon
+     * @param headers the response headers from Patreon
      * @returns the extracted headers
      */
-    public getHeaders (response: RestResponse): PatreonHeadersData {
+    public getHeaders (headers: RestHeaders): PatreonHeadersData {
+        const resolved = RestClient.resolveHeaders(headers)
+
         return {
-            sha: response.headers.get(ResponseHeaders.Sha),
-            uuid: response.headers.get(ResponseHeaders.UUID),
-            cfcachestatus: response.headers.get(ResponseHeaders.CfCacheStatus),
-            cfray: response.headers.get(ResponseHeaders.CfRay),
-            retryafter: response.headers.get(ResponseHeaders.RetryAfter),
+            sha: resolved[ResponseHeaders.Sha] ?? null,
+            uuid: resolved[ResponseHeaders.UUID] ?? null,
+            cfcachestatus: resolved[ResponseHeaders.CfCacheStatus] ?? null,
+            cfray: resolved[ResponseHeaders.CfRay] ?? null,
+            retryafter: resolved[ResponseHeaders.RetryAfter] ?? null,
         }
+    }
+
+    public static resolveHeaders (headers: RestHeaders): Record<string, string> {
+        return Object.keys(headers).reduce<Record<string, string>>((data, key) => ({
+            ...data,
+            [key]: (typeof headers.get === 'function'
+                ? headers.get(key)
+                : headers[key]),
+        }), {} as Record<string, string>)
     }
 }

@@ -1,4 +1,6 @@
-import { createQuery, type BasePatreonQuery } from '../query'
+import { QueryBuilder } from '../../../schemas/v2/query'
+
+import { type BasePatreonQuery } from '../query'
 import { Routes } from './routes'
 
 export enum PatreonOauthScope {
@@ -128,7 +130,7 @@ function getRequiredScopesForAttributes (
 
         return {
             path: Routes[route](''),
-            query: createQuery(query),
+            query: QueryBuilder.fromParams(query),
         }
     })
 

@@ -90,5 +90,5 @@ export const Routes = {
     },
 }
 
-/** @deprecated */
+/** @deprecated use Routes instead */
 export const Oauth2Routes = Routes
