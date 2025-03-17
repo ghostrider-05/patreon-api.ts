@@ -670,7 +670,11 @@ export class RestClient {
     }
 
     public static resolveHeaders (headers: RestHeaders): Record<string, string> {
-        return Object.keys(headers).reduce<Record<string, string>>((data, key) => ({
+        const keys = typeof headers.keys === 'function'
+            ? [...headers.keys()]
+            : Object.keys(headers)
+
+        return keys.reduce<Record<string, string>>((data, key) => ({
             ...data,
             [key]: (typeof headers.get === 'function'
                 ? headers.get(key)

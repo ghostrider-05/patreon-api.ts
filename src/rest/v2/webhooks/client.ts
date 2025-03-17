@@ -93,7 +93,7 @@ export class WebhookClient {
 
         return types.reduce((data, key) => ({
             ...data,
-            [key]: resolved[this.headers[key]] ?? null,
+            [key]: resolved[this.headers[key].toLowerCase()] ?? null,
         }), {} as Record<keyof typeof this.headers, string | null>)
     }
 

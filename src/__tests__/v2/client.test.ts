@@ -88,12 +88,10 @@ describe('rest client', () => {
     test('client', () => {
         expect(client.userAgent).toBeTypeOf('string')
 
-        const headers = client.getHeaders(<never>{
-            headers: new Headers({
-                'x-patreon-sha': 'sha',
-                'x-patreon-uuid': 'id',
-            })
-        })
+        const headers = client.getHeaders(new Headers({
+            'x-patreon-sha': 'sha',
+            'x-patreon-uuid': 'id',
+        }))
 
         expect(headers).toHaveProperty('sha', 'sha')
         expect(headers).toHaveProperty('uuid', 'id')
