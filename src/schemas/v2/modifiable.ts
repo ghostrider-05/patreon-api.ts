@@ -53,19 +53,20 @@ type ModifiableResourceAttributes<
             : {})
     : never
 
+// Write relationships should not be nullable (I think)
 type ModifiableResourceRelationships<
     T extends WriteResourceType,
     Method extends RequestMethod
 > = ModifiableResourceMap[T] extends { [K in Method]: unknown }
     ? (ModifiableResourceMap[T][Method] extends { requiredRelationships: RelationshipFields<T> }
+        ? Relationship<T, ModifiableResourceMap[T][Method]['requiredRelationships']>['relationships'] extends infer RequiredRels
         ? { relationships: {
-            // TODO: simplify
-            [R in keyof Relationship<T, ModifiableResourceMap[T][Method]['requiredRelationships']>['relationships']]:
-                Relationship<T, ModifiableResourceMap[T][Method]['requiredRelationships']>['relationships'][R] extends { data: { id: string } }
-                    ? { data: Omit<Relationship<T, ModifiableResourceMap[T][Method]['requiredRelationships']>['relationships'][R]['data'], 'links'> }
-                    : Relationship<T, ModifiableResourceMap[T][Method]['requiredRelationships']>['relationships'][R]
+            [R in keyof RequiredRels]:
+                NonNullable<RequiredRels[R]> extends { data: { id: string } }
+                    ? { data: Omit<NonNullable<RequiredRels[R]>['data'], 'links'> }
+                    : NonNullable<RequiredRels[R]>
         } }
-        : {})
+        : {} : {})
     : never
 
 

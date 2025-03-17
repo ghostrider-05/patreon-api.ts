@@ -96,7 +96,9 @@ export class WebhookPayloadClient<Trigger extends PatreonWebhookTrigger> {
     ) {}
 
     public get userId () {
-        return this.payload.data.relationships.user.data.id
+        // Make nullable when this is not included in webhook payloads
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return this.payload.data.relationships.user!.data.id
     }
 
     public get user () {
@@ -106,7 +108,9 @@ export class WebhookPayloadClient<Trigger extends PatreonWebhookTrigger> {
     }
 
     public get campaignId () {
-        return this.payload.data.relationships.campaign.data.id
+        // Make nullable when this is not included in webhook payloads
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return this.payload.data.relationships.campaign!.data.id
     }
 
     public get campaign () {
