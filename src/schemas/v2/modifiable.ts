@@ -61,10 +61,13 @@ type ModifiableResourceRelationships<
     ? (ModifiableResourceMap[T][Method] extends { requiredRelationships: RelationshipFields<T> }
         ? Relationship<T, ModifiableResourceMap[T][Method]['requiredRelationships']>['relationships'] extends infer RequiredRels
         ? { relationships: {
-            [R in keyof RequiredRels]:
-                NonNullable<RequiredRels[R]> extends { data: { id: string } }
-                    ? { data: Omit<NonNullable<RequiredRels[R]>['data'], 'links'> }
-                    : NonNullable<RequiredRels[R]>
+            [R in keyof RequiredRels]: {
+                data: RequiredRels[R] extends { data: unknown }
+                    ? RequiredRels[R]['data'] extends infer Data
+                        ? NonNullable<Data>
+                        : never
+                    : never
+            }
         } }
         : {} : {})
     : never

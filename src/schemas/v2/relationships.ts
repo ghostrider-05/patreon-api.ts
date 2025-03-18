@@ -114,8 +114,10 @@ type RelationDataItem<RelationType extends Type | `${Type}`, Index extends Relat
                         ? Relation[2] extends true
                             // When no relationship is configured, the API will return null
                             // See issue #144 on this repo for example payloads
-                            ? If<Nullable, DataItems<Relation[0], false> | null, DataItems<Relation[0], false>>
-                            : If<Nullable, DataItem<Relation[0], true> | null, DataItem<Relation[0], true>>
+                            // There is no documentation on required relationships
+                            // So advice users to always check or ignore if they know it is always returned for their campaign
+                            ? If<Nullable, DataItems<Relation[0], false> | { data: null }, DataItems<Relation[0], false>>
+                            : If<Nullable, DataItem<Relation[0], true> | { data: null }, DataItem<Relation[0], true>>
                         : never
                     : never
                 : never
