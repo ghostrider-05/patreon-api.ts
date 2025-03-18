@@ -5,7 +5,6 @@ import type {
     RelationshipMap,
     RelationshipItem,
     RelationshipMainItemAttributes,
-    // RelationshipTypeFields,
     RelationshipFields,
 } from '../../../schemas/v2'
 

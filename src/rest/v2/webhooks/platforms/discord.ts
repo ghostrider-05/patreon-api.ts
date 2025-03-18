@@ -63,7 +63,8 @@ export function webhookToDiscordEmbed (trigger: PatreonWebhookTrigger, payload: 
         }
     }
 
-    const campaignId = payload.data.relationships.campaign.data.id
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const campaignId = payload.data.relationships.campaign.data!.id
     const userId = getWebhookUserId(payload)
 
     type IncludedUser = WebhookPayload['included'][number] extends infer I ? I extends { type: Type.User } ? I : never : never

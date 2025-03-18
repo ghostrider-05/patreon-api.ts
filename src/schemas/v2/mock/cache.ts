@@ -69,8 +69,8 @@ export class PatreonMockCache {
                             secret: '', // TODO: generate
                         },
                         relationships: {
-                            campaign: body.data.relationships.campaign.data.id,
-                            client: '', // TODO: set
+                            campaign: body.data.relationships.campaign.data?.id ?? null,
+                            client: null,
                         }
                     }
                 }

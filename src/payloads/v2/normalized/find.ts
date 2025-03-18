@@ -1,7 +1,5 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     QueryBuilder,
     type DataItem,
     type DataItems,
@@ -15,6 +13,15 @@ import {
 
 import type { NormalizedRelationshipItem } from './payload'
 
+type RelationshipData<
+    T extends ItemType,
+    F extends RelationshipFields<T>
+> = (
+    | DataItem<RelationshipFieldToFieldType<T, F>, true>
+    | DataItems<RelationshipFieldToFieldType<T, F>, false>
+    | { data: null }
+)['data']
+
 class NormalizedError extends Error {
     public constructor (message: string) {
         super('[Normalized] ' + message)
@@ -22,14 +29,9 @@ class NormalizedError extends Error {
 }
 
 function getTypeForIncludeKey <Type extends ItemType, Field extends RelationshipFields<Type>>(type: Type, includeKey: Field): RelationshipFieldToFieldType<Type, Field> {
-    const fields = QueryBuilder['getResource'](type).relationships
-    if (fields == undefined) throw new NormalizedError('No relationships found for type: ' + type)
-
-    // Can exclude never[] as it is an empty array
-    const resourceKey = (fields as Exclude<typeof fields, never[]>)
-        .find(f => f.name === includeKey)?.name
-
+    const resourceKey = QueryBuilder.convertRelationToType(type, includeKey)
     if (resourceKey == undefined) throw new NormalizedError(`No resource key found for ${includeKey} on ${type}`)
+
     return resourceKey as RelationshipFieldToFieldType<Type, Field>
 }
 
@@ -38,10 +40,13 @@ function findRelation <
     Fields extends RelationshipFields<Type>,
     Map extends RelationshipMap<Type, Fields>
 >(
-    relationship: DataItem<Type, Fields> | DataItems<Type, Fields>,
+    relationship: RelationshipData<Type, Fields>,
     included: RelationshipItem<Type, Fields, Map>[],
 ) {
-    function searchRelation ({ data: { id, type } }: DataItem<Type, Fields>) {
+    if (relationship == null) return null
+
+    function searchRelation (data: Exclude<RelationshipData<Type, Fields>, null | unknown[]>) {
+        const { id, type } = data
         const incl = included.find(f => f.id === id && f.type === type)
         if (!incl) throw new NormalizedError('No included field for resource: ' + id)
 
@@ -52,10 +57,9 @@ function findRelation <
         }
     }
 
-    // Typecast to DataItem is okay since it only adds the unused links property
-    return Array.isArray(relationship.data)
-        ? (relationship.data).map(item => searchRelation({ data: item } as DataItem<Type, Fields>))
-        : searchRelation(relationship as DataItem<Type, Fields>)
+    return Array.isArray(relationship)
+        ? relationship.map(item => searchRelation(item))
+        : searchRelation(relationship)
 }
 
 export function findRelationships <
@@ -64,7 +68,6 @@ export function findRelationships <
     Map extends RelationshipMap<Type, Fields>
 >(
     type: Type,
-    // keys: Fields[],
     relationships: Relationship<Type, Fields>['relationships'] | undefined,
     included: RelationshipItem<Type, Fields, Map>[] | undefined,
 ) {
@@ -73,6 +76,6 @@ export function findRelationships <
 
     return keys.reduce((found, key) => ({
         ...found,
-        [getTypeForIncludeKey(type, key)]: findRelation<Type, Fields, Map>(relationships[key], included),
+        [getTypeForIncludeKey(type, key)]: findRelation<Type, Fields, Map>(relationships[key]['data'], included),
     }), {} as Record<RelationshipFieldToFieldType<Type, Fields>, NormalizedRelationshipItem<Type, Fields, Map>>)
 }

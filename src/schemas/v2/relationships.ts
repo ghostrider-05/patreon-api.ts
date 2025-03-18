@@ -1,3 +1,5 @@
+import type { If } from '../../utils/generics'
+
 import {
     Type,
     type AttributeItem,
@@ -94,11 +96,15 @@ type ResolvedRelation<T extends `${Type}`> = {
 }
 
 type BaseRelationDataItem<T extends string> = Partial<Record<T, [string, boolean] | [boolean]>>
+
+// Use an index to return a string from a resolved relation
+// 0: returns always the relation type
+// 1: returns the relation name
 type RelationStringIndex =
     | 0
     | 1
 
-type RelationDataItem<RelationType extends Type | `${Type}`, Index extends RelationStringIndex> =
+type RelationDataItem<RelationType extends Type | `${Type}`, Index extends RelationStringIndex, Nullable extends boolean> =
     ResolvedRelation<`${RelationType}`> extends Partial<Record<Type, [Type, string, boolean]>>
     ? {
         [Key in ResolvedRelation<RelationType>[keyof ResolvedRelation<RelationType>][Index]]:
@@ -106,8 +112,12 @@ type RelationDataItem<RelationType extends Type | `${Type}`, Index extends Relat
                 ? Relation extends [Type, string, boolean]
                     ? Key extends Relation[Index]
                         ? Relation[2] extends true
-                            ? DataItems<Relation[0], false>
-                            : DataItem<Relation[0], true>
+                            // When no relationship is configured, the API will return null
+                            // See issue #144 on this repo for example payloads
+                            // There is no documentation on required relationships
+                            // So advice users to always check or ignore if they know it is always returned for their campaign
+                            ? If<Nullable, DataItems<Relation[0], false> | { data: null }, DataItems<Relation[0], false>>
+                            : If<Nullable, DataItem<Relation[0], true> | { data: null }, DataItem<Relation[0], true>>
                         : never
                     : never
                 : never
@@ -118,14 +128,14 @@ type RelationDataItem<RelationType extends Type | `${Type}`, Index extends Relat
  * For an resource, returns the relationship names that this resource can have.
  * @see https://docs.patreon.com/#apiv2-resources in the API documentation beneath each resource table the `relationships` table
  */
-export type RelationshipFields<T extends Type | `${Type}`> = keyof RelationDataItem<T, 1> extends infer Key
+export type RelationshipFields<T extends Type | `${Type}`> = keyof RelationDataItem<T, 1, false> extends infer Key
     ? Key extends string
         ? Key
         : never
     : never
 
 export type RelationshipFieldToFieldType<T extends Type | `${Type}`, F extends RelationshipFields<T>> =
-    RelationDataItem<T, 1>[Extract<RelationshipFields<T>, F>]['data'] extends infer I
+    RelationDataItem<T, 1, false>[Extract<RelationshipFields<T>, F>]['data'] extends infer I
         ? I extends unknown []
             ? I[number] extends Item<Type> ? I[number]['type'] : never
             : I extends Item<Type> ? I['type'] : never
@@ -133,8 +143,8 @@ export type RelationshipFieldToFieldType<T extends Type | `${Type}`, F extends R
 
 export type RelationshipTypeToRelationshipField<T extends Type | `${Type}`, F extends RelationshipTypeFields<T>> =
     RelationshipFields<T> extends infer R ? R extends RelationshipFields<T>
-    ? RelationDataItem<T, 1>[R]['data'] extends infer I
-        ? I extends unknown []
+    ? RelationDataItem<T, 1, false>[R]['data'] extends infer I
+        ? I extends unknown[]
             ? I[number] extends Item<F> ? R : never
             : I extends Item<F> ? R : never
         : never
@@ -143,13 +153,13 @@ export type RelationshipTypeToRelationshipField<T extends Type | `${Type}`, F ex
 export type RelationshipIsArray<T extends `${Type}`, R extends RelationshipFields<T>> = ResolvedRelation<T>[R][2]
 
 export type Relationship<T extends Type | `${Type}`, Keys extends RelationshipFields<T>> = {
-    relationships: Pick<RelationDataItem<T, 1>, Keys>
+    relationships: Pick<RelationDataItem<T, 1, true>, Keys>
 }
 
 /**
  * Same as {@link RelationshipFields}, but instead of the relationship names it returns the type of item for each name
  */
-export type RelationshipTypeFields<T extends `${Type}` | Type> = keyof RelationDataItem<T, 0> extends infer K ? K extends `${Type}` ? K : never : never
+export type RelationshipTypeFields<T extends `${Type}` | Type> = keyof RelationDataItem<T, 0, false> extends infer K ? K extends `${Type}` ? K : never : never
 export type RelationshipMap<T extends `${Type}`, Keys extends RelationshipFields<T>> = {
     [Item in (RelationshipFieldToFieldType<T, Keys> | T)]?: Item extends keyof ItemMap ? (keyof ItemMap[Item])[] : never
 }

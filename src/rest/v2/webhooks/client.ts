@@ -71,7 +71,9 @@ export type APIPostWebhookResponse = DataItem<Type.Webhook, false> & {
  * @deprecated use `new WebhookClient.payloads(trigger, payload).userId`
  */
 export function getWebhookUserId (payload: WebhookPayload): string {
-    return payload.data.relationships.user.data.id
+    // Relationship can be null, but not likely for webhooks (I think?)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return payload.data.relationships.user.data!.id
 }
 
 export class WebhookClient {

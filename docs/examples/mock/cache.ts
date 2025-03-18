@@ -16,7 +16,9 @@ const mock = new PatreonMock({
                         // If the campaign has benefits, goals or tiers
                         // Add these also the cache
                         benefits: [],
-                        goals: [],
+                        // If no relationship is configured for this item
+                        // Use null instead of an array / empty string
+                        goals: null,
                         tiers: [],
                     }
                 }],

@@ -15,9 +15,10 @@ import type {
 type ItemRawRelationship<T extends keyof ItemMap> = Relationship<T, RelationshipFields<T>>['relationships']
 
 type ItemCacheRelationship<T extends keyof ItemMap> = {
-    [R in keyof ItemRawRelationship<T>]: ItemRawRelationship<T>[R]['data'] extends unknown[]
+    [R in keyof ItemRawRelationship<T>]: (ItemRawRelationship<T>[R]['data'] extends unknown[]
         ? string[]
         : string
+    ) | null
 }
 
 export type ItemCache<T extends keyof ItemMap> = {
@@ -112,6 +113,8 @@ export class PatreonMockCacheStore implements CacheStore<false> {
 
         const relationType = QueryBuilder.convertRelationToType(type, related)
         const ids = item.relationships[related]
+        if (ids == null) return null
+
         return Array.isArray(ids)
             ? { ids: ids as string[], item: ids.map(id => this.get(relationType, id)) }
             : { id: ids as string, item: [this.get(relationType, ids)] }
@@ -148,14 +151,16 @@ export class PatreonMockCacheStore implements CacheStore<false> {
 
         return {
             relationships: relationFields.reduce<Relationship<T, RelationshipFields<T>>['relationships']>((obj, key) => {
+                const ids = relationships[key]
                 return {
                     ...obj,
-                    [key]: Array.isArray(relationships[key])
-                        ? { data: relationships[key].map(id => ({ id, type: relationMap[key] })) }
-                        : { data: { id: relationships[key], type: relationships[key] }, links: { related: '' } }
+                    [key]: ids == null ? null : (Array.isArray(ids)
+                        ? { data: ids.map(id => ({ id, type: relationMap[key] })) }
+                        : { data: { id: ids, type: relationMap[key] }, links: { related: '' } })
                 }
             }, {} as never),
             items: relationFields.flatMap(relation => {
+                if (relationships[relation] == null) return
                 const relationType = relationMap[relation]
 
                 const ids: string[] = Array.isArray(relationships[relation])
