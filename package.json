@@ -34,8 +34,7 @@
     "url": "https://github.com/ghostrider-05/patreon-api.ts/issues/"
   },
   "files": [
-    "dist",
-    "CHANGELOG.md"
+    "dist"
   ],
   "keywords": [
     "patreon",
