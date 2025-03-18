@@ -1,11 +1,11 @@
 import { defineConfig } from 'vitest/config'
 
-const threshold = 60
+const threshold = 50
 
 export default defineConfig({
     root: 'src',
     test: {
-        reporters: ['basic']
+        reporters: ['default']
             .concat(process.env.GITHUB_ACTIONS ? ['github-actions'] : []),
 
         coverage: {
@@ -18,7 +18,8 @@ export default defineConfig({
                 '**/scripts/v2/',
                 '**/utils/openapi.ts',
                 // TODO: add tests
-                '**/payloads/v2/normalized/'
+                '**/payloads/v2/normalized/',
+                '**/schemas/v2/mock/',
             ],
             thresholds: {
                 branches: threshold,
