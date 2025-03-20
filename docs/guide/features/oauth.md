@@ -8,18 +8,67 @@ The Patreon API is only accessible by authorizing your request with an access to
 ## Creator token
 
 If you don't need to handle Oauth2 requests, but only your own creator profile, the first example will get you started.
-It is recommended to [sync your token](#store) to your database or store it somewhere safe, so the token is not lost.
 
-<<< @/examples.ts#client-creator
+:::warning Expiring tokens
+
+It is recommended to [sync your token](#store) to your database or store it somewhere safe, so the token is not lost.
+[Creator tokens will expire](https://www.patreondevelopers.com/t/non-expiring-creators-access-token/213/25) after a certain time (likely a few days to a month), so you will need to [refresh the token](#refresh-tokens) regularly.
+
+Note: There have been reports that [tokens expire when the creator logs in](https://www.patreondevelopers.com/t/creators-access-token-refreshes-everytime-creator-logs-in/6917/6).
+
+:::
+
+:::code-group
+
+<<< @/examples/oauth/creator.ts#token-options{ts twoslash} [Token in options]
+
+<<< @/examples/oauth/creator.ts#token-store{ts twoslash} [Token store]
+
+:::
 
 ## User oauth2
 
-For handling Oauth2 requests, add `redirectUri` and if specified a `state` to the options.
-Determine the `scopes` you will need, request only the scopes that your application requires.
-Then fetch the token for the user with request url.
+For handling Oauth2 requests, add a `redirectUri` and if specified a `state` to the options.
+Determine the `scopes` you will need and request only the scopes that your application requires.
+
+### Callback
+
+When a user logins on the Patreon website, they will be redirect to the `redirectUri` of your client. With the `code` query you can fetch the token for the user with the request url.
+
+:::warning
+
 Note that for handling Oauth2 requests the client will not cache or store the tokens anywhere in case you need to refresh it!
 
-<<< @/examples.ts#client-user
+:::
+
+:::code-group
+
+<<< @/examples/oauth/user.ts#instance{ts twoslash} [With instance]
+
+<<< @/examples/oauth/user.ts#code{ts twoslash} [With code]
+
+:::
+
+### Redirect
+
+Since the client has already configured a redirect uri, scopes and client information, you can also handle Oauth2 login requests:
+
+:::code-group
+
+<<< @/examples/oauth/user.ts#login-client{ts twoslash} [Client options]
+
+<<< @/examples/oauth/user.ts#login-custom{ts twoslash} [Method options]
+
+:::
+
+## Refresh tokens
+
+
+
+
+## Revoke tokens
+
+It is not possible to revoke a token with the documented API.
 
 ## Routes
 
@@ -30,6 +79,12 @@ This section is included from GitHub: [`/examples/README.md`](https://github.com
 :::
 
 <!--@include: ../../../examples/README.md{4,}-->
+
+## Validation
+
+### Scopes validation
+
+### Token validation
 
 ## Store
 

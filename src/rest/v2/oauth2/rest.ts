@@ -110,6 +110,8 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
     /**
      * Get the access token for unauthenticated requests
      * @default <Client>.fetchStoredToken
+     * @deprecated Since this is not able to refresh tokens, this will be removed in the future.
+     * If you do depend on this method, please open an issue with your usecase.
      */
     getAccessToken: () => Promise<string | undefined>
 
@@ -163,7 +165,7 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
 export interface RequestOptions {
     /**
      * The base url of the Patreon API
-     * @default {@link RESTOptions.api}
+     * @default 'https://patreon.com/api/oauth/v2'
      */
     api?: string
 

@@ -20,7 +20,7 @@ declare const enabledClient: PatreonCreatorClient<true>
 declare const disabledClient: PatreonCreatorClient
 
 const completeCampaign = await enabledClient.fetchCampaign('id')
-console.log(completeCampaign.data.attributes.patron_count)
+console.log(completeCampaign.data.attributes)
 
 const emptyCampaign = await disabledClient.fetchCampaign('id')
 console.log(emptyCampaign.data.attributes)

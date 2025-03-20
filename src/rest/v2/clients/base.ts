@@ -105,7 +105,7 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
      * Fetch the stored token with the `get` method from the client options
      * @returns the stored token, if `options.store.get` is defined and returns succesfully.
      */
-    public async fetchStoredToken(): Promise<StoredToken | undefined> {
+    public async fetchStoredToken(): Promise<Oauth2StoredToken | undefined> {
         return PatreonClient.fetchStored(this.store)
     }
 
@@ -114,7 +114,7 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
      * @param token The token to save
      * @param [cache] Whether to overwrite the application token cache and update it with the token
      */
-    public async putStoredToken(token: StoredToken, cache?: boolean): Promise<void> {
+    public async putStoredToken(token: Oauth2StoredToken, cache?: boolean): Promise<void> {
         await this.store?.put(token)
         if (cache) this.oauth.cachedToken = token
     }
