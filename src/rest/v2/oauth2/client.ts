@@ -1,5 +1,7 @@
+import { QueryBuilder } from '../../../schemas/v2/query'
+
 import type { Oauth2FetchOptions } from '../clients'
-import { createQuery, type BasePatreonQuery, type GetResponsePayload } from '../query'
+import { type BasePatreonQuery, type GetResponsePayload } from '../query'
 
 import { type RestClient } from './rest'
 import { getRequiredScopes } from './scopes'
@@ -23,7 +25,7 @@ export interface BaseOauthClientOptions {
      * Set the (creator) token of the application.
      * If no epoch time (ms) is given, it will assume the token was just created.
      */
-    token?: CreatorToken | Token | StoredToken
+    token?: Oauth2CreatorToken | Oauth2Token | Oauth2StoredToken
 
     /**
      * The type of token is used.
@@ -35,13 +37,17 @@ export interface BaseOauthClientOptions {
     tokenType?: 'creator' | 'oauth' | null
 
     /**
-     * Check if the token is given and not expired before running a request
-     * @default true
+     * Check if the token is given and not expired before running a request.
+     *
+     * If the token is an object and is expired, the client will refresh the token, update the cached token
+     * and use the refreshed token to make an API request.
+     * @default false
      */
     validateToken?: boolean
 
     /**
      * Whether to validate all requests on Oauth clients before sending to check if the correct scopes are given.
+     * If the token type is `'creator'`, scope validation will be skipped for this client.
      *
      * Options:
      * - false: disable validation
@@ -117,13 +123,13 @@ export class PatreonOauthClient {
     /**
      * The last (updated) token that is stored
      */
-    public cachedToken: CreatorToken | StoredToken | undefined = undefined
+    public cachedToken: Oauth2CreatorToken | Oauth2StoredToken | undefined = undefined
 
     /**
      * Called when the token is refreshed
      * @default <Client>.putStoredToken(token, true)
      */
-    public onTokenRefreshed?: (token: StoredToken | undefined) => Promise<void> = undefined
+    public onTokenRefreshed?: (token: Oauth2StoredToken | undefined) => Promise<void> = undefined
 
     public constructor(
         options: PatreonOauthClientOptions,
@@ -138,13 +144,13 @@ export class PatreonOauthClient {
             state: 'state' in options ? options.state : undefined,
             tokenType: options.tokenType ?? null,
             validateScopes: options.validateScopes ?? false,
-            validateToken: options.validateToken ?? true,
+            validateToken: options.validateToken ?? false,
         }
 
         if ('redirectUri' in options) this.options.redirectUri = options.redirectUri
 
         if (options.token) this.cachedToken = 'expires_in_epoch' in options.token
-            ? <StoredToken>options.token
+            ? <Oauth2StoredToken>options.token
             : PatreonOauthClient.toStored(options.token)
     }
 
@@ -169,10 +175,13 @@ export class PatreonOauthClient {
 
     protected static async validateToken(
         client: PatreonOauthClient,
-        token: CreatorToken | StoredToken | string | undefined = client.cachedToken
+        token: Oauth2CreatorToken | Oauth2StoredToken | string | undefined = client.cachedToken
     ) {
         if (token != undefined && (typeof token === 'object' && !PatreonOauthClient.isExpired(token))) return token
         if (token == undefined) throw new Error('No token found to validate!')
+
+        // Since the token is the access token, you cannot use this to refresh a token
+        if (typeof token === 'string') return
 
         const refreshed = await client.refreshToken(token)
         await client.onTokenRefreshed?.(refreshed ? this.toStored<false>(refreshed) : undefined)
@@ -252,7 +261,7 @@ export class PatreonOauthClient {
 
         while (!done) {
             if (cursor) query.params.set('page[cursor]', cursor)
-            const pageQuery = createQuery(query.params) as unknown as Query
+            const pageQuery = QueryBuilder.fromParams(query.params) as unknown as Query
 
             const response = await this.fetch(path, pageQuery, options)
             if (response == undefined) break
@@ -276,7 +285,7 @@ export class PatreonOauthClient {
      * Returns `undefined` for missing code missing redirect uri.
      * @throws on a failed request: can be e.g. because of missing permissions or invalid code
      */
-    public async getOauthTokenFromCode(url: string | { code: string }): Promise<StoredToken | undefined> {
+    public async getOauthTokenFromCode(url: string | { code: string }): Promise<Oauth2StoredToken | undefined> {
         const code = typeof url === 'string'
             ? new URL(url).searchParams.get('code')
             : url.code
@@ -284,7 +293,7 @@ export class PatreonOauthClient {
         if (!code) return undefined
         if (!this.options.redirectUri) return undefined
 
-        const token: Token = await this.makeOauthRequest(this.options.accessTokenUri, {
+        const token: Oauth2Token = await this.makeOauthRequest(this.options.accessTokenUri, {
             code,
             client_id: this.options.clientId,
             client_secret: this.options.clientSecret,
@@ -303,7 +312,7 @@ export class PatreonOauthClient {
      * @returns the updated access token
      * @throws on a failed request
      */
-    public async refreshToken(token: CreatorToken | Token | StoredToken | string): Promise<StoredToken> {
+    public async refreshToken(token: Oauth2CreatorToken | Oauth2Token | Oauth2StoredToken | string): Promise<Oauth2StoredToken> {
         const refresh_token = typeof token === 'string'
             ? token
             : token.refresh_token
@@ -361,7 +370,7 @@ export class PatreonOauthClient {
      * @param token The token to check
      * @returns `true` only if `token.expires_in_epoch` is present and not in the past
      */
-    public static isExpired(token: CreatorToken | StoredToken): boolean {
+    public static isExpired(token: Oauth2CreatorToken | Oauth2StoredToken): boolean {
         if (!token.expires_in_epoch) return false
         else return Date.now() > parseInt(token.expires_in_epoch)
     }
@@ -372,8 +381,8 @@ export class PatreonOauthClient {
      * @returns the same token if `expires_in` is missing. Otherwise the stored token version.
      */
     public static toStored<SupportsCreator extends boolean = true>(
-        token: Token | CreatorToken
-    ): If<SupportsCreator, StoredToken | CreatorToken, StoredToken> {
+        token: Oauth2Token | Oauth2CreatorToken
+    ): If<SupportsCreator, Oauth2StoredToken | Oauth2CreatorToken, Oauth2StoredToken> {
         if (!token.expires_in) return <never>token
         const now = new Date()
         now.setSeconds(now.getSeconds() + parseInt(token.expires_in))

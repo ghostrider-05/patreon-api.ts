@@ -11,9 +11,9 @@ import type {
 
 import {
     PatreonOauthClient,
-    type CreatorToken,
+    type Oauth2CreatorToken,
     type PatreonOauthClientOptions,
-    type StoredToken,
+    type Oauth2StoredToken,
 } from '../oauth2/client'
 
 import {
@@ -39,7 +39,7 @@ export interface Oauth2FetchOptions extends BaseFetchOptions {
      * Overwrite the client token with a new (access) token
      * @default undefined
      */
-    token?: StoredToken | CreatorToken | string
+    token?: Oauth2StoredToken | Oauth2CreatorToken | string
 
     /**
      * Overwrite the method of the request.
@@ -64,7 +64,7 @@ export interface ResponseTransformMap<Query extends BasePatreonQuery> {
 /** @deprecated */
 export type GetResponseMap<Query extends BasePatreonQuery> = ResponseTransformMap<Query>
 
-export type ResponseTransformType = keyof GetResponseMap<BasePatreonQuery>
+export type ResponseTransformType = keyof ResponseTransformMap<BasePatreonQuery>
 
 class GenericPatreonClientMethods<TransformType extends ResponseTransformType, IncludeAll extends boolean> {
     public constructor (
@@ -72,7 +72,7 @@ class GenericPatreonClientMethods<TransformType extends ResponseTransformType, I
         protected transformType: TransformType,
         private parser: ResponseTransformMap<BasePatreonQuery>[TransformType],
         protected _include_all_query: IncludeAll,
-        private _token?: StoredToken,
+        private _token?: Oauth2StoredToken,
     ) {}
 
     private _replace <Query extends BasePatreonQuery> (res: GetResponsePayload<Query>): ReturnType<ResponseTransformMap<Query>[TransformType]> {
@@ -268,7 +268,7 @@ export abstract class PatreonClientMethods<IncludeAll extends boolean> extends G
         protected rawOauthOptions: PatreonOauthClientOptions,
         rest: Partial<RESTOptions<IncludeAll>> = {},
         name: string | null,
-        _token?: StoredToken,
+        _token?: Oauth2StoredToken,
     ) {
         const restClient = new RestClient(rest)
         restClient.name = name
