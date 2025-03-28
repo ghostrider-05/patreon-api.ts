@@ -63,7 +63,16 @@ Since the client has already configured a redirect uri, scopes and client inform
 
 ## Refresh tokens
 
+To refresh an access token you can use the `refreshToken` method on the oauth client.
+The cached token will be updated to the refreshed token.
 
+:::info Store
+
+If you have configured [a token store](#store) on the client, calling the `refreshToken` method will also call the `put` method on the store with the refreshed token.
+
+:::
+
+<<< @/examples/oauth/refresh_token.ts#cache-token{ts twoslash}
 
 
 ## Revoke tokens
@@ -88,17 +97,19 @@ This section is included from GitHub: [`/examples/README.md`](https://github.com
 
 ## Store
 
-There are 3 built-in methods of retreiving and storing tokens:
+There are 3 built-in methods of retrieving and storing tokens:
 
 1. Manual loading and storing
 2. Fetch: use an external server that accepts `GET` and `PUT` requests
 3. KV: store the (creator) token in a KV-like storage system (present on a lot of edge-runtimes).
 
+:::code-group
 
-::: code-group
+<<< @/examples/oauth/store.ts#kv-store{ts twoslash} [KV store]
 
-<<< @/examples.ts#store-kv [KV store]
+<<< @/examples/oauth/store.ts#fetch-store{ts twoslash} [Fetch store]
 
-<<< @/examples.ts#store-custom [manual loading]
+<<< @/examples/oauth/store.ts#custom-store{ts twoslash} [Custom store]
 
 :::
+

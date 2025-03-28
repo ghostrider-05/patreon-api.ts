@@ -1,60 +1,23 @@
 # Normalized responses
 
-The Patreon API returns data in the [JSON:API](https://jsonapi.org/) format with the data spread over `attributes`, `relationships` and `included` fields.
+The Patreon API returns data in the [JSON:API](https://jsonapi.org/) format with the data spread over `attributes`, `relationships` and `included` fields. Using a normalized / simplified response will combine all `relationships` with `included` data.
 
-Since this format is not the easiest to work, I'd advice to use the [normalize](#normalized), [simplified](#simplified) or [your own](#custom) response parsers.
+Since this format is not the easiest to work, I'd advice to use the normalize, simplified or [your own](#custom) response parsers. Compare the payloads below.
 
-## normalized
+:::code-group
 
-Using a normalized response will combine all `relationships` with `included` data. An example:
+<<< @/examples/simplify/json_api_payload.json [JSON:API (default)]
 
-```json
-{
-    "data": {
-        "type": "campaign",
-        "id": "id",
-        "attributes": {
-            "created_at": "<date>"
-        },
-        "relationships": {
-            "creator": {
-                "data": {
-                    "type": "user",
-                    "id": "user_id"
-                }
-            }
-        }
-    },
-    "included": [
-        {
-            "type": "user",
-            "id": "user_id",
-            "attributes": {
-                "full_name": "John Doe"
-            }
-        }
-    ]
-}
-```
+<<< @/examples/simplify/normalized_payload.json [Normalized]
 
-Will be converted to:
+<<< @/examples/simplify/simplified_payload.json [Simplified]
 
-```json
-{
-    "type": "campaign",
-    "id": "id",
-    "created_at": "<date>",
-    "creator": {
-        "type": "user",
-        "id": "user_id",
-        "full_name": "John Doe"
-    }
-}
-```
+:::
+
 
 ## simplified
 
-The `simplify` method will both [`normalize`](#normalized) the response and convert all keys to camelCase.
+The `simplify` method will both `normalize` the response and convert all keys to camelCase.
 
 <<< @/examples.ts#transform-simplify
 
@@ -69,38 +32,6 @@ Add a key to `ResponseTransformMap` with a function that satisfies `(res: GetRes
 > Since I don't know how (or it is not possible) to do module augmentation with generics, `response` will be typed as `never`.
 > When you create your custom parser, you will be able to see the correct types for `response`.
 
-An example for adding a `campaign_id` to every campaign:
+An example for adding a `campaign_id` to every response:
 
-```ts
-import type { BasePatreonQuery, GetResponsePayload } from 'patreon-api.ts'
-
-module 'patreon-api.ts' {
-    interface ResponseTransformMap<Query extends BasePatreonQuery> {
-        custom: (response: GetResponsePayload<Query>) => {
-            response: GetResponsePayload<Query>
-            campaign_id: string
-        }
-    }
-}
-```
-
-Then you can call and test your parser:
-
-```ts
-import { PatreonCreatorClient, GetResponsePayload } from 'patreon-api.ts'
-
-const client = new PatreonCreatorClient({
-    // ...your options
-})
-
-// ...
-
-// Use the same key as in the module augmentation above
-const parser = PatreonCreatorClient.createCustomParser(client, 'custom', false, (res) => ({
-    response: res,
-    campaign_id: '123',
-}))
-
-parser.fetchCampaigns(query)
-    .then(payload => payload.response.data[0].relationships.creator.data.id)
-```
+<<< @/examples/simplify/parser.d.ts{ts}

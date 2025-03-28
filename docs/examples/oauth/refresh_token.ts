@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+// #region cache-token
 import { PatreonCreatorClient } from 'patreon-api.ts'
 
 declare const env: {
@@ -18,6 +20,8 @@ const client = new PatreonCreatorClient({
     },
 })
 
+// The cached token is the token from the client options
+const clientToken = client.oauth.cachedToken!
 
-
-const refreshedToken = await client.oauth.refreshToken(client.oauth.cachedToken)
+const refreshedToken = await client.oauth.refreshToken(clientToken)
+// #endregion cache-token
