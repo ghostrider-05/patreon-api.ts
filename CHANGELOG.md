@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.12.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.11.0...patreon-api.ts-v0.12.0) (2025-03-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* **oauth:** disable token validation by default
+* **rest:** remove statusText from response event
+
+### Features
+
+* allow pledge type in mock resource id ([d5b7063](https://github.com/ghostrider-05/patreon-api.ts/commit/d5b7063f81d036fbba6fe364d8ef3eb8917018b5))
+* **docs:** improve guides and code examples ([#147](https://github.com/ghostrider-05/patreon-api.ts/issues/147)) ([1876505](https://github.com/ghostrider-05/patreon-api.ts/commit/18765058b248c7ce50c10bfe2a55b824929ad095))
+* **oauth:** disable token validation by default ([1876505](https://github.com/ghostrider-05/patreon-api.ts/commit/18765058b248c7ce50c10bfe2a55b824929ad095))
+* **rest:** allow header object in error ([d4741f6](https://github.com/ghostrider-05/patreon-api.ts/commit/d4741f6fc59c6edfcc81b7bb75204f1570a31b3b))
+* **rest:** deprecate getAccessToken option ([1876505](https://github.com/ghostrider-05/patreon-api.ts/commit/18765058b248c7ce50c10bfe2a55b824929ad095))
+* **rest:** remove statusText from response event ([d4741f6](https://github.com/ghostrider-05/patreon-api.ts/commit/d4741f6fc59c6edfcc81b7bb75204f1570a31b3b))
+* **webhooks:** allow parse request with only text method ([b6a334a](https://github.com/ghostrider-05/patreon-api.ts/commit/b6a334ac9fd233a11bc662f96e9a11518df3213b))
+* **webhooks:** remove undefined from client methods ([42f081c](https://github.com/ghostrider-05/patreon-api.ts/commit/42f081cbcb556552e166ea61b0a7a4f23d3d7b5e))
+
+
+### Bug Fixes
+
+* **build:** exclude changelog from package ([9946a13](https://github.com/ghostrider-05/patreon-api.ts/commit/9946a13ca1f6c9088edcfe20631cf7db965e50e6))
+* correctly handle null relationships (close [#144](https://github.com/ghostrider-05/patreon-api.ts/issues/144)) ([#146](https://github.com/ghostrider-05/patreon-api.ts/issues/146)) ([437f336](https://github.com/ghostrider-05/patreon-api.ts/commit/437f33627fc499058475b61461eddb158131911a))
+* **oauth:** only refresh token with refresh token on validation ([1876505](https://github.com/ghostrider-05/patreon-api.ts/commit/18765058b248c7ce50c10bfe2a55b824929ad095))
+
 ## [0.11.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.10.0...patreon-api.ts-v0.11.0) (2025-03-07)
 
 
