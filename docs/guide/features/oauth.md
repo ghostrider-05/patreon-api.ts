@@ -91,9 +91,30 @@ This section is included from GitHub: [`/examples/README.md`](https://github.com
 
 ## Validation
 
+Validations are disabled by default and require the compared values (such as scopes or token) to be provided in the options of the client.
+
 ### Scopes validation
 
+If you are using a user client you can enable scope validation:
+
+- to throw an error on missing scopes
+- to log a warning on missing scopes
+
+Before a request is made, the scopes for the url and query will be checked:
+
+- the main resource of a route
+- protected relationships / attributes (think of address or email)
+
+See the Patreon documentation for the required scopes.
+
 ### Token validation
+
+With token validation you can let the client refresh tokens when:
+
+- a token with an `expires_in_epoch` attribute is expired
+- a token with no expiry returns an unauthorized response
+
+After refreshing, the token will be stored in `client.oauth.cachedToken` and updated in the store, if connected.
 
 ## Store
 

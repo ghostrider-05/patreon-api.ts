@@ -4,6 +4,10 @@ features:
     details: Worker to forward Patreon posts to Discord
     link: https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/cloudflare-webhook/
     linkText: See on GitHub
+  # - title: Express.js webhook
+  #   details: Server to forward Patreon posts to Discord
+  #   link: https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/express-webhook/
+  #   linkText: See on GitHub
   - title: Node.js - ESM
     details: Fetch creator campaigns and update or create webhooks
     link: https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/node-esm/

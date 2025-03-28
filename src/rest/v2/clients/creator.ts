@@ -1,7 +1,7 @@
 import {
     PatreonClient,
     type PatreonClientOptions,
-    type StoredToken,
+    type Oauth2StoredToken,
 } from './base'
 
 export class PatreonCreatorClient<IncludeAll extends boolean = false> extends PatreonClient<IncludeAll> {
@@ -25,7 +25,7 @@ export class PatreonCreatorClient<IncludeAll extends boolean = false> extends Pa
      * if the token is updated and stored, and the token
      */
     public async fetchApplicationToken(): Promise<
-        | { success: true, token: StoredToken }
+        | { success: true, token: Oauth2StoredToken }
         | { success: false, token: undefined }
         >
     {
@@ -33,11 +33,13 @@ export class PatreonCreatorClient<IncludeAll extends boolean = false> extends Pa
         if (!stored) return { success: false, token: undefined }
 
         const updated = await this.oauth.refreshToken(stored)
+        await this.oauth.onTokenRefreshed?.(updated)
+
         return {
             success: updated != undefined,
             token: updated,
         } as
-            | { success: true, token: StoredToken }
+            | { success: true, token: Oauth2StoredToken }
             | { success: false, token: undefined }
     }
 }
