@@ -20,11 +20,9 @@ You can use the methods on the client:
 
 ::: code-group
 
-<<< @/examples.ts#fetch{ts twoslash} [client example]
+<<< @/examples/config/client_examples.ts#fetch{ts twoslash} [Client example]
 
-<<< @/examples.ts#fetch-raw [raw example]
-
-<<< @/examples.ts#transform-default [default includes]
+<<< @/examples/config/client_examaples.ts#fetch-raw{ts twoslash} [Raw example]
 
 :::
 

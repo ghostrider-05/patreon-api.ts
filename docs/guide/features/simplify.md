@@ -15,11 +15,21 @@ Since this format is not the easiest to work, I'd advice to use the normalize, s
 :::
 
 
-## simplified
+## methods
 
-The `simplify` method will both `normalize` the response and convert all keys to camelCase.
+The `simplify` method will both `normalize` the response and convert all keys to camelCase. You can also use the `simplify` / `normalize` methods by default in the client methods by using `client.simplified` / `client.normalized`.
 
-<<< @/examples.ts#transform-simplify
+:::code-group
+
+<<< @/examples/simplify/methods.ts#method-simplify{ts twoslash} [Simplify]
+
+<<< @/examples/simplify/methods.ts#method-normalize{ts twoslash} [Normalize]
+
+<<< @/examples/simplify/methods.ts#method-query{ts twoslash} [From query]
+
+:::
+
+If you do not have response typed, you can also use the query type with the `simplifyFromQuery` / `normalizeFromQuery` methods to create the same response type.
 
 ## custom
 
