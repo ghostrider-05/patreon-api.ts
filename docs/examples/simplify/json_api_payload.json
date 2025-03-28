@@ -1,0 +1,26 @@
+{
+    "data": {
+        "type": "campaign",
+        "id": "id",
+        "attributes": {
+            "created_at": "<date>"
+        },
+        "relationships": {
+            "creator": {
+                "data": {
+                    "type": "user",
+                    "id": "user_id"
+                }
+            }
+        }
+    },
+    "included": [
+        {
+            "type": "user",
+            "id": "user_id",
+            "attributes": {
+                "full_name": "John Doe"
+            }
+        }
+    ]
+}

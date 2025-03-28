@@ -4,60 +4,27 @@
 
 You can use the [Webhook API](https://docs.patreon.com/#apiv2-webhook-endpoints) to see or edit the webhooks your application has created.
 
-```ts
-const webhookClient = <Client>.webhooks
-```
+<<< @/examples/oauth/webhook.ts#api-client{ts twoslash}
 
 ### Fetch webhooks
 
-```ts
-import { buildQuery } from 'patreon-api.ts'
-
-const webhooks = webhookClient.fetchWebhooks(buildQuery.webhooks(['campaign'])())
-
-for (const webhook of webhooks.data) {
-    console.log(webhook.attributes.id)
-}
-```
+<<< @/examples/oauth/webhook.ts#api-fetch{ts twoslash}
 
 ### Create a webhook
 
 You can create a new webhook for a certain campaign and specify the triggers and where to post to.
 
-```ts
-import { PatreonWebhookTrigger } from 'patreon-api.ts'
-
-const createdWebhook = await webhookClient.createWebhook({
-    campaignId: process.env.CAMPAIGN_ID,
-    triggers: [
-        PatreonWebhookTrigger.PostPublished,
-    ],
-    uri: process.env.WEBHOOK_URI,
-})
-```
+<<< @/examples/oauth/webhook.ts#api-create{ts twoslash}
 
 ### Edit a webhook
 
 You can edit the triggers and uri of the webhook you specified [while creating the webhook](#create-a-webhook).
 
-```ts
-await webhookClient.editWebhook({
-    id: webhook.id,
-    uri: process.env.NEW_WEBHOOK_URI,
-})
-```
+<<< @/examples/oauth/webhook.ts#api-update{ts twoslash}
 
 If a webhook has failed to send events due to an outage or incorrect deploy, it will be paused. To unpause the webhook later, set `paused` to false:
 
-```ts
-await webhookClient.editWebhook({
-    id: webhook.id,
-    paused: false,
-})
-
-// Is the same as:
-await webhookClient.unpauseWebhook(webhook.id)
-```
+<<< @/examples/oauth/webhook.ts#api-update-pause{ts twoslash}
 
 ### Delete a webhook
 
@@ -65,9 +32,7 @@ await webhookClient.unpauseWebhook(webhook.id)
 > This will be unstable until the Patreon documentation has added this method.
 > See [this issue](https://github.com/Patreon/platform-documentation/issues/89) for more details.
 
-```ts
-await webhookClient.deleteWebhook(webhook.id)
-```
+<<< @/examples/oauth/webhook.ts#api-delete{ts twoslash}
 
 ## Webhook server
 
@@ -80,21 +45,7 @@ Both methods for verifying requests will work with the following request librari
 
 To create a server for reading webhook payloads it is recommended to verify the incoming request from Patreon.
 
-```ts
-import { verify } from 'patreon-api.ts'
-
-async function handleRequest (request, env) {
-    const signature = request.headers['X-Patreon-Signature']
-    const body = await request.text()
-
-    if (!verify(env.WEBHOOK_SECRET, signature, body)) {
-        return new Response('Invalid request', { status: 400 })
-    }
-
-    const payload = JSON.parse(body)
-    // ...
-}
-```
+<<< @/examples/oauth/webhook.ts#verify{ts twoslash}
 
 You can get the webhook secret from the developer portal for your own webhooks or use `<webhook>.attributes.secret` for webhooks created by your application.
 
@@ -102,35 +53,26 @@ You can get the webhook secret from the developer portal for your own webhooks o
 
 The library also exposes an `parseWebhookRequest` utility to verify and parse the trigger:
 
-```ts
-import { parseWebhookRequest } from 'patreon-api.ts'
-
-async function handleRequest (request, env) {
-    const parsed = await parseWebhookRequest(request, env.WEBHOOK_SECRET)
-
-    if (!parsed.verified) {
-        return new Response('Invalid request', { status: 400 })
-    }
-
-    const { trigger, payload } = parsed
-
-    console.log('new event: ' + trigger)
-    // ...
-}
-```
+<<< @/examples/oauth/webhook.ts#parse{ts twoslash}
 
 If your webhook only has one (type) of event you can also pass that event as a generic parameter:
 
-```ts
-import {
-    parseWebhookRequest,
-    PatreonWebhookTrigger,
-    type PatreonWebhookPostTrigger,
-} from 'patreon-api.ts'
+<<< @/examples/oauth/webhook.ts#parse-type{ts twoslash}
 
-// payload and trigger will now be typed as post published events
-const parsed = await parseWebhookRequest<PatreonWebhookTrigger.PostPublished>(request, env.WEBHOOK_SECRET)
-// Or for any post event:
-const parsed = await parseWebhookRequest<PatreonWebhookPostTrigger>(request, env.WEBHOOK_SECRET)
-```
+### Payload client
 
+To quickly access common attributes, such as the campaign or user that triggered the webhook, you can use the payload client:
+
+<<< @/examples/oauth/webhook.ts#payload-client{ts twoslash}
+
+#### Convert payload
+
+One usecase for a webhook server is to forward the event to another platform(s) using webhooks.
+Since all platforms have a different webhook body you must convert the JSON:API payload from Patreon into a different JSON object.
+To help with this conversion, you can use the payload client:
+
+:::code-group
+
+<<< @/examples/oauth/webhook.ts#payload-convert-discord-posts{ts twoslash} [Posts published]
+
+:::

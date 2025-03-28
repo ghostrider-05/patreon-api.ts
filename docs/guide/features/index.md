@@ -20,11 +20,9 @@ You can use the methods on the client:
 
 ::: code-group
 
-<<< @/examples.ts#fetch{ts twoslash} [client example]
+<<< @/examples/config/client_example.ts#fetch{ts twoslash} [Client example]
 
-<<< @/examples.ts#fetch-raw [raw example]
-
-<<< @/examples.ts#transform-default [default includes]
+<<< @/examples/config/client_example.ts#fetch-raw{ts twoslash} [Raw example]
 
 :::
 
@@ -32,9 +30,11 @@ You can use the methods on the client:
 > My advice is to write your own wrapper / class that uses a client with all attributes and included resources configured.
 > If you need all the relationships and attributes, you can also use the client option `includeAllQueries` (see example above).
 
-:::details Wrapper example
+:::code-group
 
-<<< @/examples.ts#fetch-wrapper
+<<< @/examples/oauth/client.ts#wrapper{ts twoslash} [Custom wrapper]
+
+<<< @/examples/oauth/client.ts#custom{ts twoslash} [Custom client]
 
 :::
 
@@ -42,7 +42,7 @@ You can use the methods on the client:
 
 When fetching a resource the response is a JSON:API response and is typed based on the query, see [the introduction](../introduction).
 
-You can also [normalize](./simplify) responses to connect the relationships and included.
+You can also [normalize](./simplify) responses to connect the relationships and included items.
 
 ## Testing
 

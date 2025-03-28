@@ -1,0 +1,11 @@
+{
+    "type": "campaign",
+    "id": "id",
+    "created_at": "<date>",
+    "creator": {
+        "type": "user",
+        "id": "user_id",
+        "full_name": "John Doe"
+    },
+    "link": "https://patreon.com/api/oauth/v2/campaigns/id"
+}
