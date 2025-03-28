@@ -116,6 +116,8 @@ With token validation you can let the client refresh tokens when:
 
 After refreshing, the token will be stored in `client.oauth.cachedToken` and updated in the store, if connected.
 
+If no token is provided in the request options, the validation will throw an error.
+
 ## Store
 
 There are 3 built-in methods of retrieving and storing tokens:

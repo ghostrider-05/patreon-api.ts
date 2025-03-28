@@ -1,6 +1,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 // @ts-expect-error duplicate-imports
 // #region fetch
+// @errors: 2339
 import { type PatreonClient, QueryBuilder } from 'patreon-api.ts'
 
 export async function fetchPatreon (client: PatreonClient) {
