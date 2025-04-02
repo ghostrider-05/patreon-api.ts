@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.12.1](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.12.0...patreon-api.ts-v0.12.1) (2025-04-02)
+
+
+### Bug Fixes
+
+* **normalize:** use relation name instead of type ([05ce587](https://github.com/ghostrider-05/patreon-api.ts/commit/05ce58711f0be233fb00cc6fbf682436ce39e61f))
+* **QueryBuilder:** convert correctly type to relation name ([3c853b6](https://github.com/ghostrider-05/patreon-api.ts/commit/3c853b6e872d41e8d2bccfbda7882a9bee002cef))
+* **simplify:** do not truncate longer words ([738996b](https://github.com/ghostrider-05/patreon-api.ts/commit/738996be2adf908b80bec8692e3452d952a9c35b))
+
 ## [0.12.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.11.0...patreon-api.ts-v0.12.0) (2025-03-28)
 
 
