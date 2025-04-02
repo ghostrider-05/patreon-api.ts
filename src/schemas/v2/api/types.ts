@@ -1,8 +1,9 @@
-import {
+import type {
     PatreonOauthScope,
     RequestMethod,
-    Type,
-} from '../../../v2'
+} from '../../../rest/v2/'
+
+import type { Type } from '../item'
 
 export interface Route {
     route:

@@ -1,14 +1,13 @@
 /* eslint-disable jsdoc/require-jsdoc */
-import {
-    QueryBuilder,
-    type DataItem,
-    type DataItems,
-    type ItemType,
-    type Relationship,
-    type RelationshipFields,
-    type RelationshipFieldToFieldType,
-    type RelationshipItem,
-    type RelationshipMap,
+import type {
+    DataItem,
+    DataItems,
+    ItemType,
+    Relationship,
+    RelationshipFields,
+    RelationshipFieldToFieldType,
+    RelationshipItem,
+    RelationshipMap,
 } from '../../../schemas/v2/'
 
 import type { NormalizedRelationshipItem } from './payload'
@@ -26,13 +25,6 @@ class NormalizedError extends Error {
     public constructor (message: string) {
         super('[Normalized] ' + message)
     }
-}
-
-function getTypeForIncludeKey <Type extends ItemType, Field extends RelationshipFields<Type>>(type: Type, includeKey: Field): RelationshipFieldToFieldType<Type, Field> {
-    const resourceKey = QueryBuilder.convertRelationToType(type, includeKey)
-    if (resourceKey == undefined) throw new NormalizedError(`No resource key found for ${includeKey} on ${type}`)
-
-    return resourceKey as RelationshipFieldToFieldType<Type, Field>
 }
 
 function findRelation <
@@ -76,6 +68,6 @@ export function findRelationships <
 
     return keys.reduce((found, key) => ({
         ...found,
-        [getTypeForIncludeKey(type, key)]: findRelation<Type, Fields, Map>(relationships[key]['data'], included),
-    }), {} as Record<RelationshipFieldToFieldType<Type, Fields>, NormalizedRelationshipItem<Type, Fields, Map>>)
+        [key]: findRelation<Type, Fields, Map>(relationships[key]['data'], included),
+    }), {} as Record<Fields, NormalizedRelationshipItem<Type, Fields, Map>>)
 }

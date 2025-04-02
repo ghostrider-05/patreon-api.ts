@@ -18,7 +18,6 @@ export default defineConfig({
                 '**/scripts/v2/',
                 '**/utils/openapi.ts',
                 // TODO: add tests
-                '**/payloads/v2/normalized/',
                 '**/schemas/v2/mock/',
             ],
             thresholds: {

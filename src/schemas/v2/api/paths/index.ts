@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Routes } from '../../../../rest/v2/'
+import type { Routes } from '../../../../rest/v2/'
 
 import type { Route } from '../types'
 
