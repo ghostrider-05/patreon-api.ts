@@ -19,10 +19,11 @@ export type AnyToCamelCase<T> = T extends (infer A)[]
  */
 function toCamelcase <T extends string>(key: T): CamelCase<T> {
     if (!key.includes('_')) return key as unknown as CamelCase<T>
-    const [first, second] = key.split('_', 2)
-    if (first == undefined || second == undefined) return key as unknown as CamelCase<T>
+    const [first, ...otherParts] = key.split('_').filter(n => n.length > 0)
+    const second = otherParts.join('_')
+    if (otherParts.length === 0) return key as unknown as CamelCase<T>
 
-    const combined = first.toLowerCase() + second.charAt(0).toUpperCase() + second?.slice(1)
+    const combined = first + second.charAt(0).toUpperCase() + second?.slice(1)
 
     return toCamelcase(combined) as CamelCase<T>
 }
