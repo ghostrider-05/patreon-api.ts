@@ -59,6 +59,7 @@ export function findRelationships <
     Fields extends RelationshipFields<Type>,
     Map extends RelationshipMap<Type, Fields>
 >(
+    // @ts-expect-error unused variable (internal)
     type: Type,
     relationships: Relationship<Type, Fields>['relationships'] | undefined,
     included: RelationshipItem<Type, Fields, Map>[] | undefined,
