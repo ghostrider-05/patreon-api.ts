@@ -74,7 +74,7 @@ describe('campaign payload', () => {
 describe('campaigns payload', () => {
     test('list', () => {
         assertType<{
-            meta: { pagination: { total: number, cursors?: { next: string } } }
+            meta: { pagination: { total: number, cursors?: { next: string | null } } }
             data: { type: Type.Campaign, id: string, attributes: {} }[]
         }>(buildQuery.campaigns()()._payload_type)
     })

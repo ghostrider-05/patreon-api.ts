@@ -230,6 +230,16 @@ describe('user client', () => {
         })()).toBeUndefined()
     })
 
+    test('throws on creating instance', async () => {
+        // Url is invalid because it does not have a code param
+        const invalidUrl = 'https://patreon.com/?state=2039fg30'
+
+        expect(await (async function () {
+            return await client.createInstance(invalidUrl)
+                .catch(() => undefined)
+        })()).toBeUndefined()
+    })
+
     test('user discord id', async () => {
         const url = 'https://patreon-api.pages.dev/token?code=code'
 

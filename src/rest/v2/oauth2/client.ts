@@ -8,7 +8,7 @@ import { getRequiredScopes } from './scopes'
 
 import type { If } from '../../../utils/generics'
 
-export interface BaseOauthClientOptions {
+export interface OauthClientOptions {
     /**
      * The client id of the application.
      * Can be found in the Patreon developer portal.
@@ -70,10 +70,10 @@ export interface BaseOauthClientOptions {
     authorizationUri?: string
 }
 
-export interface BaseOauthHandlerOptions {
+export interface Oauth2RedirectOptions {
     redirectUri: string
-    scopes?: string[]
-    state?: string | undefined
+    scopes: string[]
+    state: string | undefined
 }
 
 export interface Oauth2CreatorToken extends Record<string, string> {
@@ -97,28 +97,13 @@ export type Token = Oauth2Token
 /** @deprecated use Oauth2StoredToken instead */
 export type StoredToken = Oauth2StoredToken
 
-type OauthOptions = Partial<Pick<BaseOauthHandlerOptions,
-    | 'redirectUri'
-    | 'scopes'
-    | 'state'
->> & Required<Pick<BaseOauthClientOptions,
-    | 'validateToken'
-    | 'validateScopes'
-    | 'tokenType'
-    | 'clientId'
-    | 'clientSecret'
-    | 'accessTokenUri'
-    | 'authorizationUri'
->>
-
 /**
  * Client options for handling Oauth
  */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export type PatreonOauthClientOptions = BaseOauthClientOptions & (BaseOauthHandlerOptions | {})
+export type PatreonOauthClientOptions = OauthClientOptions & Partial<Oauth2RedirectOptions>
 
 export class PatreonOauthClient {
-    public options: OauthOptions
+    public options: Required<Omit<OauthClientOptions, 'token'>> & Partial<Oauth2RedirectOptions>
 
     /**
      * The last (updated) token that is stored
@@ -343,7 +328,7 @@ export class PatreonOauthClient {
      * @throws if the redirectUri is not defined or an empty string, in both the options and client options
      * @returns the uri to redirect the user to in order to authorize this client.
      */
-    public createOauthUri(options?: { redirectUri?: string, scopes?: string[], state?: string }) {
+    public createOauthUri(options?: Partial<Oauth2RedirectOptions>) {
         const redirectUri = options?.redirectUri ?? this.options.redirectUri
 
         if (!redirectUri) {

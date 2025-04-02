@@ -116,10 +116,11 @@ export class QueryBuilder<
     protected getRelationshipResourceName <R extends RelationshipFields<T>> (
         relationship: R,
     ): RelationshipFieldToFieldType<T, R> {
-        const relation = this.schema.relationships.find(r => r.name === relationship)
-        if (!relation) throw new Error(`Unable to find relationship '${relationship}' on resource '${this.resource}'`)
+        const relationMap = QueryBuilder.getRelationMap(this.schema)
+        const relationType = relationMap[relationship]
 
-        return relation.resource as RelationshipFieldToFieldType<T, R>
+        if (!relationType) throw new Error(`Unable to find relationship '${relationship}' on resource '${this.resource}'`)
+        return relationType as RelationshipFieldToFieldType<T, R>
     }
 
     /**
@@ -271,10 +272,21 @@ export class QueryBuilder<
         return new QueryBuilder(Type.Webhook, true)
     }
 
+    /**
+     * Get all options that can be included in a query
+     * @param resource The resource to get the options for
+     * @returns the relationship names in `include` and the attributes in `attributes`
+     */
     public static createCompleteOptions <T extends Type>(resource: T) {
         return createCompleteQueryOptions<T>(resource)
     }
 
+    /**
+     * Create a function builder from a query builder.
+     *
+     * This is to support the legacy `buildQuery`.
+     * @param builder The query builder to convert
+     */
     public static createFunctionBuilder <T extends Type, Listing extends boolean> (builder: QueryBuilder<T, Listing>) {
         return function <Includes extends RelationshipFields<`${T}`> = never>(include?: Includes[]) {
             return function <
@@ -291,15 +303,21 @@ export class QueryBuilder<
         }
     }
 
+    /**
+     * Create a record to convert relation names to resources.
+     * @param type The resource to create the map for
+     */
     public static createRelationMap <T extends ItemType> (type: T) {
-        const resource = this.getResource<T>(type).relationships
+        const resource = this.getResource<T>(type)
 
-        return resource.reduce((obj, relation) => ({
-            [relation.name]: relation.resource,
-            ...obj,
-        }), {} as { [R in RelationshipFields<T>]: RelationshipFieldToFieldType<T, R> })
+        return this.getRelationMap(resource)
     }
 
+    /**
+     * Convert a relationship name to a resource name
+     * @param type The resource that holds the relationship
+     * @param relation The name of the relationship to find the resource name of
+     */
     public static convertRelationToType <
         T extends ItemType,
         R extends RelationshipFields<T>
@@ -307,6 +325,11 @@ export class QueryBuilder<
         return this.createRelationMap(type)[relation]
     }
 
+    /**
+     * Convert a relation resource name to a relationship name
+     * @param type The resource that holds the relationship
+     * @param relationType The resource name of the relationship to find the relationship name of
+     */
     public static convertTypeToRelation <
         T extends ItemType,
         R extends RelationshipTypeFields<T>
@@ -315,7 +338,7 @@ export class QueryBuilder<
 
         const key = (Object.keys(map) as RelationshipFields<T>[]).find(name => map[name] === relationType)
         if (!key) throw new Error('No relationship with type ' + relationType + 'found on resource: ' + type)
-        return map[key]
+        return key
     }
 
     public static fromParams<Q extends BasePatreonQueryType<Type, boolean>>(params: URLSearchParams): Q {
@@ -325,6 +348,13 @@ export class QueryBuilder<
             // @ts-expect-error Ignore Typescript error for private property
             _payload_type: <Q['_payload_type']>'',
         } as Q
+    }
+
+    protected static getRelationMap<T extends Type | ItemType>(resource: ReturnType<typeof QueryBuilder.getResource<T>>) {
+        return resource.relationships.reduce((obj, relation) => ({
+            [relation.name]: relation.resource,
+            ...obj,
+        }), {} as { [R in RelationshipFields<T>]: RelationshipFieldToFieldType<T, R> })
     }
 
     protected static getResource <T extends Type | ItemType>(t: T) {

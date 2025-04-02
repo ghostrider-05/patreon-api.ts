@@ -13,6 +13,7 @@ import {
     type WebhookPayload,
     type WebhookToDiscordMessages,
 } from '../../v2'
+
 import { createTestClient } from './client.test'
 
 describe('webhook utilities', () => {
@@ -115,13 +116,13 @@ describe('webhook client', () => {
 
         test('fetch webhooks', async () => {
             const query = buildQuery.webhooks()()
-            const webhooks = await client.fetchWebhooks(query, { token: 'token' })
+            const webhooks = await client.fetchWebhooks(query)
 
             expect(webhooks).toEqual([webhook])
         })
 
         test('edit webhooks', async () => {
-            const res = await client.editWebhook({ id: 'id', paused: false }, { token: 'token' })
+            const res = await client.editWebhook({ id: 'id', paused: false })
 
             expect(res).toEqual(webhook)
         })
@@ -143,9 +144,13 @@ describe('webhook client', () => {
                 campaignId: 'id',
                 triggers: ['members:create'],
                 uri: 'https://patreon-api.pages/',
-            }, { token: 'token' })
+            })
 
             expect(res).toEqual(webhook)
+        })
+
+        test('delete a webhook', async () => {
+            expect(async () => await client.deleteWebhook('id')).not.toThrowError()
         })
     })
 })
