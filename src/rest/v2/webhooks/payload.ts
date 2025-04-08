@@ -52,13 +52,18 @@ export class WebhookPayloadClient<Trigger extends PatreonWebhookTrigger> {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    public static isPostPayload (trigger: PatreonWebhookTrigger, payload: WebhookPayload): payload is WebhookPayload<PatreonWebhookPostTrigger> {
+    public static isPostPayload (
+        trigger: PatreonWebhookTrigger,
+        payload: WebhookPayload,
+    ): payload is WebhookPayload<PatreonWebhookPostTrigger> {
         return this.isPostTrigger(trigger)
     }
 
     private static createAttributeObj (value: unknown, attributes: Record<string, unknown>) {
         if (typeof value === 'number' || typeof value === 'boolean') {
             return value
+        } else if (typeof value === 'string') {
+            return this.createAttributeText(value, attributes)
         } else if (Array.isArray(value)) {
             return value.map(v => this.createAttributeObj(v, attributes))
         } else if (typeof value === 'object' && value != null) {
@@ -66,8 +71,6 @@ export class WebhookPayloadClient<Trigger extends PatreonWebhookTrigger> {
                 ...obj,
                 [key]: this.createAttributeObj(value, attributes)
             }), {})
-        } else if (typeof value === 'string') {
-            return this.createAttributeText(value, attributes)
         }
     }
 
@@ -76,11 +79,11 @@ export class WebhookPayloadClient<Trigger extends PatreonWebhookTrigger> {
     >(converter: WebhookPayloadDataConverter<Data>) {
         return (trigger: PatreonWebhookTrigger, payload: WebhookPayload) => {
             const options = {
+                ...(converter.default ?? {}),
                 ...((WebhookPayloadClient.isPostTrigger(trigger)
                     ? converter.posts?.[trigger]
                     : converter.member?.[trigger]
-                )?? {}),
-                ...(converter.default ?? {}),
+                ) ?? {}),
             }
 
             return Object.entries(options).reduce((obj, [key, value]) => ({
@@ -102,7 +105,10 @@ export class WebhookPayloadClient<Trigger extends PatreonWebhookTrigger> {
     }
 
     public get user () {
-        return <AttributeItem<Type.User, Pick<User, keyof User>> | undefined>this.payload.included.find(item => {
+        return <
+            | AttributeItem<Type.User, Pick<User, keyof User>>
+            | undefined
+        >this.payload.included.find(item => {
             return item.type === Type.User && item.id === this.userId
         })
     }
@@ -114,7 +120,10 @@ export class WebhookPayloadClient<Trigger extends PatreonWebhookTrigger> {
     }
 
     public get campaign () {
-        return <AttributeItem<Type.Campaign, Pick<Campaign, keyof Campaign>> | undefined>this.payload.included.find(item => {
+        return <
+            | AttributeItem<Type.Campaign, Pick<Campaign, keyof Campaign>>
+            | undefined
+        >this.payload.included.find(item => {
             return item.type === Type.Campaign && item.id === this.campaignId
         })
     }
