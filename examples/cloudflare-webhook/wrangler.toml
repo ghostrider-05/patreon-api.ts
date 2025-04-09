@@ -1,5 +1,5 @@
 name = "patreon-webhook"
-compatibility_date = "2024-09-01"
+compatibility_date = "2025-04-01"
 main = "./src/index.ts"
 
 compatibility_flags = [

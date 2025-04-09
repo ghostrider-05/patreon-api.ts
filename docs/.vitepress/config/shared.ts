@@ -19,6 +19,10 @@ export function createAppsItem (): SharedItem {
                 text: 'Webhook',
                 link: '/apps/webhooks',
             },
+            {
+                text: 'Library API',
+                link: '/apps/api',
+            }
         ]
     }
 }

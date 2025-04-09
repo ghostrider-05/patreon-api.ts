@@ -3,10 +3,10 @@ import {
     PatreonWebhookTrigger,
     RouteBases,
     VERSION,
-    PATREON_RESPONSE_HEADERS,
-    SchemaKeys,
-    SchemaRelationshipKeys,
-    Type,
+    ResponseHeaders,
+    SchemaResourcesData,
+    type ItemType,
+    PatreonOauthScope,
 } from 'patreon-api.ts'
 
 interface LibraryData {
@@ -16,14 +16,16 @@ interface LibraryData {
         userAgent: string
         response: Record<'id' | 'sha', string>
     }
-
-    relationships: Record<string, {
-        resourceKey: string;
-        includeKey: string;
-        isArray: boolean;
-        isRelated: boolean;
-    }[]>
-    schemas: Record<string, string[] | readonly string[]>
+    scopes: PatreonOauthScope[]
+    schemas: {
+        resource: ItemType
+        properties: string[]
+        relationships: {
+            type: 'item' | 'array'
+            name: string
+            resource: ItemType
+        }[]
+    }[]
     webhook: {
         triggers: string[]
     }
@@ -31,8 +33,9 @@ interface LibraryData {
 
 export default <ExportedHandler>{
     async fetch(request) {
-        const { pathname } = new URL(request.url)
+        const { pathname, search } = new URL(request.url)
 
+        const proxyEndpoint = '/proxy'
         const corsHeaders = {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'DELETE,GET,HEAD,POST,PATCH,OPTIONS',
@@ -46,18 +49,14 @@ export default <ExportedHandler>{
                 headers: {
                     userAgent: `PatreonBot patreon-api.ts (https://github.com/ghostrider-05/patreon-api.ts, ${VERSION})`,
                     response: {
-                        id: PATREON_RESPONSE_HEADERS.UUID,
-                        sha: PATREON_RESPONSE_HEADERS.Sha,
+                        id: ResponseHeaders.UUID,
+                        sha: ResponseHeaders.Sha,
                     }
                 },
-                schemas: {
-                    ...Object.keys(SchemaKeys).reduce((obj, key) => ({ ...obj, [key.toLowerCase()]: SchemaKeys[key] }), {}),
-                    [Type.PledgeEvent]: SchemaKeys.PledgeEvent,
-                    [Type.Client]: SchemaKeys.OauthClient,
-                },
-                relationships: SchemaRelationshipKeys,
+                scopes: Object.values(PatreonOauthScope),
+                schemas: <[]>Object.values(SchemaResourcesData),
                 webhook: {
-                    triggers: Object.values(PatreonWebhookTrigger)
+                    triggers: Object.values(PatreonWebhookTrigger),
                 }
             }
 
@@ -67,21 +66,16 @@ export default <ExportedHandler>{
                     ...corsHeaders,
                 }
             })
-        } else if (pathname.startsWith('/proxy')) {
-            if (request.method !== 'POST') {
-                return new Response(null, {
-                    status: 400,
-                    headers: corsHeaders,
-                })
-            }
-            const body: { method: string, url: string, headers: Record<string, string> } = await request.json()
-
-            const response = await fetch(body.url, {
-                method: body.method,
-                headers: body.headers,
+        } else if (pathname.startsWith(proxyEndpoint)) {
+            const response = await fetch(RouteBases.oauth2 + pathname.slice(proxyEndpoint.length) + search, {
+                method: request.method,
+                headers: request.headers,
+                body: request.body,
             })
 
-            const newResponse = new Response(response.body, response)
+            const responseBody = await response.json()
+
+            const newResponse = new Response(JSON.stringify(responseBody), response)
 
             for (const [key, value] of Object.entries(corsHeaders)) {
                 newResponse.headers.set(key, value)
