@@ -81,13 +81,19 @@ It is not possible to revoke a token with the documented API.
 
 ## Routes
 
-::: info
+### Fetch a campaign
 
-This section is included from GitHub: [`/examples/README.md`](https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/README.md).
+<<< @/examples/oauth/routes.ts#campaign{ts twoslash}
+
+### Fetch campaigns
+
+:::code-group
+
+<<< @/examples/oauth/routes.ts#campaigns{ts twoslash} [Fetch]
+
+<<< @/examples/oauth/routes.ts#campaigns-paginate{ts twoslash} [Paginate]
 
 :::
-
-<!--@include: ../../../examples/README.md{4,}-->
 
 ## Validation
 

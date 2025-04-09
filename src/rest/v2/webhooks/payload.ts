@@ -50,10 +50,10 @@ export class WebhookPayloadClient<Trigger extends PatreonWebhookTrigger> {
         return postTriggers.includes(trigger)
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     public static isPostPayload (
         trigger: PatreonWebhookTrigger,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore Use ignore comment for typeguard
         payload: WebhookPayload,
     ): payload is WebhookPayload<PatreonWebhookPostTrigger> {
         return this.isPostTrigger(trigger)
