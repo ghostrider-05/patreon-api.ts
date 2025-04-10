@@ -32,6 +32,7 @@ export function createLinksItem (options: {
     repoUrl: string
     bugsUrl: string
     branch: string
+    fundingUrl: string
 }): SharedItem {
     return {
         text: options.version,
@@ -53,7 +54,7 @@ export function createLinksItem (options: {
                 items: [
                     {
                         text: 'Donate',
-                        link: 'https://paypal.me/05ghostrider'
+                        link: options.fundingUrl,
                     },
                     {
                         text: 'Contributing guide',

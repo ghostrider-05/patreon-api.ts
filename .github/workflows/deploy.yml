@@ -56,10 +56,10 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: ./examples/cloudflare-webhook/
-          secrets: |
-            HTML_MD_KEY
-            PATREON_WEBHOOK_SECRET
-            DISCORD_WEBHOOK_URL
+          # secrets: |
+          #   HTML_MD_KEY
+          #   PATREON_WEBHOOK_SECRET
+          #   DISCORD_WEBHOOK_URL
   docs:
     name: Deploy documentation
     runs-on: ubuntu-latest

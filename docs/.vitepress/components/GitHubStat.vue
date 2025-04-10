@@ -4,12 +4,14 @@ import { VPLink } from 'vitepress/theme'
 
 const stat = ref(0)
 
-const props = defineProps<{
+export interface GitHubStatsComponentProps {
     repo: string
     keyName: string
     iconClass: string
     label: string
-}>()
+}
+
+const props = defineProps<GitHubStatsComponentProps>()
 
 onMounted(async () => {
     const res = await fetch('https://api.github.com/repos/' + props.repo)

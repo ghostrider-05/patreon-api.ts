@@ -54,7 +54,7 @@ features:
 
 <script setup lang="ts">
 import { onMounted, nextTick } from 'vue'
-import { useData, useRouter } from 'vitepress'
+import { useData } from 'vitepress'
 import { useIntervalFn } from '@vueuse/core'
 
 const { page } = useData()
@@ -68,7 +68,7 @@ function replaceTarget () {
   index = (targets.length - 1) === index ? 0 : ++index
 }
 
-const { pause, resume, isActive } = useIntervalFn(() => {
+const { resume } = useIntervalFn(() => {
   replaceTarget()
 }, 5_000)
 

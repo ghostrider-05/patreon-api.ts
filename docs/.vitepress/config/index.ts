@@ -2,17 +2,24 @@ import { DefaultTheme, defineConfig } from 'vitepress'
 
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 
+import type { GitHubStatsComponentProps } from '../components/GitHubStat.vue'
+
 import * as shared from './shared'
 
 import {
     author,
     bugs,
     description,
+    funding,
     license,
     name,
     repository,
     version,
 } from '../../../package.json'
+
+import {
+    homepage,
+} from '../../package.json'
 
 const repoUrl = repository.url.replace('.git', ''), branch = 'main'
 
@@ -21,6 +28,7 @@ const createSidebarItems = () => [
     shared.createLinksItem({
         branch,
         bugsUrl: bugs.url,
+        fundingUrl: funding,
         repoUrl,
         version,
     }),
@@ -45,12 +53,20 @@ export default defineConfig({
                 }
             }),
         ],
+        languages: ['js', 'ts'],
     },
 
     vite: {
         ssr: {
             noExternal: [ /\.css$/, /^vuetify/ ],
         },
+        build: {
+            chunkSizeWarningLimit: 800,
+        },
+    },
+
+    sitemap: {
+        hostname: homepage,
     },
 
     themeConfig: {
@@ -60,6 +76,7 @@ export default defineConfig({
             shared.createLinksItem({
                 branch,
                 bugsUrl: bugs.url,
+                fundingUrl: funding,
                 repoUrl,
                 version,
             }),
@@ -70,7 +87,7 @@ export default defineConfig({
                     iconClass: 'vpi-social-github',
                     repo: 'ghostrider-05/patreon-api.ts',
                     keyName: 'stargazers_count',
-                },
+                } satisfies GitHubStatsComponentProps,
             },
         ] as DefaultTheme.NavItem[],
         sidebar: {
@@ -93,11 +110,14 @@ export default defineConfig({
         outline: 'deep',
         search: {
             provider: 'local',
+            options: {
+                detailedView: true,
+            },
         },
 
         footer: {
             message: `Released under <a href="${repoUrl}/blob/${branch}/LICENSE">the ${license} License</a>.`,
-            copyright: `Copyright © 2024 - present | ${author.name}`,
+            copyright: `Copyright © 2023 - present | ${author.name}`,
         },
     },
 })
