@@ -1,6 +1,7 @@
-import { describe, expect, test } from 'vitest'
+/* eslint-disable @typescript-eslint/no-empty-object-type */
+import { describe, expect, expectTypeOf, test } from 'vitest'
 
-import { buildQuery, QueryBuilder, Type } from '../../v2'
+import { buildQuery, QueryBuilder, RelationshipFields, RelationshipMap, Type } from '../../v2'
 
 describe('old query options', () => {
     test('pagination options', () => {
@@ -80,5 +81,112 @@ describe('query builder', () => {
     test('query with one relationship', () => {
         expect(QueryBuilder.campaign.addRelationships(['creator']).relationships).toEqual(['creator'])
         expect(QueryBuilder.campaign.setRelationships(['tiers']).relationships).toEqual(['tiers'])
+        expect(
+            QueryBuilder.campaign
+                .setRelationships(['goals'])
+                .setRelationships(['tiers'])
+                .relationships
+        ).toEqual(['tiers'])
+
+        expectTypeOf<
+            QueryBuilder<Type.Campaign, false, 'tiers', {}>
+        >().toEqualTypeOf(QueryBuilder.campaign.addRelationships(['tiers']))
+
+        expectTypeOf<
+            QueryBuilder<Type.Campaign, false, 'creator', {}>
+        >().toEqualTypeOf(QueryBuilder.campaign.setRelationships(['creator']))
+
+        expectTypeOf<
+            QueryBuilder<Type.Campaign, false, 'creator', {}>
+        >().toEqualTypeOf(
+            QueryBuilder.campaign
+                .setRelationships(['tiers'])
+                .setRelationships(['creator'])
+        )
+
+        expect(QueryBuilder.campaign.setRelationships(['creator']).attributesFor('creator')).toBeUndefined()
+    })
+
+    test('query with all relationships', () => {
+        expect(QueryBuilder.campaign.includeAllRelationships().relationships).toEqual([
+            'benefits',
+            'creator',
+            'goals',
+            'tiers'
+        ])
+
+        expectTypeOf<
+            QueryBuilder<Type.Campaign, false, 'benefits' | 'goals' | 'creator' | 'tiers', {}>
+        >().toEqualTypeOf(QueryBuilder.campaign.includeAllRelationships())
+    })
+
+    test('query with relationship and attributes', () => {
+        const query = QueryBuilder.campaign.addRelationshipAttributes('creator', ['full_name'])
+
+        expect(query.relationships).toEqual(['creator'])
+        expect(query.attributes).toEqual({ user: ['full_name'] })
+        expect(query.attributesFor('creator')).toEqual(['full_name'])
+
+        expectTypeOf<
+            QueryBuilder<Type.Campaign, false, 'creator', { user: 'full_name'[] }>
+        >().toEqualTypeOf(query)
+
+        const queryWithPledgesAttributes = query.addRelationshipAttributes('creator', ['hide_pledges']).attributes
+
+        expect(queryWithPledgesAttributes).toEqual({
+            user: ['full_name', 'hide_pledges'],
+        })
+
+        expectTypeOf<
+            { user: ('full_name' | 'hide_pledges')[] } & { user: 'full_name'[] }
+        >().toEqualTypeOf(queryWithPledgesAttributes)
+
+        expect(query.addRelationshipAttributes('tiers', ['patron_count']).attributes).toEqual({
+            user: ['full_name', 'hide_pledges'],
+            tier: ['patron_count'],
+        })
+
+        expectTypeOf<
+            QueryBuilder<Type.Campaign, false, 'creator' | 'tiers', { user: ('full_name')[] } & { tier: ('patron_count')[] }>
+        >().toEqualTypeOf(query.addRelationshipAttributes('tiers', ['patron_count']))
+    })
+
+    test('query with set relationship and attributes', () => {
+        const query = QueryBuilder.campaign
+            .setRelationshipAttributes('creator', ['hide_pledges'])
+            .setRelationshipAttributes('creator', ['full_name'])
+
+        expect(query.attributes).toEqual({ user: ['full_name'] })
+        expect(query.relationships).toEqual(['creator'])
+
+        expectTypeOf<
+            QueryBuilder<Type.Campaign, false, 'creator', { user: 'full_name'[] }>
+        >().toExtend<typeof query>()
+
+        expectTypeOf<'full_name'[] | undefined>().toEqualTypeOf(query.attributesFor('creator'))
+    })
+
+    test('query with all included', () => {
+        const query = QueryBuilder.campaign.includeAll()
+
+        expect(query.relationships).toEqual([
+            'benefits',
+            'creator',
+            'goals',
+            'tiers',
+        ])
+
+        expectTypeOf<
+            QueryBuilder<Type.Campaign, false,
+                RelationshipFields<Type.Campaign>,
+                Required<RelationshipMap<Type.Campaign, RelationshipFields<Type.Campaign>>>
+            >
+        >().toEqualTypeOf(query)
+    })
+
+    test('invalid resource', () => {
+        expect(() => QueryBuilder.createRelationMap(<never>'invalid')).toThrowError()
+        expect(() => QueryBuilder.campaign.attributesFor(<never>'invalid')).toThrowError()
+        expect(() => QueryBuilder.convertTypeToRelation('campaign', <never>'invalid')).toThrowError()
     })
 })
