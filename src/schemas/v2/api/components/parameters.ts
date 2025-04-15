@@ -1,28 +1,15 @@
-import { RequestMethod, SchemaRelationshipKeys, Type } from '../../../../v2'
+import { QueryBuilder, RequestMethod, Type } from '../../../../v2'
 
 import { RestClient } from '../../../../rest/v2/oauth2/rest'
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function getResourceParameters (resource: Type) {
-    const relationshipKeys = SchemaRelationshipKeys as Record<Type, {
-        resourceKey: Type
-        includeKey: string
-        isArray: boolean
-        isRelated: boolean
-    }[]>
-
-    const includes = relationshipKeys[resource].map(({ includeKey }) => includeKey)
-
-    const resources = includes.map(includeKey => {
-        // Throw when includes field is not found
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return relationshipKeys[resource].find(key => key.includeKey === includeKey)!.resourceKey
-    })
+    const { relationships } = QueryBuilder['getResource'](`${resource}`)
 
     return {
-        includes,
-        resources,
-        includesKeys: relationshipKeys[resource],
+        includesKeys: relationships,
+        includes: relationships.map(rel => rel.name) as string[],
+        resources: relationships.map(rel => rel.resource) as Type[],
     }
 }
 
@@ -123,7 +110,7 @@ export default {
         schema: {
             type: 'string',
             examples: [
-                new RestClient().userAgent,
+                RestClient.defaultUserAgent,
             ],
         }
     },

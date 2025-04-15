@@ -1,13 +1,13 @@
 import type { OpenAPIV3_1 } from 'openapi-types'
 
-import { PATREON_RESPONSE_HEADERS, Type } from '../../../../v2'
+import { type ItemType, ResponseHeaders, Type } from '../../../../v2'
 import type { Route } from '../types'
 
 import { getResourceParameters } from './parameters'
 import { APIErrors } from './errors'
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-function createBaseItem(resource: Type) {
+function createBaseItem(resource: Type | ItemType) {
     return {
         id: {
             type: <const>'string',
@@ -34,13 +34,13 @@ function createResponse(resource: Type, array?: boolean) {
             relationships: {
                 properties: includesKeys.reduce((props, key) => ({
                     ...props,
-                    [key.includeKey]: {
+                    [key.name]: {
                         required: ['data'],
                         properties: {
-                            data: key.isArray
-                                ? { type: 'array', items: { properties: createBaseItem(key.resourceKey), required: ['id', 'type'] } }
-                                : { properties: createBaseItem(key.resourceKey), required: ['id', 'type'] },
-                            ...(!key.isArray ? { links: { properties: { related: { type: 'string', format: 'uri' } } } } : {}),
+                            data: key.type === 'array'
+                                ? { type: 'array', items: { properties: createBaseItem(key.resource), required: ['id', 'type'] } }
+                                : { properties: createBaseItem(key.resource), required: ['id', 'type'] },
+                            ...(!(key.type === 'array') ? { links: { properties: { related: { type: 'string', format: 'uri' } } } } : {}),
                         }
                     }
                 }), {}),
@@ -78,7 +78,7 @@ function createResponse(resource: Type, array?: boolean) {
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export default function (routes: Route[]) {
-    const headers = Object.values(PATREON_RESPONSE_HEADERS).reduce((headers, name) => ({
+    const headers = Object.values(ResponseHeaders).reduce((headers, name) => ({
         ...headers,
         [name]: {
             $ref: `#/components/headers/${name}`

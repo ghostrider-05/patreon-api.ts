@@ -80,7 +80,8 @@ export class QueryBuilder<
     T extends Type,
     Listing extends boolean,
     Relationships extends RelationshipFields<T> = never,
-    Attributes extends RelationshipMap<T, Relationships> = never
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    Attributes extends RelationshipMap<T, Relationships> = {}
 > {
     /**
      * The options for the request, e.g. pagination and sorting.
@@ -153,10 +154,21 @@ export class QueryBuilder<
         return this._relationships
     }
 
-    public attributesFor<R extends Relationships> (relationship: R) {
-        return this._attributes[relationship]
+    /**
+     * Gets the attributes configured for a relationship
+     * @param relationship The name of the relationship
+     * @returns The attributes, or undefined for no attributes
+     * @throws When using an invalid relationship for the current resource
+     */
+    public attributesFor<R extends Relationships> (relationship: R): Attributes[RelationshipFieldToFieldType<T, R>] | undefined {
+        // Can be undefined for relationships without attributes added
+        return this._attributes[this.getRelationshipResourceName(relationship)] ?? undefined
     }
 
+    /**
+     * Set the request options for this query
+     * @param options The options for pagination, sorting, etc
+     */
     public setRequestOptions (options: QueryRequestOptions): this {
         this.requestOptions = options
 
@@ -202,7 +214,7 @@ export class QueryBuilder<
     }
 
     public addRelationshipAttributes <
-        R extends Relationships,
+        R extends RelationshipFields<T>,
         A extends NonNullable<Pick<RelationshipMap<T, R>, RelationshipFieldToFieldType<T, R>>[RelationshipFieldToFieldType<T, R>]>
     >(relationship: R, attributes: A) {
         if (!this._relationships.includes(relationship)) {
@@ -212,31 +224,37 @@ export class QueryBuilder<
         const relationResource = this.getRelationshipResourceName(relationship)
 
         // @ts-expect-error Weird TS typing stuff
-        this._attributes[relationResource] ??= [] as (typeof attributes)[number][]
+        this._attributes[relationResource] ??= [] as A
         // @ts-expect-error Weird TS typing stuff
-        this._attributes[relationResource]?.push(attributes)
+        this._attributes[relationResource]?.push(...attributes)
 
         return this as unknown as QueryBuilder<T, Listing, Relationships | R,
-            (Attributes extends never ? object : Attributes) & {
-                [Item in `${RelationshipFieldToFieldType<T, R>}`]: A
+            Attributes & {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                [Item in RelationshipFieldToFieldType<T, R>]: (Attributes extends { [K in RelationshipFieldToFieldType<T, R>]: any }
+                        ? Attributes[RelationshipFieldToFieldType<T, R>][number] | A[number]
+                        : A[number]
+                )[]
             }
         >
     }
 
     public setRelationshipAttributes <
-        R extends Relationships,
-        A extends NonNullable<Pick<RelationshipMap<T, R>, R>>[R]
+        R extends RelationshipFields<T>,
+        A extends NonNullable<Pick<RelationshipMap<T, R>, RelationshipFieldToFieldType<T, R>>[RelationshipFieldToFieldType<T, R>]>
     >(relationship: R, attributes: A) {
         if (!this._relationships.includes(relationship)) {
             this._relationships.push(relationship)
         }
 
         // @ts-expect-error Weird TS typing stuff
-        this._attributes[relationship] = attributes
+        this._attributes[this.getRelationshipResourceName(relationship)] = attributes
 
         return this as unknown as QueryBuilder<T, Listing, Relationships | R,
-            Omit<Attributes, RelationshipFieldToFieldType<T, R>>
-                & { [K in RelationshipFieldToFieldType<T, R>]: A }
+            (Attributes extends { [K in RelationshipFieldToFieldType<T, R>]: unknown }
+                ? Omit<Attributes, `${RelationshipFieldToFieldType<T, R>}`>
+                : Attributes
+            ) & { [K in `${RelationshipFieldToFieldType<T, R>}`]: A }
         >
     }
 
@@ -306,6 +324,7 @@ export class QueryBuilder<
     /**
      * Create a record to convert relation names to resources.
      * @param type The resource to create the map for
+     * @throws When using an invalid type
      */
     public static createRelationMap <T extends ItemType> (type: T) {
         const resource = this.getResource<T>(type)
@@ -317,6 +336,7 @@ export class QueryBuilder<
      * Convert a relationship name to a resource name
      * @param type The resource that holds the relationship
      * @param relation The name of the relationship to find the resource name of
+     * @throws When using an invalid type
      */
     public static convertRelationToType <
         T extends ItemType,
@@ -329,6 +349,7 @@ export class QueryBuilder<
      * Convert a relation resource name to a relationship name
      * @param type The resource that holds the relationship
      * @param relationType The resource name of the relationship to find the relationship name of
+     * @throws When using an invalid type or unknown relation type
      */
     public static convertTypeToRelation <
         T extends ItemType,
