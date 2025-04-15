@@ -404,6 +404,16 @@ export class RestClient {
         }
     }
 
+    private static makeUserAgent (name: string, appendix?: string): string {
+        const userAgentAppendix = VERSION + (appendix?.length ? `, ${appendix}` : '')
+
+        return `${name} patreon-api.ts (https://github.com/ghostrider-05/patreon-api.ts, ${userAgentAppendix})`
+    }
+
+    public static get defaultUserAgent (): string {
+        return this.makeUserAgent('PatreonBot')
+    }
+
     private initializeRequestInterval () {
         if (this.requestInterval != null) return
         this.requestInterval = setInterval(() => {
@@ -414,9 +424,7 @@ export class RestClient {
     }
 
     public get userAgent (): string {
-        const userAgentAppendix = VERSION + (this.options.userAgentAppendix?.length ? `, ${this.options.userAgentAppendix}` : '')
-
-        return `${this.name ?? 'PatreonBot'} patreon-api.ts (https://github.com/ghostrider-05/patreon-api.ts, ${userAgentAppendix})`
+        return RestClient.makeUserAgent(this.name ?? 'PatreonBot', this.options.userAgentAppendix)
     }
 
     public get limited (): boolean {
