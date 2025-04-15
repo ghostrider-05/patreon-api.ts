@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.12.2](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.12.1...patreon-api.ts-v0.12.2) (2025-04-15)
+
+
+### Bug Fixes
+
+* **openapi:** remove deprecated imports ([5db3277](https://github.com/ghostrider-05/patreon-api.ts/commit/5db3277dbc4cf56ddab6acf4d279155f0d04f4ac))
+* **QueryBuilder:** allow adding any relationship with attributes ([5db3277](https://github.com/ghostrider-05/patreon-api.ts/commit/5db3277dbc4cf56ddab6acf4d279155f0d04f4ac))
+* **QueryBuilder:** flatten attributes in `addRelationshipAttributes` method ([5db3277](https://github.com/ghostrider-05/patreon-api.ts/commit/5db3277dbc4cf56ddab6acf4d279155f0d04f4ac))
+* **QueryBuilder:** improve types for `attributesFor` method and convert relation ([5db3277](https://github.com/ghostrider-05/patreon-api.ts/commit/5db3277dbc4cf56ddab6acf4d279155f0d04f4ac))
+* **QueryBuilder:** improve types for added relationship attributes ([#153](https://github.com/ghostrider-05/patreon-api.ts/issues/153)) ([5db3277](https://github.com/ghostrider-05/patreon-api.ts/commit/5db3277dbc4cf56ddab6acf4d279155f0d04f4ac))
+* **QueryBuilder:** use relation type for `setRelationshipAttributes` method ([5db3277](https://github.com/ghostrider-05/patreon-api.ts/commit/5db3277dbc4cf56ddab6acf4d279155f0d04f4ac))
+
 ## [0.12.1](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.12.0...patreon-api.ts-v0.12.1) (2025-04-02)
 
 
