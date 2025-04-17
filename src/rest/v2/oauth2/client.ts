@@ -3,7 +3,7 @@ import { QueryBuilder } from '../../../schemas/v2/query'
 import type { Oauth2FetchOptions } from '../clients'
 import { type BasePatreonQuery, type GetResponsePayload } from '../query'
 
-import { type RestClient } from './rest'
+import { type RestClient } from './rest/client'
 import { getRequiredScopes } from './scopes'
 
 import type { If } from '../../../utils/generics'
