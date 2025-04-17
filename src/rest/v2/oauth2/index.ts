@@ -7,21 +7,4 @@ export {
     type PatreonTokenFetchOptions,
 } from './store'
 
-export {
-    DefaultRestOptions,
-    PATREON_RESPONSE_HEADERS,
-    RequestMethod,
-    ResponseHeaders,
-    type InternalRequestOptions,
-    type PatreonErrorData,
-    type PatreonHeadersData,
-    type RESTOptions,
-    type RequestOptions,
-    type RestEventMap,
-    type RestFetcher,
-    type RestHeaders,
-    type RestResponse,
-    type RestRetriesOptions,
-    type RestRetriesBackoffOptions,
-    type RestRetries
-} from './rest'
+export * from './rest/'
