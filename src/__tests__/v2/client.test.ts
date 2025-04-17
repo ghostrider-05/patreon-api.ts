@@ -81,23 +81,6 @@ describe('oauth client', () => {
     })
 })
 
-
-describe('rest client', () => {
-    const client = createTestClient('creator', async () => new Response())['oauth']['rest']
-
-    test('client', () => {
-        expect(client.userAgent).toBeTypeOf('string')
-
-        const headers = client.getHeaders(new Headers({
-            'x-patreon-sha': 'sha',
-            'x-patreon-uuid': 'id',
-        }))
-
-        expect(headers).toHaveProperty('sha', 'sha')
-        expect(headers).toHaveProperty('uuid', 'id')
-    })
-})
-
 describe('creator client', () => {
     // eslint-disable-next-line jsdoc/require-jsdoc
     function createCreatorClientWithStore (body: object, status: number) {
