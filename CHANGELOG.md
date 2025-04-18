@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.12.3](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.12.2...patreon-api.ts-v0.12.3) (2025-04-18)
+
+
+### Bug Fixes
+
+* **rest:** check error body for retry_after_seconds if not in headers ([ce400ac](https://github.com/ghostrider-05/patreon-api.ts/commit/ce400ac00be2150188deb2502cbead6ad7d95c69))
+* **rest:** remove second check for retries in ratelimited response ([ce400ac](https://github.com/ghostrider-05/patreon-api.ts/commit/ce400ac00be2150188deb2502cbead6ad7d95c69))
+* **rest:** throw invalid error response body ([#156](https://github.com/ghostrider-05/patreon-api.ts/issues/156)) ([ce400ac](https://github.com/ghostrider-05/patreon-api.ts/commit/ce400ac00be2150188deb2502cbead6ad7d95c69))
+* **rest:** throw response body if it is not JSON ([ce400ac](https://github.com/ghostrider-05/patreon-api.ts/commit/ce400ac00be2150188deb2502cbead6ad7d95c69))
+
 ## [0.12.2](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.12.1...patreon-api.ts-v0.12.2) (2025-04-15)
 
 
