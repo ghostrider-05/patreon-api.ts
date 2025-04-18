@@ -17,11 +17,12 @@ import {
 } from '../oauth2/client'
 
 import {
-    RestClient,
     type RequestMethod,
     type RequestOptions,
     type RESTOptions,
-} from '../oauth2/rest'
+} from '../oauth2/rest/'
+
+import { RestClient } from '../oauth2/rest/client'
 
 import { Routes } from '../oauth2/routes'
 

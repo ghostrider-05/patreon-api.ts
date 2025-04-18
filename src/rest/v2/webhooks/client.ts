@@ -11,9 +11,13 @@ import {
     type WriteResourceResponse,
 } from '../../../schemas/v2'
 
-import { Routes, RequestMethod, type RestHeaders } from '../oauth2'
+import {
+    Routes,
+    RequestMethod,
+    type RestHeaders,
+} from '../oauth2/'
 import type { PatreonOauthClient } from '../oauth2/client'
-import { RestClient } from '../oauth2/rest'
+import { resolveHeaders } from '../oauth2/rest/headers'
 
 import {
     type BasePatreonQueryType,
@@ -91,7 +95,7 @@ export class WebhookClient {
 
     public static getWebhookHeaders (headers: RestHeaders) {
         const types = <(keyof typeof this.headers)[]>Object.keys(this.headers)
-        const resolved = RestClient.resolveHeaders(headers)
+        const resolved = resolveHeaders(headers)
 
         return types.reduce((data, key) => ({
             ...data,
