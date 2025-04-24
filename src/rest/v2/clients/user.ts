@@ -1,13 +1,15 @@
 import { buildQuery } from '../query'
-import { PatreonClient, type PatreonClientOptions, type StoredToken } from './base'
+import { PatreonClient, type PatreonClientOptions, type Oauth2StoredToken } from './base'
 import { PatreonClientMethods } from './baseMethods'
 
 export class PatreonUserClientInstance extends PatreonClientMethods<boolean> {
-    public readonly token: StoredToken
+    public readonly token: Oauth2StoredToken
     public client: PatreonUserClient<boolean>
 
-    public constructor (client: PatreonUserClient<boolean>, token: StoredToken) {
-        super(client['rawOauthOptions'], client.oauth['rest'].options, client.name, token)
+    public constructor (client: PatreonUserClient<boolean>, token: Oauth2StoredToken) {
+        super(client['rawOauthOptions'], client.oauth['rest'].options, {
+            name: client.name,
+        }, token)
         this.client = client
         this.token = token
     }
@@ -40,12 +42,12 @@ export class PatreonUserClient<IncludeAll extends boolean = false> extends Patre
      * Fetch the token from the incoming redirect request (with a code query).
      * @see {@link PatreonUserClient.oauth.getOauthTokenFromCode}
      * @param {string | { url: string }} request The request or url with the code query
-     * @returns {StoredToken | undefined} the access token of the user.
+     * @returns {Oauth2StoredToken | undefined} the access token of the user.
      */
-    public async fetchToken(request: { url: string }): Promise<StoredToken | undefined>;
-    public async fetchToken(url: string): Promise<StoredToken | undefined>;
-    public async fetchToken(request: string | { url: string }): Promise<StoredToken | undefined>;
-    public async fetchToken(request: string | { url: string }): Promise<StoredToken | undefined> {
+    public async fetchToken(request: { url: string }): Promise<Oauth2StoredToken | undefined>;
+    public async fetchToken(url: string): Promise<Oauth2StoredToken | undefined>;
+    public async fetchToken(request: string | { url: string }): Promise<Oauth2StoredToken | undefined>;
+    public async fetchToken(request: string | { url: string }): Promise<Oauth2StoredToken | undefined> {
         const url = typeof request === 'string'
             ? request
             : request.url

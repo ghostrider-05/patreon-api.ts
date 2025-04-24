@@ -77,7 +77,9 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
     public constructor(options: PatreonClientOptions<IncludeAll>, type: 'oauth' | 'creator') {
         options.oauth.tokenType ??= type
 
-        super(options.oauth, options.rest, options.name ?? null)
+        super(options.oauth, options.rest, {
+            name: options.name ?? null,
+        })
         this.webhooks = new WebhookClient(this.oauth)
 
         this.store = options.store
@@ -92,7 +94,7 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
         }
     }
 
-    protected static async fetchStored(store?: PatreonTokenFetchOptions): Promise<StoredToken | undefined> {
+    protected static async fetchStored(store?: PatreonTokenFetchOptions): Promise<Oauth2StoredToken | undefined> {
         const stored = await store?.get()
         if (stored == undefined) return undefined
 

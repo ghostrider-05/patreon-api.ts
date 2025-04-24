@@ -22,7 +22,7 @@ import {
     type RESTOptions,
 } from '../oauth2/rest/'
 
-import { RestClient } from '../oauth2/rest/client'
+import { type InternalClientSharedOptions, RestClient } from '../oauth2/rest/client'
 
 import { Routes } from '../oauth2/routes'
 
@@ -253,7 +253,9 @@ class GenericPatreonClientMethods<TransformType extends ResponseTransformType, I
 }
 
 export abstract class PatreonClientMethods<IncludeAll extends boolean> extends GenericPatreonClientMethods<'default', IncludeAll> {
-    public oauth: PatreonOauthClient
+    public get oauth (): PatreonOauthClient {
+        return this._oauth
+    }
 
     public simplified: GenericPatreonClientMethods<'simplified', IncludeAll>
 
@@ -263,24 +265,26 @@ export abstract class PatreonClientMethods<IncludeAll extends boolean> extends G
      * The application name of the client.
      * @default null
      */
-    public name: string | null = null
+    public get name(): string | null {
+        return this._oauth['rest'].name
+    }
+
+    public set name (value) {
+        this._oauth['rest'].name = value
+    }
 
     public constructor (
         protected rawOauthOptions: PatreonOauthClientOptions,
         rest: Partial<RESTOptions<IncludeAll>> = {},
-        name: string | null,
+        internalOptions: InternalClientSharedOptions,
         _token?: Oauth2StoredToken,
     ) {
-        const restClient = new RestClient(rest)
-        restClient.name = name
+        const restClient = new RestClient(rest, internalOptions)
 
         const oauth = new PatreonOauthClient(rawOauthOptions, restClient)
         const includeAllQueries = rest.includeAllQueries ?? <IncludeAll>false
 
         super(oauth, 'default', (res) => res, includeAllQueries,  _token)
-
-        this.name = name
-        this.oauth = oauth
 
         this.normalized = new GenericPatreonClientMethods(oauth, 'normalized', normalizeFromQuery, includeAllQueries, _token)
         this.simplified = new GenericPatreonClientMethods(oauth, 'simplified', simplifyFromQuery, includeAllQueries, _token)

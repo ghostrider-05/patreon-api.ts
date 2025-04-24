@@ -133,6 +133,21 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
     userAgentAppendix: string | undefined
 }
 
+export const DefaultRestOptions: RESTOptions = {
+    authPrefix: 'Bearer',
+    api: RouteBases.oauth2,
+    emitter: null,
+    includeAllQueries: false,
+    fetch: (...args) => fetch(...args),
+    getAccessToken: async () => undefined,
+    globalRequestPerSecond: 0,
+    ratelimitTimeout: 0,
+    retries: defaultRetries,
+    timeout: 15_000,
+    headers: {},
+    userAgentAppendix: '',
+}
+
 export interface RequestOptions {
     /**
      * The base url of the Patreon API
@@ -200,21 +215,6 @@ export interface RequestOptions {
      * @default undefined
      */
     signal?: AbortSignal | undefined
-}
-
-export const DefaultRestOptions: RESTOptions = {
-    authPrefix: 'Bearer',
-    api: RouteBases.oauth2,
-    emitter: null,
-    includeAllQueries: false,
-    fetch: (...args) => fetch(...args),
-    getAccessToken: async () => undefined,
-    globalRequestPerSecond: 0,
-    ratelimitTimeout: 0,
-    retries: defaultRetries,
-    timeout: 15_000,
-    headers: {},
-    userAgentAppendix: '',
 }
 
 export interface InternalRequestOptions extends RequestOptions {

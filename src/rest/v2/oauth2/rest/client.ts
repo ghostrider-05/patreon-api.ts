@@ -91,15 +91,20 @@ interface PatreonErrorResponseBody {
     errors: PatreonErrorData[]
 }
 
+export interface InternalClientSharedOptions {
+    name: string | null
+}
+
 export class RestClient {
     public readonly options: RESTOptions
-    public name: string | null = null
+    public name: string | null
 
     private ratelimitedUntil: Date | null = null
     private requestCounter: InternalRequestCounter
 
     public constructor (
         options: Partial<RESTOptions> = {},
+        client: InternalClientSharedOptions,
     ) {
         this.options = {
             ...DefaultRestOptions,
@@ -114,14 +119,18 @@ export class RestClient {
             1000,
             this.options.globalRequestPerSecond,
         )
+
+        this.name = client.name
     }
 
+    protected static defaultClientName = 'PatreonBot'
+
     public static get defaultUserAgent (): string {
-        return makeUserAgentHeader('PatreonBot')
+        return makeUserAgentHeader(RestClient.defaultClientName)
     }
 
     public get userAgent (): string {
-        return makeUserAgentHeader(this.name ?? 'PatreonBot', this.options.userAgentAppendix)
+        return makeUserAgentHeader(this.name ?? RestClient.defaultClientName, this.options.userAgentAppendix)
     }
 
     public get limited (): boolean {
