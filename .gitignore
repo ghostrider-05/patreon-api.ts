@@ -145,3 +145,6 @@ dist
 
 # Test file for example
 example.ts
+
+# TypeDoc output
+docs/api/

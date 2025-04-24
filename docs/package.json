@@ -9,15 +9,19 @@
   "homepage": "https://patreon-api.pages.dev",
   "license": "MIT",
   "scripts": {
+    "predocs": "typedoc",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview"
   },
   "devDependencies": {
-    "@shikijs/vitepress-twoslash": "^3.2.2",
+    "@shikijs/vitepress-twoslash": "^3.3.0",
     "@vueuse/core": "^13.1.0",
     "msw": "^2.7.3",
-    "vitepress": "^2.0.0-alpha.4",
+    "typedoc": "^0.28.3",
+    "typedoc-plugin-markdown": "^4.6.3",
+    "typedoc-vitepress-theme": "^1.1.2",
+    "vitepress": "^2.0.0-alpha.5",
     "vue": "^3.5.13",
     "vuetify": "^3.7.11"
   }

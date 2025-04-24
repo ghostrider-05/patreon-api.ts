@@ -35,7 +35,7 @@ export function createLinksItem (options: {
     fundingUrl: string
 }): SharedItem {
     return {
-        text: options.version,
+        text: 'v' + options.version,
         items: [
             {
                 text: 'Changelog',
@@ -69,20 +69,20 @@ export function createLinksItem (options: {
 export function createGuideItem (expandFeatures = false): SharedItem {
     const features = [
         {
-            text: 'Overview',
-            link: '/guide/features/',
-        },
-        {
-            text: 'Oauth',
+            text: 'Authorization',
             link: '/guide/features/oauth',
         },
         {
-            text: 'Testing & sandbox',
-            link: '/guide/features/sandbox',
+            text: 'Make a request',
+            link: '/guide/features/request',
         },
         {
             text: 'Simplify',
             link: '/guide/features/simplify',
+        },
+        {
+            text: 'Testing & sandbox',
+            link: '/guide/features/sandbox',
         },
         {
             text: 'Webhooks',
@@ -113,7 +113,6 @@ export function createGuideItem (expandFeatures = false): SharedItem {
             {
                 text: 'Features',
                 items: features,
-                collapsed: false,
             },
         ]
     }

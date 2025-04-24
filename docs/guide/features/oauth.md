@@ -5,6 +5,8 @@ The Patreon API is only accessible by authorizing your request with an access to
 - [Creator token](#creator-token): the tokens you can find in the developer portal. Use this if you are only using the API for your own account
 - [User Oauth](#user-oauth2): user can login to Patreon and be redirect to your application. Use this to grant access to users to a Patreon only part of your application.
 
+For both types of applications you will need to [create a client in the developer portal](https://www.patreon.com/portal/registration/register-clients). Copy the client id and secret and store them in your secrets. You can also find the creator access and refresh tokens in the client information.
+
 ## Creator token
 
 If you don't need to handle Oauth2 requests, but only your own creator profile, the first example will get you started.
@@ -78,22 +80,6 @@ If you have configured [a token store](#store) on the client, calling the `refre
 ## Revoke tokens
 
 It is not possible to revoke a token with the documented API.
-
-## Routes
-
-### Fetch a campaign
-
-<<< @/examples/oauth/routes.ts#campaign{ts twoslash}
-
-### Fetch campaigns
-
-:::code-group
-
-<<< @/examples/oauth/routes.ts#campaigns{ts twoslash} [Fetch]
-
-<<< @/examples/oauth/routes.ts#campaigns-paginate{ts twoslash} [Paginate]
-
-:::
 
 ## Validation
 

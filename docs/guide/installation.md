@@ -52,7 +52,7 @@ To get started you can see one of the examples:
 
 <Features />
 
-or read more about [the features your application needs](./features/).
+or read more about [the features your application needs](./features/oauth).
 
 <script setup>
 import Features from '../.vitepress/components/DocFeatures.vue'

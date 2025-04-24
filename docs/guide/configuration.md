@@ -1,6 +1,6 @@
 # Configuration
 
-This page will cover some general topics for configuring this library, see the [features overview](./features/) for how to use the client methods.
+This page will cover some general topics for configuring this library.
 
 ## Client options
 

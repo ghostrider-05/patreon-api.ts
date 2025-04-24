@@ -80,7 +80,7 @@ This library is used to create the Patreon OpenAPI schemas for the [`patreon-api
 
 ## Examples
 
-- [Commonly used routes](https://patreon-api.pages.dev/guide/features/oauth#routes) and [community apps](https://github.com/ghostrider-05/patreon-api.ts/discussions/categories/show-and-tell)
+- [Commonly used routes](https://patreon-api.pages.dev/guide/features/request#routes) and [community apps](https://github.com/ghostrider-05/patreon-api.ts/discussions/categories/show-and-tell)
 - Example webhook server: [Cloudflare worker](./examples/cloudflare-webhook/) and [express.js server](./examples/express-webhook/)
 - Example Node.js server: [ESM](./examples/nodejs-esm/) and [CJS](./examples/nodejs-cjs/)
 

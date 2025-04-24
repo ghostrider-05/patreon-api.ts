@@ -21,6 +21,8 @@ import {
     homepage,
 } from '../../package.json'
 
+import typedocSidebar from '../../api/typedoc-sidebar.json'
+
 const repoUrl = repository.url.replace('.git', ''), branch = 'main'
 
 const createSidebarItems = () => [
@@ -72,6 +74,7 @@ export default defineConfig({
     themeConfig: {
         nav: [
             shared.createGuideItem(false),
+            { text: 'Reference', link: '/api/', activeMatch: '/api/' },
             { text: 'API Reference', link: 'https://patreon.apidocumentation.com/v2-stable/reference', },
             shared.createLinksItem({
                 branch,
@@ -93,6 +96,7 @@ export default defineConfig({
         sidebar: {
             '/guide/': createSidebarItems(),
             '/apps/': createSidebarItems(),
+            '/api/': typedocSidebar,
         },
 
         externalLinkIcon: true,
