@@ -17,8 +17,6 @@ export * from './resources/tier'
 export * from './resources/user'
 export * from './resources/webhook'
 
-export * from './generated/keys'
-export * from './generated/relationships'
 export * as SchemaResourcesData from './generated/schemas'
 
 export * from './mock/'
