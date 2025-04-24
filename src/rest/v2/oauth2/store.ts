@@ -77,9 +77,6 @@ export interface PatreonStoreKVStorage {
     list?: (options: object) => Promise<never[]>
 }
 
-/** @deprecated */
-export type KVLikeStore = PatreonStoreKVStorage
-
 /**
  * A store for Patreon tokens stored in a KV-like resource.
  */

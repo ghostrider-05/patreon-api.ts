@@ -62,9 +62,6 @@ export interface ResponseTransformMap<Query extends BasePatreonQuery> {
     normalized: (res: GetResponsePayload<Query>) => ReturnType<typeof normalizeFromQuery<Query>>
 }
 
-/** @deprecated */
-export type GetResponseMap<Query extends BasePatreonQuery> = ResponseTransformMap<Query>
-
 export type ResponseTransformType = keyof ResponseTransformMap<BasePatreonQuery>
 
 class GenericPatreonClientMethods<TransformType extends ResponseTransformType, IncludeAll extends boolean> {
