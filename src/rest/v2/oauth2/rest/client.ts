@@ -360,7 +360,7 @@ export class RestClient {
                 }
 
                 if ((retry_after_seconds + timeout) > 0) {
-                    this.ratelimitedUntil = new Date(Date.now() + retry_after_seconds + timeout)
+                    this.ratelimitedUntil = new Date(Date.now() + (retry_after_seconds * 1000) + timeout)
                 }
 
                 return body
