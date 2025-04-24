@@ -66,6 +66,21 @@ export default <ExportedHandler>{
                     ...corsHeaders,
                 }
             })
+        } else if (pathname.startsWith('/data/library')) {
+            return new Response(JSON.stringify({
+                version: VERSION,
+                name: 'patreon-api.ts',
+                links: {
+                    donate: 'https://paypal.me/05ghostrider',
+                    github: 'https://github.com/ghostrider-05/patreon-api.ts',
+                    documentation: 'https://patreon-api.pages.dev',
+                },
+            }), {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...corsHeaders,
+                }
+            })
         } else if (pathname.startsWith(proxyEndpoint)) {
             const response = await fetch(RouteBases.oauth2 + pathname.slice(proxyEndpoint.length) + search, {
                 method: request.method,

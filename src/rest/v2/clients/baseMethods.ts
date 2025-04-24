@@ -304,6 +304,3 @@ export abstract class PatreonClientMethods<IncludeAll extends boolean> extends G
         return new GenericPatreonClientMethods(client.oauth, type, parser, includeAllQueries, client['_token'])
     }
 }
-
-/** @deprecated */
-export class BasePatreonClientMethods extends PatreonClientMethods<boolean> {}

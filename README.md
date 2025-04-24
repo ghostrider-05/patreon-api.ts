@@ -3,13 +3,13 @@
 [![npm](https://img.shields.io/npm/v/patreon-api.ts)](https://www.npmjs.com/package/patreon-api.ts?activeTab=versions)
 [![npm](https://img.shields.io/npm/dm/patreon-api.ts)](https://www.npmjs.com/package/patreon-api.ts?activeTab=readme)
 [![GitHub issues](https://img.shields.io/github/issues/ghostrider-05/patreon-api.ts)](https://github.com/ghostrider-05/patreon-api.ts/issues/)
-[![GitHub stars](https://img.shields.io/github/stars/ghostrider-05/patreon-api.ts?style=flat&label=stargazers)](https://github.com/ghostrider-05/patreon-api.ts/stars/)
+[![GitHub stars](https://img.shields.io/github/stars/ghostrider-05/patreon-api.ts?style=flat&label=stargazers)](https://github.com/ghostrider-05/patreon-api.ts/stargazers)
 
 <!-- #region introduction -->
 
-Typescript Oauth library for the [V2 Patreon API](https://docs.patreon.com/) with:
+Typescript oauth library for the [V2 Patreon API](https://docs.patreon.com/) with:
 
-- Support for Creator access tokens and Oauth tokens
+- Support for Creator access tokens and oauth tokens
 - Client with methods for calling every endpoint, both resource and webhook endpoints
 - Methods to create a webhook server
 - Typescript types that strongly reflect your query for raw or simplified responses
@@ -61,7 +61,7 @@ To read more about how to use this library, go to the [documentation](https://pa
 
 To check for compatibility with this package, look if your platform:
 
-- has the globals: `AbortController`, `setTimeout`, `clearTimeout`, `fetch`, `URL` and `URLSearchParams`
+- has the globals: `AbortController`, `setTimeout`, `clearTimeout`, `setInterval`, `clearInterval`, `Request`, `fetch`, `URL` and `URLSearchParams`
   - for node.js: `v18` or higher
   - for Cloudflare workers: [enable Node.js](https://developers.cloudflare.com/workers/runtime-apis/nodejs/#enable-nodejs-with-workers)
 - supports `ES2020`
