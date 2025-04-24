@@ -53,7 +53,7 @@ export interface RestEventMap {
 export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
     /**
      * The base url of the Patreon API
-     * @default 'https://patreon.com/api/oauth/v2'
+     * @default 'https://patreon.com/api/oauth2/v2'
      */
     api: string
 
@@ -136,7 +136,7 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
 export interface RequestOptions {
     /**
      * The base url of the Patreon API
-     * @default 'https://patreon.com/api/oauth/v2'
+     * @default 'https://patreon.com/api/oauth2/v2'
      */
     api?: string
 
