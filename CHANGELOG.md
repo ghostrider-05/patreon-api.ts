@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.13.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.12.3...patreon-api.ts-v0.13.0) (2025-04-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove deprecated SchemaRelationshipKeys and SchemaKeys ([#160](https://github.com/ghostrider-05/patreon-api.ts/issues/160))
+* **types:** remove deprecated schema and rest types ([#159](https://github.com/ghostrider-05/patreon-api.ts/issues/159))
+
+### Features
+
+* **docs:** add library export reference ([8d38e02](https://github.com/ghostrider-05/patreon-api.ts/commit/8d38e02a876366331f84dcfb1d601b963fb17754))
+* remove deprecated SchemaRelationshipKeys and SchemaKeys ([#160](https://github.com/ghostrider-05/patreon-api.ts/issues/160)) ([3f21584](https://github.com/ghostrider-05/patreon-api.ts/commit/3f21584eacca54ce8ed99f97578f137002591825))
+* **types:** remove deprecated schema and rest types ([#159](https://github.com/ghostrider-05/patreon-api.ts/issues/159)) ([a670ca5](https://github.com/ghostrider-05/patreon-api.ts/commit/a670ca521960cd849771ceb203158c0dae8584a7))
+
+
+### Bug Fixes
+
+* **rest:** convert `retry_after_seconds` from body ([f5feef2](https://github.com/ghostrider-05/patreon-api.ts/commit/f5feef27f289c3de275aecac7cd446f0a1dec04b))
+* **rest:** correct default url comment for api option ([a395deb](https://github.com/ghostrider-05/patreon-api.ts/commit/a395debe5c52c3cff9cd5a52153d6a36598ed6d0))
+
 ## [0.12.3](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.12.2...patreon-api.ts-v0.12.3) (2025-04-18)
 
 
