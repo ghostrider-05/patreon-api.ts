@@ -1,6 +1,5 @@
 import {
     PatreonClientMethods,
-    type GetResponseMap,
     type Oauth2FetchOptions,
     type Oauth2RouteOptions,
     type ResponseTransformMap,
@@ -8,13 +7,10 @@ import {
 } from './baseMethods'
 
 import {
-    type CreatorToken,
     type Oauth2CreatorToken,
     type Oauth2StoredToken,
     type Oauth2Token,
     type PatreonOauthClientOptions,
-    type StoredToken,
-    type Token,
 } from '../oauth2/client'
 
 import {
@@ -24,7 +20,6 @@ import {
 import { WebhookClient } from '../webhooks'
 
 export type {
-    GetResponseMap,
     ResponseTransformMap,
     ResponseTransformType,
     Oauth2CreatorToken,
@@ -32,9 +27,6 @@ export type {
     Oauth2Token,
     Oauth2FetchOptions,
     Oauth2RouteOptions,
-    CreatorToken,
-    StoredToken,
-    Token,
 }
 
 /**

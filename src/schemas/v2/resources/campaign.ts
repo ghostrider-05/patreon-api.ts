@@ -150,6 +150,3 @@ export interface Campaign {
      */
     created_at: string
 }
-
-/** @deprecated use keyof Campaign */
-export type CampaignFields = keyof Campaign

@@ -90,13 +90,6 @@ export interface Oauth2StoredToken extends Oauth2Token {
     expires_in_epoch: string
 }
 
-/** @deprecated use Oauth2CreatorToken instead */
-export type CreatorToken = Oauth2CreatorToken
-/** @deprecated use Oauth2Token instead */
-export type Token = Oauth2Token
-/** @deprecated use Oauth2StoredToken instead */
-export type StoredToken = Oauth2StoredToken
-
 /**
  * Client options for handling Oauth
  */

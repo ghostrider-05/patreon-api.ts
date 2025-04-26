@@ -1,28 +1,5 @@
 import { type CustomTypeOption } from '../../../utils/'
 
-/** @deprecated will be removed in future version */
-export type SocialConnectionPlatform = keyof {
-    'discord': {
-        'scopes': string[],
-        'user_id': string
-    },
-    'facebook': null,
-    'google': null,
-    'instagram': null,
-    'reddit': null,
-    'spotify': null,
-    'spotify_open_access': null,
-    'tiktok': null,
-    'twitch': null,
-    'twitter': {
-        'url': string,
-        'user_id': string
-    },
-    'twitter2': null,
-    'vimeo': null,
-    'youtube': null
-}
-
 /**
  * The Patreon user, which can be both patron and creator.
  */

@@ -45,16 +45,3 @@ export interface Webhook {
      */
     uri: string
 }
-
-/** @deprecated */
-export type PatchWebhookBody = Partial<Pick<Webhook,
-    | 'paused'
-    | 'triggers'
-    | 'uri'
->>
-
-/** @deprecated */
-export type PostWebhookBody = Pick<Webhook,
-    | 'triggers'
-    | 'uri'
->

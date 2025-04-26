@@ -2,10 +2,6 @@ import { type WebhookPayload } from '../../../payloads/v2'
 import {
     QueryBuilder,
     Type,
-    type AttributeItem,
-    type DataItem,
-    type PostWebhookBody,
-    type Relationship,
     type Webhook,
     type WriteResourcePayload,
     type WriteResourceResponse,
@@ -30,14 +26,6 @@ import { WebhookPayloadClient } from './payload'
 
 export type Oauth2WebhookRouteOptions = Omit<Oauth2RouteOptions, 'body' | 'contentType'>
 
-/** @deprecated */
-export type CreateWebhookBody = PostWebhookBody & {
-    /**
-     * The id of the campaign that this webhook is linked to
-     */
-    campaignId: string
-}
-
 export type WebhookAPICreateBody = WriteResourcePayload<Type.Webhook, RequestMethod.Post>['data']['attributes'] & {
     /**
      * The id of the campaign that this webhook is linked to
@@ -55,18 +43,6 @@ export type WebhookAPIEditBody = WriteResourcePayload<Type.Webhook, RequestMetho
 }
 
 export type WebhookAPIEditResult = WriteResourceResponse<Type.Webhook>
-
-// Should not have been exported
-/** @deprecated */
-export type APIPostWebhookBody = Omit<AttributeItem<Type.Webhook, PostWebhookBody>, 'id'>
-    & Relationship<Type.Webhook, 'campaign'>
-
-/** @deprecated */
-export type APIPostWebhookResponse = DataItem<Type.Webhook, false> & {
-    data: {
-        attributes: Webhook
-    }
-}
 
 /**
  * Gets the assiocated user from the webhook request

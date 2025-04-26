@@ -26,16 +26,10 @@ type PaginationQuerySort =
     | string
     | { key: string, descending?: boolean }
 
-/** @deprecated */
-export type PaginationQuery = {
+export interface QueryRequestOptions {
     cursor?: string
     count?: number
     sort?: ValueOrArray<PaginationQuerySort>
-}
-
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface QueryRequestOptions extends PaginationQuery {
-
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
