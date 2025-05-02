@@ -20,6 +20,9 @@ updates:
           patterns:
             - wrangler
             - "@cloudflare/workers-types"
+      env:
+        patterns:
+          - dotenv
       eslint:
         patterns:
           - '*eslint*'
