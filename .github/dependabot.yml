@@ -27,11 +27,17 @@ updates:
         patterns:
           - ts*
           - typescript
+      test:
+        patterns:
+          - vitest
+          - "@vitest/*"
       vue:
         patterns:
           - vue*
           - vite*
           - "@vue*"
+        exclude-patterns:
+          - vitest
     directories:
       - "/"
       - "/docs/"
