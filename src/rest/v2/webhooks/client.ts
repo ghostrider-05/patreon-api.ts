@@ -1,4 +1,3 @@
-import { type WebhookPayload } from '../../../payloads/v2'
 import {
     QueryBuilder,
     Type,
@@ -43,18 +42,6 @@ export type WebhookAPIEditBody = WriteResourcePayload<Type.Webhook, RequestMetho
 }
 
 export type WebhookAPIEditResult = WriteResourceResponse<Type.Webhook>
-
-/**
- * Gets the assiocated user from the webhook request
- * @param payload the webhook parsed body
- * @returns the user id
- * @deprecated use `new WebhookClient.payloads(trigger, payload).userId`
- */
-export function getWebhookUserId (payload: WebhookPayload): string {
-    // Relationship can be null, but not likely for webhooks (I think?)
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return payload.data.relationships.user.data!.id
-}
 
 export class WebhookClient {
     private static get emptyQuery () {
