@@ -26,10 +26,7 @@ import { WebhookPayloadClient } from './payload'
 export type Oauth2WebhookRouteOptions = Omit<Oauth2RouteOptions, 'body' | 'contentType'>
 
 export type WebhookAPICreateBody = WriteResourcePayload<Type.Webhook, RequestMethod.Post>['data']['attributes'] & {
-    /**
-     * The id of the campaign that this webhook is linked to
-     */
-    campaignId: string
+    [T in `${keyof WriteResourcePayload<Type.Webhook, RequestMethod.Post>['data']['relationships']}Id`]: string
 }
 
 export type WebhookAPICreateResult = WriteResourceResponse<Type.Webhook>

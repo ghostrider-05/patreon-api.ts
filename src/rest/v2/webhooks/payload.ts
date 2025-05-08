@@ -127,4 +127,10 @@ export class WebhookPayloadClient<Trigger extends PatreonWebhookTrigger> {
             return item.type === Type.Campaign && item.id === this.campaignId
         })
     }
+
+    public convert <
+        Data extends StringObject<string | number | boolean>
+    >(converter: WebhookPayloadDataConverter<Data>) {
+        return WebhookPayloadClient.convert(converter)(this.trigger, this.payload)
+    }
 }
