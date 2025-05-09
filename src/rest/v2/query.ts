@@ -50,6 +50,7 @@ export type GetResponsePayload<Query extends BasePatreonQuery> = Query extends P
  * Helper function to create a Patreon query from URLSearchParams
  * @param params the parameters for the request.
  * @returns the Patreon query to pass to client methods
+ * @deprecated use `QueryBuilder.fromParams<Q>()` instead
  */
 export function createQuery<Q extends BasePatreonQueryType<Type, boolean>>(params: URLSearchParams): Q {
     return QueryBuilder.fromParams<Q>(params)
