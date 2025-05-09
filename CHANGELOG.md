@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.14.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.13.0...patreon-api.ts-v0.14.0) (2025-05-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **webhooks:** remove getWebhookUserId method
+* **webhooks:** remove webhook to discord method ([#173](https://github.com/ghostrider-05/patreon-api.ts/issues/173))
+
+### Features
+
+* **createQuery:** deprecate in favor of QueryBuilder.fromParams ([c8a256b](https://github.com/ghostrider-05/patreon-api.ts/commit/c8a256bc17fb7d48bcc3ff6d5f84dfddb28b8f12))
+* **WebhookPayloadClient:** add convert method ([8828cb2](https://github.com/ghostrider-05/patreon-api.ts/commit/8828cb2802bb820eae86d98c1e621a09ad0b161e))
+* **webhooks:** remove getWebhookUserId method ([ffedd84](https://github.com/ghostrider-05/patreon-api.ts/commit/ffedd84147d147e8af3ba53bbe554e14de91277d))
+* **webhooks:** remove webhook to discord method ([#173](https://github.com/ghostrider-05/patreon-api.ts/issues/173)) ([ffedd84](https://github.com/ghostrider-05/patreon-api.ts/commit/ffedd84147d147e8af3ba53bbe554e14de91277d))
+
 ## [0.13.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.12.3...patreon-api.ts-v0.13.0) (2025-04-26)
 
 
