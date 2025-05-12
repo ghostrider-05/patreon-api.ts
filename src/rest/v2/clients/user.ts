@@ -1,4 +1,5 @@
-import { buildQuery } from '../query'
+import { QueryBuilder } from '../../../schemas/v2'
+
 import { PatreonClient, type PatreonClientOptions, type Oauth2StoredToken } from './base'
 import { PatreonClientMethods } from './baseMethods'
 
@@ -21,7 +22,9 @@ export class PatreonUserClientInstance extends PatreonClientMethods<boolean> {
      * @returns The discord user ID
      */
     public async fetchDiscordId (): Promise<string | undefined> {
-        const query = buildQuery.identity(['memberships'])({ user: ['social_connections' ]})
+        const query = QueryBuilder.identity
+            .addRelationships(['memberships'])
+            .setAttributes({ user: ['social_connections'] })
 
         return await this.fetchIdentity(query, { token: this.token })
             .then(res => {

@@ -16,7 +16,7 @@ import type {
 
 import * as SchemaResourcesData from './generated/schemas'
 
-import { ItemType, Type } from './item'
+import { ItemMap, ItemType, Type } from './item'
 
 import type { If } from '../../utils/generics'
 
@@ -124,7 +124,9 @@ export class QueryBuilder<
      */
     public get params (): URLSearchParams {
         return new URLSearchParams({
-            ...(this._relationships.length > 0 ? { include: this._relationships.join(',') } : {}),
+            ...(this._relationships.length > 0 ? {
+                include: [...new Set(this._relationships)].join(','),
+            } : {}),
             ...Object
                 .keys(this._attributes)
                 .reduce((params, key) => ({ ...params, [`fields[${key}]`]: this._attributes[key].join(',') }), {}),
@@ -140,12 +142,42 @@ export class QueryBuilder<
         return QueryBuilder.toQuery(this.params)
     }
 
+    /**
+     * The attributes configured for this query.
+     */
     public get attributes (): Attributes {
         return this._attributes
     }
 
+    /**
+     * The relationships configured for this query.
+     */
     public get relationships (): Relationships[] {
         return this._relationships
+    }
+
+    /**
+     * The attributes configured for this query on the main resource.
+     * For a campaign query, this will be the campaign attributes of the query.
+     */
+    public get resourceAttributes (): Attributes[T] {
+        return this._attributes[this.resource]
+    }
+
+    /**
+     * The relationships that can be defined on this resource.
+     * In the Patreon documentation, see the list of relations on a resource.
+     */
+    public get schemaRelationships (): ReadonlyArray<RelationshipFields<T>> {
+        return this.schema.relationships.map(rel => rel.name)
+    }
+
+    /**
+     * The attributes that can be defined for this resource.
+     * In the Patreon documentation, see the list of properties on a resource.
+     */
+    public get schemaResourceAttributes (): ReadonlyArray<keyof ItemMap[T]> {
+        return <never>this.schema.properties
     }
 
     /**
