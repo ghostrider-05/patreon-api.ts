@@ -1,8 +1,4 @@
 import type {
-    BasePatreonQuery,
-    PatreonQuery,
-} from '../../../rest/v2/'
-import type {
     Item,
     ItemMap,
     ItemType,
