@@ -16,8 +16,12 @@ import {
     Type,
 } from '../../../schemas/v2/'
 
+import {
+    CacheStore,
+    type CacheStoreOptions,
+} from '../cache/'
+
 import { PatreonMockData, type PatreonMockDataOptions } from './data'
-import { PatreonMockCache, type PatreonMockCacheOptions } from './cache'
 import { PatreonMockWebhooks, type PatreonMockWebhooksOptions } from './webhooks'
 
 function getAPIRoutesWithRegex (routes: Route[]) {
@@ -62,7 +66,7 @@ export interface PatreonMockOptions {
         cache?: boolean
         headers?: Record<string, string>
     }
-    cache?: PatreonMockCacheOptions
+    cache?: Pick<CacheStoreOptions, 'initial'>
     data?:
         | PatreonMockData
         | PatreonMockDataOptions
@@ -119,16 +123,16 @@ export class PatreonMock {
 
     private statusCodesWithNoContent: number[] = [201]
 
-    public cache: PatreonMockCache
+    public cache: CacheStore<false>
     public data: PatreonMockData
     public webhooks: PatreonMockWebhooks
 
     public constructor (
         public options: PatreonMockOptions = {},
     ) {
-        this.cache = new PatreonMockCache(options.cache ?? {}, (type) => ({
-            id: this.data.createId(type)
-        }))
+        this.cache = new CacheStore(undefined, false, {
+            initial: options.cache?.initial ?? [],
+        })
 
         this.data = options.data != undefined && options.data instanceof PatreonMockData
             ? options.data
@@ -245,7 +249,7 @@ export class PatreonMock {
 
             if (cached && options?.cache !== false) {
                 const payload = this.data.getListResponsePayload(path.resource, query, {
-                    items: cached.combined,
+                    items: cached.item,
                 })
 
                 return JSON.stringify(payload)

@@ -1,4 +1,6 @@
 import {
+    type BasePatreonQueryType,
+    type GetResponsePayload,
     QueryBuilder,
     Type,
     type Webhook,
@@ -13,11 +15,6 @@ import {
 } from '../oauth2/'
 import type { PatreonOauthClient } from '../oauth2/client'
 import { resolveHeaders } from '../oauth2/rest/headers'
-
-import {
-    type BasePatreonQueryType,
-    type GetResponsePayload,
-} from '../query'
 
 import type { Oauth2RouteOptions } from '../clients/baseMethods'
 
