@@ -1,9 +1,13 @@
-import { BasePatreonQuery, GetResponsePayload, RequestMethod } from '../../../rest/v2'
+import { RequestMethod } from '../../../rest/v2'
 import { isListingPayload } from '../../../v2'
 import { AttributeItem, type ItemMap, type ItemType } from '../item'
 import { WriteResourcePayload, WriteResourceResponse, WriteResourceType } from '../modifiable'
 
-import { QueryBuilder } from '../query'
+import {
+    QueryBuilder,
+    BasePatreonQuery,
+    GetResponsePayload,
+} from '../query'
 
 import type {
     Relationship,
@@ -117,7 +121,7 @@ export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore
             if (item == undefined && !this.options.patchUnknownItem) return undefined
             const merged = { ...(item?.item ?? {}), ...value } as ItemMap[T]
 
-            return this.promise.chain(this.put(type, id, { relationships: item?.relationships, item: merged }), () => {
+            return this.promise.chain(this.put(type, id, { relationships: item?.relationships ?? {}, item: merged }), () => {
                 return merged
             })
         })
@@ -283,7 +287,7 @@ export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore
             } else {
                 return this.promise.chain(this.put(type, id, {
                     item: attributes,
-                    relationships: attributeItem.relationships,
+                    relationships: attributeItem.relationships ?? {},
                 }), () => {})
             }
         }))
