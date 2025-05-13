@@ -36,3 +36,13 @@ The methods on the client return the default `JSON:API` response. Use the [`simp
 <<< @/examples/oauth/routes.ts#campaigns-paginate{ts twoslash} [Paginate]
 
 :::
+
+### Fetch members
+
+:::code-group
+
+<<< @/examples/oauth/routes.ts#members{ts twoslash} [Fetch]
+
+<<< @/examples/oauth/routes.ts#members-paginate{ts twoslash} [Paginate]
+
+:::
