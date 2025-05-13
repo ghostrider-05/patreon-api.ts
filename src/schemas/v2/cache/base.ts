@@ -10,7 +10,7 @@ import type { IfAsync } from './promise'
 export type CacheItem<T extends ItemType> = {
     item: Partial<ItemMap[T]>
     relationships: {
-        [R in keyof Relationship<T, RelationshipFields<T>>['relationships']]: (
+        [R in keyof Relationship<T, RelationshipFields<T>>['relationships']]?: (
             Relationship<T, RelationshipFields<T>>['relationships'] extends unknown[]
                 ? string[]
                 : string
