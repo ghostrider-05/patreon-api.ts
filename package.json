@@ -1,6 +1,6 @@
 {
   "name": "patreon-api.ts",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "Typescript library for the V2 Patreon API",
   "types": "./dist/index.d.ts",
   "module": "./dist/index.mjs",
