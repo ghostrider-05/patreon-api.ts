@@ -3,7 +3,6 @@ export {
 } from './error'
 
 export {
-    PATREON_RESPONSE_HEADERS,
     ResponseHeaders,
     type PatreonHeadersData,
     type RestHeaders,

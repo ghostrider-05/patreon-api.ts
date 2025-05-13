@@ -8,9 +8,6 @@ export const ResponseHeaders = {
     RetryAfter: 'retry-after',
 } as const
 
-/** @deprecated */
-export const PATREON_RESPONSE_HEADERS = ResponseHeaders
-
 export type PatreonHeadersData = Record<Lowercase<keyof typeof ResponseHeaders>, string | null>
 
 export type RestHeaders =
