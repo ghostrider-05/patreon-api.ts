@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.14.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.13.0...patreon-api.ts-v0.14.0) (2025-05-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* **rest:** remove deprecated PATREON_RESPONSE_HEADERS
+* **webhooks:** remove getWebhookUserId method
+* **webhooks:** remove webhook to discord method ([#173](https://github.com/ghostrider-05/patreon-api.ts/issues/173))
+
+### Features
+
+* **createQuery:** deprecate in favor of QueryBuilder.fromParams ([c8a256b](https://github.com/ghostrider-05/patreon-api.ts/commit/c8a256bc17fb7d48bcc3ff6d5f84dfddb28b8f12))
+* **QueryBuilder:** add resourceAttributes property ([1743946](https://github.com/ghostrider-05/patreon-api.ts/commit/174394616cf69d970aea331e750784956502a74b))
+* **QueryBuilder:** expose schema properties and relations of resource ([1743946](https://github.com/ghostrider-05/patreon-api.ts/commit/174394616cf69d970aea331e750784956502a74b))
+* **rest:** remove deprecated PATREON_RESPONSE_HEADERS ([5793cd0](https://github.com/ghostrider-05/patreon-api.ts/commit/5793cd0f7566199a66996bd5011b096b915f768b))
+* **WebhookPayloadClient:** add convert method ([8828cb2](https://github.com/ghostrider-05/patreon-api.ts/commit/8828cb2802bb820eae86d98c1e621a09ad0b161e))
+* **webhooks:** remove getWebhookUserId method ([ffedd84](https://github.com/ghostrider-05/patreon-api.ts/commit/ffedd84147d147e8af3ba53bbe554e14de91277d))
+* **webhooks:** remove webhook to discord method ([#173](https://github.com/ghostrider-05/patreon-api.ts/issues/173)) ([ffedd84](https://github.com/ghostrider-05/patreon-api.ts/commit/ffedd84147d147e8af3ba53bbe554e14de91277d))
+
+
+### Bug Fixes
+
+* **QueryBuilder:** filter duplicate relationships ([1743946](https://github.com/ghostrider-05/patreon-api.ts/commit/174394616cf69d970aea331e750784956502a74b))
+* **rest:** only warn/throw when scopes are missing ([#176](https://github.com/ghostrider-05/patreon-api.ts/issues/176)) ([e7a717c](https://github.com/ghostrider-05/patreon-api.ts/commit/e7a717cbed6f7ac4dd004a4366154b7208a3991c))
+
 ## [0.13.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.12.3...patreon-api.ts-v0.13.0) (2025-04-26)
 
 
