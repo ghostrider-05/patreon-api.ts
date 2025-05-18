@@ -178,6 +178,8 @@ export class PatreonOauthClient {
         const requiredScopes = getRequiredScopes.forPath(path, query)
         const missingScopes = requiredScopes.filter(scope => !this.options.scopes?.includes(scope))
 
+        if (missingScopes.length === 0) return
+
         const msg = `Missing oauth scopes for ${path}: "${missingScopes.join('", "')}"`
         if (validate === 'warn') console.log(msg)
         else throw new Error(msg)
