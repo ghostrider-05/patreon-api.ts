@@ -340,7 +340,7 @@ export class PatreonOauthClient {
         const scopes = options?.scopes ?? this.options.scopes
 
         if (state) params.set('state', state)
-        if (scopes?.length) params.set('scopes', scopes.join(','))
+        if (scopes?.length) params.set('scope', scopes.join(' '))
 
         return this.options.authorizationUri + '?' + params.toString()
     }
