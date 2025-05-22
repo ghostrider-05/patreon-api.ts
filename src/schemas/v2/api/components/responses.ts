@@ -78,12 +78,14 @@ function createResponse(resource: Type, array?: boolean) {
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export default function (routes: Route[]) {
-    const headers = Object.values(ResponseHeaders).reduce((headers, name) => ({
-        ...headers,
-        [name]: {
-            $ref: `#/components/headers/${name}`
-        },
-    }), {})
+    const getHeaders = (status: string) => Object.values(ResponseHeaders)
+        .filter(val => (<string[]>[ResponseHeaders.RetryAfter]).includes(val) ? status === '429' : true)
+        .reduce((headers, name) => ({
+            ...headers,
+            [name]: {
+                $ref: `#/components/headers/${name}`
+            },
+        }), {})
 
     return {
         ...Object.entries(APIErrors).reduce((response, table) => ({
@@ -100,7 +102,7 @@ export default function (routes: Route[]) {
                         }
                     }
                 },
-                headers,
+                headers: getHeaders(table[0]),
             }
         }), {}),
         ...routes.reduce((obj, route) => ({
@@ -112,7 +114,7 @@ export default function (routes: Route[]) {
                         schema: createResponse(route.resource, route.response?.array),
                     }
                 },
-                headers,
+                headers: getHeaders('200'),
             }
         }), {}),
     }
