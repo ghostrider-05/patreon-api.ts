@@ -5,7 +5,7 @@ import * as components from '../../../schemas/v2/api/components'
 import { createQueryParameters } from '../../../schemas/v2/api/components/parameters'
 import { APIErrorCodes } from '../../../schemas/v2/api/components/errors'
 
-import { PatreonOauthScope } from '../../../rest/v2'
+import { PatreonOauthScope } from '../../../rest/v2/oauth2/scopes'
 
 import { writeOpenAPISchema } from './schema'
 import { getJsDocDescription, getTypes } from '../shared'
