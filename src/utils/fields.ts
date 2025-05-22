@@ -54,3 +54,16 @@ export interface CustomTypeOptions {}
 export type CustomTypeOption<Key extends string, Value> = CustomTypeOptions extends { [K in Key]: unknown }
     ? CustomTypeOptions[Key]
     : Value
+
+type LastOf<T> =
+  UnionToIntersection<T extends unknown ? () => T : never> extends () => (infer R) ? R : never
+
+type Push<T extends unknown[], V> = [...T, V];
+
+type TuplifyUnion<T, L = LastOf<T>, N = [T] extends [never] ? true : false> =
+    true extends N ? [] : Push<TuplifyUnion<Exclude<T, L>>, L>
+
+export type ObjValueTuple<T, KS extends unknown[] = TuplifyUnion<keyof T>, R extends unknown[] = []> =
+    KS extends [infer K, ...infer KT]
+        ? ObjValueTuple<T, KT, [...R, T[K & keyof T]]>
+        : R
