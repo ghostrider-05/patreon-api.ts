@@ -330,7 +330,11 @@ export class PatreonMock {
             this.validateHeaders(options.headers)
 
             const route = this.parseAPIPath(options.origin + options.path)
-            this.cache.setRequestBody(options.method, Type.Webhook, route.param, options.body?.toString())
+            this.cache.syncRequest({
+                method: options.method,
+                pathResource: Type.Webhook,
+                pathId: route.param,
+            }, null)
 
             return {
                 statusCode,

@@ -1,3 +1,4 @@
+import type { ObjValueTuple } from '../../../utils/fields'
 import { type ItemMap, type ItemType } from '../item'
 
 import type {
@@ -28,11 +29,12 @@ export interface CacheStoreSearchConvertOptions {
     fromKey (key: string): CacheSearchOptions & { id: string }
 }
 
-export interface CacheStore<IsAsync extends boolean> {
-    delete (type: ItemType, id: string): IfAsync<IsAsync, void>
-    put <T extends ItemType>(type: T, id: string, value: CacheItem<T>): IfAsync<IsAsync, void>
-    edit <T extends ItemType>(type: T, id: string, value: Partial<ItemMap[T]>): IfAsync<IsAsync, ItemMap[T] | undefined>
-    get <T extends ItemType> (type: T, id: string): IfAsync<IsAsync, CacheItem<T> | undefined>
+export interface CacheStore<IsAsync extends boolean, Key extends object> {
+    delete (...args: ObjValueTuple<Key>): IfAsync<IsAsync, void>
+    put <T extends ItemType>(...args: [...ObjValueTuple<Key>, value: CacheItem<T>]): IfAsync<IsAsync, void>
+
+    edit <T extends ItemType>(...args: [...ObjValueTuple<Key>, value: Partial<ItemMap[T]>]): IfAsync<IsAsync, ItemMap[T] | undefined>
+    get <T extends ItemType> (...args: ObjValueTuple<Key>): IfAsync<IsAsync, CacheItem<T> | undefined>
 
     bulkPut<T extends ItemType>(items: {
         type: T
@@ -42,37 +44,33 @@ export interface CacheStore<IsAsync extends boolean> {
     bulkGet<T extends ItemType> (items: {
         type: T
         id: string
-    }[]): IfAsync<IsAsync, (CacheItem<T> | undefined)[]>
-    bulkDelete(items?: {
-        type: ItemType
-        id: string
-    }[]): IfAsync<IsAsync, void>
+    }[]): IfAsync<IsAsync, ((Key & { value: CacheItem<T> }) | undefined)[]>
+    bulkDelete(items?: Key[]): IfAsync<IsAsync, void>
 }
 
-export interface CacheStoreBinding<IsAsync extends boolean> {
+export interface CacheStoreBinding<IsAsync extends boolean, Value> {
     /**
      * Store the value from the client to an external resource
      * @param key The key that has information about the item type and id
      * @param value The value to store
      */
-    put(key: string, value: CacheItem<ItemType>): IfAsync<IsAsync, void>
+    put(key: string, value: Value): IfAsync<IsAsync, void>
 
     /**
      * Method to retreive the stored value.
      * @param key The key that has information about the item type and id
      */
-    get(key: string): IfAsync<IsAsync, CacheItem<ItemType> | undefined>
+    get(key: string): IfAsync<IsAsync, Value | undefined>
     delete(key: string): IfAsync<IsAsync, void>
     list(options: {
-        type: ItemType
-        relationships: CacheSearchOptions[]
-    }[]): IfAsync<IsAsync, { id: string, value: CacheItem<ItemType> }[]>
+        prefix: string
+    }): IfAsync<IsAsync, { keys: { key: string; metadata: object }[] }>
 
     bulkPut?(items: {
         key: string
-        value: CacheItem<ItemType>
+        value: Value
     }[]): IfAsync<IsAsync, void>
-    bulkGet?(keys: string[]): IfAsync<IsAsync, (CacheItem<ItemType> | undefined)[]>
+    bulkGet?(keys: string[]): IfAsync<IsAsync, ({ id: string, value: Value } | undefined)[]>
     bulkDelete?(keys: string[]): IfAsync<IsAsync, void>
 
     deleteAll?(): IfAsync<IsAsync, void>
