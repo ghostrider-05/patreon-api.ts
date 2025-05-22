@@ -1,20 +1,18 @@
-import type { ItemType } from '../../item'
-
 import type {
-    CacheItem,
-    CacheSearchOptions,
     CacheStoreBinding,
     CacheStoreBindingOptions
 } from '../base'
 
-export default class implements CacheStoreBinding<false> {
-    protected cache: Map<string, CacheItem<ItemType>> = new Map()
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export default class<Value, Metadata extends {} = {}> implements CacheStoreBinding<false, Value> {
+    protected cache: Map<string, Value> = new Map()
 
     public constructor (
         public options: CacheStoreBindingOptions,
+        protected toMetadata: (value: Value) => Metadata = () => (<Metadata>{}),
     ) {}
 
-    public get (key: string): CacheItem<ItemType> | undefined {
+    public get (key: string): Value | undefined {
         return this.cache.get(key)
     }
 
@@ -26,32 +24,19 @@ export default class implements CacheStoreBinding<false> {
         this.cache.clear()
     }
 
-    public put(key: string, value: CacheItem<ItemType>): void {
+    public put(key: string, value: Value): void {
         this.cache.set(key, value)
     }
 
-    public list(options: {
-        type: ItemType
-        relationships: CacheSearchOptions[]
-    }[]): { id: string; value: CacheItem<ItemType>; }[] {
-        return this.cache.entries().filter(([key, value]) => {
-            return options.some(option => {
-                const isSameType = this.options.convert.fromKey(key).type === option.type
+    public list(options: { prefix: string; }): { keys: { key: string; metadata: Metadata }[] } {
+        const keys = this.cache.keys()
+            .filter(key => key.startsWith(options.prefix))
+            .toArray()
 
-                return isSameType && option.relationships.every(rel => {
-                    const relValue = value.relationships[rel.type]
-
-                    if (typeof rel.id === 'string' && !relValue) return false
-                    else if (relValue == null && rel.id == null) return true
-                    else return Array.isArray(relValue)
-                        ? relValue.includes(rel.id)
-                        : relValue === rel.id
-                })
-            })
-        }).map(([key, value]) => ({
-            id: this.options.convert.fromKey(key).id,
-            value,
-        })).toArray()
+        return {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            keys: keys.map(key => ({ key, metadata: this.toMetadata(this.get(key)!) }))
+        }
     }
 
     public bulkDelete(keys: string[]): void {
@@ -60,11 +45,19 @@ export default class implements CacheStoreBinding<false> {
         }
     }
 
-    public bulkGet(keys: string[]): (CacheItem<ItemType> | undefined)[] {
-        return keys.map(key => this.cache.get(key))
+    public bulkGet(keys: string[]): ({ id: string, value: Value } | undefined)[] {
+        return keys.map(key => {
+            const value = this.cache.get(key)
+            if (!value) return undefined
+
+            return {
+                value,
+                id: this.options.convert.fromKey(key).id,
+            }
+        })
     }
 
-    public bulkPut(items: { key: string; value: CacheItem<ItemType>; }[]): void {
+    public bulkPut(items: { key: string; value: Value }[]): void {
         for (const { key, value } of items) {
             this.cache.set(key, value)
         }

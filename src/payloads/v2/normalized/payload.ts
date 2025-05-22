@@ -1,7 +1,9 @@
 import type {
+    BasePatreonQuery,
     Item,
     ItemMap,
     ItemType,
+    PatreonQuery,
     RelationshipFieldToFieldType,
     RelationshipFields,
     RelationshipIsArray,

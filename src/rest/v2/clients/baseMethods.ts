@@ -1,13 +1,14 @@
 /* eslint-disable jsdoc/require-returns */
 /* eslint-disable jsdoc/require-param */
 import { normalizeFromQuery, simplifyFromQuery } from '../../../payloads/v2'
-import { QueryBuilder, type QueryDefault, type Type } from '../../../schemas/v2'
-
-import type {
-    BasePatreonQuery,
-    BasePatreonQueryType,
-    GetResponsePayload,
-} from '../query'
+import {
+    type BasePatreonQuery,
+    type BasePatreonQueryType,
+    type GetResponsePayload,
+    QueryBuilder,
+    type QueryDefault,
+    type Type,
+} from '../../../schemas/v2'
 
 import {
     PatreonOauthClient,
@@ -125,7 +126,7 @@ class GenericPatreonClientMethods<TransformType extends ResponseTransformType, I
 
         let page = await paginator.next()
         while (!page.done) {
-            yield this._replace(page.value)
+            yield this._replace<Query>(page.value)
             page = await paginator.next()
         }
 

@@ -22,6 +22,7 @@ import type {
     CacheStoreBinding,
     CacheStoreSearchConvertOptions,
     CacheItem,
+    CacheSearchOptions,
 } from './base'
 
 import {
@@ -70,16 +71,30 @@ export interface CacheStoreOptions {
     }[]
 }
 
-export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore<IsAsync>> {
+export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore<IsAsync, { type: ItemType, id: string }>> {
     private promise: PromiseManager<IsAsync>
 
-    public binding: CacheStoreBinding<IsAsync>
+    public binding: CacheStoreBinding<IsAsync, CacheItem<ItemType>>
     public options: Required<Omit<CacheStoreOptions, 'events' | 'initial'>>
         & Pick<CacheStoreOptions, 'events'>
 
+    public static createSync (
+        binding?: CacheStoreBinding<false, CacheItem<ItemType>>,
+        options?: CacheStoreOptions,
+    ) {
+        return new CacheStore(false, binding, options)
+    }
+
+    public static createAsync (
+        binding?: CacheStoreBinding<true, CacheItem<ItemType>>,
+        options?: CacheStoreOptions,
+    ) {
+        return new CacheStore(true, binding, options)
+    }
+
     public constructor (
-        binding: CacheStoreBinding<IsAsync> | undefined,
         protected async: IsAsync,
+        binding?: CacheStoreBinding<IsAsync, CacheItem<ItemType>>,
         options?: CacheStoreOptions,
     ) {
         this.options = {
@@ -96,9 +111,9 @@ export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore
             },
         }
 
-        this.binding = binding ?? (new CacheStoreBindingMemory({
+        this.binding = binding ?? (new CacheStoreBindingMemory<CacheItem<ItemType>>({
             convert: this.options.convert,
-        }) as unknown as CacheStoreBinding<IsAsync>)
+        }, (value) => value.relationships) as unknown as CacheStoreBinding<IsAsync, CacheItem<ItemType>>)
         this.promise = new PromiseManager(async)
 
         this.promise.consume(this.bulkPut(options?.initial ?? []), () => {
@@ -116,6 +131,7 @@ export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore
         return this.binding.put(this.options.convert.toKey({ type, id }), value)
     }
 
+    // @ts-expect-error Generic overwrite
     public edit<T extends ItemType>(type: T, id: string, value: Partial<ItemMap[T]>) {
         return this.promise.consume(this.get(type, id), (item) => {
             if (item == undefined && !this.options.patchUnknownItem) return undefined
@@ -127,6 +143,7 @@ export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore
         })
     }
 
+    // @ts-expect-error Generic overwrite
     public get<T extends ItemType>(type: T, id: string) {
         return this.binding.get(this.options.convert.toKey({ type, id })) as IfAsync<IsAsync, CacheItem<T> | undefined>
     }
@@ -155,18 +172,21 @@ export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore
         ), () => {})
     }
 
+    // @ts-expect-error Generic overwrite
     public bulkGet<T extends ItemType> (items: {
         type: T
         id: string
-    }[]): IfAsync<IsAsync, (CacheItem<T> | undefined)[]> {
+    }[]): IfAsync<IsAsync, ({ id: string, value: CacheItem<T> } | undefined)[]> {
         if (this.binding.bulkGet != undefined) {
             return this.binding.bulkGet(items.map(item => {
                 return this.options.convert.toKey(item)
-            })) as IfAsync<IsAsync, (CacheItem<T> | undefined)[]>
+            })) as IfAsync<IsAsync, ({ id: string, value: CacheItem<T> } | undefined)[]>
         }
 
         return this.promise.consume(this.promise.all(items.map(item => {
-            return this.get(item.type, item.id)
+            return this.promise.consume(this.get(item.type, item.id), value => {
+                return value ? { value, id: item.id } : undefined
+            })
         })), (result) => result)
     }
 
@@ -186,6 +206,32 @@ export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore
     }
 
     // ---- relationship methods ----
+
+    public list(options: {
+        type: ItemType
+        relationships: CacheSearchOptions[]
+    }[]): IfAsync<IsAsync, { id: string; type: ItemType }[]> {
+        const uniqueTypes: ItemType[] = [...new Set(options.map(t => t.type))]
+        const keys = this.promise.all(uniqueTypes.map(prefix => this.binding.list({ prefix })))
+
+        return this.promise.consume(keys, lists => {
+            return lists.flatMap(list => list.keys.filter(item => {
+                return options.some(option => {
+                    const isSameType = this.options.convert.fromKey(item.key).type === option.type
+
+                    return isSameType && option.relationships.every(rel => {
+                        const relValue = item.metadata[rel.type]
+
+                        if (typeof rel.id === 'string' && !relValue) return false
+                        else if (relValue == null && rel.id == null) return true
+                        else return Array.isArray(relValue)
+                            ? relValue.includes(rel.id)
+                            : relValue === rel.id
+                    })
+                })
+            }).map(item => this.options.convert.fromKey(item.key)))
+        })
+    }
 
     public getRelated<
         T extends keyof ItemMap,
@@ -211,13 +257,13 @@ export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore
         T extends keyof ItemMap,
         R extends RelationshipFieldsToItem<T>
     >(resourceType: T, resourceId: string, type: R) {
-        return this.binding.list([{
+        return this.list([{
             type,
             relationships: [{
                 id: resourceId,
                 type: resourceType,
             }]
-        }]) as IfAsync<IsAsync, { id: string; value: CacheItem<T> }[]>
+        }]) as IfAsync<IsAsync, { id: string; type: R }[]>
     }
 
     public getRelationships <T extends keyof ItemMap> (
