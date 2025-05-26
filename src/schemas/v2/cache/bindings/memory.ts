@@ -8,8 +8,7 @@ export default class<Value, Metadata extends {} = {}> implements CacheStoreBindi
     protected cache: Map<string, Value> = new Map()
 
     public constructor (
-        public options: CacheStoreBindingOptions,
-        protected toMetadata: (value: Value) => Metadata = () => (<Metadata>{}),
+        public options: CacheStoreBindingOptions = {},
     ) {}
 
     public get (key: string): Value | undefined {
@@ -34,8 +33,12 @@ export default class<Value, Metadata extends {} = {}> implements CacheStoreBindi
             .toArray()
 
         return {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            keys: keys.map(key => ({ key, metadata: this.toMetadata(this.get(key)!) }))
+            keys: keys.map(key => ({
+                key,
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                metadata: <Metadata>this.options.convert?.toMetadata?.(this.get(key)!)
+                    ?? <Metadata>{}
+            }))
         }
     }
 
@@ -52,7 +55,9 @@ export default class<Value, Metadata extends {} = {}> implements CacheStoreBindi
 
             return {
                 value,
-                id: this.options.convert.fromKey(key).id,
+                id: this.options.convert
+                    ? this.options.convert.fromKey(key).id
+                    : key,
             }
         })
     }

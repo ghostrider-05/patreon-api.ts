@@ -19,14 +19,17 @@ export type CacheItem<T extends ItemType> = {
     }
 }
 
-export interface CacheSearchOptions {
+export interface CacheSearchOptions extends Record<string, unknown> {
     id: string | null
     type: ItemType
 }
 
-export interface CacheStoreSearchConvertOptions {
-    toKey (options: CacheSearchOptions & { id: string }): string
-    fromKey (key: string): CacheSearchOptions & { id: string }
+export interface CacheStoreConvertOptions<
+    O extends Record<string, unknown> = Record<string, unknown>
+> {
+    toKey (options: O & { id: string }): string
+    fromKey (key: string): O & { id: string }
+    toMetadata? (value: object): object
 }
 
 export interface CacheStore<IsAsync extends boolean, Key extends object> {
@@ -48,7 +51,13 @@ export interface CacheStore<IsAsync extends boolean, Key extends object> {
     bulkDelete(items?: Key[]): IfAsync<IsAsync, void>
 }
 
+export interface CacheStoreBindingOptions {
+    convert?: CacheStoreConvertOptions
+}
+
 export interface CacheStoreBinding<IsAsync extends boolean, Value> {
+    options: CacheStoreBindingOptions
+
     /**
      * Store the value from the client to an external resource
      * @param key The key that has information about the item type and id
@@ -74,8 +83,4 @@ export interface CacheStoreBinding<IsAsync extends boolean, Value> {
     bulkDelete?(keys: string[]): IfAsync<IsAsync, void>
 
     deleteAll?(): IfAsync<IsAsync, void>
-}
-
-export interface CacheStoreBindingOptions {
-    convert: CacheStoreSearchConvertOptions
 }

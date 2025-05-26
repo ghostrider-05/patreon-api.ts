@@ -11,7 +11,6 @@ import {
 import {
     type ItemType,
     QueryBuilder,
-    type RelationshipFieldsToItem,
     RelationshipMap,
     Type,
 } from '../../../schemas/v2/'
@@ -130,7 +129,7 @@ export class PatreonMock {
     public constructor (
         public options: PatreonMockOptions = {},
     ) {
-        this.cache = new CacheStore(undefined, false, {
+        this.cache = new CacheStore(false, undefined, {
             initial: options.cache?.initial ?? [],
         })
 
@@ -220,7 +219,7 @@ export class PatreonMock {
         return {
             ...apiPath,
             searchParams,
-        }
+        } as ParsedRoute
     }
 
     private buildResponseFromUrl (route: ParsedRoute, options?: {
@@ -244,12 +243,26 @@ export class PatreonMock {
             // E.g campaign members, campaign posts
             // TODO: in the future make this configurable when new endpoints are added
             const cached = id
-                ? this.cache.getRelated(Type.Campaign, id, path.resource as RelationshipFieldsToItem<Type.Campaign>)
+                // @ts-expect-error resource included campaign, but is not available for list responses.
+                ? this.cache.getRelatedToResource(Type.Campaign, id, path.resource)
                 : null
 
-            if (cached && options?.cache !== false) {
+            if (cached && cached.length > 0 && options?.cache !== false) {
                 const payload = this.data.getListResponsePayload(path.resource, query, {
-                    items: cached.item,
+                    items: cached.map(({ id, type }) => {
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        const { item, relationships } = this.cache.get(type, id)!
+
+                        return {
+                            item: {
+                                id,
+                                attributes: item,
+                            },
+                            included: (this.cache.getRelated(type, id, relationships as never)?.item ?? [])
+                                .filter((item): item is NonNullable<typeof item> => item != undefined)
+                                .map(item => ({ attributes: item.item, id, type }) as never)
+                        }
+                    }),
                 })
 
                 return JSON.stringify(payload)
@@ -264,13 +277,13 @@ export class PatreonMock {
                 return JSON.stringify(payload)
             } else return ''
         } else {
-            const cached = id ? this.cache.get(path.resource, id) : null
+            const cached = id ? this.cache.getResource(path.resource, id) : null
 
             if (id && cached && options?.cache !== false) {
                 const payload = this.data.getSingleResponsePayload(path.resource, query, {
                     id,
-                    item: cached.attributes,
-                    relatedItems: cached.included,
+                    item: cached.data.attributes,
+                    relatedItems: cached.included as never[],
                 })
 
                 return JSON.stringify(payload)
@@ -305,8 +318,8 @@ export class PatreonMock {
      * @param options Options for the mocked response
      * @param options.statusCode The status code the response should have, defaults to `200`
      * @param options.headers The headers to include in the response
-     * @param options.random
-     * @param options.cache
+     * @param options.random Whether to allow random generated responses if the resource is not found in the cache.
+     * @param options.cache Whether to use a cache to search for the resource. When disabled, only generated items will be returned.
      * @returns the intercept callback
      */
     public getMockAgentReplyCallback (options?: {
@@ -343,9 +356,9 @@ export class PatreonMock {
 
             const route = this.parseAPIPath(options.origin + options.path)
             this.cache.syncRequest({
-                method: options.method,
+                method: options.method as RequestMethod,
                 pathResource: Type.Webhook,
-                pathId: route.param,
+                pathId: route.param ?? null,
             }, null)
 
             return {
@@ -362,8 +375,8 @@ export class PatreonMock {
      * @param options.pathParam The path param template value, defaults to `*`
      * @param options.includeOrigin Whether to include the API origin in the url of the handler, defaults to `true`
      * @param options.transformResponse Method to transform the default response for a handler
-     * @param options.random
-     * @param options.cache
+     * @param options.random Whether to allow random generated responses if the resource is not found in the cache.
+     * @param options.cache Whether to use a cache to search for the resource. When disabled, only generated items will be returned.
      * @see https://patreon-api.pages.dev/guide/features/sandbox#msw
      * @returns Handlers for each route that returns a successful response.
      */
@@ -387,9 +400,11 @@ export class PatreonMock {
                     const handler: Handler['handler'] = (request) => {
                         this.validateHeaders(request.headers)
                         const route = this.parseAPIPath(request.url)
-                        if (this.options.responseOptions?.cache) {
-                            this.cache.setRequestBody(method.method, Type.Webhook, route.param, request.body?.toString())
-                        }
+                        this.cache.syncRequest({
+                            method: method.method,
+                            pathResource: Type.Webhook,
+                            pathId: route.param ?? null,
+                        }, null)
 
                         const response = this.buildResponseFromUrl(route, {
                             cache: options?.cache,
