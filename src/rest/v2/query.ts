@@ -1,8 +1,8 @@
+import type { Type } from '../../schemas/v2/item'
 import {
-    type Type,
     QueryBuilder,
     type BasePatreonQueryType,
-} from '../../schemas/v2'
+} from '../../schemas/v2/query'
 
 /**
  * Helper function to create a Patreon query from URLSearchParams
@@ -14,13 +14,4 @@ export function createQuery<Q extends BasePatreonQueryType<Type, boolean>>(param
     return QueryBuilder.fromParams<Q>(params)
 }
 
-export const buildQuery = {
-    identity: QueryBuilder.createFunctionBuilder(QueryBuilder.identity),
-    campaign: QueryBuilder.createFunctionBuilder(QueryBuilder.campaign),
-    campaigns: QueryBuilder.createFunctionBuilder(QueryBuilder.campaigns),
-    campaignMembers: QueryBuilder.createFunctionBuilder(QueryBuilder.campaignMembers),
-    member: QueryBuilder.createFunctionBuilder(QueryBuilder.member),
-    campaignPosts: QueryBuilder.createFunctionBuilder(QueryBuilder.campaignPosts),
-    post: QueryBuilder.createFunctionBuilder(QueryBuilder.post),
-    webhooks: QueryBuilder.createFunctionBuilder(QueryBuilder.webhooks),
-}
+export const buildQuery = QueryBuilder.legacyBuilder
