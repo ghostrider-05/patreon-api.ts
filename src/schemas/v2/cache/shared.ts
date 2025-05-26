@@ -7,7 +7,7 @@ export interface CacheStoreSharedOptions {
     /**
      * When editing an item, store the new attributes when no item is found.
      * Otherwise, the item will not be updated.
-     * @default true
+     * @default false
      */
     patchUnknownItem?: boolean
 }
@@ -29,7 +29,7 @@ export class CacheStoreShared<IsAsync extends boolean, Value> {
         this.promise = new PromiseManager(async)
 
         this.options = {
-            patchUnknownItem: options?.patchUnknownItem ?? true,
+            patchUnknownItem: options?.patchUnknownItem ?? false,
         }
     }
 
