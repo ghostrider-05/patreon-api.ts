@@ -1,15 +1,16 @@
 import { randomUUID } from 'node:crypto'
 
-import {
-    QueryBuilder,
-    type ItemMap,
-    type Relationship,
-    type RelationshipFields,
-    type RelationshipFieldToFieldType,
-    type RelationshipItem,
-    type RelationshipMap,
-    type Type,
-} from '..'
+import type {
+    Relationship,
+    RelationshipFields,
+    RelationshipFieldToFieldType,
+    RelationshipItem,
+    RelationshipMap,
+} from '../relationships'
+
+import type { ItemMap, ItemType, Type } from '../item'
+
+import { QueryBuilder } from '../query'
 
 import {
     type PatreonErrorData,
@@ -35,7 +36,7 @@ export interface PatreonMockDataOptions {
     /**
      * Overwrite attributes when creating a random resource
      */
-    resources?: Partial<{ [T in keyof ItemMap]: (id: string) => Partial<ItemMap[T]> }>
+    resources?: Partial<{ [T in ItemType]: (id: string) => Partial<ItemMap[T]> }>
     /**
      * Methods to create a random type.
      *
@@ -99,7 +100,7 @@ export class PatreonMockData {
      * @param data.relatedItems If requesting relationships, all items that can be returned as a relationship
      * @returns the JSON:API response payload
      */
-    public getSingleResponsePayload<T extends Type, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
+    public getSingleResponsePayload<T extends Type | ItemType, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
         type: T,
         query: {
             includes: I[]
@@ -143,7 +144,7 @@ export class PatreonMockData {
      * @param data.items The attributes of the resources. If partial, the other attributes will be generated randomly.
      * @returns the JSON:API response payload
      */
-    public getListResponsePayload<T extends Type, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
+    public getListResponsePayload<T extends Type | ItemType, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
         type: T,
         query: { includes: I[]; attributes: A; },
         data: {
@@ -209,7 +210,7 @@ export class PatreonMockData {
      * @returns a random string
      */
     public createId (
-        type: Type | keyof ItemMap,
+        type: Type | ItemType,
         options?: {
             pledgeType?: ItemMap[Type.PledgeEvent]['type']
         }
@@ -236,7 +237,7 @@ export class PatreonMockData {
      * @returns `https://patreon.com/api/oauth2/v2/${type}s/${id}`
      * @see https://docs.patreon.com/#apiv2-resource-endpoints
      */
-    public createAPIUrl (type: Type | keyof ItemMap, id: string): string {
+    public createAPIUrl (type: Type | ItemType, id: string): string {
         return `https://patreon.com/api/oauth2/v2/${type}s/${id}`
     }
 
@@ -283,7 +284,7 @@ export class PatreonMockData {
         }
     }
 
-    public createRelatedItems <T extends keyof ItemMap>(type: T, options?: {
+    public createRelatedItems <T extends ItemType>(type: T, options?: {
         items?: RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[]
     }): RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[] {
         const relationMap = QueryBuilder.createRelationMap(type)
@@ -299,7 +300,7 @@ export class PatreonMockData {
         })
     }
 
-    public getAttributeItem<T extends keyof ItemMap, A extends keyof ItemMap[T] = keyof ItemMap[T]>(
+    public getAttributeItem<T extends ItemType, A extends keyof ItemMap[T] = keyof ItemMap[T]>(
         type: T,
         id: string,
         data?: Partial<ItemMap[T]>,
@@ -318,7 +319,7 @@ export class PatreonMockData {
         }
     }
 
-    public getAttributeItems<T extends keyof ItemMap, A extends keyof ItemMap[T]>(
+    public getAttributeItems<T extends ItemType, A extends keyof ItemMap[T]>(
         type: T,
         items?: { id?: string, data?: Partial<ItemMap[T]> }[],
         attributes?: A[],
@@ -341,7 +342,7 @@ export class PatreonMockData {
     }
 
     public filterRelationships<
-        T extends Type,
+        T extends ItemType,
         I extends RelationshipFields<T>,
         A extends RelationshipMap<T, I>
     >(

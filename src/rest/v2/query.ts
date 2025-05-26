@@ -1,8 +1,8 @@
+import type { Type } from '../../schemas/v2/item'
 import {
-    type Type,
     QueryBuilder,
     type BasePatreonQueryType,
-} from '../../schemas/v2'
+} from '../../schemas/v2/query'
 
 /**
  * Helper function to create a Patreon query from URLSearchParams
