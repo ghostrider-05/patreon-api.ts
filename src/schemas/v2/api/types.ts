@@ -4,12 +4,13 @@ import type {
 } from '../../../rest/v2/'
 
 import type { Type } from '../item'
+import type { RelationshipFieldsToItem } from '../relationships'
 
 export interface Route {
     route:
         | ((id: string) => string)
         | (() => string)
-    resource: Type
+    resource: RelationshipFieldsToItem<Type.Campaign> | Type.Campaign
     description?: string
     summary?: string
     tags: string[]
