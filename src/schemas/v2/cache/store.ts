@@ -1,7 +1,17 @@
 import { RequestMethod } from '../../../rest/v2'
-import { isListingPayload } from '../../../v2'
-import { AttributeItem, type ItemMap, type ItemType } from '../item'
-import { WriteResourcePayload, WriteResourceResponse, WriteResourceType } from '../modifiable'
+import { isListingPayload } from '../../../payloads/v2'
+
+import {
+    type AttributeItem,
+    type ItemMap,
+    type ItemType,
+} from '../item'
+
+import type {
+    WriteResourcePayload,
+    WriteResourceResponse,
+    WriteResourceType,
+} from '../modifiable'
 
 import {
     QueryBuilder,
@@ -14,25 +24,24 @@ import type {
     RelationshipFields,
     RelationshipFieldsToItem,
     RelationshipFieldToFieldType,
-    RelationshipTypeFields,
 } from '../relationships'
 
 import type {
     CacheStore as ICacheStore,
     CacheStoreBinding,
-    CacheStoreSearchConvertOptions,
+    CacheStoreConvertOptions,
     CacheItem,
     CacheSearchOptions,
 } from './base'
 
 import {
-    CacheStoreBindingMemory,
-} from './bindings/'
-
-import {
-    PromiseManager,
     type IfAsync,
 } from './promise'
+
+import {
+    CacheStoreShared,
+    type CacheStoreSharedOptions,
+} from './shared'
 
 export interface CacheStoreEventMap {
     ready: []
@@ -50,10 +59,9 @@ export interface CacheStoreEventMap {
 //     maxSize: number
 // }
 
-export interface CacheStoreOptions {
-    convert?: CacheStoreSearchConvertOptions
+export interface CacheStoreOptions extends CacheStoreSharedOptions {
+    convert?: CacheStoreConvertOptions<CacheSearchOptions>
     events?: NodeJS.EventEmitter<CacheStoreEventMap> | undefined
-    patchUnknownItem?: boolean
     requests?: {
         mockAttributes?: {
             [T in WriteResourceType]: Partial<{
@@ -71,32 +79,20 @@ export interface CacheStoreOptions {
     }[]
 }
 
-export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore<IsAsync, { type: ItemType, id: string }>> {
-    private promise: PromiseManager<IsAsync>
-
-    public binding: CacheStoreBinding<IsAsync, CacheItem<ItemType>>
-    public options: Required<Omit<CacheStoreOptions, 'events' | 'initial'>>
+export class CacheStore<IsAsync extends boolean>
+    extends CacheStoreShared<IsAsync, CacheItem<ItemType>>
+    implements Required<ICacheStore<IsAsync, { type: ItemType, id: string }>>
+{
+    public override options: Required<Omit<CacheStoreOptions, 'events' | 'initial'>>
         & Pick<CacheStoreOptions, 'events'>
 
-    public static createSync (
-        binding?: CacheStoreBinding<false, CacheItem<ItemType>>,
-        options?: CacheStoreOptions,
-    ) {
-        return new CacheStore(false, binding, options)
-    }
-
-    public static createAsync (
-        binding?: CacheStoreBinding<true, CacheItem<ItemType>>,
-        options?: CacheStoreOptions,
-    ) {
-        return new CacheStore(true, binding, options)
-    }
-
     public constructor (
-        protected async: IsAsync,
+        async: IsAsync,
         binding?: CacheStoreBinding<IsAsync, CacheItem<ItemType>>,
         options?: CacheStoreOptions,
     ) {
+        super(async, binding, options)
+
         this.options = {
             events: options?.events,
             requests: options?.requests ?? {},
@@ -107,14 +103,10 @@ export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore
                     const [type, id] = key.split('/')
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     return { type: type! as ItemType, id: id! }
-                })
+                }),
+                toMetadata: (value: CacheItem<ItemType>) => value.relationships,
             },
         }
-
-        this.binding = binding ?? (new CacheStoreBindingMemory<CacheItem<ItemType>>({
-            convert: this.options.convert,
-        }, (value) => value.relationships) as unknown as CacheStoreBinding<IsAsync, CacheItem<ItemType>>)
-        this.promise = new PromiseManager(async)
 
         this.promise.consume(this.bulkPut(options?.initial ?? []), () => {
             this.options.events?.emit('ready')
@@ -123,86 +115,61 @@ export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore
 
     // ---- binding methods ----
 
-    public delete(type: ItemType, id: string) {
-        return this.binding.delete(this.options.convert.toKey({ type, id }))
+    // @ts-expect-error expanded override
+    public override delete(type: ItemType, id: string) {
+        return super.delete(this.options.convert.toKey({ type, id }))
     }
 
-    public put<T extends ItemType>(type: T, id: string, value: CacheItem<T>) {
-        return this.binding.put(this.options.convert.toKey({ type, id }), value)
-    }
-
-    // @ts-expect-error Generic overwrite
-    public edit<T extends ItemType>(type: T, id: string, value: Partial<ItemMap[T]>) {
-        return this.promise.consume(this.get(type, id), (item) => {
-            if (item == undefined && !this.options.patchUnknownItem) return undefined
-            const merged = { ...(item?.item ?? {}), ...value } as ItemMap[T]
-
-            return this.promise.chain(this.put(type, id, { relationships: item?.relationships ?? {}, item: merged }), () => {
-                return merged
-            })
-        })
+    // @ts-expect-error expanded override
+    public override put<T extends ItemType>(type: T, id: string, value: CacheItem<T>) {
+        return super.put(this.options.convert.toKey({ type, id }), value)
     }
 
     // @ts-expect-error Generic overwrite
-    public get<T extends ItemType>(type: T, id: string) {
+    public override edit<T extends ItemType>(type: T, id: string, value: Partial<ItemMap[T]>) {
+        return super.edit(this.options.convert.toKey({ id, type }), (stored) => ({
+            item: { ...(stored?.item ?? {}), ...value },
+            relationships: stored?.relationships ?? {},
+        })) as IfAsync<IsAsync, CacheItem<T> | undefined>
+    }
+
+    // @ts-expect-error Generic overwrite
+    public override get<T extends ItemType>(type: T, id: string) {
         return this.binding.get(this.options.convert.toKey({ type, id })) as IfAsync<IsAsync, CacheItem<T> | undefined>
     }
 
-    public bulkPut<T extends ItemType>(items: {
+    // @ts-expect-error expanded override
+    public override bulkPut<T extends ItemType>(items: {
         type: T
         id: string
         value: CacheItem<T>
     }[]): IfAsync<IsAsync, void> {
-        if (items.length === 0) {
-            return undefined as IfAsync<IsAsync, void>
-        }
+        const keys = items.map(item => ({
+            key: this.options.convert.toKey(item),
+            value: item.value,
+        }))
 
-        if (this.binding.bulkPut != undefined) {
-            return this.binding.bulkPut(items.map(item => ({
-                value: item.value,
-                key: this.options.convert.toKey({
-                    id: item.id,
-                    type: item.type,
-                })
-            })))
-        }
-
-        return this.promise.consume(this.promise.all(
-            items.map(item => this.put(item.type, item.id, item.value))
-        ), () => {})
+        return super.bulkPut(keys)
     }
 
     // @ts-expect-error Generic overwrite
-    public bulkGet<T extends ItemType> (items: {
+    public override bulkGet<T extends ItemType> (items: {
         type: T
         id: string
     }[]): IfAsync<IsAsync, ({ id: string, value: CacheItem<T> } | undefined)[]> {
-        if (this.binding.bulkGet != undefined) {
-            return this.binding.bulkGet(items.map(item => {
-                return this.options.convert.toKey(item)
-            })) as IfAsync<IsAsync, ({ id: string, value: CacheItem<T> } | undefined)[]>
-        }
+        const keys = items.map(item => this.options.convert.toKey(item))
 
-        return this.promise.consume(this.promise.all(items.map(item => {
-            return this.promise.consume(this.get(item.type, item.id), value => {
-                return value ? { value, id: item.id } : undefined
-            })
-        })), (result) => result)
+        return super.bulkGet(keys) as IfAsync<IsAsync, ({ id: string, value: CacheItem<T> } | undefined)[]>
     }
 
-    public bulkDelete(items: {
+    // @ts-expect-error expanded override
+    public override bulkDelete(items: {
         type: ItemType
         id: string
     }[]): IfAsync<IsAsync, void> {
-        if (this.binding.bulkDelete != undefined) {
-            return this.binding.bulkDelete(items.map(item => {
-                return this.options.convert.toKey(item)
-            }))
-        }
+        const keys = items.map(item => this.options.convert.toKey(item))
 
-        return this.promise.consume(this.promise.all(items.map(({ id, type }) => {
-            return this.delete(type, id)
-        })), () => {})
+        return super.bulkDelete(keys)
     }
 
     // ---- relationship methods ----
@@ -269,7 +236,7 @@ export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore
     public getRelationships <T extends keyof ItemMap> (
         type: T,
         relationships: CacheItem<T>['relationships'],
-        onMissingItem: (type: RelationshipTypeFields<T>, id: string, resourceType: T) => void,
+        // onMissingItem: (type: RelationshipTypeFields<T>, id: string, resourceType: T) => void,
     ): IfAsync<IsAsync, Relationship<T, RelationshipFields<T>> & {
         items: {
             [R in RelationshipFields<R>]: {
@@ -293,7 +260,10 @@ export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore
             return ids.map(id => {
                 return this.promise.consume(this.get(relationType, id), (item => {
                     if (!item) {
-                        onMissingItem(relationType, id, type)
+                        if (this.options.events?.listenerCount('missingItem')) {
+                            this.options.events.emit('missingItem')
+                        }
+
                         return
                     }
 
@@ -317,6 +287,33 @@ export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore
                     }
                 }, {} as never),
             }
+        })
+    }
+
+    // ---- resource methods ----
+
+    public getResource <T extends ItemType>(type: T, id: string): IfAsync<IsAsync, {
+        data: { attributes: Partial<ItemMap[T]> } & Relationship<T, RelationshipFields<T>>
+        included: {
+            [R in RelationshipFields<R>]: {
+                id: string
+                type: RelationshipFieldToFieldType<T, R>
+                item: CacheItem<RelationshipFieldToFieldType<T, R>>
+            }
+        }[RelationshipFields<T>][]
+    } | undefined> {
+        return this.promise.consume(this.get(type, id), (item) => {
+            if (!item) return undefined
+
+            return this.promise.chain(this.getRelationships(type, item.relationships), (relations) => {
+                return {
+                    data: {
+                        attributes: item.item,
+                        relationships: relations.relationships,
+                    },
+                    included: relations.items,
+                }
+            })
         })
     }
 
@@ -349,8 +346,11 @@ export class CacheStore<IsAsync extends boolean> implements Required<ICacheStore
         responsePayload: GetResponsePayload<T> | null,
     ) {
         if (request.method === RequestMethod.Delete) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            return this.delete(request.pathResource, request.pathId!)
+            if (request.pathId == null) {
+                throw new Error('Missing id of resource ' + request.pathResource + ' to delete in cache')
+            }
+
+            return this.delete(request.pathResource, request.pathId)
         }
 
         if (responsePayload == null) {
