@@ -10,6 +10,5 @@ export default (scopes?: Record<string, string>) => ({
                 scopes: scopes ?? {}
             }
         }
-    },
     }  satisfies OpenAPIV3_1.SecuritySchemeObject,
 })
