@@ -1,3 +1,5 @@
+import type { OpenAPIV3_1 } from 'openapi-types'
+
 export default (scopes?: Record<string, string>) => ({
     Oauth2: {
         type: 'oauth2',
@@ -9,4 +11,5 @@ export default (scopes?: Record<string, string>) => ({
             }
         }
     },
+    }  satisfies OpenAPIV3_1.SecuritySchemeObject,
 })
