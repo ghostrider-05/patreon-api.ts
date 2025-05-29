@@ -224,22 +224,26 @@ export class PatreonOauthClient {
 
     /**
      * Make a paginated request to the Patreon API.
+     * Abort the loop if either condition is met:
+        - no next cursor
+        - the previous last item is the same as current last item
+        - the total amount of items is equal to the fetched amount
      * @param path the resource path
      * @param query the wrapped query to include fields
      * @param options additional request options
      * @yields a page of the request resource
      * @returns the async generator to paginate through the response.
-     * @example See `./examples/README.md` in the GitHub repo
      */
     public async* paginate<Query extends BasePatreonQuery>(
         path: string,
         query: Query,
         options?: Oauth2FetchOptions,
     ): AsyncGenerator<GetResponsePayload<Query>, number, unknown> {
-        let done = false, page = 1
+        let total: number | null = null, page = 1, count = 0
         let cursor: string | undefined = undefined
+        let lastResourceId: string | undefined = undefined
 
-        while (!done) {
+        while (total == null || (count < total)) {
             if (cursor) query.params.set('page[cursor]', cursor)
             const pageQuery = QueryBuilder.fromParams(query.params) as unknown as Query
 
@@ -247,11 +251,29 @@ export class PatreonOauthClient {
             if (response == undefined) break
             yield response
 
-            if ('meta' in response && response.meta.pagination.cursors?.next) {
-                page += 1
-                cursor = response.meta.pagination.cursors.next
+            // Abort if the response is not paginated
+            if (!('meta' in response)) {
+                break
+            }
+
+            if (total == null) {
+                total = response.meta.pagination.total
+            }
+
+            // Abort the loop if either condition is met:
+            // - no next cursor
+            // - the previous last item is the same as current last item
+            // - the total amount of items is equal to the fetched amount
+            count += response.data.length
+            const lastDataId = response.data.at(-1)?.id
+            const nextCursor = response.meta.pagination.cursors?.next
+
+            if (lastResourceId === lastDataId || !nextCursor) {
+                break
             } else {
-                done = true
+                page += 1
+                cursor = nextCursor
+                lastResourceId = lastDataId
             }
         }
 
