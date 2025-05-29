@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.14.1](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.14.0...patreon-api.ts-v0.14.1) (2025-05-29)
+
+
+### Bug Fixes
+
+* **oauth:** space-separated `scope` param in authorize URL ([#177](https://github.com/ghostrider-05/patreon-api.ts/issues/177)) ([ce6401c](https://github.com/ghostrider-05/patreon-api.ts/commit/ce6401c0036d60dd1bc59ee09f666a9abb73063f))
+* **oauth:** stop paginating on last page ([#181](https://github.com/ghostrider-05/patreon-api.ts/issues/181)) ([cbe9a0b](https://github.com/ghostrider-05/patreon-api.ts/commit/cbe9a0bdaf783be2ab9f398bdb2bcddc1b34bb79))
+
 ## [0.14.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.13.0...patreon-api.ts-v0.14.0) (2025-05-18)
 
 
