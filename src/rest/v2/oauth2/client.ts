@@ -240,14 +240,15 @@ export class PatreonOauthClient {
         options?: Oauth2FetchOptions,
     ): AsyncGenerator<GetResponsePayload<Query>, number, unknown> {
         let total: number | null = null, page = 1, count = 0
-        let cursor: string | undefined = undefined
+        const params = query.params
         let lastResourceId: string | undefined = undefined
 
         while (total == null || (count < total)) {
-            if (cursor) query.params.set('page[cursor]', cursor)
-            const pageQuery = QueryBuilder.fromParams(query.params) as unknown as Query
-
-            const response = await this.fetch(path, pageQuery, options)
+            const response = await this.fetch(path,
+                // @ts-expect-error different constraint
+                QueryBuilder.fromParams<Query>(params),
+                options,
+            )
             if (response == undefined) break
             yield response
 
@@ -272,7 +273,7 @@ export class PatreonOauthClient {
                 break
             } else {
                 page += 1
-                cursor = nextCursor
+                params.set('page[cursor]', nextCursor)
                 lastResourceId = lastDataId
             }
         }
