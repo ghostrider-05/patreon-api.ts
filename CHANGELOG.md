@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.2](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.14.1...patreon-api.ts-v0.14.2) (2025-05-30)
+
+
+### Bug Fixes
+
+* **oauth:** properly set cursor on pagination ([babb9a9](https://github.com/ghostrider-05/patreon-api.ts/commit/babb9a970431e164974d6c03d7470d1c3a361092))
+
 ## [0.14.1](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.14.0...patreon-api.ts-v0.14.1) (2025-05-29)
 
 
