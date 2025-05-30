@@ -55,13 +55,14 @@ export function createBackoff (options: RestRetriesBackoffOptions) {
     return (currentRetries: number) => {
         const { strategy, time, limit } = options
         const jitter = options.jitter ? (Math.random() * options.jitter) : 0
+        const applyLimit = (time: number) => limit != undefined ? Math.min(limit, time) : time
 
         if (strategy === 'linear') {
-            return Math.max(limit ?? 0, time * currentRetries) + jitter
+            return applyLimit(time * currentRetries) + jitter
         } else if (strategy === 'exponential') {
-            return Math.max(limit ?? 0, time * (currentRetries * currentRetries)) + jitter
+            return applyLimit(time * (currentRetries * currentRetries)) + jitter
         } else {
-            return Math.max(limit ?? 0, strategy(currentRetries, time)) + jitter
+            return applyLimit(strategy(currentRetries, time)) + jitter
         }
     }
 }
@@ -69,12 +70,16 @@ export function createBackoff (options: RestRetriesBackoffOptions) {
 /**
  * Get the amount to retry the failed request
  * @param options the client options for retrying requests
- * @param status The response status. `null` if no response is assiocated
+ * @param status The response status. `null` if no response is associated
  * @returns the final retry options
  */
 export function getRetryAmount (options: RestRetries, status: number | null): InternalRetryData {
-    const createRetryOptions = (retries: number, backoff?: RestRetriesBackoffOptions): InternalRetryData => ({
-        retries: isRetryable(status) ? retries : 0,
+    const createRetryOptions = (
+        retries: number,
+        backoff?: RestRetriesBackoffOptions,
+        useRetryAmount?: boolean,
+    ): InternalRetryData => ({
+        retries: isRetryable(status) || useRetryAmount ? retries : 0,
         backoff: backoff ? createBackoff(backoff) : (() => 0),
     })
 
@@ -90,7 +95,7 @@ export function getRetryAmount (options: RestRetries, status: number | null): In
         })
 
         if (!option) return createRetryOptions(defaultRetries)
-        return createRetryOptions(option.retries, option.backoff)
+        return createRetryOptions(option.retries, option.backoff, true)
     } else {
         return createRetryOptions(options.retries, options.backoff)
     }
