@@ -137,11 +137,27 @@ export default {
             },
         }
     },
+    JSONAPIRatelimitError: {
+        allOf: [
+            {
+                $ref: '#/components/schemas/JSONAPIError',
+            },
+            {
+                type: 'object',
+                properties: {
+                    retry_after_seconds: {
+                        type: 'number',
+                    }
+                }
+            }
+        ]
+    },
     JSONAPIResource: {
         type: 'object',
         properties: {
             type: {
                 type: 'string',
+                enum: Object.values(Type).map(t => t.toString()),
             },
             id: {
                 readOnly: true,
@@ -156,8 +172,16 @@ export default {
             propertyName: 'type',
         },
     },
-    JSONAPILinksRelated: {},
+    JSONAPILinksRelated: {
+        required: ['related'],
+        properties: {
+            related: {
+                type: 'string'
+            }
+        }
+    },
     JSONAPIResponseLinks: {
+        required: ['self'],
         properties: {
             self: {
                 type: 'string'
@@ -165,13 +189,16 @@ export default {
         }
     },
     JSONAPIResponseMeta: {
+        required: ['meta'],
         properties: {
             meta: {
+                required: ['total', 'pagination'],
                 properties: {
                     total: {
                         type: 'number',
                     },
                     pagination: {
+                        required: ['cursors'],
                         properties: {
                             cursors: {
                                 properties: {
