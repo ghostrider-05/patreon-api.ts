@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { PatreonCreatorClient, PatreonUserClient, type RestFetcher, buildQuery, PatreonTokenFetchOptions } from '../../v2'
+import { PatreonCreatorClient, PatreonUserClient, type RestFetcher, buildQuery, PatreonTokenFetchOptions, QueryBuilder } from '../../v2'
 
 import { PatreonOauthClient } from '../../rest/v2/oauth2/client'
 import { If } from '../../utils/generics'
@@ -48,6 +48,10 @@ describe('oauth client', () => {
     test('client options', () => {
         expect(client.name).toBeNull()
         expect(client.oauth.userAgent).toBeTypeOf('string')
+
+        client.name = 'new'
+        expect(client.name).toEqual('new')
+        expect(client.oauth['rest'].name).toEqual('new')
     })
 
     test('util: is expired', () => {
@@ -78,6 +82,96 @@ describe('oauth client', () => {
         expect(() => client.oauth.createOauthUri({
             scopes: []
         })).toThrow()
+    })
+
+    test('validate scopes', () => {
+        // no option set
+        expect(() => client.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrowError()
+        client.oauth.options.validateScopes = true
+        expect(() => client.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrowError()
+
+        const userClient = createTestClient('user', async () => new Response())
+        expect(() => userClient.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrowError()
+
+        userClient.oauth.options.validateScopes = true
+        expect(() => userClient.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).toThrowError()
+
+        userClient.oauth.options.scopes = ['w:campaigns.webhook']
+        expect(() => userClient.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrowError()
+    })
+
+    test('validate token', async () => {
+        const client = createTestClient('creator', async () => new Response())
+        client.oauth.options.validateToken = true
+        const validate = (token) => PatreonOauthClient['validateToken'](client.oauth, token)
+
+        expect(async () => await validate(undefined)).not.toThrowError()
+        expect(await PatreonOauthClient['validateToken'](client.oauth)).toEqual(client.oauth.cachedToken)
+
+        client.oauth.cachedToken = undefined
+        expect(await PatreonOauthClient['validateToken'](client.oauth).catch(() => undefined)).toBeUndefined()
+
+        expect(await PatreonOauthClient['validateToken'](client.oauth, 'access_token')).toBeUndefined()
+    })
+
+    test('pagination', async () => {
+        const webhooks = Array.from({ length: 4 }, (_, id) => ({ type: 'webhook', id: id.toString() }))
+        const client = createTestClient('creator', async (url) => {
+            const { searchParams } = new URL(url)
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const cursor = parseInt(searchParams.get('page[cursor]') ?? '0'), count = parseInt(searchParams.get('page[count]')!)
+            return new Response(JSON.stringify({
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                data: webhooks.slice(cursor, cursor + count),
+                meta: {
+                    pagination: {
+                        total: webhooks.length,
+                        cursors: {
+                            next: (cursor + count) > webhooks.length ? null : (cursor + count).toString(),
+                        }
+                    }
+                }
+            }))
+        })
+
+        const paginator = client.paginateOauth2('/webhooks', QueryBuilder.webhooks.setRequestOptions({ count: 1 }))
+
+        expect(await paginator.next()).toEqual({
+            done: false,
+            value: {
+                data: [{ id: '0', type: 'webhook' }],
+                meta: { pagination: { total: 4, cursors: { next: '1' } } },
+            }
+        })
+
+        expect(await paginator.next()).toEqual({
+            done: false,
+            value: {
+                data: [{ id: '1', type: 'webhook' }],
+                meta: { pagination: { total: 4, cursors: { next: '2' } } },
+            }
+        })
+
+        expect(await paginator.next()).toEqual({
+            done: false,
+            value: {
+                data: [{ id: '2', type: 'webhook' }],
+                meta: { pagination: { total: 4, cursors: { next: '3' } } },
+            }
+        })
+
+        expect(await paginator.next()).toEqual({
+            done: false,
+            value: {
+                data: [{ id: '3', type: 'webhook' }],
+                meta: { pagination: { total: 4, cursors: { next: '4' } } },
+            }
+        })
+
+        expect(await paginator.next()).toEqual({
+            done: true,
+            value: 4
+        })
     })
 })
 

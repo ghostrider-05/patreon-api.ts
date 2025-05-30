@@ -52,7 +52,7 @@ describe('webhook payload client', () => {
         })
 
         describe('convert post published', () => {
-            const convert = WebhookPayloadClient.convert({
+            const converter = {
                 posts: {
                     "posts:publish": {
                         title: '{{title}} is published',
@@ -65,12 +65,22 @@ describe('webhook payload client', () => {
                         }]
                     }
                 }
-            })
+            }
+            const convert = WebhookPayloadClient.convert(converter)
 
             test('posts published', () => {
                 expect(convert(PatreonWebhookTrigger.PostPublished, <never>{
                     data: { attributes: { title: 'Title', is_public: true } }
                 })).toEqual({
+                    title: 'Title is published',
+                    color: 0,
+                    footer: { text: 'Hello world' },
+                    fields: [{ name: 'Is public', value: 'true', inline: true }]
+                })
+
+                expect(new WebhookPayloadClient(PatreonWebhookTrigger.PostPublished, <never>{
+                    data: { attributes: { title: 'Title', is_public: true } }
+                }).convert(converter)).toEqual({
                     title: 'Title is published',
                     color: 0,
                     footer: { text: 'Hello world' },

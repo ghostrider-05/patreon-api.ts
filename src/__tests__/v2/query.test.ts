@@ -107,6 +107,13 @@ describe('query builder', () => {
         expect(QueryBuilder.campaign.setRelationships(['creator']).attributesFor('creator')).toBeUndefined()
     })
 
+    test('query with one attribute', () => {
+        const query = QueryBuilder.campaign.setAttributes({ campaign: ['patron_count'] })
+
+        expect(query.resourceAttributes).toEqual(['patron_count'])
+        expectTypeOf<typeof query.resourceAttributes>().toEqualTypeOf(['patron_count'] as 'patron_count'[])
+    })
+
     test('query with all relationships', () => {
         expect(QueryBuilder.campaign.includeAllRelationships().relationships).toEqual([
             'benefits',
@@ -188,5 +195,16 @@ describe('query builder', () => {
         expect(() => QueryBuilder.createRelationMap(<never>'invalid')).toThrowError()
         expect(() => QueryBuilder.campaign.attributesFor(<never>'invalid')).toThrowError()
         expect(() => QueryBuilder.convertTypeToRelation('campaign', <never>'invalid')).toThrowError()
+    })
+
+    test('query schema', () => {
+        expect(QueryBuilder.campaign.schemaRelationships).toEqual([
+            'benefits',
+            'creator',
+            'goals',
+            'tiers',
+        ])
+
+        expect(QueryBuilder.campaign.schemaResourceAttributes).toHaveLength(27)
     })
 })

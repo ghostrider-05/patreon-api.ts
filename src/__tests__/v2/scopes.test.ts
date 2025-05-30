@@ -1,37 +1,39 @@
 import { expect, describe, test } from 'vitest'
 
-import { PatreonOauthScope, Routes, getRequiredScopes, createQuery } from '../../v2'
+import { PatreonOauthScope, Routes, getRequiredScopes, QueryBuilder } from '../../v2'
+
+const query = QueryBuilder.fromParams(new URLSearchParams())
 
 describe('oauth scopes', () => {
     describe('for path', () => {
         test('campaigns', () => {
             expect(getRequiredScopes.forPath(
                 Routes.campaign(':id'),
-                createQuery(new URLSearchParams())
+                query
             )).toEqual([PatreonOauthScope.Campaigns])
         })
 
         test('webhooks', () => {
             expect(getRequiredScopes.forPath(
                 Routes.webhooks(),
-                createQuery(new URLSearchParams())
+                query
             )).toEqual([PatreonOauthScope.ManageCampaignWebhooks])
         })
 
         test('posts', () => {
             expect(getRequiredScopes.forPath(
                 Routes.post(':id'),
-                createQuery(new URLSearchParams())
+                query
             )).toEqual([PatreonOauthScope.CampaignPosts])
 
             expect(getRequiredScopes.forPath(
                 Routes.campaignPosts(':id'),
-                createQuery(new URLSearchParams())
+                query
             )).toEqual([PatreonOauthScope.CampaignPosts])
         })
 
         test('members', () => {
-            const query = createQuery(new URLSearchParams({
+            const query = QueryBuilder.fromParams(new URLSearchParams({
                 include: 'address',
                 'fields[user]': 'email',
             }))
@@ -56,7 +58,7 @@ describe('oauth scopes', () => {
         })
 
         test('identity', () => {
-            const query = createQuery(new URLSearchParams({
+            const query = QueryBuilder.fromParams(new URLSearchParams({
                 include: 'campaign',
                 'fields[user]': 'email',
             }))

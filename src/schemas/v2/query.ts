@@ -59,6 +59,7 @@ function createCompleteQueryOptions <
             [resource]: properties,
             ...relationships.reduce((obj, n) => ({
                 ...obj,
+                // TODO: throw on unknown resource
                 [n.resource]: Object.values(SchemaResourcesData).find(d => d.resource === n.resource)?.properties ?? [],
             }), {})
         } as RelationshipMap<T, RelationshipFields<T>>
