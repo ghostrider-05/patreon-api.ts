@@ -2,8 +2,8 @@
 /* eslint-disable no-undef */
 
 const {
-    buildQuery,
     PatreonCreatorClient,
+    QueryBuilder,
 } = require('patreon-api.ts')
 
 const client = new PatreonCreatorClient({
@@ -25,11 +25,8 @@ const client = new PatreonCreatorClient({
     }
 })
 
-const query = buildQuery.campaigns(['creator'])({
-    user: ['social_connections']
-})
-
-
+const query = QueryBuilder.campaigns
+    .addRelationshipAttributes('creator', ['social_connections'])
 
 client.fetchCampaigns(query)
     .then(payload => console.log(JSON.stringify(payload.included[0].attributes.social_connections, null, 4)))
