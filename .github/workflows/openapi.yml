@@ -6,7 +6,8 @@ on:
       - '**/schemas/v2/api/**'
       - '**/schemas/v2/resources/**'
       - '**/scripts/v2/openapi/**'
-    branches: main
+    branches:
+      - main
 jobs:
   update:
     name: Update specs

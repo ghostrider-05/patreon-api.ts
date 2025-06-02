@@ -6,6 +6,8 @@ on:
       - 'src/schemas/v2/relationships.ts'
 permissions:
   contents: write
+env:
+  NODE_VERSION: 20.x
 jobs:
   update:
     name: Update v2 schemas
@@ -14,10 +16,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install node.js v20
+      - name: Install node.js v${{ env.NODE_VERSION}}
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
       - name: Install dependencies
