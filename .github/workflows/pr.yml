@@ -69,8 +69,10 @@ jobs:
       - name: Report coverage
         uses: davelosert/vitest-coverage-report-action@v2
         with:
-          vite-config-path: vitest.config.ts
-          json-summary-compare-path: coverage-main/coverage-summary.json
+          vite-config-path: vitest.config.mts
+          json-final-path: src/coverage/coverage-final.json
+          json-summary-path: src/coverage/coverage-summary.json
+          json-summary-compare-path: src/coverage-main/coverage-summary.json
   labeler:
     name: Pull Request labeler
     runs-on: ubuntu-latest
