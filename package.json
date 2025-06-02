@@ -48,6 +48,10 @@
   "author": {
     "name": "ghostrider-05"
   },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "license": "MIT",
   "devDependencies": {
     "@eslint/js": "^9.25.1",
