@@ -9,6 +9,7 @@ export default defineConfig({
             .concat(process.env.GITHUB_ACTIONS ? ['github-actions'] : []),
 
         coverage: {
+            reporter: ['json', 'json-summary'],
             provider: 'istanbul',
             exclude: [
                 '__tests__',
