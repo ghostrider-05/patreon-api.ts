@@ -326,10 +326,16 @@ export class QueryBuilder<
         return createCompleteQueryOptions<T>(resource)
     }
 
+    /** @deprecated This will be removed some time after buildQuery has been removed */
+    public get build () {
+        return QueryBuilder.createFunctionBuilder(this)
+    }
+
     /**
      * Create a function builder from a query builder.
      *
      * This is to support the legacy `buildQuery`.
+     * @deprecated
      * @param builder The query builder to convert
      */
     public static createFunctionBuilder <T extends Type, Listing extends boolean> (builder: QueryBuilder<T, Listing>) {

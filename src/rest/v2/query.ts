@@ -56,6 +56,9 @@ export function createQuery<Q extends BasePatreonQueryType<Type, boolean>>(param
     return QueryBuilder.fromParams<Q>(params)
 }
 
+/**
+ * @deprecated use QueryBuilder.{property}.build instead of buildQuery.
+ */
 export const buildQuery = {
     identity: QueryBuilder.createFunctionBuilder(QueryBuilder.identity),
     campaign: QueryBuilder.createFunctionBuilder(QueryBuilder.campaign),

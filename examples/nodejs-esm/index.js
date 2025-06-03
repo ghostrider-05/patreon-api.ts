@@ -1,11 +1,12 @@
 /* eslint-disable no-undef */
 
 import {
-    buildQuery,
     normalize,
     PatreonCreatorClient,
     PatreonWebhookTrigger,
     simplify,
+    QueryBuilder,
+    Routes,
 } from 'patreon-api.ts'
 
 const client = new PatreonCreatorClient({
@@ -27,9 +28,8 @@ const client = new PatreonCreatorClient({
     }
 })
 
-const query = buildQuery.campaigns(['creator'])({
-    user: ['social_connections']
-})
+const query = QueryBuilder.campaigns
+    .addRelationshipAttributes('creator', ['social_connections'])
 
 const payload = await client.fetchCampaigns(query)
 console.log(
@@ -38,7 +38,10 @@ console.log(
     JSON.stringify(simplify(payload), null, 4),
 )
 
+// Some actions you can take as example
 const createWebhook = false
+const unpauseAllWebhooks = false
+const listWebhooks = true
 
 if (createWebhook) {
     const test = await client.webhooks.createWebhook({
@@ -50,8 +53,14 @@ if (createWebhook) {
     })
 
     console.log(JSON.stringify(test, null, 4))
-} else {
-    const webhooks = await client.webhooks.fetchWebhooks(buildQuery.webhooks(['campaign'])())
+}
+
+if (unpauseAllWebhooks) {
+    const webhookQuery = QueryBuilder.webhooks
+        .addRelationships(['campaign'])
+        .setAttributes({ webhook: ['paused'] })
+
+    const webhooks = await client.webhooks.fetchWebhooks(webhookQuery)
 
     for (const webhook of webhooks.data) {
         if (webhook.attributes.paused) {
@@ -60,4 +69,14 @@ if (createWebhook) {
     }
 
     console.log(JSON.stringify(webhooks, null, 4))
+}
+
+if (listWebhooks) {
+    const webhookQuery = QueryBuilder.webhooks
+        .setAttributes({ webhook: ['uri', 'triggers'] })
+        .setRequestOptions({ count: 1 })
+
+    for await (const page of client.paginateOauth2(Routes.webhooks(), webhookQuery)) {
+        console.log(JSON.stringify(page, null, 4))
+    }
 }
