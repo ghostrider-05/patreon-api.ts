@@ -20,7 +20,7 @@ function createBaseItem(resource: Type | ItemType) {
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-function createResponse(resource: Type, array?: boolean) {
+function createResponse(resource: Type | ItemType, array?: boolean) {
     const { includesKeys, resources } = getResourceParameters(resource)
 
     const data = {
@@ -78,12 +78,24 @@ function createResponse(resource: Type, array?: boolean) {
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export default function (routes: Route[]) {
-    const headers = Object.values(ResponseHeaders).reduce((headers, name) => ({
-        ...headers,
-        [name]: {
-            $ref: `#/components/headers/${name}`
-        },
-    }), {})
+    const getHeaders = (status: string) => Object.values(ResponseHeaders)
+        .filter(val => (<string[]>[ResponseHeaders.RetryAfter]).includes(val) ? status === '429' : true)
+        .reduce((headers, name) => ({
+            ...headers,
+            [name]: {
+                $ref: `#/components/headers/${name}`
+            },
+        }), {})
+
+    // eslint-disable-next-line jsdoc/require-jsdoc
+    function getErrorRef (status: string) {
+        switch (status) {
+        case '429':
+            return 'JSONAPIRatelimitError'
+        default:
+            return 'JSONAPIError'
+        }
+    }
 
     return {
         ...Object.entries(APIErrors).reduce((response, table) => ({
@@ -95,12 +107,12 @@ export default function (routes: Route[]) {
                         schema: {
                             type: 'array',
                             items: {
-                                $ref: '#/components/schemas/JSONAPIError',
+                                $ref: '#/components/schemas/' + getErrorRef(table[0]),
                             },
                         }
                     }
                 },
-                headers,
+                headers: getHeaders(table[0]),
             }
         }), {}),
         ...routes.reduce((obj, route) => ({
@@ -112,7 +124,7 @@ export default function (routes: Route[]) {
                         schema: createResponse(route.resource, route.response?.array),
                     }
                 },
-                headers,
+                headers: getHeaders('200'),
             }
         }), {}),
     }
