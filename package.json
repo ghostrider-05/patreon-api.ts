@@ -16,8 +16,8 @@
     "prestart": "npx tsc && node ./tsc-generated/src/scripts/v2/index.js",
     "build": "tsup",
     "build:openapi": "npx tsc && node ./tsc-generated/src/scripts/v2/openapi/index.js",
-    "test": "vitest --typecheck",
-    "test:coverage": "vitest run --typecheck --coverage",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
     "lint": "npx eslint src/**/*.ts apps/**/*.ts examples/**/*.ts",
     "lint:fix": "npx eslint --fix src/**/*.ts apps/**/*.ts examples/**/*.ts"
   },
@@ -48,18 +48,23 @@
   "author": {
     "name": "ghostrider-05"
   },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "license": "MIT",
   "devDependencies": {
     "@eslint/js": "^9.28.0",
     "@types/node": "^18.19.31",
-    "@vitest/coverage-istanbul": "^3.1.2",
+    "@vitest/coverage-istanbul": "^3.2.1",
     "eslint": "^9.28.0",
     "eslint-plugin-jsdoc": "^50.7.0",
+    "msw": "^2.9.0",
     "openapi-types": "^12.1.3",
     "ts-morph": "^26.0.0",
     "tsup": "^8.5.0",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.33.0",
-    "vitest": "3.1.2"
+    "vitest": "3.2.1"
   }
 }

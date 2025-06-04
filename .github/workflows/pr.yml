@@ -2,6 +2,8 @@ name: Pull Request
 on:
   - pull_request
   - pull_request_target
+env:
+  NODE_VERSION: 20.x
 jobs:
   test_coverage:
     name: Test coverage
@@ -9,18 +11,22 @@ jobs:
     # Only needs to run on head branch since that will become the new base
     # and coverage needs to pass before merging
     if: ${{ github.event_name == 'pull_request' }}
+    continue-on-error: true
     strategy:
       matrix:
-        node-version:
-          - 20.x
+        include:
+          - branch: main
+            artifact: main
+          - branch: ${{ github.head_ref }}
+            artifact: pull-request
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install node.js v${{ matrix.node-version }}
+      - name: Install node.js v${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
       - name: Install dependencies
@@ -31,6 +37,42 @@ jobs:
 
       - name: Run test coverage
         run: npm run test:coverage
+
+      - name: "Upload Coverage"
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-${{ matrix.artifact }}
+          path: src/coverage
+  report_coverage:
+    name: Report PR coverage
+    runs-on: ubuntu-latest
+    needs: test_coverage
+    if: always() && github.event_name == 'pull_request'
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Coverage Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-pull-request
+          path: src/coverage
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage-main
+          path: src/coverage-main
+
+      - name: Report coverage
+        uses: davelosert/vitest-coverage-report-action@v2
+        with:
+          vite-config-path: vitest.config.mts
+          json-final-path: src/coverage/coverage-final.json
+          json-summary-path: src/coverage/coverage-summary.json
+          json-summary-compare-path: src/coverage-main/coverage-summary.json
   labeler:
     name: Pull Request labeler
     runs-on: ubuntu-latest

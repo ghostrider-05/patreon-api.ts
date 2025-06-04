@@ -19,6 +19,7 @@ export type RestHeaders =
 export function resolveHeaders (headers: RestHeaders): Record<string, string> {
     const keys = typeof headers.keys === 'function'
         ? [...headers.keys()]
+        // TODO: convert to lowercase for consistency
         : Object.keys(headers)
 
     return keys.reduce<Record<string, string>>((data, key) => ({

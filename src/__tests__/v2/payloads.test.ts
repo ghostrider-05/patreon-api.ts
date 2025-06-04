@@ -153,6 +153,19 @@ describe('listing payloads', () => {
                 next_cursor: null,
             }
         })).toEqual(true)
+
+        expect(isListingNormalizedPayload({
+            id: 'id',
+            type: Type.Campaign,
+            benefits: [],
+            creator: {
+                id: 'creator',
+                type: Type.User,
+            },
+            goals: [],
+            tiers: [],
+            link: 'api_url',
+        })).toEqual(false)
     })
 })
 

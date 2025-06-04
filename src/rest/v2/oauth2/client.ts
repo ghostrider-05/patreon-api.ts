@@ -278,7 +278,7 @@ export class PatreonOauthClient {
             }
         }
 
-        return page
+        return page - 1
     }
 
     /**

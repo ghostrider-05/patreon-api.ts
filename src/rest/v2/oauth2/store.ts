@@ -123,10 +123,9 @@ class PatreonMemoryStore<Value, Options, ListOptions = Options, ListValue = Valu
     }
 
     public list (options: ListOptions): ListValue[] {
-        return this.values.entries()
+        return [...this.values.entries()]
             .filter(([key, value]) => this.filter(key, value, options))
             .map(n => this.toListValue(n[0], n[1], options))
-            .toArray()
     }
 
     public put (value: Value, options?: Options): void {

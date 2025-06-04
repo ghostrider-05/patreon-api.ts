@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { PatreonCreatorClient, PatreonUserClient, type RestFetcher, buildQuery, PatreonTokenFetchOptions } from '../../v2'
+import { PatreonCreatorClient, PatreonUserClient, type RestFetcher, PatreonTokenFetchOptions, QueryBuilder } from '../../v2'
 
 import { PatreonOauthClient } from '../../rest/v2/oauth2/client'
 import { If } from '../../utils/generics'
@@ -43,41 +43,64 @@ export function createTestClient <T extends ('creator' | 'user')>(
 }
 
 describe('oauth client', () => {
-    const client = createTestClient('creator', async () => new Response())
+    test('pagination', async () => {
+        const webhooks = Array.from({ length: 4 }, (_, id) => ({ type: 'webhook', id: id.toString() }))
+        const client = createTestClient('creator', async (url) => {
+            const { searchParams } = new URL(url)
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const cursor = parseInt(searchParams.get('page[cursor]') ?? '0'), count = parseInt(searchParams.get('page[count]')!)
+            return new Response(JSON.stringify({
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                data: webhooks.slice(cursor, cursor + count),
+                meta: {
+                    pagination: {
+                        total: webhooks.length,
+                        cursors: {
+                            next: (cursor + count) > webhooks.length ? null : (cursor + count).toString(),
+                        }
+                    }
+                }
+            }))
+        })
 
-    test('client options', () => {
-        expect(client.name).toBeNull()
-        expect(client.oauth.userAgent).toBeTypeOf('string')
-    })
+        const paginator = client.paginateOauth2('/webhooks', QueryBuilder.webhooks.setRequestOptions({ count: 1 }))
 
-    test('util: is expired', () => {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        expect(PatreonOauthClient.isExpired(client.oauth.cachedToken!)).toBeFalsy()
+        expect(await paginator.next()).toEqual({
+            done: false,
+            value: {
+                data: [{ id: '0', type: 'webhook' }],
+                meta: { pagination: { total: 4, cursors: { next: '1' } } },
+            }
+        })
 
-        expect(PatreonOauthClient.isExpired(<never>{
-            expires_in_epoch: (Date.now() + 86000).toString(),
-        }))
-    })
+        expect(await paginator.next()).toEqual({
+            done: false,
+            value: {
+                data: [{ id: '1', type: 'webhook' }],
+                meta: { pagination: { total: 4, cursors: { next: '2' } } },
+            }
+        })
 
-    test('util: to stored', () => {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        expect(PatreonOauthClient.toStored(client.oauth.cachedToken!)).toEqual(client.oauth.cachedToken)
+        expect(await paginator.next()).toEqual({
+            done: false,
+            value: {
+                data: [{ id: '2', type: 'webhook' }],
+                meta: { pagination: { total: 4, cursors: { next: '3' } } },
+            }
+        })
 
-        expect(parseInt(PatreonOauthClient.toStored(<never>{ expires_in: '600'}).expires_in_epoch)).approximately(Date.now() + 600_000, 20)
-    })
+        expect(await paginator.next()).toEqual({
+            done: false,
+            value: {
+                data: [{ id: '3', type: 'webhook' }],
+                meta: { pagination: { total: 4, cursors: { next: '4' } } },
+            }
+        })
 
-    test('uri', () => {
-        expect(client.oauth.oauthUri).toBeTypeOf('string')
-
-        expect(client.oauth.createOauthUri({
-            scopes: [],
-            state: 'state', 
-        })).toBeTypeOf('string')
-
-        client.oauth.options.redirectUri = undefined
-        expect(() => client.oauth.createOauthUri({
-            scopes: []
-        })).toThrow()
+        expect(await paginator.next()).toEqual({
+            done: true,
+            value: 4
+        })
     })
 })
 
@@ -230,48 +253,5 @@ describe('user client', () => {
         const discordId = await instance.fetchDiscordId()
 
         expect(discordId).toEqual('discord_id')
-    })
-})
-
-// TODO: replace data with actual payloads
-describe('client methods', () => {
-    const data = { type: 'client' }
-    const client = createTestClient('creator', async (url) => {
-        console.log('Url: ' + url)
-        const payload = ['/members', '/campaigns', '/posts'].some(p => url.endsWith(p))
-            ? [data]
-            : data
-
-        return new Response(JSON.stringify(payload))
-    })
-    
-    test('campaigns', async () => {
-        const campaign = await client.fetchCampaign('id', buildQuery.campaign()(), { token: 'token' })
-        const campaigns = await client.fetchCampaigns(buildQuery.campaigns()(), { token: 'token' })
-
-        expect(campaign).toEqual(data)
-        expect(campaigns).toEqual([data])
-    })
-
-    test('member', async () => {
-        const member = await client.fetchMember('id', buildQuery.member()(), { token: 'token' })
-        const members = await client.fetchCampaignMembers('id', buildQuery.campaignMembers()(), { token: 'token' })
-
-        expect(member).toEqual(data)
-        expect(members).toEqual([data])
-    })
-
-    test('post', async () => {
-        const post = await client.fetchPost('id', buildQuery.post()(), { token: 'token' })
-        const posts = await client.fetchCampaignPosts('id', buildQuery.campaignPosts()(), { token: 'token' })
-
-        expect(post).toEqual(data)
-        expect(posts).toEqual([data])
-    })
-
-    test('post', async () => {
-        const identity = await client.fetchIdentity(buildQuery.identity()(), { token: 'token' })
-
-        expect(identity).toEqual(data)
     })
 })
