@@ -15,8 +15,6 @@ import { ItemMap, ItemType, Type } from './item'
 
 import type { If } from '../../utils/generics'
 
-type ValueOrArray<T> = T | T[]
-
 type PaginationQuerySort =
     | string
     | { key: string, descending?: boolean }
@@ -24,7 +22,7 @@ type PaginationQuerySort =
 export interface QueryRequestOptions {
     cursor?: string
     count?: number
-    sort?: ValueOrArray<PaginationQuerySort>
+    sort?: PaginationQuerySort | PaginationQuerySort[]
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
@@ -393,20 +391,6 @@ export class QueryBuilder<
         }
     }
 
-    /** @deprecated */
-    public static get legacyBuilder () {
-        return {
-            identity: QueryBuilder.createFunctionBuilder(QueryBuilder.identity),
-            campaign: QueryBuilder.createFunctionBuilder(QueryBuilder.campaign),
-            campaigns: QueryBuilder.createFunctionBuilder(QueryBuilder.campaigns),
-            campaignMembers: QueryBuilder.createFunctionBuilder(QueryBuilder.campaignMembers),
-            member: QueryBuilder.createFunctionBuilder(QueryBuilder.member),
-            campaignPosts: QueryBuilder.createFunctionBuilder(QueryBuilder.campaignPosts),
-            post: QueryBuilder.createFunctionBuilder(QueryBuilder.post),
-            webhooks: QueryBuilder.createFunctionBuilder(QueryBuilder.webhooks),
-        }
-    }
-
     /**
      * Create a record to convert relation names to resources.
      * @param type The resource to create the map for
@@ -495,7 +479,7 @@ export class QueryBuilder<
      * @param options the sort options
      * @returns the parameter to include in the query
      */
-    protected static resolveSortOptions(options: ValueOrArray<PaginationQuerySort>): string {
+    protected static resolveSortOptions(options: NonNullable<QueryRequestOptions['sort']>): string {
         return (Array.isArray(options) ? options : [options])
             .map(option => {
                 return typeof option === 'string'

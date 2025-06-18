@@ -14,7 +14,7 @@ export type WebhookServerEventMap = {
 export interface WebhookServerOptions {
     secret: string | string[]
     cache?: string
-    emitter?: NodeJS.EventEmitter<WebhookServerEventMap>
+    events?: NodeJS.EventEmitter<WebhookServerEventMap>
 }
 
 export class WebhookServer {
