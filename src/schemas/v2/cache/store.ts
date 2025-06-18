@@ -1,5 +1,9 @@
+/* eslint-disable jsdoc/check-param-names */
+import type {
+    RelationshipData,
+} from '../../../payloads/v2/normalized/find'
+
 import { RequestMethod } from '../../../rest/v2'
-import { isListingPayload } from '../../../payloads/v2'
 
 import {
     type AttributeItem,
@@ -15,8 +19,6 @@ import type {
 
 import {
     QueryBuilder,
-    BasePatreonQuery,
-    GetResponsePayload,
 } from '../query'
 
 import type {
@@ -44,9 +46,17 @@ import {
 } from './shared'
 
 export interface CacheStoreEventMap {
+    /**
+     * Emitted when the initial items have been stored in the cache
+     */
     ready: []
-    missingRelationship: []
-    missingItem: []
+    missingItem: [type: ItemType, id: string]
+    missingMockedAttributes: [
+        path: {
+            id: string | null
+            resource: WriteResourceType
+        },
+    ]
 }
 
 // interface Sweeper {
@@ -60,13 +70,24 @@ export interface CacheStoreEventMap {
 // }
 
 export interface CacheStoreOptions extends CacheStoreSharedOptions {
-    convert?: CacheStoreConvertOptions<CacheSearchOptions>
     events?: NodeJS.EventEmitter<CacheStoreEventMap> | undefined
     requests?: {
         mockAttributes?: {
             [T in WriteResourceType]: Partial<{
                 [M in RequestMethod]: (body: WriteResourcePayload<T, M>) => WriteResourceResponse<T>
             }>
+        }
+        syncOptions?: {
+            /**
+             * Throw an error if no mocked attributes are generated.
+             * @default false
+             */
+            requireMockAttributes?: boolean
+            /**
+             * The allowed request methods used for syncing requests
+             * @default ['DELETE', 'POST', 'PATCH']
+             */
+            allowedMethods?: RequestMethod[]
         }
         //urlParser?: {}
     }
@@ -85,6 +106,7 @@ export class CacheStore<IsAsync extends boolean>
 {
     public override options: Required<Omit<CacheStoreOptions, 'events' | 'initial'>>
         & Pick<CacheStoreOptions, 'events'>
+        & { convert: CacheStoreConvertOptions<CacheSearchOptions> }
 
     public constructor (
         async: IsAsync,
@@ -98,12 +120,12 @@ export class CacheStore<IsAsync extends boolean>
             requests: options?.requests ?? {},
             patchUnknownItem: options?.patchUnknownItem ?? true,
             convert: {
-                toKey: options?.convert?.toKey ?? ((options) => options.type + '/' + options.id),
-                fromKey: options?.convert?.fromKey ?? ((key) => {
+                toKey: (options) => options.type + '/' + options.id,
+                fromKey: (key) => {
                     const [type, id] = key.split('/')
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     return { type: type! as ItemType, id: id! }
-                }),
+                },
                 toMetadata: (value: CacheItem<ItemType>) => value.relationships,
             },
         }
@@ -174,6 +196,44 @@ export class CacheStore<IsAsync extends boolean>
 
     // ---- relationship methods ----
 
+    private convertFromRelationships<T extends ItemType, R extends RelationshipFields<T>> (
+        relationships: Relationship<T, R>['relationships']
+    ): CacheItem<T>['relationships'] {
+        return Object.entries<Relationship<T, R>['relationships']>(relationships).reduce((output, [key, value]) => {
+            const data = value['data'] as RelationshipData<T, R>
+
+            return {
+                ...output,
+                [key]: data == null ? null : (Array.isArray(data) ? data.map(d => d.id) : data.id)
+            }
+        }, {})
+    }
+
+    private convertToRelationships <T extends ItemType>(
+        type: T,
+        relationships: CacheItem<T>['relationships'],
+    ): Relationship<T, RelationshipFields<T>> & {
+        fields: RelationshipFields<T>[]
+        map: { [R in RelationshipFields<T>]: RelationshipFieldToFieldType<T, R> }
+    } {
+        const relationFields = Object.keys(relationships) as RelationshipFields<T>[]
+        const relationMap = QueryBuilder.createRelationMap(type)
+
+        return {
+            fields: relationFields,
+            map: relationMap,
+            relationships: relationFields.reduce<Relationship<T, RelationshipFields<T>>['relationships']>((obj, key) => {
+                const ids = relationships[key]
+                return {
+                    ...obj,
+                    [key]: ids == null ? null : (Array.isArray(ids)
+                        ? { data: ids.map(id => ({ id, type: relationMap[key] })) }
+                        : { data: { id: ids, type: relationMap[key] }, links: { related: '' } })
+                }
+            }, {} as never)
+        }
+    }
+
     public list(options: {
         type: ItemType
         relationships: CacheSearchOptions[]
@@ -200,23 +260,57 @@ export class CacheStore<IsAsync extends boolean>
         })
     }
 
+    /**
+     * Get the item(s) in a resource for a relationship
+     * @param type The type of the resource
+     * @param id The id of the resource
+     * @param related The relation name to get
+     * @returns
+     * - `undefined` when the resource is not found
+     * - `null` when the relationship is not defined on the resource
+     * - `items` can have undefined items, that item is not in the cache found.
+     */
     public getRelated<
         T extends keyof ItemMap,
         R extends RelationshipFields<T>
-    >(type: T, id: string, related: R) {
+    >(type: T, id: string, related: R): IfAsync<IsAsync,
+        | { type: 'item', items: { value: CacheItem<RelationshipFieldToFieldType<T, R>> | undefined, id: string }[] }
+        | { type: 'array', items: { value: CacheItem<RelationshipFieldToFieldType<T, R>> | undefined, id: string }[] }
+        | null
+        | undefined
+    > {
         return this.promise.consume(this.get(type, id), (result) => {
             if (result == undefined) return undefined
+            const converted = this.convertToRelationships(type, result.relationships)
 
-            const relationType = QueryBuilder.convertRelationToType(type, related)
             const ids = result.relationships[related]
             if (ids == null) return null
-            const stringIds = <string[]>(Array.isArray(ids) ? ids : [ids])
 
-            return this.promise.chain(this.promise.all(stringIds.map(id => this.get(relationType, id))), (result) => {
-                return Array.isArray(ids)
-                    ? { ids: ids as string[], item: result }
-                    : { id: ids as string, item: result }
-            })
+            if (Array.isArray(ids)) {
+                return this.promise.chain(this.promise.all(ids.map(id => {
+                    return this.get<RelationshipFieldToFieldType<T, R>>(converted.map[related], id)
+                })), (items) => {
+                    return {
+                        type: 'array',
+                        items: items.map((value, index) => ({
+                            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                            id: ids[index]!,
+                            value,
+                        }))
+                    }
+                })
+            } else {
+                return this.promise.chain(
+                    this.get<RelationshipFieldToFieldType<T, R>>(converted.map[related], ids),
+                    (item) => ({
+                        type: 'item',
+                        items: [{
+                            id: <string>ids,
+                            value: item,
+                        }],
+                    })
+                )
+            }
         })
     }
 
@@ -236,7 +330,6 @@ export class CacheStore<IsAsync extends boolean>
     public getRelationships <T extends keyof ItemMap> (
         type: T,
         relationships: CacheItem<T>['relationships'],
-        // onMissingItem: (type: RelationshipTypeFields<T>, id: string, resourceType: T) => void,
     ): IfAsync<IsAsync, Relationship<T, RelationshipFields<T>> & {
         items: {
             [R in RelationshipFields<R>]: {
@@ -246,12 +339,11 @@ export class CacheStore<IsAsync extends boolean>
             }
         }[RelationshipFields<T>][]
     }> {
-        const relationFields = Object.keys(relationships) as RelationshipFields<T>[]
-        const relationMap = QueryBuilder.createRelationMap(type)
+        const converted = this.convertToRelationships(type, relationships)
 
-        return this.promise.consume(this.promise.all(relationFields.flatMap(relation => {
+        return this.promise.consume(this.promise.all(converted.fields.flatMap(relation => {
             if (relationships[relation] == null) return []
-            const relationType = relationMap[relation]
+            const relationType = converted.map[relation]
 
             const ids: string[] = Array.isArray(relationships[relation])
                 ? relationships[relation]
@@ -261,7 +353,7 @@ export class CacheStore<IsAsync extends boolean>
                 return this.promise.consume(this.get(relationType, id), (item => {
                     if (!item) {
                         if (this.options.events?.listenerCount('missingItem')) {
-                            this.options.events.emit('missingItem')
+                            this.options.events.emit('missingItem', relationType, id)
                         }
 
                         return
@@ -277,15 +369,7 @@ export class CacheStore<IsAsync extends boolean>
         })), (items) => {
             return {
                 items: items.filter((n): n is NonNullable<typeof n> => n != undefined),
-                relationships: relationFields.reduce<Relationship<T, RelationshipFields<T>>['relationships']>((obj, key) => {
-                    const ids = relationships[key]
-                    return {
-                        ...obj,
-                        [key]: ids == null ? null : (Array.isArray(ids)
-                            ? { data: ids.map(id => ({ id, type: relationMap[key] })) }
-                            : { data: { id: ids, type: relationMap[key] }, links: { related: '' } })
-                    }
-                }, {} as never),
+                relationships: converted.relationships,
             }
         })
     }
@@ -322,47 +406,80 @@ export class CacheStore<IsAsync extends boolean>
     ): IfAsync<IsAsync, void> {
         const { id, type, attributes } = attributeItem
 
-        // TODO: sync relationships
-
         return this.promise.consume(this.get(type, id), (item => {
-            if (item != undefined) {
-                return this.promise.chain(this.edit(type, id, attributes), () => {})
-            } else {
-                return this.promise.chain(this.put(type, id, {
-                    item: attributes,
-                    relationships: attributeItem.relationships ?? {},
-                }), () => {})
-            }
+            return this.promise.chain(this.put(type, id, {
+                item: {
+                    ...(item?.item ?? {}),
+                    ...attributes,
+                },
+                relationships: {
+                    ...(item?.relationships ?? {}),
+                    ...(attributeItem.relationships
+                        ? this.convertFromRelationships(attributeItem.relationships)
+                        : {}
+                    ),
+                },
+            }), () => {})
         }))
     }
 
-    public syncRequest <T extends BasePatreonQuery>(
+    // eslint-disable-next-line jsdoc/require-returns, jsdoc/require-param
+    /**
+     * Sync the request body to the cache, updating the resource with the changes. For the following methods actions are done:
+     * - `DELETE`: delete the resource in the cache
+     * - `PATCH`: updates the resource (attributes and relationships)
+     * - `POST`: creates the resource in the cache
+     * @param request The request data
+     * @param path Path data extracted from the API route
+     * @throws when `path.id` is `null`. For `POST` requests, use the new id as path id
+     * @throws when the request body is `null` for non-`DELETE` requests
+     * @throws when `options.requests.syncOptions.requireMockAttributes` is `true` and no mock attributes are generated.
+     */
+    public syncRequest (
         request: {
             method: RequestMethod
-            pathId: string | null
-            pathResource: ItemType
-            //body: WriteResourcePayload<WriteResourceType, RequestMethod> | null
+            body: WriteResourcePayload<WriteResourceType, RequestMethod> | null
         },
-        responsePayload: GetResponsePayload<T> | null,
-    ) {
+        path: {
+            id: string | null
+            resource: WriteResourceType
+        }
+    ): IfAsync<IsAsync, void> {
+        const { mockAttributes, syncOptions } = this.options.requests
+        const allowedMethods = syncOptions?.allowedMethods
+            ?? [RequestMethod.Delete, RequestMethod.Patch, RequestMethod.Post]
+
+        if (allowedMethods != undefined && !allowedMethods.includes(request.method)) {
+            return void 0 as IfAsync<IsAsync, void>
+        }
+
+        if (path.id == null) {
+            throw new Error('Missing id of resource ' + path.resource + ' to update in cache')
+        }
+
         if (request.method === RequestMethod.Delete) {
-            if (request.pathId == null) {
-                throw new Error('Missing id of resource ' + request.pathResource + ' to delete in cache')
+            return this.delete(path.resource, path.id)
+        }
+
+        if (request.body == null) {
+            throw new Error('Missing request body to sync with cache')
+        }
+
+        const mockedAttributes = mockAttributes?.[path.resource]?.[request.method]?.(request.body)
+
+        if (mockedAttributes == undefined) {
+            if (this.options.events?.listenerCount('missingMockedAttributes')) {
+                this.options.events.emit('missingMockedAttributes', path)
             }
 
-            return this.delete(request.pathResource, request.pathId)
-        }
+            if (syncOptions?.requireMockAttributes) {
+                throw new Error('Failed to find mocked attributes for resource: ' + path.resource)
+            }
 
-        if (responsePayload == null) {
-            throw new Error()
-        }
-
-        if (isListingPayload(responsePayload)) {
-            return this.promise.consume(this.promise.all(responsePayload.data.map(item => {
-                return this.syncResource(item)
-            })), () => {})
+            // enable checking later again
+            return this.syncResource(<never>{ ...(<object>request.body.data), id: path.id })
         } else {
-            return this.syncResource(responsePayload.data)
+            return this.syncResource({ ...mockedAttributes.data, id: path.id })
         }
     }
 }
