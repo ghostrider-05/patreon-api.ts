@@ -7,6 +7,7 @@
     "cleanOutputDir": true,
     "hideGenerator": true,
     "hideBreadcrumbs": true,
+    "githubPages": false,
     "readme": "none",
     "out": "api",
     "plugin": [

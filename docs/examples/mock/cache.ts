@@ -2,10 +2,11 @@ import { PatreonMock, RouteBases, Routes } from 'patreon-api.ts'
 
 const mock = new PatreonMock({
     cache: {
-        initial: {
-            // @ts-expect-error Remove this when all attributes are added
-            campaign: new Map([
-                ['my-campaign-id', {
+        initial: [
+            {
+                type: 'campaign',
+                id: 'my-campaign-id',
+                value: {
                     item: {
                         patron_count: 7,
                         is_monthly: true,
@@ -19,25 +20,24 @@ const mock = new PatreonMock({
                         // If no relationship is configured for this item
                         // Use null instead of an array / empty string
                         goals: null,
-                        tiers: [],
-                    }
-                }],
-            ]),
-            // @ts-expect-error Remove this when all attributes are added
-            user: new Map([
-                ['creator-id', {
+                    },
+                }
+            },
+            {
+                id: 'creator-id',
+                type: 'user',
+                value: {
                     item: {
                         about: null,
                         is_creator: true,
-                        // ... All other user attributes
+                        // ... All other relevant user properties
                     },
                     relationships: {
                         campaign: 'my-campaign-id',
-                        memberships: [],
-                    },
-                }]
-            ])
-        }
+                    }
+                }
+            }
+        ],
     }
 })
 
