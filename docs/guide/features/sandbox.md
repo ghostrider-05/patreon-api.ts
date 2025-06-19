@@ -58,13 +58,13 @@ When a resource is not in the cache, the `onMissingRelationship` option will dec
 
 :::
 
-To define items in the cache, use the `intitial` option:
+To define items in the cache, use the `initial` option:
 
 <<< @/examples/mock/cache.ts{ts twoslash}
 
 #### Write requests
 
-For `POST`, `PATCH` and `DELETE` the cache will update the cache using `setRequestBody`, .e.g delete an item (will not delete or change relationships), update attributes or add a new item. This is done by the exposed handlers or callbacks and the only supported resource is `'webhook'`.
+For `POST`, `PATCH` and `DELETE` the cache will update the cache using `syncRequest`, .e.g delete an item (will not delete or change relationships), update attributes or add a new item. This is done by the exposed handlers or callbacks and the only supported resource is `'webhook'`.
 
 ## Frameworks
 
@@ -117,7 +117,7 @@ You can use webhook mocking to test your implementation of your server. You can 
 
 The `retries` option (this uses the same implementation as [client `rest.retries`](../configuration#restretries) option) allows you to implement the same [retry system Patreon has](https://docs.patreon.com/#robust-retries).
 
-The `send` method has a return type of `Promise<number | null>`. If the type is a `number`, the server has returned a succesful response. Otherwise (with `retries` enabled), it will return `null` and add / update the message to the `queuedMessages`. With no retry options, it will return the status of the failed request. When a message is retried succesfully:
+The `send` method has a return type of `Promise<number | null>`. If the type is a `number`, the server has returned a successful response. Otherwise (with `retries` enabled), it will return `null` and add / update the message to the `queuedMessages`. With no retry options, it will return the status of the failed request. When a message is retried successfully:
 
 - the message will be deleted from the queue
 - all other messages from the same webhook will be retried immediately
