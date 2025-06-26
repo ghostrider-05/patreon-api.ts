@@ -2,7 +2,7 @@ import { expect, describe, test } from 'vitest'
 
 import { Routes } from '../../v2'
 
-describe('oauth routes', () => {
+describe('routes', () => {
     test('identity', () => {
         expect(Routes.identity()).toEqual('/identity')
     })

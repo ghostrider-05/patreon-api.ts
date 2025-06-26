@@ -17,6 +17,12 @@ export class CacheStoreShared<IsAsync extends boolean, Value> {
     protected promise: PromiseManager<IsAsync>
 
     public binding: CacheStoreBinding<IsAsync, Value>
+
+    /**
+     * Options for the cache.
+     * Can be used to control how the cache behaves on edits
+     * or other options for custom cache items.
+     */
     public options: Required<CacheStoreSharedOptions>
 
     public constructor (

@@ -19,4 +19,5 @@ export * from './resources/webhook'
 
 export * as SchemaResourcesData from './generated/schemas'
 
+export * from './cache/'
 export * from './mock/'

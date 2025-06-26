@@ -113,7 +113,7 @@ export interface PatreonMockHandler {
     handler: (request: {
         url: string
         headers: Record<string, string> | Headers
-        body?: string | null
+        text: () => Promise<string>
     }) => {
         headers: Record<string, string>
         body: string
@@ -379,7 +379,11 @@ export class PatreonMock {
             },
             {
                 resource: Type.Webhook,
-                id: route.param ?? null,
+                // If no id is found in the route:
+                // - Assume that it is a GET/POST request to an array endpoint.
+                // - Assume that the GET method is excluded.
+                // And generate a new id for the resource.
+                id: route.param ?? this.data.createId(Type.Webhook),
             }
         )
 
@@ -448,16 +452,18 @@ export class PatreonMock {
         cache?: boolean
     }) {
         type Handler = Omit<PatreonMockHandler, 'handler'> & {
-            handler: (...args: Parameters<PatreonMockHandler['handler']>) => R
+            handler: (...args: Parameters<PatreonMockHandler['handler']>) => Promise<R>
         }
 
         return paths.reduce<Record<PatreonMockRouteId, Handler>>((handlers, route) => {
             return {
                 ...handlers,
                 ...route.methods.reduce<Record<PatreonMockRouteId, Handler>>((obj, { method, id }) => {
-                    const handler: Handler['handler'] = (request) => {
+                    const handler: Handler['handler'] = async (request) => {
                         const data = this.handleMockRequest({
-                            body: request.body ?? null,
+                            body: method.toLowerCase() !== 'get'
+                                ? await request.text()
+                                : null,
                             headers: request.headers,
                             url: request.url,
                             method,

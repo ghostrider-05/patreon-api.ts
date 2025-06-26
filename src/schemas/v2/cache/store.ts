@@ -50,7 +50,15 @@ export interface CacheStoreEventMap {
      * Emitted when the initial items have been stored in the cache
      */
     ready: []
+
+    /**
+     * Emitted when an item is not found in the cache
+     */
     missingItem: [type: ItemType, id: string]
+
+    /**
+     * Emitted when a request has no mocked attributes for a method.
+     */
     missingMockedAttributes: [
         path: {
             id: string | null
@@ -94,10 +102,12 @@ export interface CacheStoreOptions extends CacheStoreSharedOptions {
     // sweepers?: {}
     // limits?: {}
     initial?: {
-        id: string
-        type: ItemType
-        value: CacheItem<ItemType>
-    }[]
+        [T in ItemType]: {
+            id: string
+            type: T
+            value: CacheItem<T>
+        }
+    }[ItemType][]
 }
 
 export class CacheStore<IsAsync extends boolean>
@@ -240,6 +250,8 @@ export class CacheStore<IsAsync extends boolean>
     }[]): IfAsync<IsAsync, { id: string; type: ItemType }[]> {
         const uniqueTypes: ItemType[] = [...new Set(options.map(t => t.type))]
         const keys = this.promise.all(uniqueTypes.map(prefix => this.binding.list({ prefix })))
+
+        console.log('Cached keys', keys)
 
         return this.promise.consume(keys, lists => {
             return lists.flatMap(list => list.keys.filter(item => {
@@ -401,6 +413,12 @@ export class CacheStore<IsAsync extends boolean>
         })
     }
 
+    /**
+     * Synchronize a resource with the cache.
+     * This method is used by {@link syncRequest}
+     * @param attributeItem The item with attributes (and relationships)
+     * @returns a promise for async storage
+     */
     public syncResource <T extends ItemType, R extends RelationshipFields<T>> (
         attributeItem: AttributeItem<T, Partial<ItemMap[T]>> & Partial<Relationship<T, R>>,
     ): IfAsync<IsAsync, void> {
@@ -441,7 +459,7 @@ export class CacheStore<IsAsync extends boolean>
             body: WriteResourcePayload<WriteResourceType, RequestMethod> | null
         },
         path: {
-            id: string | null
+            id: string
             resource: WriteResourceType
         }
     ): IfAsync<IsAsync, void> {

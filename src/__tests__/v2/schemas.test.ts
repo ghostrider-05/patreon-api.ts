@@ -79,7 +79,7 @@ describe('items', () => {
                 id,
                 type,
             },
-            link: {
+            links: {
                 related: '',
             },
         }).branded.toEqualTypeOf<DataItem<Type.Campaign, true>>()
