@@ -2,11 +2,11 @@ import { describe, expect, test } from 'vitest'
 
 import {
     WebhookClient,
-    buildQuery,
+    QueryBuilder,
     type Webhook,
 } from '../../../v2'
 
-import { createTestClient } from '../client.test'
+import { creatorClient } from '../../client'
 
 describe('webhook client', () => {
     test('webhook headers', () => {
@@ -20,26 +20,30 @@ describe('webhook client', () => {
     })
 
     test('webhook paused', () => {
-        const webhook: Partial<Webhook> = {
+        const webhook: Webhook = {
             num_consecutive_times_failed: 0,
+            paused: false,
+            triggers: [],
+            uri: 'https://ghostrider-05.com',
+            secret: 'htoihweowjewokpkpw.whfowhrowj',
+            last_attempted_at: new Date().toISOString(),
         }
 
-        const webhookClient = new WebhookClient(<never>{})
+        const webhookClient = new WebhookClient(creatorClient.oauth)
 
-        expect(webhookClient.hasUnsentEvents(<Webhook>webhook)).toBeFalsy()
+        expect(webhookClient.hasUnsentEvents(webhook)).toBeFalsy()
     })
 
     describe('webhook API', () => {
         const webhook = { type: 'webhook', id: 'id', attributes: {} }
-        const client = createTestClient('creator', async (_, { method }) => {
-            return new Response(JSON.stringify(method === 'GET' ? [webhook] : webhook), { status: 200 })
-        }).webhooks
+        const client = creatorClient.webhooks
 
         test('fetch webhooks', async () => {
-            const query = buildQuery.webhooks()()
+            const query = QueryBuilder.webhooks
             const webhooks = await client.fetchWebhooks(query)
 
-            expect(webhooks).toEqual([webhook])
+            expect(webhooks.data[0].type).toEqual('webhook')
+            console.log(webhooks)
         })
 
         test('edit webhooks', async () => {
@@ -64,7 +68,7 @@ describe('webhook client', () => {
             const res = await client.createWebhook({
                 campaignId: 'id',
                 triggers: ['members:create'],
-                uri: 'https://patreon-api.pages/',
+                uri: 'https://patreon-api.pages.dev/',
             })
 
             expect(res).toEqual(webhook)

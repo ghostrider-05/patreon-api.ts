@@ -43,7 +43,7 @@ export class PatreonUserClient<IncludeAll extends boolean = false> extends Patre
 
     /**
      * Fetch the token from the incoming redirect request (with a code query).
-     * @see {@link PatreonUserClient.oauth.getOauthTokenFromCode}
+     * @see {@link PatreonUserClient.oauth}.getOauthTokenFromCode
      * @param {string | { url: string }} request The request or url with the code query
      * @returns {Oauth2StoredToken | undefined} the access token of the user.
      */

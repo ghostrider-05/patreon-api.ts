@@ -3,7 +3,7 @@
 import type { ItemMap } from '../item'
 import type { RandomDataGenerator } from '../mock/random'
 
-export default class RandomDataResources {
+export class PatreonMockDataRandomResources {
     public constructor(
         public random: RandomDataGenerator,
         public resources?: Partial<{ [T in keyof ItemMap]: (id: string) => Partial<ItemMap[T]> }>,) {

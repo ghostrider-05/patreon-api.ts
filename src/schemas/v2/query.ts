@@ -2,11 +2,6 @@
 import { RequestPayload } from '../../payloads/v2/internals/request'
 
 import type {
-    BasePatreonQueryType,
-    PatreonQuery,
-} from '../../rest/v2'
-
-import type {
     RelationshipFields,
     RelationshipFieldToFieldType,
     RelationshipMap,
@@ -20,8 +15,6 @@ import { ItemMap, ItemType, Type } from './item'
 
 import type { If } from '../../utils/generics'
 
-type ValueOrArray<T> = T | T[]
-
 type PaginationQuerySort =
     | string
     | { key: string, descending?: boolean }
@@ -29,7 +22,7 @@ type PaginationQuerySort =
 export interface QueryRequestOptions {
     cursor?: string
     count?: number
-    sort?: ValueOrArray<PaginationQuerySort>
+    sort?: PaginationQuerySort | PaginationQuerySort[]
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
@@ -65,6 +58,50 @@ function createCompleteQueryOptions <
         } as RelationshipMap<T, RelationshipFields<T>>
     }
 }
+
+export type BasePatreonQuery = {
+    /**
+     * The actual encoded query string.
+     * @example `'?fields%5Buser%5D=url%2Cname'`
+     */
+    query: string
+
+    /**
+     * The raw search params.
+     * Use {@link BasePatreonQuery.query} for the stringified params.
+     */
+    params: URLSearchParams
+}
+
+export type PatreonQuery<
+    T extends Type,
+    Includes extends RelationshipFields<T>,
+    Attributes extends RelationshipMap<T, Includes>,
+    Listing extends boolean = false
+> = BasePatreonQuery & {
+    /**
+     * DO NOT USE THIS!
+     *
+     * An empty string.
+     * Used to infer the return type for the response
+     * @deprecated
+     */
+    _payload_type: RequestPayload<T, Includes, Attributes, Listing>
+}
+
+export type BasePatreonQueryType<T extends Type, Listing extends boolean> = PatreonQuery<T, never, never, Listing>
+
+type PayloadFromQuery<
+    T extends Type,
+    Include extends RelationshipFields<`${T}`>,
+    Attributes extends RelationshipMap<T, Include>,
+    Listing extends boolean,
+    Query extends PatreonQuery<T, Include, Attributes, Listing>
+> = Query['_payload_type']
+
+export type GetResponsePayload<Query extends BasePatreonQuery> = Query extends PatreonQuery<infer T, infer I, infer A, infer L>
+    ? PayloadFromQuery<T, I, A, L, Query>
+    : never
 
 export type QueryDefault<IncludeAll extends boolean, T extends Type, L extends boolean> = If<IncludeAll,
     PatreonQuery<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>, L>,
@@ -442,7 +479,7 @@ export class QueryBuilder<
      * @param options the sort options
      * @returns the parameter to include in the query
      */
-    protected static resolveSortOptions(options: ValueOrArray<PaginationQuerySort>): string {
+    protected static resolveSortOptions(options: NonNullable<QueryRequestOptions['sort']>): string {
         return (Array.isArray(options) ? options : [options])
             .map(option => {
                 return typeof option === 'string'

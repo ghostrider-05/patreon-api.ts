@@ -103,8 +103,8 @@ export async function syncRandomData () {
     })
 
     program.file.addClass({
-        isDefaultExport: true,
-        name: 'RandomDataResources',
+        isExported: true,
+        name: 'PatreonMockDataRandomResources',
         methods,
         ctors: [{
             leadingTrivia: 'public ',

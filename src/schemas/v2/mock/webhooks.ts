@@ -6,8 +6,8 @@ import { createBackoff, type RestRetriesOptions } from '../../../rest/v2/oauth2/
 import type { WebhookPayload } from '../../../payloads/v2/'
 import type { Webhook } from '../resources/webhook'
 
-import { type PatreonMockCache } from './cache'
 import { type PatreonMockData } from './data'
+import { CacheStore } from '../cache'
 
 interface PatreonMockWebhookHeaderData {
     signature: string
@@ -61,7 +61,7 @@ export class PatreonMockWebhooks {
     public constructor (
         public options: PatreonMockWebhooksOptions,
         protected data: PatreonMockData,
-        protected cache: PatreonMockCache,
+        protected cache: CacheStore<false>,
     ) {}
 
     public static getQueuedKey (webhookId: string, signature: string) {
@@ -168,7 +168,7 @@ export class PatreonMockWebhooks {
 
         const cached = this.cache.get('webhook', id)
         if (cached != null) {
-            this.cache.store.edit('webhook', id, {
+            this.cache.edit('webhook', id, {
                 last_attempted_at: status.attempted_at,
                 num_consecutive_times_failed: status.errors,
                 paused: !status.success,

@@ -50,7 +50,8 @@ describe('Fetch store', () => {
         } else if (options.method === 'PUT') {
             if (!options.body) return new Response('Invalid body', { status: 400 })
 
-            values.set('fetch_token', options.body)
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            values.set('fetch_token', options.body!.toString())
             return new Response(null, {
                 status: 201,
             })
