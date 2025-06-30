@@ -32,7 +32,6 @@ import type {
     CacheStoreBinding,
     CacheStoreConvertOptions,
     CacheItem,
-    CacheSearchOptions,
 } from './base'
 
 import {
@@ -114,7 +113,7 @@ export class CacheStore<IsAsync extends boolean>
 {
     public override options: Required<Omit<CacheStoreOptions, 'events' | 'initial'>>
         & Pick<CacheStoreOptions, 'events'>
-        & { convert: CacheStoreConvertOptions<CacheSearchOptions> }
+        & { convert: CacheStoreConvertOptions<{ id: string | null; type: ItemType }> }
 
     public constructor (
         async: IsAsync,
@@ -244,7 +243,7 @@ export class CacheStore<IsAsync extends boolean>
 
     public list(options: {
         type: ItemType
-        relationships: CacheSearchOptions[]
+        relationships: { id: string | null; type: ItemType }[]
     }[]): IfAsync<IsAsync, { id: string; type: ItemType }[]> {
         const uniqueTypes: ItemType[] = [...new Set(options.map(t => t.type))]
         const keys = this.promise.all(uniqueTypes.map(prefix => this.binding.list({ prefix })))

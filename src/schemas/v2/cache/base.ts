@@ -19,11 +19,6 @@ export type CacheItem<T extends ItemType> = {
     }
 }
 
-export interface CacheSearchOptions extends Record<string, unknown> {
-    id: string | null
-    type: ItemType
-}
-
 export interface CacheStoreConvertOptions<
     O extends Record<string, unknown> = Record<string, unknown>
 > {

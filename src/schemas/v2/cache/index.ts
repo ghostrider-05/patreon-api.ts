@@ -5,4 +5,10 @@ export type {
     CacheItem,
     CacheStoreBinding,
     CacheStoreBindingOptions,
+    CacheStoreConvertOptions,
 } from './base'
+
+export {
+    CacheStoreShared,
+    type CacheStoreSharedOptions,
+} from './shared'
