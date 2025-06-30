@@ -21,7 +21,7 @@ import type { ListRequestPayload } from '../../../payloads/v2/internals/list'
 import type { GetRequestPayload } from '../../../payloads/v2/internals/get'
 
 import type { RandomDataGenerator } from './random'
-import RandomDataResources from '../generated/random'
+import { PatreonMockDataRandomResources } from '../generated/random'
 
 export interface PatreonMockHeaderData {
     uuid?: string
@@ -50,7 +50,7 @@ const _random_int = (min: number, max: number) => Math.floor(Math.random() * (ma
 
 export class PatreonMockData {
     public options: PatreonMockDataOptions
-    public random: RandomDataResources
+    public random: PatreonMockDataRandomResources
 
     protected static defaultRandom: Required<NonNullable<PatreonMockDataOptions['random']>> = {
         arrayElement: _random,
@@ -85,7 +85,7 @@ export class PatreonMockData {
             ...options?.random ?? {},
         }
 
-        this.random = new RandomDataResources(randomGenerators, options?.resources)
+        this.random = new PatreonMockDataRandomResources(randomGenerators, options?.resources)
     }
 
     /**
