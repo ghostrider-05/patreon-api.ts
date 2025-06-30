@@ -29,7 +29,6 @@ import type {
 } from '../relationships'
 
 import type {
-    CacheStore as ICacheStore,
     CacheStoreBinding,
     CacheStoreConvertOptions,
     CacheItem,
@@ -112,7 +111,6 @@ export interface CacheStoreOptions extends CacheStoreSharedOptions {
 
 export class CacheStore<IsAsync extends boolean>
     extends CacheStoreShared<IsAsync, CacheItem<ItemType>>
-    implements Required<ICacheStore<IsAsync, { type: ItemType, id: string }>>
 {
     public override options: Required<Omit<CacheStoreOptions, 'events' | 'initial'>>
         & Pick<CacheStoreOptions, 'events'>
@@ -485,19 +483,19 @@ export class CacheStore<IsAsync extends boolean>
 
         const mockedAttributes = mockAttributes?.[path.resource]?.[request.method]?.(request.body)
 
-        if (mockedAttributes == undefined) {
-            if (this.options.events?.listenerCount('missingMockedAttributes')) {
-                this.options.events.emit('missingMockedAttributes', path)
-            }
-
-            if (syncOptions?.requireMockAttributes) {
-                throw new Error('Failed to find mocked attributes for resource: ' + path.resource)
-            }
-
-            // enable checking later again
-            return this.syncResource(<never>{ ...(<object>request.body.data), id: path.id })
-        } else {
+        if (mockedAttributes != undefined) {
             return this.syncResource({ ...mockedAttributes.data, id: path.id })
         }
+
+        if (this.options.events?.listenerCount('missingMockedAttributes')) {
+            this.options.events.emit('missingMockedAttributes', path)
+        }
+
+        if (syncOptions?.requireMockAttributes) {
+            throw new Error('Failed to find mocked attributes for resource: ' + path.resource)
+        }
+
+        // enable checking later again
+        return this.syncResource(<never>{ ...(<object>request.body.data), id: path.id })
     }
 }

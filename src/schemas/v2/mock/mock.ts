@@ -107,18 +107,18 @@ export interface PatreonMockOptions {
     webhooks?: PatreonMockWebhooksOptions
 }
 
-export interface PatreonMockHandler {
+export interface PatreonMockHandler<R = {
+    body: string
+    status: number
+    headers: Record<string, string>
+}> {
     url: string
     method: Lowercase<RequestMethod>
     handler: (request: {
         url: string
         headers: Record<string, string> | Headers
         text: () => Promise<string>
-    }) => {
-        headers: Record<string, string>
-        body: string
-        status: number
-    }
+    }) => Promise<R>
 }
 
 type PatreonMockRouteId = typeof paths[number]['methods'][number]['id']
@@ -443,23 +443,19 @@ export class PatreonMock {
      * @returns Handlers for each route that returns a successful response.
      */
     public getMockHandlers <
-        R = ReturnType<PatreonMockHandler['handler']>
+        R = Awaited<ReturnType<PatreonMockHandler['handler']>>
     >(options?: {
         pathParam?: string
         includeOrigin?: boolean
-        transformResponse?: (response: ReturnType<PatreonMockHandler['handler']>) => R
+        transformResponse?: (response: Awaited<ReturnType<PatreonMockHandler['handler']>>) => R
         random?: boolean
         cache?: boolean
     }) {
-        type Handler = Omit<PatreonMockHandler, 'handler'> & {
-            handler: (...args: Parameters<PatreonMockHandler['handler']>) => Promise<R>
-        }
-
-        return paths.reduce<Record<PatreonMockRouteId, Handler>>((handlers, route) => {
+        return paths.reduce<Record<PatreonMockRouteId, PatreonMockHandler<R>>>((handlers, route) => {
             return {
                 ...handlers,
-                ...route.methods.reduce<Record<PatreonMockRouteId, Handler>>((obj, { method, id }) => {
-                    const handler: Handler['handler'] = async (request) => {
+                ...route.methods.reduce<Record<PatreonMockRouteId, PatreonMockHandler<R>>>((obj, { method, id }) => {
+                    const handler: PatreonMockHandler<R>['handler'] = async (request) => {
                         const data = this.handleMockRequest({
                             body: method.toLowerCase() !== 'get'
                                 ? await request.text()

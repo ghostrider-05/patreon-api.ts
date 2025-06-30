@@ -261,7 +261,6 @@ export abstract class PatreonClientMethods<IncludeAll extends boolean> extends G
 
     /**
      * The application name of the client.
-     * @default null
      */
     public get name(): string | null {
         return this._oauth['rest'].name
