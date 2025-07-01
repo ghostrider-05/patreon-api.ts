@@ -13,7 +13,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^18.19.31",
-    "dotenv": "^16.5.0",
+    "dotenv": "^17.0.1",
     "patreon-api.ts": "../../"
   }
 }
