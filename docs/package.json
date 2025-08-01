@@ -16,13 +16,13 @@
   },
   "devDependencies": {
     "@shikijs/vitepress-twoslash": "^3.4.2",
-    "@vueuse/core": "^13.4.0",
+    "@vueuse/core": "^13.6.0",
     "msw": "^2.10.2",
     "typedoc": "^0.28.3",
     "typedoc-plugin-markdown": "^4.6.3",
     "typedoc-vitepress-theme": "^1.1.2",
     "vitepress": "^2.0.0-alpha.5",
     "vue": "^3.5.13",
-    "vuetify": "^3.7.11"
+    "vuetify": "^3.9.3"
   }
 }
