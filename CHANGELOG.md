@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.1](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.15.0...patreon-api.ts-v0.15.1) (2025-08-02)
+
+
+### Bug Fixes
+
+* **ci:** rerun publishing ([64475a1](https://github.com/ghostrider-05/patreon-api.ts/commit/64475a1c1d9672353a275cfdae47f181b1f37936))
+
 ## [0.15.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.14.2...patreon-api.ts-v0.15.0) (2025-08-02)
 
 
