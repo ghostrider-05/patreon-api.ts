@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.15.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.14.2...patreon-api.ts-v0.15.0) (2025-08-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* **build:** remove sourcemaps ([#184](https://github.com/ghostrider-05/patreon-api.ts/issues/184))
+
+### Features
+
+* **build:** remove sourcemaps ([#184](https://github.com/ghostrider-05/patreon-api.ts/issues/184)) ([6c00260](https://github.com/ghostrider-05/patreon-api.ts/commit/6c00260a59ba3ac46f98c1d4aefb5ea249a5585b))
+* **ci:** add coverage reporter ([#183](https://github.com/ghostrider-05/patreon-api.ts/issues/183)) ([fee39d3](https://github.com/ghostrider-05/patreon-api.ts/commit/fee39d3b787d0730b7b5a9b3738c233eecde47c2))
+* **ci:** publish with provenance ([fee39d3](https://github.com/ghostrider-05/patreon-api.ts/commit/fee39d3b787d0730b7b5a9b3738c233eecde47c2))
+* **QueryBuilder:** deprecate `createFunctionBuilder` method ([c809607](https://github.com/ghostrider-05/patreon-api.ts/commit/c8096071e8785fb360ed1772370611d0448f2a96))
+* **rest:** deprecate `buildQuery` ([#179](https://github.com/ghostrider-05/patreon-api.ts/issues/179)) ([c809607](https://github.com/ghostrider-05/patreon-api.ts/commit/c8096071e8785fb360ed1772370611d0448f2a96))
+* **RouteBases:** deprecate `api` property ([c809607](https://github.com/ghostrider-05/patreon-api.ts/commit/c8096071e8785fb360ed1772370611d0448f2a96))
+
+
+### Bug Fixes
+
+* **oauth:** return correct amount of pages on pagination result ([fee39d3](https://github.com/ghostrider-05/patreon-api.ts/commit/fee39d3b787d0730b7b5a9b3738c233eecde47c2))
+* **PatreonMock:** allow absolute urls in path filtering ([fee39d3](https://github.com/ghostrider-05/patreon-api.ts/commit/fee39d3b787d0730b7b5a9b3738c233eecde47c2))
+* **rest:** correctly apply limit on backoff in retries options ([fee39d3](https://github.com/ghostrider-05/patreon-api.ts/commit/fee39d3b787d0730b7b5a9b3738c233eecde47c2))
+* **rest:** overwrite retries when response status is matched ([fee39d3](https://github.com/ghostrider-05/patreon-api.ts/commit/fee39d3b787d0730b7b5a9b3738c233eecde47c2))
+
 ## [0.14.2](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.14.1...patreon-api.ts-v0.14.2) (2025-05-30)
 
 
