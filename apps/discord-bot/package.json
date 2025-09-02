@@ -14,12 +14,12 @@
     "login": "wrangler login"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20250801.0",
+    "@cloudflare/workers-types": "4.20250831.0",
     "@types/node": "^18.19.31",
     "discord-api-types": "^0.38.2",
     "json-merger": "^3.0.0",
     "patreon-api.ts": "../../",
     "typescript-json-schema": "^0.65.1",
-    "wrangler": "^4.27.0"
+    "wrangler": "^4.33.1"
   }
 }
