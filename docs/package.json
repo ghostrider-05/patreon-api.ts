@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "@shikijs/vitepress-twoslash": "^3.4.2",
-    "@vueuse/core": "^13.6.0",
+    "@vueuse/core": "^13.9.0",
     "msw": "^2.10.2",
     "typedoc": "^0.28.3",
     "typedoc-plugin-markdown": "^4.6.3",
