@@ -18,8 +18,8 @@
     "build:openapi": "npx tsc && node ./tsc-generated/src/scripts/v2/openapi/index.js",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "npx eslint src/**/*.ts apps/**/*.ts examples/**/*.ts",
-    "lint:fix": "npx eslint --fix src/**/*.ts apps/**/*.ts examples/**/*.ts"
+    "lint": "npx eslint 'src/**/*.ts' 'apps/**/*.ts' 'examples/**/*.ts'",
+    "lint:fix": "npx eslint --fix 'src/**/*.ts' 'apps/**/*.ts' 'examples/**/*.ts'"
   },
   "engines": {
     "node": ">=18.17"
