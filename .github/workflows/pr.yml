@@ -3,7 +3,7 @@ on:
   - pull_request
   - pull_request_target
 env:
-  NODE_VERSION: 20.x
+  NODE_VERSION: 22.x
 jobs:
   test_coverage:
     name: Test coverage

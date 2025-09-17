@@ -8,7 +8,7 @@ permissions:
   pull-requests: write
   id-token: write
 env:
-  NODE_VERSION: 20.x
+  NODE_VERSION: 22.x
 jobs:
   release-please:
     runs-on: ubuntu-latest

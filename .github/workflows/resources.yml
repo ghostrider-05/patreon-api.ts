@@ -7,7 +7,7 @@ on:
 permissions:
   contents: write
 env:
-  NODE_VERSION: 20.x
+  NODE_VERSION: 22.x
 jobs:
   update:
     name: Update v2 schemas
