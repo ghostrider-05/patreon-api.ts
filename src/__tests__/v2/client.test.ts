@@ -2,7 +2,6 @@ import { describe, expect, test } from 'vitest'
 
 import { PatreonCreatorClient, PatreonUserClient, type RestFetcher, PatreonTokenFetchOptions, QueryBuilder } from '../../v2'
 
-import { PatreonOauthClient } from '../../rest/v2/oauth2/client'
 import { If } from '../../utils/generics'
 
 // TODO: expose this to be combined with testing client payloads

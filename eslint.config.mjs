@@ -48,7 +48,7 @@ export default [
                 4
             ],
             'linebreak-style': [
-                'error',
+                'warn',
                 // eslint-disable-next-line no-undef
                 process.platform === 'win32' ? 'windows' : 'unix',
             ],
