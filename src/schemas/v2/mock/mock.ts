@@ -1,5 +1,3 @@
-import type { MockInterceptor } from 'undici-types/mock-interceptor'
-
 import paths from '../api/paths'
 import type { Route } from '../api/types'
 
@@ -91,7 +89,7 @@ export interface PatreonMockOptions {
      * Options for the cache.
      * Use a cache to persist your mocking data and act as a mock database.
      */
-    cache?: Pick<CacheStoreOptions, 'initial' | 'requests'>
+    cache?: CacheStoreOptions
     /**
      * Options to return random data.
      * If no cache item is found, the mock service can return a randomly generated payload as response.
@@ -105,6 +103,14 @@ export interface PatreonMockOptions {
      * Mock the Patreon webhooks implementation.
      */
     webhooks?: PatreonMockWebhooksOptions
+}
+
+export interface PatreonMockHandlerCallbackOptions {
+    path: string
+    origin: string
+    method: string
+    body?: import('undici-types').BodyInit
+    headers: Headers | Record<string, string>
 }
 
 export interface PatreonMockHandler<R = {
@@ -162,9 +168,7 @@ export class PatreonMock {
     public constructor (
         public options: PatreonMockOptions = {},
     ) {
-        this.cache = new CacheStore(false, undefined, {
-            initial: options.cache?.initial ?? [],
-        })
+        this.cache = new CacheStore(false, undefined, options.cache)
 
         this.data = options.data != undefined && options.data instanceof PatreonMockData
             ? options.data
@@ -361,14 +365,8 @@ export class PatreonMock {
     ) {
         this.validateHeaders(request.headers)
         const route = this.parseAPIPath(request.url)
-
-        const response = options.responseStatus != undefined && options.responseStatus >= 400
-            ? JSON.stringify({ errors: [this.data.createError(options.responseStatus)] })
-            : this.buildResponseFromUrl(route, {
-                cache: options?.cache,
-                random: options?.random,
-                method: request.method,
-            })
+        const headers = this.getResponseHeaders(options.headers)
+        const status = options.responseStatus ?? this.getResponseStatus(route.path, request.method)
 
         this.cache.syncRequest(
             {
@@ -384,13 +382,37 @@ export class PatreonMock {
                 // - Assume that the GET method is excluded.
                 // And generate a new id for the resource.
                 id: route.param ?? this.data.createId(Type.Webhook),
+                mockAttributes: this.data.options.mockAttributes?.[Type.Webhook] ?? {},
             }
         )
 
-        return {
-            body: response ?? '',
-            status: options.responseStatus ?? this.getResponseStatus(route.path, request.method),
-            headers: this.getResponseHeaders(options.headers),
+        // Return an error
+        if (options.responseStatus != undefined && options.responseStatus >= 400) {
+            return {
+                body: JSON.stringify({
+                    errors: [
+                        this.data.createError(options.responseStatus),
+                    ]
+                }),
+                headers,
+                status,
+            }
+        } else if (request.method.toLowerCase() === 'get') {
+            return {
+                body: this.buildResponseFromUrl(route, {
+                    cache: options?.cache,
+                    random: options?.random,
+                    method: request.method,
+                }) ?? '',
+                headers,
+                status,
+            }
+        } else {
+            return {
+                body: request.body ?? '',
+                headers,
+                status,
+            }
         }
     }
 
@@ -412,7 +434,7 @@ export class PatreonMock {
         random?: boolean
         cache?: boolean
     }) {
-        return (callbackOptions: MockInterceptor.MockResponseCallbackOptions) => {
+        return (callbackOptions: PatreonMockHandlerCallbackOptions) => {
             const { body, headers, status } = this.handleMockRequest({
                 body: callbackOptions.body?.toString() ?? null,
                 headers: callbackOptions.headers,

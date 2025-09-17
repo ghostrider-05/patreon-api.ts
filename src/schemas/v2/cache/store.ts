@@ -77,25 +77,17 @@ export interface CacheStoreEventMap {
 
 export interface CacheStoreOptions extends CacheStoreSharedOptions {
     events?: NodeJS.EventEmitter<CacheStoreEventMap> | undefined
-    requests?: {
-        mockAttributes?: {
-            [T in WriteResourceType]: Partial<{
-                [M in RequestMethod]: (body: WriteResourcePayload<T, M>) => WriteResourceResponse<T>
-            }>
-        }
-        syncOptions?: {
-            /**
-             * Throw an error if no mocked attributes are generated.
-             * @default false
-             */
-            requireMockAttributes?: boolean
-            /**
-             * The allowed request methods used for syncing requests
-             * @default ['DELETE', 'POST', 'PATCH']
-             */
-            allowedMethods?: RequestMethod[]
-        }
-        //urlParser?: {}
+    requestSyncOptions?: {
+        /**
+         * Throw an error if no mocked attributes are generated.
+         * @default false
+         */
+        requireMockAttributes?: boolean
+        /**
+         * The allowed request methods used for syncing requests
+         * @default ['DELETE', 'POST', 'PATCH']
+         */
+        allowedMethods?: RequestMethod[]
     }
     // sweepers?: {}
     // limits?: {}
@@ -109,8 +101,7 @@ export interface CacheStoreOptions extends CacheStoreSharedOptions {
 }
 
 export class CacheStore<IsAsync extends boolean>
-    extends CacheStoreShared<IsAsync, CacheItem<ItemType>>
-{
+    extends CacheStoreShared<IsAsync, CacheItem<ItemType>> {
     public override options: Required<Omit<CacheStoreOptions, 'events' | 'initial'>>
         & Pick<CacheStoreOptions, 'events'>
         & { convert: CacheStoreConvertOptions<{ id: string | null; type: ItemType }> }
@@ -124,7 +115,7 @@ export class CacheStore<IsAsync extends boolean>
 
         this.options = {
             events: options?.events,
-            requests: options?.requests ?? {},
+            requestSyncOptions: options?.requestSyncOptions ?? {},
             patchUnknownItem: options?.patchUnknownItem ?? true,
             convert: {
                 toKey: (options) => options.type + '/' + options.id,
@@ -203,7 +194,7 @@ export class CacheStore<IsAsync extends boolean>
 
     // ---- relationship methods ----
 
-    private convertFromRelationships<T extends ItemType, R extends RelationshipFields<T>> (
+    private convertFromRelationships<T extends ItemType, R extends RelationshipFields<T>>(
         relationships: Relationship<T, R>['relationships']
     ): CacheItem<T>['relationships'] {
         return Object.entries<Relationship<T, R>['relationships']>(relationships).reduce((output, [key, value]) => {
@@ -216,7 +207,7 @@ export class CacheStore<IsAsync extends boolean>
         }, {})
     }
 
-    private convertToRelationships <T extends ItemType>(
+    private convertToRelationships<T extends ItemType> (
         type: T,
         relationships: CacheItem<T>['relationships'],
     ): Relationship<T, RelationshipFields<T>> & {
@@ -323,7 +314,7 @@ export class CacheStore<IsAsync extends boolean>
         })
     }
 
-    public getRelatedToResource <
+    public getRelatedToResource<
         T extends keyof ItemMap,
         R extends RelationshipFieldsToItem<T>
     >(resourceType: T, resourceId: string, type: R) {
@@ -336,7 +327,7 @@ export class CacheStore<IsAsync extends boolean>
         }]) as IfAsync<IsAsync, { id: string; type: R }[]>
     }
 
-    public getRelationships <T extends keyof ItemMap> (
+    public getRelationships<T extends keyof ItemMap> (
         type: T,
         relationships: CacheItem<T>['relationships'],
     ): IfAsync<IsAsync, Relationship<T, RelationshipFields<T>> & {
@@ -385,7 +376,7 @@ export class CacheStore<IsAsync extends boolean>
 
     // ---- resource methods ----
 
-    public getResource <T extends ItemType>(type: T, id: string): IfAsync<IsAsync, {
+    public getResource<T extends ItemType> (type: T, id: string): IfAsync<IsAsync, {
         data: { attributes: Partial<ItemMap[T]> } & Relationship<T, RelationshipFields<T>>
         included: {
             [R in RelationshipFields<R>]: {
@@ -416,7 +407,7 @@ export class CacheStore<IsAsync extends boolean>
      * @param attributeItem The item with attributes (and relationships)
      * @returns a promise for async storage
      */
-    public syncResource <T extends ItemType, R extends RelationshipFields<T>> (
+    public syncResource<T extends ItemType, R extends RelationshipFields<T>> (
         attributeItem: AttributeItem<T, Partial<ItemMap[T]>> & Partial<Relationship<T, R>>,
     ): IfAsync<IsAsync, void> {
         const { id, type, attributes } = attributeItem
@@ -434,7 +425,7 @@ export class CacheStore<IsAsync extends boolean>
                         : {}
                     ),
                 },
-            }), () => {})
+            }), () => { })
         }))
     }
 
@@ -457,10 +448,14 @@ export class CacheStore<IsAsync extends boolean>
         },
         path: {
             id: string
+            // should this be generic in the future?
             resource: WriteResourceType
+            mockAttributes?: Partial<{
+                [M in RequestMethod]: (body: WriteResourcePayload<WriteResourceType, M>) => WriteResourceResponse<WriteResourceType>
+            }>
         }
     ): IfAsync<IsAsync, void> {
-        const { mockAttributes, syncOptions } = this.options.requests
+        const syncOptions = this.options.requestSyncOptions
         const allowedMethods = syncOptions?.allowedMethods
             ?? [RequestMethod.Delete, RequestMethod.Patch, RequestMethod.Post]
 
@@ -480,7 +475,7 @@ export class CacheStore<IsAsync extends boolean>
             throw new Error('Missing request body to sync with cache')
         }
 
-        const mockedAttributes = mockAttributes?.[path.resource]?.[request.method]?.(request.body)
+        const mockedAttributes = path.mockAttributes?.[path.resource]?.[request.method]?.(request.body)
 
         if (mockedAttributes != undefined) {
             return this.syncResource({ ...mockedAttributes.data, id: path.id })

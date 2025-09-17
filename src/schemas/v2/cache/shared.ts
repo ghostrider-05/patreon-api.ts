@@ -113,7 +113,7 @@ export class CacheStoreShared<IsAsync extends boolean, Value> {
         binding?: CacheStoreBinding<false, Value>,
         options?: Partial<typeof store['prototype']['options']>,
     ) {
-        return new store(false, binding, options)
+        return new store(false, binding, options) as unknown as InstanceType<Store>
     }
 
     public static createAsync<Value, Store extends typeof CacheStoreShared<true, Value>>(
@@ -121,6 +121,6 @@ export class CacheStoreShared<IsAsync extends boolean, Value> {
         binding?: CacheStoreBinding<true, Value>,
         options?: Partial<typeof store['prototype']['options']>,
     ) {
-        return new store(true, binding, options)
+        return new store(true, binding, options) as unknown as InstanceType<Store>
     }
 }

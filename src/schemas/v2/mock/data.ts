@@ -14,6 +14,7 @@ import { QueryBuilder } from '../query'
 
 import {
     type PatreonErrorData,
+    RequestMethod,
     ResponseHeaders,
 } from '../../../rest/v2/'
 
@@ -22,6 +23,12 @@ import type { GetRequestPayload } from '../../../payloads/v2/internals/get'
 
 import type { RandomDataGenerator } from './random'
 import { PatreonMockDataRandomResources } from '../generated/random'
+
+import type {
+    WriteResourcePayload,
+    WriteResourceResponse,
+    WriteResourceType,
+} from '../modifiable'
 
 export interface PatreonMockHeaderData {
     uuid?: string
@@ -43,6 +50,12 @@ export interface PatreonMockDataOptions {
      * Note: I recommend to overwrite it with your own fake data generation methods.
      */
     random?: Partial<RandomDataGenerator>
+
+    mockAttributes?: {
+        [T in WriteResourceType]: Partial<{
+            [M in RequestMethod]: (body: WriteResourcePayload<WriteResourceType, M>) => WriteResourceResponse<WriteResourceType>
+        }>
+    }
 }
 
 const _random = <T>(list: T[]): T => list[list.length * Math.random() | 0] as T
@@ -284,7 +297,7 @@ export class PatreonMockData {
         }
     }
 
-    public createRelatedItems <T extends ItemType>(type: T, options?: {
+    public createRelatedItems<T extends ItemType> (type: T, options?: {
         items?: RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[]
     }): RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[] {
         const relationMap = QueryBuilder.createRelationMap(type)
@@ -315,7 +328,7 @@ export class PatreonMockData {
                 ? {}
                 : Object.keys(item)
                     .filter(k => attributes.includes(<A>k))
-                    .reduce((obj, key) => ({ ...obj, [key]: item[key ]}), {}))) as Pick<ItemMap[T], A>,
+                    .reduce((obj, key) => ({ ...obj, [key]: item[key] }), {}))) as Pick<ItemMap[T], A>,
         }
     }
 
