@@ -15,6 +15,28 @@ export const data = new PatreonMockData({
                 secret: encoder.encode(id).join(''),
             }
         }
+    },
+    mockAttributes: {
+        webhook: {
+            POST: (body) => {
+                const id = data.createId(Type.Webhook)
+
+                return {
+                    data: {
+                        id,
+                        type: Type.Webhook,
+                        attributes: {
+                            uri: body.data.attributes.uri,
+                            triggers: body.data.attributes.triggers,
+                            last_attempted_at: <never>null,
+                            num_consecutive_times_failed: 0,
+                            paused: false,
+                            secret: encoder.encode(id).join(''),
+                        },
+                    },
+                }
+            },
+        }
     }
 })
 
@@ -47,28 +69,4 @@ const initialTestCache: InitialCache = [
 
 export default {
     initial: initialTestCache,
-    requests: {
-        mockAttributes: {
-            webhook: {
-                POST: (body) => {
-                    const id = data.createId(Type.Webhook)
-
-                    return {
-                        data: {
-                            id,
-                            type: Type.Webhook,
-                            attributes: {
-                                uri: body.data.attributes.uri,
-                                triggers: body.data.attributes.triggers,
-                                last_attempted_at: <never>null,
-                                num_consecutive_times_failed: 0,
-                                paused: false,
-                                secret: encoder.encode(id).join(''),
-                            },
-                        },
-                    }
-                }
-            }
-        }
-    }
 } satisfies CacheStoreOptions

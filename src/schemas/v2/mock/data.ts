@@ -21,7 +21,12 @@ import {
 import type { ListRequestPayload } from '../../../payloads/v2/internals/list'
 import type { GetRequestPayload } from '../../../payloads/v2/internals/get'
 
-import type { RandomDataGenerator } from './random'
+import {
+    defaultRandomDataGenerator,
+    type RandomInteger,
+    resolveRandomInteger,
+    type RandomDataGenerator,
+} from './random'
 import { PatreonMockDataRandomResources } from '../generated/random'
 
 import type {
@@ -52,53 +57,23 @@ export interface PatreonMockDataOptions {
     random?: Partial<RandomDataGenerator>
 
     mockAttributes?: {
-        [T in WriteResourceType]: Partial<{
+        [T in WriteResourceType]?: Partial<{
             [M in RequestMethod]: (body: WriteResourcePayload<WriteResourceType, M>) => WriteResourceResponse<WriteResourceType>
         }>
     }
 }
 
-const _random = <T>(list: T[]): T => list[list.length * Math.random() | 0] as T
-const _random_int = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min
-
 export class PatreonMockData {
     public options: PatreonMockDataOptions
     public random: PatreonMockDataRandomResources
 
-    protected static defaultRandom: Required<NonNullable<PatreonMockDataOptions['random']>> = {
-        arrayElement: _random,
-        boolean: () => _random([true, false]),
-        number: () => _random(Array.from({ length: 40 }, (_, i) => i)),
-        countryCode: () => _random(['NL', 'BE', 'DE']),
-        arrayElements(array) {
-            return Array.from({ length: _random_int(1, array.length) }, () => _random(array))
-        },
-        city: () => 'Amsterdam',
-        currencyCode: () => 'EUR',
-        description: () => 'A mocked description',
-        email: () => 'john.doe@gmail.com',
-        firstName: () => 'John',
-        fullName: () => 'John Doe',
-        lastName: () => 'Doe',
-        phonenumber: () => '+31612345678',
-        state: () => '',
-        username: () => 'john_doe',
-        title: () => 'A mocked title',
-        uri: () => 'https://patreon.com/',
-        imageUri: () => '',
-        videoUri: () => '',
-        futureDate: () => new Date(Date.now() + _random_int(10_000, 100_000)).toISOString(),
-        pastDate: () => new Date(Date.now() - _random_int(10_000, 100_000)).toISOString(),
-    }
-
     public constructor (options?: PatreonMockDataOptions) {
         this.options = options ?? {}
-        const randomGenerators = {
-            ...PatreonMockData.defaultRandom,
-            ...options?.random ?? {},
-        }
 
-        this.random = new PatreonMockDataRandomResources(randomGenerators, options?.resources)
+        this.random = new PatreonMockDataRandomResources({
+            ...defaultRandomDataGenerator,
+            ...options?.random ?? {},
+        }, options?.resources)
     }
 
     /**
@@ -230,7 +205,10 @@ export class PatreonMockData {
     ): string {
         if (type === 'member') return randomUUID()
 
-        const randomString = Array.from({ length: _random_int(5, 10) }, () => _random_int(0, 9)).join('')
+        const length = resolveRandomInteger({ min: 5, max: 10 })
+        const randomString = Array.from({ length },
+            () => resolveRandomInteger({ min: 0, max: 9 })
+        ).join('')
 
         if (type === 'pledge-event') {
             return `${options?.pledgeType ?? 'subscription'}:${randomString}`
@@ -337,21 +315,17 @@ export class PatreonMockData {
         items?: { id?: string, data?: Partial<ItemMap[T]> }[],
         attributes?: A[],
         options?: {
-            length?: number | { min: number, max: number }
+            length?: RandomInteger,
         }
     ) {
-        const length = options?.length != undefined
-            ? (typeof options.length === 'number'
-                ? options.length
-                : _random_int(options.length.min, options.length.max)
-            ) : (items != undefined && items.length > 0 ? items.length : _random_int(1, 10))
-
-        return Array.from({ length }, (_, i) => this.getAttributeItem(
-            type,
-            items?.at(i)?.id ?? this.createId(type),
-            items?.at(i)?.data,
-            attributes,
-        ))
+        return Array.from({ length: resolveRandomInteger(options?.length, items, 10) }, (_, i) => {
+            return this.getAttributeItem(
+                type,
+                items?.at(i)?.id ?? this.createId(type),
+                items?.at(i)?.data,
+                attributes,
+            )
+        })
     }
 
     public filterRelationships<
