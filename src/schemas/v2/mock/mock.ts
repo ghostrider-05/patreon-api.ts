@@ -479,7 +479,7 @@ export class PatreonMock {
                 ...route.methods.reduce<Record<PatreonMockRouteId, PatreonMockHandler<R>>>((obj, { method, id }) => {
                     const handler: PatreonMockHandler<R>['handler'] = async (request) => {
                         const data = this.handleMockRequest({
-                            body: method.toLowerCase() !== 'get'
+                            body: !['get', 'delete'].includes(method.toLowerCase())
                                 ? await request.text()
                                 : null,
                             headers: request.headers,

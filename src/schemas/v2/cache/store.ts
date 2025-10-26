@@ -437,9 +437,9 @@ export class CacheStore<IsAsync extends boolean>
      * - `POST`: creates the resource in the cache
      * @param request The request data
      * @param path Path data extracted from the API route
-     * @throws when `path.id` is `null`. For `POST` requests, use the new id as path id
-     * @throws when the request body is `null` for non-`DELETE` requests
-     * @throws when `options.requests.syncOptions.requireMockAttributes` is `true` and no mock attributes are generated.
+     * @throws {Error} when `path.id` is `null`. For `POST` requests, use the new id as path id
+     * @throws {Error} when the request body is `null` for non-`DELETE` requests
+     * @throws {Error} when `options.requests.syncOptions.requireMockAttributes` is `true` and no mock attributes are generated.
      */
     public syncRequest (
         request: {
