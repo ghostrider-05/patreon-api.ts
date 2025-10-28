@@ -287,14 +287,17 @@ export class PatreonMock {
         const query = parsed as unknown as { includes: never[], attributes: RelationshipMap<Type, never> }
         const id = options?.resourceId ?? param
 
-        const handlerOptions = { ...(this.options.responseOptions ?? {}), ...(options ?? {}) }
-        const unknownCacheResponse = this.options.responseOptions?.unknownCacheResponse ?? ''
+        const { responseOptions } = this.options
+        const unknownCacheResponse = responseOptions?.unknownCacheResponse ?? ''
+
+        const useCache = options?.cache ?? responseOptions?.cache ?? true
+        const useRandom = options?.random ?? responseOptions?.random ?? true
 
         if (path.response?.array) {
             // All current list endpoints are related to a campaign
             // E.g campaign members, campaign posts
             // TODO: in the future make this configurable when new endpoints are added
-            const cached = id && handlerOptions?.cache !== false
+            const cached = id && useCache
                 // @ts-expect-error resource included campaign, but is not available for list responses.
                 ? this.cache.getRelatedToResource(Type.Campaign, id, path.resource)
                 : null
@@ -318,7 +321,7 @@ export class PatreonMock {
                 })
 
                 return JSON.stringify(payload)
-            } else if (handlerOptions?.random !== false) {
+            } else if (useRandom) {
                 const payload = this.data.getListResponsePayload(path.resource, query, {
                     items: this.data.getAttributeItems(path.resource).map(item => ({
                         item,
@@ -329,7 +332,7 @@ export class PatreonMock {
                 return JSON.stringify(payload)
             } else return unknownCacheResponse
         } else {
-            const cached = id && handlerOptions?.cache !== false
+            const cached = id && useCache
                 ? this.cache.getResource(path.resource, id)
                 : null
 
@@ -341,7 +344,7 @@ export class PatreonMock {
                 })
 
                 return JSON.stringify(payload)
-            } else if (handlerOptions?.random !== false) {
+            } else if (useRandom) {
                 const id = this.data.createId(path.resource)
                 const attributes = this.data.random[path.resource](id)
 
@@ -419,6 +422,7 @@ export class PatreonMock {
             }
         } else {
             return {
+                // TODO: the response body should be different from the request body, right?
                 body: request.body ?? '',
                 headers,
                 status,
