@@ -7,6 +7,7 @@ import {
 } from '../../../v2'
 
 import { creatorClient } from '../../client'
+import { testWebhook } from '../../server/cache'
 
 describe('webhook client', () => {
     test('webhook headers', () => {
@@ -35,12 +36,24 @@ describe('webhook client', () => {
     })
 
     describe('webhook API', () => {
-        const webhook = {
+        const baseWebhook = {
             data: {
                 type: 'webhook',
                 id: 'id',
-                attributes: {},
+                attributes: testWebhook.item,
             },
+        }
+
+        const webhookWithRelationships = {
+            ...baseWebhook,
+            relationships: {
+                campaign: {
+                    data: {
+                        type: 'campaign',
+                        id: testWebhook.relationships.campaign,
+                    }
+                }
+            }
         }
 
         const client = creatorClient.webhooks
@@ -54,21 +67,21 @@ describe('webhook client', () => {
         })
 
         test('edit webhooks', async () => {
-            const res = await client.editWebhook({ id: 'id', paused: false })
+            const res = await client.editWebhook({ id: 'id', paused: true })
 
-            expect(res).toEqual(webhook)
+            expect(res).toEqual({ ...baseWebhook, paused: true })
         })
 
         test('unpause webhooks', async () => {
             const res = await client.unpauseWebhook('id', { token: 'token' })
 
-            expect(res).toEqual(webhook)
+            expect(res).toEqual(baseWebhook)
         })
 
         test('pause webhooks', async () => {
             const res = await client.pauseWebhook('id', { token: 'token' })
 
-            expect(res).toEqual(webhook)
+            expect(res).toEqual({ ...baseWebhook, paused: true })
         })
 
         test('create webhooks', async () => {
@@ -78,7 +91,7 @@ describe('webhook client', () => {
                 uri: 'https://patreon-api.pages.dev/',
             })
 
-            expect(res).toEqual(webhook)
+            expect(res).toEqual(webhookWithRelationships)
         })
 
         test('delete a webhook', async () => {

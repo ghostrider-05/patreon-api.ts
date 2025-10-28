@@ -144,16 +144,9 @@ export class WebhookClient {
     }
 
     /**
-     * EXPERIMENTAL: This endpoint is not documented on https://docs.patreon.com but it should work
-     *
-     * Issue a bug if something is broken
-     *
-     * ---
-     *
      * Delete a webhook created by this client
      * @param webhookId The webhook id
      * @param options Request options
-     * @returns the webhooks managed by this client
      */
     public async deleteWebhook(
         webhookId: string,
@@ -165,6 +158,7 @@ export class WebhookClient {
         })
     }
 
+    // TODO: make static too
     /**
      * Check if the webhook should be unpaused as events have failed to send.
      *

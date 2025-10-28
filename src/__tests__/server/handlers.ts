@@ -25,7 +25,10 @@ const mockHandlers = mock.getMockHandlers({
 export const apiHandlers = Object.values(mockHandlers).map(handler => {
     return http[handler.method](
         handler.url,
-        async ({ request }) => handler.handler(request),
+        async ({ request }) => {
+            console.log('Mocking request', request.method, request.url)
+            return handler.handler(request)
+        },
         { once: false }
     )
 }) satisfies RequestHandler[]

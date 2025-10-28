@@ -28,10 +28,6 @@ If a webhook has failed to send events due to an outage or incorrect deploy, it 
 
 ### Delete a webhook
 
-> [!WARNING]
-> This will be unstable until the Patreon documentation has added this method.
-> See [this issue](https://github.com/Patreon/platform-documentation/issues/89) for more details.
-
 <<< @/examples/oauth/webhook.ts#api-delete{ts twoslash}
 
 ## Webhook server
