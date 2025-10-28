@@ -1,5 +1,7 @@
 import {
+    CacheItem,
     PatreonMockData,
+    PatreonWebhookTrigger,
     Type,
     type CacheStoreOptions,
 } from '../../v2'
@@ -8,7 +10,7 @@ type InitialCache = NonNullable<CacheStoreOptions['initial']>
 
 const encoder = new TextEncoder()
 
-export const data = new PatreonMockData({
+export const mockData = new PatreonMockData({
     resources: {
         webhook: (id) => {
             return {
@@ -19,7 +21,7 @@ export const data = new PatreonMockData({
     mockAttributes: {
         webhook: {
             POST: (body) => {
-                const id = data.createId(Type.Webhook)
+                const id = PatreonMockData.createId(Type.Webhook)
 
                 return {
                     data: {
@@ -40,9 +42,30 @@ export const data = new PatreonMockData({
     }
 })
 
+export const testWebhook: CacheItem<'webhook'> = {
+    item: {
+        secret: 'secret',
+        uri: 'https://patreon-api.pages.dev',
+        last_attempted_at: new Date().toISOString(),
+        num_consecutive_times_failed: 0,
+        paused: false,
+        triggers: [
+            PatreonWebhookTrigger.PostPublished,
+        ],
+    },
+    relationships: {
+        campaign: 'campaign'
+    }
+}
+
 const initialTestCache: InitialCache = [
     {
-        id: data.createId(Type.Webhook),
+        id: 'id',
+        type: 'webhook',
+        value: testWebhook,
+    },
+    {
+        id: mockData.createId(Type.Webhook),
         type: 'webhook',
         value: {
             item: {},
@@ -50,7 +73,7 @@ const initialTestCache: InitialCache = [
         }
     },
     {
-        id: data.createId(Type.Webhook),
+        id: mockData.createId(Type.Webhook),
         type: 'webhook',
         value: {
             item: {},
@@ -58,7 +81,7 @@ const initialTestCache: InitialCache = [
         }
     },
     {
-        id: data.createId(Type.Webhook),
+        id: mockData.createId(Type.Webhook),
         type: 'webhook',
         value: {
             item: {},

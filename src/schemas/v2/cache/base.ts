@@ -66,8 +66,8 @@ export interface CacheStoreBinding<IsAsync extends boolean, Value> {
      */
     get(key: string): IfAsync<IsAsync, Value | undefined>
     delete(key: string): IfAsync<IsAsync, void>
-    list(options: {
-        prefix: string
+    list(options?: {
+        prefix?: string
     }): IfAsync<IsAsync, { keys: { key: string; metadata: object }[] }>
 
     bulkPut?(items: {

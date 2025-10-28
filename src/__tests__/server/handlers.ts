@@ -4,11 +4,11 @@ import {
     PatreonMock,
 } from '../../v2'
 
-import cacheOptions, { data } from './cache'
+import cacheOptions, { mockData } from './cache'
 
 const mock = new PatreonMock({
     cache: cacheOptions,
-    data,
+    data: mockData,
 })
 
 const mockHandlers = mock.getMockHandlers({

@@ -27,9 +27,11 @@ export default class<Value, Metadata extends {} = {}> implements CacheStoreBindi
         this.cache.set(key, value)
     }
 
-    public list(options: { prefix: string; }): { keys: { key: string; metadata: Metadata }[] } {
-        const keys = this.cache.keys()
-            .filter(key => key.startsWith(options.prefix))
+    public list(options?: { prefix?: string; }): { keys: { key: string; metadata: Metadata }[] } {
+        const iterator = this.cache.keys()
+        const keys = (typeof options?.prefix === 'string'
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            ? iterator.filter(key => key.startsWith(options.prefix!)) : iterator)
             .toArray()
 
         return {

@@ -55,6 +55,18 @@ function findAPIPath (path: string, apiPath: string) {
     }
 }
 
+export interface PatreonMockHandlerOptions {
+    cache?: boolean | undefined
+    random?: boolean | undefined
+    statusCode?: number
+
+    /**
+     * The additional headers to send on requests.
+     * @default {}
+     */
+    headers?: Record<string, string>
+}
+
 /**
  * Options for mocking the Patreon API.
  */
@@ -78,12 +90,14 @@ export interface PatreonMockOptions {
     /**
      * Options for replying from the mock service.
      */
-    responseOptions?: {
+    responseOptions?: PatreonMockHandlerOptions & {
         /**
-         * The additional headers to send on every request.
-         * @default {}
+         * When no cached item is found and random data is disabled,
+         * the response body that is returned.
+         * @default ''
          */
-        headers?: Record<string, string>
+        unknownCacheResponse?:
+            | string
     }
     /**
      * Options for the cache.
@@ -259,11 +273,9 @@ export class PatreonMock {
         } as ParsedRoute
     }
 
-    private buildResponseFromUrl (route: ParsedRoute, options?: {
+    private buildResponseFromUrl (route: ParsedRoute, options?: PatreonMockHandlerOptions & {
         resourceId?: string
         method?: string
-        cache?: boolean | undefined
-        random?: boolean | undefined
     }) {
         const { param, path, searchParams } = route
 
@@ -275,11 +287,14 @@ export class PatreonMock {
         const query = parsed as unknown as { includes: never[], attributes: RelationshipMap<Type, never> }
         const id = options?.resourceId ?? param
 
+        const handlerOptions = { ...(this.options.responseOptions ?? {}), ...(options ?? {}) }
+        const unknownCacheResponse = this.options.responseOptions?.unknownCacheResponse ?? ''
+
         if (path.response?.array) {
             // All current list endpoints are related to a campaign
             // E.g campaign members, campaign posts
             // TODO: in the future make this configurable when new endpoints are added
-            const cached = id && options?.cache !== false
+            const cached = id && handlerOptions?.cache !== false
                 // @ts-expect-error resource included campaign, but is not available for list responses.
                 ? this.cache.getRelatedToResource(Type.Campaign, id, path.resource)
                 : null
@@ -303,7 +318,7 @@ export class PatreonMock {
                 })
 
                 return JSON.stringify(payload)
-            } else if (options?.random !== false) {
+            } else if (handlerOptions?.random !== false) {
                 const payload = this.data.getListResponsePayload(path.resource, query, {
                     items: this.data.getAttributeItems(path.resource).map(item => ({
                         item,
@@ -312,9 +327,9 @@ export class PatreonMock {
                 })
 
                 return JSON.stringify(payload)
-            } else return ''
+            } else return unknownCacheResponse
         } else {
-            const cached = id && options?.cache !== false
+            const cached = id && handlerOptions?.cache !== false
                 ? this.cache.getResource(path.resource, id)
                 : null
 
@@ -326,7 +341,7 @@ export class PatreonMock {
                 })
 
                 return JSON.stringify(payload)
-            } else if (options?.random !== false) {
+            } else if (handlerOptions?.random !== false) {
                 const id = this.data.createId(path.resource)
                 const attributes = this.data.random[path.resource](id)
 
@@ -337,7 +352,7 @@ export class PatreonMock {
                 })
 
                 return JSON.stringify(payload)
-            } else return ''
+            } else return unknownCacheResponse
         }
     }
 
@@ -356,17 +371,12 @@ export class PatreonMock {
             method: string
             body: string | null
         },
-        options: {
-            headers?: Record<string, string>
-            responseStatus?: number
-            cache?: boolean | undefined
-            random?: boolean | undefined
-        },
+        options: PatreonMockHandlerOptions,
     ) {
         this.validateHeaders(request.headers)
         const route = this.parseAPIPath(request.url)
         const headers = this.getResponseHeaders(options.headers)
-        const status = options.responseStatus ?? this.getResponseStatus(route.path, request.method)
+        const status = options.statusCode ?? this.getResponseStatus(route.path, request.method)
 
         this.cache.syncRequest(
             {
@@ -387,11 +397,11 @@ export class PatreonMock {
         )
 
         // Return an error
-        if (options.responseStatus != undefined && options.responseStatus >= 400) {
+        if (options.statusCode != undefined && options.statusCode >= 400) {
             return {
                 body: JSON.stringify({
                     errors: [
-                        this.data.createError(options.responseStatus),
+                        this.data.createError(options.statusCode),
                     ]
                 }),
                 headers,
@@ -428,22 +438,14 @@ export class PatreonMock {
      * @param options.cache Whether to use a cache to search for the resource. When disabled, only generated items will be returned.
      * @returns the intercept callback
      */
-    public getMockAgentReplyCallback (options?: {
-        statusCode?: number
-        headers?: Record<string, string>
-        random?: boolean
-        cache?: boolean
-    }) {
+    public getMockAgentReplyCallback (options?: PatreonMockHandlerOptions) {
         return (callbackOptions: PatreonMockHandlerCallbackOptions) => {
             const { body, headers, status } = this.handleMockRequest({
                 body: callbackOptions.body?.toString() ?? null,
                 headers: callbackOptions.headers,
                 method: callbackOptions.method,
                 url: callbackOptions.origin + callbackOptions.path,
-            }, {
-                ...(options?.statusCode ? { responseStatus: options.statusCode } : {}),
-                ...options,
-            })
+            }, options ?? {})
 
             return {
                 statusCode: status,
@@ -466,33 +468,33 @@ export class PatreonMock {
      */
     public getMockHandlers <
         R = Awaited<ReturnType<PatreonMockHandler['handler']>>
-    >(options?: {
+    >(options?: PatreonMockHandlerOptions & {
         pathParam?: string
         includeOrigin?: boolean
         transformResponse?: (response: Awaited<ReturnType<PatreonMockHandler['handler']>>) => R
-        random?: boolean
-        cache?: boolean
     }) {
+        const {
+            pathParam,
+            includeOrigin,
+            transformResponse,
+            ...handlerOptions
+        } = options ?? {}
+
         return paths.reduce<Record<PatreonMockRouteId, PatreonMockHandler<R>>>((handlers, route) => {
             return {
                 ...handlers,
                 ...route.methods.reduce<Record<PatreonMockRouteId, PatreonMockHandler<R>>>((obj, { method, id }) => {
                     const handler: PatreonMockHandler<R>['handler'] = async (request) => {
                         const data = this.handleMockRequest({
-                            body: !['get', 'delete'].includes(method.toLowerCase())
+                            body: [RequestMethod.Patch, RequestMethod.Post].includes(method.toUpperCase() as RequestMethod)
                                 ? await request.text()
                                 : null,
                             headers: request.headers,
                             url: request.url,
                             method,
-                        }, {
-                            cache: options?.cache,
-                            random: options?.random,
-                        })
+                        }, handlerOptions)
 
-                        return options?.transformResponse != undefined
-                            ? options.transformResponse(data)
-                            : <R>data
+                        return transformResponse?.(data) ?? <R>data
                     }
 
                     return {
@@ -500,9 +502,9 @@ export class PatreonMock {
                         [id]: {
                             handler,
                             method: method.toLowerCase(),
-                            url: ((options?.includeOrigin ?? true) ? PatreonMock.origin : '')
+                            url: ((includeOrigin ?? true) ? PatreonMock.origin : '')
                                 + PatreonMock.path
-                                + route.route(options?.pathParam ?? '*'),
+                                + route.route(pathParam ?? '*'),
                         }
                     }
                 }, {} as never),

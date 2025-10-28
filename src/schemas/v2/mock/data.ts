@@ -63,6 +63,14 @@ export interface PatreonMockDataOptions {
     }
 }
 
+export interface PatreonMockIdOptions {
+    /**
+     * For `'pledge-event'` resource: the type of the event.
+     * Defaults to `'subscription'`
+     */
+    pledgeType?: ItemMap[Type.PledgeEvent]['type']
+}
+
 export class PatreonMockData {
     public options: PatreonMockDataOptions
     public random: PatreonMockDataRandomResources
@@ -190,91 +198,6 @@ export class PatreonMockData {
         }
     }
 
-    /**
-     * Creates a random ID (UUID for a member) for a resource
-     * @param type The type of the resource
-     * @param options For certain resources, additional information is required to create an ID
-     * @param options.pledgeType For `'pledge-event'` resource: the type of the event. Defaults to `'subscription'`
-     * @returns a random string
-     */
-    public createId (
-        type: Type | ItemType,
-        options?: {
-            pledgeType?: ItemMap[Type.PledgeEvent]['type']
-        }
-    ): string {
-        if (type === 'member') return randomUUID()
-
-        const length = resolveRandomInteger({ min: 5, max: 10 })
-        const randomString = Array.from({ length },
-            () => resolveRandomInteger({ min: 0, max: 9 })
-        ).join('')
-
-        if (type === 'pledge-event') {
-            return `${options?.pledgeType ?? 'subscription'}:${randomString}`
-        }
-        else return randomString
-    }
-
-    /**
-     * Creates the API url for a resource
-     * @param type The type of the resource.
-     * The documentation currently allows requests (see documentation for the allowed methods) for:
-     * - campaign
-     * - member
-     * - post
-     * - webhook
-     * @param id The id of the resource
-     * @returns `https://patreon.com/api/oauth2/v2/${type}s/${id}`
-     * @see https://docs.patreon.com/#apiv2-resource-endpoints
-     */
-    public createAPIUrl (type: Type | ItemType, id: string): string {
-        return `https://patreon.com/api/oauth2/v2/${type}s/${id}`
-    }
-
-    /**
-     * Creates some headers that are generally returned by the Patreon API
-     * @param data The header values
-     * @returns The following headers:
-     * - `x-patreon-uuid`
-     * - `x-patreon-sha`
-     * - `Retry-After` (if a ratelimit is given)
-     * - `Content-Type`
-     * - `cf-ray`
-     * - `cf-cache-status`
-     */
-    public createHeaders (data?: PatreonMockHeaderData): Record<string, string> {
-        return {
-            [ResponseHeaders.UUID]: data?.uuid ?? randomUUID(),
-            [ResponseHeaders.CfCacheStatus]: 'DYNAMIC',
-            [ResponseHeaders.Sha]: data?.sha ?? '',
-            [ResponseHeaders.CfRay]: data?.rayId ?? '',
-            ...(data?.ratelimit != undefined ? {
-                [ResponseHeaders.RetryAfter]: data.ratelimit.retryAfter,
-            } : {}),
-            'Content-Type': 'application/json',
-        }
-    }
-
-    /**
-     * Create an error-like object. An error response is of type `{ errors: PatreonErrorData[] }`
-     * @param status The response status
-     * @param data Optional data to better mock the error
-     * @returns the mocked error
-     */
-    public createError (status: number, data?: Partial<Omit<PatreonErrorData, 'status'>>): PatreonErrorData {
-        return {
-            status: status.toString(),
-            code_challenge: null,
-            code: 0,
-            code_name: 'MockedError',
-            id: 'MockError',
-            title: 'The mock API errored',
-            detail: 'An error was thrown by the mock API for the Patreon API',
-            ...(data ?? {}),
-        }
-    }
-
     public createRelatedItems<T extends ItemType> (type: T, options?: {
         items?: RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[]
     }): RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[] {
@@ -372,6 +295,142 @@ export class PatreonMockData {
                 // @ts-expect-error TODO: fix this
                 return this.getAttributeItem(item.type, item.id, item.attributes, query.attributes[item.type])
             })
+        }
+    }
+
+    /**
+     * Creates a random ID (UUID for a member) for a resource
+     * @param type The type of the resource
+     * @param options For certain resources, additional information can be used to create an ID
+     * @returns a random string
+     */
+    public createId (
+        type: Type | ItemType,
+        options?: PatreonMockIdOptions,
+    ): string {
+        return PatreonMockData.createId(type, options)
+    }
+
+    /**
+     * Creates the API url for a resource
+     * @param type The type of the resource.
+     * The documentation currently allows requests (see documentation for the allowed methods) for:
+     * - campaign
+     * - member
+     * - post
+     * - webhook
+     * @param id The id of the resource
+     * @returns `https://patreon.com/api/oauth2/v2/${type}s/${id}`
+     * @see https://docs.patreon.com/#apiv2-resource-endpoints
+     */
+    public createAPIUrl (type: Type | ItemType, id: string): string {
+        return PatreonMockData.createAPIUrl(type, id)
+    }
+
+    /**
+     * Creates some headers that are generally returned by the Patreon API
+     * @param data The header values
+     * @returns The following headers:
+     * - `x-patreon-uuid`
+     * - `x-patreon-sha`
+     * - `Retry-After` (if a ratelimit is given)
+     * - `Content-Type`
+     * - `cf-ray`
+     * - `cf-cache-status`
+     */
+    public createHeaders (data?: PatreonMockHeaderData): Record<string, string> {
+        return PatreonMockData.createHeaders(data)
+    }
+
+    /**
+     * Create an error-like object. An error response is of type `{ errors: PatreonErrorData[] }`
+     * @param status The response status
+     * @param data Optional data to better mock the error
+     * @returns the mocked error
+     */
+    public createError (status: number, data?: Partial<Omit<PatreonErrorData, 'status'>>): PatreonErrorData {
+        return PatreonMockData.createError(status, data)
+    }
+
+    /**
+     * Creates the API url for a resource
+     * @param type The type of the resource.
+     * The documentation currently allows requests (see documentation for the allowed methods) for:
+     * - campaign
+     * - member
+     * - post
+     * - webhook
+     * @param id The id of the resource
+     * @returns `https://patreon.com/api/oauth2/v2/${type}s/${id}`
+     * @see https://docs.patreon.com/#apiv2-resource-endpoints
+     */
+    public static createAPIUrl (type: Type | ItemType, id: string): string {
+        return `https://patreon.com/api/oauth2/v2/${type}s/${id}`
+    }
+
+    /**
+     * Creates a random ID (UUID for a member) for a resource
+     * @param type The type of the resource
+     * @param options For certain resources, additional information can be used to create an ID
+     * @returns a random string
+     */
+    public static createId (
+        type: Type | ItemType,
+        options?: PatreonMockIdOptions,
+    ): string {
+        if (type === 'member') return randomUUID()
+
+        const length = resolveRandomInteger({ min: 5, max: 10 })
+        const randomString = Array.from({ length },
+            () => resolveRandomInteger({ min: 0, max: 9 })
+        ).join('')
+
+        if (type === 'pledge-event') {
+            return `${options?.pledgeType ?? 'subscription'}:${randomString}`
+        }
+        else return randomString
+    }
+
+    /**
+     * Create an error-like object. An error response is of type `{ errors: PatreonErrorData[] }`
+     * @param status The response status
+     * @param data Optional data to better mock the error
+     * @returns the mocked error
+     */
+    public static createError (status: number, data?: Partial<Omit<PatreonErrorData, 'status'>>): PatreonErrorData {
+        return {
+            status: status.toString(),
+            code_challenge: null,
+            code: 0,
+            code_name: 'MockedError',
+            id: 'MockError',
+            title: 'The mock API errored',
+            detail: 'An error was thrown by the mock API for the Patreon API',
+            ...(data ?? {}),
+        }
+    }
+
+    /**
+     * Creates some headers that are generally returned by the Patreon API
+     * @param data The header values
+     * @returns The following headers:
+     * - `x-patreon-uuid`
+     * - `x-patreon-sha`
+     * - `Retry-After` (if a ratelimit is given)
+     * - `Content-Type`
+     * - `cf-ray`
+     * - `cf-cache-status`
+     */
+    public static createHeaders (data?: PatreonMockHeaderData): Record<string, string> {
+        return {
+            [ResponseHeaders.UUID]: data?.uuid ?? randomUUID(),
+            [ResponseHeaders.CfCacheStatus]: 'DYNAMIC',
+            [ResponseHeaders.Sha]: data?.sha ?? '',
+            [ResponseHeaders.CfRay]: data?.rayId ?? '',
+            ...(data?.ratelimit != undefined ? {
+                [ResponseHeaders.RetryAfter]: data.ratelimit.retryAfter,
+            } : {}),
+            'Content-Type': 'application/json',
         }
     }
 }

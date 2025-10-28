@@ -35,7 +35,14 @@ describe('webhook client', () => {
     })
 
     describe('webhook API', () => {
-        const webhook = { type: 'webhook', id: 'id', attributes: {} }
+        const webhook = {
+            data: {
+                type: 'webhook',
+                id: 'id',
+                attributes: {},
+            },
+        }
+
         const client = creatorClient.webhooks
 
         test('fetch webhooks', async () => {
