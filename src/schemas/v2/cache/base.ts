@@ -74,7 +74,7 @@ export interface CacheStoreBinding<IsAsync extends boolean, Value> {
         key: string
         value: Value
     }[]): IfAsync<IsAsync, void>
-    bulkGet?(keys: string[]): IfAsync<IsAsync, ({ id: string, value: Value } | undefined)[]>
+    bulkGet?(keys: string[]): IfAsync<IsAsync, ({ key: string, value: Value } | undefined)[]>
     bulkDelete?(keys: string[]): IfAsync<IsAsync, void>
 
     deleteAll?(): IfAsync<IsAsync, void>

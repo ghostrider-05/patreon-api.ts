@@ -313,6 +313,7 @@ export class PatreonMock {
                         return {
                             item: {
                                 id,
+                                // TODO: merge with random attributes if configured
                                 attributes: item,
                             },
                             included,
@@ -339,6 +340,7 @@ export class PatreonMock {
             if (id && cached) {
                 const payload = this.data.getSingleResponsePayload(path.resource, query, {
                     id,
+                    // TODO: merge with random attributes if configured
                     item: cached.data.attributes,
                     relatedItems: cached.included as never[],
                 })

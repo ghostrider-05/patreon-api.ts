@@ -56,7 +56,9 @@ export class CacheStoreShared<IsAsync extends boolean, Value> {
             if (item == undefined && !this.options.patchUnknownItem) return undefined
             const merged = typeof value === 'function'
                 ? value(item)
-                : { ...(item ?? {}), ...value } as Value
+                : typeof item === 'object'
+                    ? { ...(item ?? {}), ...value } as Value
+                    : value as Value // seems to be typed correctly
 
             return this.promise.chain(this.put(key, merged), () => {
                 return merged
@@ -78,7 +80,7 @@ export class CacheStoreShared<IsAsync extends boolean, Value> {
         })), () => {})
     }
 
-    public bulkGet(keys: string[]): IfAsync<IsAsync, ({ id: string, value: Value } | undefined)[]> {
+    public bulkGet(keys: string[]): IfAsync<IsAsync, ({ key: string, value: Value } | undefined)[]> {
         if (keys.length === 0) {
             return [] as IfAsync<IsAsync, never[]>
         }
@@ -89,7 +91,7 @@ export class CacheStoreShared<IsAsync extends boolean, Value> {
 
         return this.promise.consume(this.promise.all(keys.map(key => {
             return this.promise.consume(this.get(key), value => {
-                return value ? { value, id: key } : undefined
+                return value ? { value, key } : undefined
             })
         })), result => result)
     }

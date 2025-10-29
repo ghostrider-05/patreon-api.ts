@@ -60,7 +60,7 @@ export const testWebhook: CacheItem<'webhook'> = {
 
 const initialTestCache: InitialCache = [
     {
-        id: 'id',
+        id: '1234',
         type: 'webhook',
         value: testWebhook,
     },

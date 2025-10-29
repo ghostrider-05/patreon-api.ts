@@ -50,14 +50,14 @@ export default class<Value, Metadata extends {} = {}> implements CacheStoreBindi
         }
     }
 
-    public bulkGet(keys: string[]): ({ id: string, value: Value } | undefined)[] {
+    public bulkGet(keys: string[]): ({ key: string, value: Value } | undefined)[] {
         return keys.map(key => {
             const value = this.cache.get(key)
             if (!value) return undefined
 
             return {
                 value,
-                id: this.options.convert
+                key: this.options.convert
                     ? this.options.convert.fromKey(key).id
                     : key,
             }
