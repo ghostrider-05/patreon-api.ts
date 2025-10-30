@@ -28,11 +28,12 @@ export default class<Value, Metadata extends {} = {}> implements CacheStoreBindi
     }
 
     public list(options?: { prefix?: string; }): { keys: { key: string; metadata: Metadata }[] } {
-        const iterator = this.cache.keys()
-        const keys = (typeof options?.prefix === 'string'
+        // Converted to array, as iterator functions are only added in Node.js v22
+        const iterator = [...this.cache.keys()]
+        const keys = typeof options?.prefix === 'string'
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            ? iterator.filter(key => key.startsWith(options.prefix!)) : iterator)
-            .toArray()
+            ? iterator.filter(key => key.startsWith(options.prefix!))
+            : iterator
 
         return {
             keys: keys.map(key => ({
