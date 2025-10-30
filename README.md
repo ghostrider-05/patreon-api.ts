@@ -67,9 +67,6 @@ To check for compatibility with this package, look if your platform:
 - supports `ES2020`
 - supports the `node:crypto` module: `createHmac` and `randomUUID`
 
-> [!WARNING]
-> This is a server-side API & Oauth package and requires your application tokens. Make sure you do not share or expose your tokens or run this code client-side.
-
 <!-- #endregion compatibility -->
 
 </details>

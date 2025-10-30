@@ -6,8 +6,9 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  id-token: write
 env:
-  NODE_VERSION: 20.x
+  NODE_VERSION: 22.x
 jobs:
   release-please:
     runs-on: ubuntu-latest
@@ -17,9 +18,9 @@ jobs:
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: ${{ steps.release.outputs.release_created }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: 'https://registry.npmjs.org'

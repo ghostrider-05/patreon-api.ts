@@ -3,7 +3,7 @@ on:
   - pull_request
   - pull_request_target
 env:
-  NODE_VERSION: 20.x
+  NODE_VERSION: 22.x
 jobs:
   test_coverage:
     name: Test coverage
@@ -21,10 +21,10 @@ jobs:
             artifact: pull-request
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install node.js v${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -39,7 +39,7 @@ jobs:
         run: npm run test:coverage
 
       - name: "Upload Coverage"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: coverage-${{ matrix.artifact }}
@@ -53,15 +53,15 @@ jobs:
       pull-requests: write
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download Coverage Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: coverage-pull-request
           path: src/coverage
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with:
           name: coverage-main
           path: src/coverage-main
@@ -81,7 +81,7 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-    - uses: actions/labeler@v5
+    - uses: actions/labeler@v6
       with:
         repo-token: '${{ secrets.GITHUB_TOKEN }}'
         sync-labels: true
