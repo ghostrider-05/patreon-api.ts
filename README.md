@@ -89,7 +89,7 @@ For upcoming releases, see [the roadmap](https://github.com/users/ghostrider-05/
 
 ## Contributing
 
-See the [code of conduct](./CODE_OF_CONDUCT.md) and the [contributing guide](./CONTRIBUTING.md) for how to contribute. You can also support the development by writing guides, posts and templates or by funding the maintainers.
+See the [code of conduct](./CODE_OF_CONDUCT.md) and the [contributing guide](./CONTRIBUTING.md) for how to contribute. You can also support the development by writing guides, posts and templates or [by funding the maintainers](https://www.paypal.com/paypalme/05ghostrider).
 
 ## License
 

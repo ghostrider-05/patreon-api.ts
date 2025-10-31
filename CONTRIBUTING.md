@@ -12,7 +12,7 @@ If you have a question or want to chat, open [a new discussion](https://github.c
 ### How to report a bug
 
 > [!CAUTION]
-> If you find a security vulnerability, do **NOT** open an issue. Email **info@ghostrider-05.com** instead.
+> If you find a security vulnerability, do **NOT** open an issue. Email **<info@ghostrider-05.com>** instead.
 
 1. [Create a new issue](https://github.com/ghostrider-05/patreon-api.ts/issues/new/choose) and choose the bug report template.
 1. Submit all the information needed to reproduce the bug in the template

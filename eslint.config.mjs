@@ -12,6 +12,7 @@ export default [
         languageOptions: {
             parserOptions: {
                 project: true,
+                // @ts-expect-error global this is not defined
                 tsconfigRootDir: globalThis.__dirname,
             },
             ecmaVersion: 'latest',

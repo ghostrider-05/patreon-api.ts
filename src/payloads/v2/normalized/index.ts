@@ -1,5 +1,11 @@
-import type { BasePatreonQuery, GetResponsePayload } from '../../../rest/v2/'
-import type { RelationshipFields, RelationshipMap, Type } from '../../../schemas/v2/'
+import type {
+    BasePatreonQuery,
+    GetResponsePayload,
+    RelationshipFields,
+    RelationshipMap,
+    Type,
+} from '../../../schemas/v2/'
+
 import type { RequestPayload } from '../internals/request'
 
 import { type AnyToCamelCase, convertToCamelcase } from './capitalize'

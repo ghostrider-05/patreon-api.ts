@@ -1,20 +1,20 @@
-import { QueryBuilder, RequestMethod, Type } from '../../../../v2'
+import { type ItemType, QueryBuilder, RequestMethod, Type } from '../../../../v2'
 
 import { RestClient } from '../../../../rest/v2/oauth2/rest/client'
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-export function getResourceParameters (resource: Type) {
+export function getResourceParameters (resource: Type | ItemType) {
     const { relationships } = QueryBuilder['getResource'](`${resource}`)
 
     return {
         includesKeys: relationships,
         includes: relationships.map(rel => rel.name) as string[],
-        resources: relationships.map(rel => rel.resource) as Type[],
+        resources: relationships.map(rel => rel.resource) as (Type | ItemType)[],
     }
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-export function createQueryParameters (resource: Type, method: RequestMethod, listing: boolean) {
+export function createQueryParameters (resource: Type | ItemType, method: RequestMethod, listing: boolean) {
     if (method !== RequestMethod.Get) return []
     const parameters = getResourceParameters(resource)
 

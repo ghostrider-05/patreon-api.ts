@@ -12,7 +12,7 @@ import { If } from '../../utils/generics'
  * @param store optional store options
  * @returns the created client
  */
-export function createTestClient <T extends ('creator' | 'user')>(
+function createTestClient <T extends ('creator' | 'user')>(
     type: T,
     fetch: RestFetcher,
     store?: PatreonTokenFetchOptions

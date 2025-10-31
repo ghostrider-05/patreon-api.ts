@@ -1,6 +1,5 @@
-import { QueryBuilder } from '../../../schemas/v2/query'
+import { QueryBuilder, type BasePatreonQuery } from '../../../schemas/v2/query'
 
-import { type BasePatreonQuery } from '../query'
 import { Routes } from './routes'
 
 export enum PatreonOauthScope {

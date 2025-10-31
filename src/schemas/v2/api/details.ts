@@ -1,3 +1,5 @@
+import type { OpenAPIV3_1 } from 'openapi-types'
+
 import { APIVersion } from '../../../v2'
 
 export default {
@@ -13,17 +15,17 @@ export default {
             name: 'Patreon',
             url: 'https://www.patreondevelopers.com/'
         },
-    },
+    } satisfies OpenAPIV3_1.InfoObject,
     externalDocs: {
         description: 'Official Patreon documentation',
         url: 'https://docs.patreon.com',
-    },
+    } satisfies OpenAPIV3_1.ExternalDocumentationObject,
     servers: [
         {
             description: 'API domain',
             url: 'https://patreon.com',
         }
-    ],
+    ] satisfies OpenAPIV3_1.ServerObject[],
     tags: [
         {
             name: 'Resources',
@@ -39,5 +41,8 @@ export default {
                 url: 'https://docs.patreon.com/#apiv2-webhook-endpoints',
             }
         }
-    ]
+    ] satisfies (OpenAPIV3_1.TagObject & {
+        'x-displayName'?: string
+        'x-scalar-ignore'?: boolean
+    })[]
 }

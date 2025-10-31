@@ -190,9 +190,3 @@ export const PatreonStore = {
     KV: PatreonKVTokenStore,
     Memory: PatreonMemoryTokenStore,
 }
-
-export const PatreonCacheStore = {
-    Fetch: PatreonFetchStore,
-    KV: PatreonKVStore,
-    Memory: PatreonMemoryStore,
-}

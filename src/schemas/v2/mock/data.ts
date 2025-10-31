@@ -1,26 +1,39 @@
 import { randomUUID } from 'node:crypto'
 
-import {
-    QueryBuilder,
-    type ItemMap,
-    type Relationship,
-    type RelationshipFields,
-    type RelationshipFieldToFieldType,
-    type RelationshipItem,
-    type RelationshipMap,
-    type Type,
-} from '..'
+import type {
+    Relationship,
+    RelationshipFields,
+    RelationshipFieldToFieldType,
+    RelationshipItem,
+    RelationshipMap,
+} from '../relationships'
+
+import type { ItemMap, ItemType, Type } from '../item'
+
+import { QueryBuilder } from '../query'
 
 import {
     type PatreonErrorData,
+    RequestMethod,
     ResponseHeaders,
 } from '../../../rest/v2/'
 
 import type { ListRequestPayload } from '../../../payloads/v2/internals/list'
 import type { GetRequestPayload } from '../../../payloads/v2/internals/get'
 
-import type { RandomDataGenerator } from './random'
-import RandomDataResources from '../generated/random'
+import {
+    defaultRandomDataGenerator,
+    type RandomInteger,
+    resolveRandomInteger,
+    type RandomDataGenerator,
+} from './random'
+import { PatreonMockDataRandomResources } from '../generated/random'
+
+import type {
+    WriteResourcePayload,
+    WriteResourceResponse,
+    WriteResourceType,
+} from '../modifiable'
 
 export interface PatreonMockHeaderData {
     uuid?: string
@@ -35,56 +48,40 @@ export interface PatreonMockDataOptions {
     /**
      * Overwrite attributes when creating a random resource
      */
-    resources?: Partial<{ [T in keyof ItemMap]: (id: string) => Partial<ItemMap[T]> }>
+    resources?: Partial<{ [T in ItemType]: (id: string) => Partial<ItemMap[T]> }>
     /**
      * Methods to create a random type.
      *
      * Note: I recommend to overwrite it with your own fake data generation methods.
      */
     random?: Partial<RandomDataGenerator>
+
+    mockAttributes?: {
+        [T in WriteResourceType]?: Partial<{
+            [M in RequestMethod]: (body: WriteResourcePayload<WriteResourceType, M>) => WriteResourceResponse<WriteResourceType>
+        }>
+    }
 }
 
-const _random = <T>(list: T[]): T => list[list.length * Math.random() | 0] as T
-const _random_int = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min
+export interface PatreonMockIdOptions {
+    /**
+     * For `'pledge-event'` resource: the type of the event.
+     * Defaults to `'subscription'`
+     */
+    pledgeType?: ItemMap[Type.PledgeEvent]['type']
+}
 
 export class PatreonMockData {
     public options: PatreonMockDataOptions
-    public random: RandomDataResources
-
-    protected static defaultRandom: Required<NonNullable<PatreonMockDataOptions['random']>> = {
-        arrayElement: _random,
-        boolean: () => _random([true, false]),
-        number: () => _random(Array.from({ length: 40 }, (_, i) => i)),
-        countryCode: () => _random(['NL', 'BE', 'DE']),
-        arrayElements(array) {
-            return Array.from({ length: _random_int(1, array.length) }, () => _random(array))
-        },
-        city: () => 'Amsterdam',
-        currencyCode: () => 'EUR',
-        description: () => 'A mocked description',
-        email: () => 'john.doe@gmail.com',
-        firstName: () => 'John',
-        fullName: () => 'John Doe',
-        lastName: () => 'Doe',
-        phonenumber: () => '+31612345678',
-        state: () => '',
-        username: () => 'john_doe',
-        title: () => 'A mocked title',
-        uri: () => 'https://patreon.com/',
-        imageUri: () => '',
-        videoUri: () => '',
-        futureDate: () => new Date(Date.now() + _random_int(10_000, 100_000)).toISOString(),
-        pastDate: () => new Date(Date.now() - _random_int(10_000, 100_000)).toISOString(),
-    }
+    public random: PatreonMockDataRandomResources
 
     public constructor (options?: PatreonMockDataOptions) {
         this.options = options ?? {}
-        const randomGenerators = {
-            ...PatreonMockData.defaultRandom,
-            ...options?.random ?? {},
-        }
 
-        this.random = new RandomDataResources(randomGenerators, options?.resources)
+        this.random = new PatreonMockDataRandomResources({
+            ...defaultRandomDataGenerator,
+            ...options?.random ?? {},
+        }, options?.resources)
     }
 
     /**
@@ -99,7 +96,7 @@ export class PatreonMockData {
      * @param data.relatedItems If requesting relationships, all items that can be returned as a relationship
      * @returns the JSON:API response payload
      */
-    public getSingleResponsePayload<T extends Type, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
+    public getSingleResponsePayload<T extends Type | ItemType, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
         type: T,
         query: {
             includes: I[]
@@ -143,7 +140,7 @@ export class PatreonMockData {
      * @param data.items The attributes of the resources. If partial, the other attributes will be generated randomly.
      * @returns the JSON:API response payload
      */
-    public getListResponsePayload<T extends Type, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
+    public getListResponsePayload<T extends Type | ItemType, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
         type: T,
         query: { includes: I[]; attributes: A; },
         data: {
@@ -201,89 +198,7 @@ export class PatreonMockData {
         }
     }
 
-    /**
-     * Creates a random ID (UUID for a member) for a resource
-     * @param type The type of the resource
-     * @param options For certain resources, additional information is required to create an ID
-     * @param options.pledgeType For `'pledge-event'` resource: the type of the event. Defaults to `'subscription'`
-     * @returns a random string
-     */
-    public createId (
-        type: Type | keyof ItemMap,
-        options?: {
-            pledgeType?: ItemMap[Type.PledgeEvent]['type']
-        }
-    ): string {
-        if (type === 'member') return randomUUID()
-
-        const randomString = Array.from({ length: _random_int(5, 10) }, () => _random_int(0, 9)).join('')
-
-        if (type === 'pledge-event') {
-            return `${options?.pledgeType ?? 'subscription'}:${randomString}`
-        }
-        else return randomString
-    }
-
-    /**
-     * Creates the API url for a resource
-     * @param type The type of the resource.
-     * The documentation currently allows requests (see documentation for the allowed methods) for:
-     * - campaign
-     * - member
-     * - post
-     * - webhook
-     * @param id The id of the resource
-     * @returns `https://patreon.com/api/oauth2/v2/${type}s/${id}`
-     * @see https://docs.patreon.com/#apiv2-resource-endpoints
-     */
-    public createAPIUrl (type: Type | keyof ItemMap, id: string): string {
-        return `https://patreon.com/api/oauth2/v2/${type}s/${id}`
-    }
-
-    /**
-     * Creates some headers that are generally returned by the Patreon API
-     * @param data The header values
-     * @returns The following headers:
-     * - `x-patreon-uuid`
-     * - `x-patreon-sha`
-     * - `Retry-After` (if a ratelimit is given)
-     * - `Content-Type`
-     * - `cf-ray`
-     * - `cf-cache-status`
-     */
-    public createHeaders (data?: PatreonMockHeaderData): Record<string, string> {
-        return {
-            [ResponseHeaders.UUID]: data?.uuid ?? randomUUID(),
-            [ResponseHeaders.CfCacheStatus]: 'DYNAMIC',
-            [ResponseHeaders.Sha]: data?.sha ?? '',
-            [ResponseHeaders.CfRay]: data?.rayId ?? '',
-            ...(data?.ratelimit != undefined ? {
-                [ResponseHeaders.RetryAfter]: data.ratelimit.retryAfter,
-            } : {}),
-            'Content-Type': 'application/json',
-        }
-    }
-
-    /**
-     * Create an error-like object. An error response is of type `{ errors: PatreonErrorData[] }`
-     * @param status The response status
-     * @param data Optional data to better mock the error
-     * @returns the mocked error
-     */
-    public createError (status: number, data?: Partial<Omit<PatreonErrorData, 'status'>>): PatreonErrorData {
-        return {
-            status: status.toString(),
-            code_challenge: null,
-            code: 0,
-            code_name: 'MockedError',
-            id: 'MockError',
-            title: 'The mock API errored',
-            detail: 'An error was thrown by the mock API for the Patreon API',
-            ...(data ?? {}),
-        }
-    }
-
-    public createRelatedItems <T extends keyof ItemMap>(type: T, options?: {
+    public createRelatedItems<T extends ItemType> (type: T, options?: {
         items?: RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[]
     }): RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[] {
         const relationMap = QueryBuilder.createRelationMap(type)
@@ -299,7 +214,7 @@ export class PatreonMockData {
         })
     }
 
-    public getAttributeItem<T extends keyof ItemMap, A extends keyof ItemMap[T] = keyof ItemMap[T]>(
+    public getAttributeItem<T extends ItemType, A extends keyof ItemMap[T] = keyof ItemMap[T]>(
         type: T,
         id: string,
         data?: Partial<ItemMap[T]>,
@@ -314,34 +229,30 @@ export class PatreonMockData {
                 ? {}
                 : Object.keys(item)
                     .filter(k => attributes.includes(<A>k))
-                    .reduce((obj, key) => ({ ...obj, [key]: item[key ]}), {}))) as Pick<ItemMap[T], A>,
+                    .reduce((obj, key) => ({ ...obj, [key]: item[key] }), {}))) as Pick<ItemMap[T], A>,
         }
     }
 
-    public getAttributeItems<T extends keyof ItemMap, A extends keyof ItemMap[T]>(
+    public getAttributeItems<T extends ItemType, A extends keyof ItemMap[T]>(
         type: T,
         items?: { id?: string, data?: Partial<ItemMap[T]> }[],
         attributes?: A[],
         options?: {
-            length?: number | { min: number, max: number }
+            length?: RandomInteger,
         }
     ) {
-        const length = options?.length != undefined
-            ? (typeof options.length === 'number'
-                ? options.length
-                : _random_int(options.length.min, options.length.max)
-            ) : (items != undefined && items.length > 0 ? items.length : _random_int(1, 10))
-
-        return Array.from({ length }, (_, i) => this.getAttributeItem(
-            type,
-            items?.at(i)?.id ?? this.createId(type),
-            items?.at(i)?.data,
-            attributes,
-        ))
+        return Array.from({ length: resolveRandomInteger(options?.length, items, 10) }, (_, i) => {
+            return this.getAttributeItem(
+                type,
+                items?.at(i)?.id ?? this.createId(type),
+                items?.at(i)?.data,
+                attributes,
+            )
+        })
     }
 
     public filterRelationships<
-        T extends Type,
+        T extends ItemType,
         I extends RelationshipFields<T>,
         A extends RelationshipMap<T, I>
     >(
@@ -384,6 +295,142 @@ export class PatreonMockData {
                 // @ts-expect-error TODO: fix this
                 return this.getAttributeItem(item.type, item.id, item.attributes, query.attributes[item.type])
             })
+        }
+    }
+
+    /**
+     * Creates a random ID (UUID for a member) for a resource
+     * @param type The type of the resource
+     * @param options For certain resources, additional information can be used to create an ID
+     * @returns a random string
+     */
+    public createId (
+        type: Type | ItemType,
+        options?: PatreonMockIdOptions,
+    ): string {
+        return PatreonMockData.createId(type, options)
+    }
+
+    /**
+     * Creates the API url for a resource
+     * @param type The type of the resource.
+     * The documentation currently allows requests (see documentation for the allowed methods) for:
+     * - campaign
+     * - member
+     * - post
+     * - webhook
+     * @param id The id of the resource
+     * @returns `https://patreon.com/api/oauth2/v2/${type}s/${id}`
+     * @see https://docs.patreon.com/#apiv2-resource-endpoints
+     */
+    public createAPIUrl (type: Type | ItemType, id: string): string {
+        return PatreonMockData.createAPIUrl(type, id)
+    }
+
+    /**
+     * Creates some headers that are generally returned by the Patreon API
+     * @param data The header values
+     * @returns The following headers:
+     * - `x-patreon-uuid`
+     * - `x-patreon-sha`
+     * - `Retry-After` (if a ratelimit is given)
+     * - `Content-Type`
+     * - `cf-ray`
+     * - `cf-cache-status`
+     */
+    public createHeaders (data?: PatreonMockHeaderData): Record<string, string> {
+        return PatreonMockData.createHeaders(data)
+    }
+
+    /**
+     * Create an error-like object. An error response is of type `{ errors: PatreonErrorData[] }`
+     * @param status The response status
+     * @param data Optional data to better mock the error
+     * @returns the mocked error
+     */
+    public createError (status: number, data?: Partial<Omit<PatreonErrorData, 'status'>>): PatreonErrorData {
+        return PatreonMockData.createError(status, data)
+    }
+
+    /**
+     * Creates the API url for a resource
+     * @param type The type of the resource.
+     * The documentation currently allows requests (see documentation for the allowed methods) for:
+     * - campaign
+     * - member
+     * - post
+     * - webhook
+     * @param id The id of the resource
+     * @returns `https://patreon.com/api/oauth2/v2/${type}s/${id}`
+     * @see https://docs.patreon.com/#apiv2-resource-endpoints
+     */
+    public static createAPIUrl (type: Type | ItemType, id: string): string {
+        return `https://patreon.com/api/oauth2/v2/${type}s/${id}`
+    }
+
+    /**
+     * Creates a random ID (UUID for a member) for a resource
+     * @param type The type of the resource
+     * @param options For certain resources, additional information can be used to create an ID
+     * @returns a random string
+     */
+    public static createId (
+        type: Type | ItemType,
+        options?: PatreonMockIdOptions,
+    ): string {
+        if (type === 'member') return randomUUID()
+
+        const length = resolveRandomInteger({ min: 5, max: 10 })
+        const randomString = Array.from({ length },
+            () => resolveRandomInteger({ min: 0, max: 9 })
+        ).join('')
+
+        if (type === 'pledge-event') {
+            return `${options?.pledgeType ?? 'subscription'}:${randomString}`
+        }
+        else return randomString
+    }
+
+    /**
+     * Create an error-like object. An error response is of type `{ errors: PatreonErrorData[] }`
+     * @param status The response status
+     * @param data Optional data to better mock the error
+     * @returns the mocked error
+     */
+    public static createError (status: number, data?: Partial<Omit<PatreonErrorData, 'status'>>): PatreonErrorData {
+        return {
+            status: status.toString(),
+            code_challenge: null,
+            code: 0,
+            code_name: 'MockedError',
+            id: 'MockError',
+            title: 'The mock API errored',
+            detail: 'An error was thrown by the mock API for the Patreon API',
+            ...(data ?? {}),
+        }
+    }
+
+    /**
+     * Creates some headers that are generally returned by the Patreon API
+     * @param data The header values
+     * @returns The following headers:
+     * - `x-patreon-uuid`
+     * - `x-patreon-sha`
+     * - `Retry-After` (if a ratelimit is given)
+     * - `Content-Type`
+     * - `cf-ray`
+     * - `cf-cache-status`
+     */
+    public static createHeaders (data?: PatreonMockHeaderData): Record<string, string> {
+        return {
+            [ResponseHeaders.UUID]: data?.uuid ?? randomUUID(),
+            [ResponseHeaders.CfCacheStatus]: 'DYNAMIC',
+            [ResponseHeaders.Sha]: data?.sha ?? '',
+            [ResponseHeaders.CfRay]: data?.rayId ?? '',
+            ...(data?.ratelimit != undefined ? {
+                [ResponseHeaders.RetryAfter]: data.ratelimit.retryAfter,
+            } : {}),
+            'Content-Type': 'application/json',
         }
     }
 }

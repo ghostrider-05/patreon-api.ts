@@ -2,7 +2,7 @@ import { writeFile } from 'fs/promises'
 
 import type { OpenAPIV3_1 } from 'openapi-types'
 
-import { RequestMethod } from '../../../v2'
+import { RequestMethod } from '../../../rest/v2/oauth2/rest/options'
 import type { Route } from '../../../schemas/v2/api/types'
 
 interface PathSchemaOptions {
@@ -88,6 +88,7 @@ function createPaths (schema: PathSchemaOptions) {
                         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                         ?? (id.at(0)!.toUpperCase() + id.slice(1).split(/(?=[A-Z])/).map(w => w.toLowerCase()).join(' ')),
                     deprecated: data.deprecated ?? false,
+                    ...(experimental ? { 'x-scalar-stability': 'experimental' } : {}),
                     ...(externalDocs ? { externalDocs } : {}),
                     ...(requestBody ? { requestBody } : {}),
                     parameters: [

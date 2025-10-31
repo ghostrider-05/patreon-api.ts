@@ -12,7 +12,7 @@ import type {
 
 import type { NormalizedRelationshipItem } from './payload'
 
-type RelationshipData<
+export type RelationshipData<
     T extends ItemType,
     F extends RelationshipFields<T>
 > = (
