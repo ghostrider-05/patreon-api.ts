@@ -121,13 +121,13 @@ export interface PatreonMockOptions {
 
 export interface PatreonMockHandlerCallbackOptions {
     path: string
-    origin: string
     method: string
+    origin?: string
     body?:
         | import('undici-types').BodyInit
         | import('undici-types').Dispatcher.DispatchOptions['body']
         | undefined
-    headers:
+    headers?:
         | import('undici-types').Headers
         | Headers
         | Record<string, string>
@@ -473,10 +473,10 @@ export class PatreonMock {
      * @returns the intercept callback
      */
     public getMockAgentReplyCallback (options?: PatreonMockHandlerOptions) {
-        return (callbackOptions: PatreonMockHandlerCallbackOptions) => {
+        return ((callbackOptions: PatreonMockHandlerCallbackOptions) => {
             return this.handleMockRequest({
                 body: callbackOptions.body?.toString() ?? null,
-                headers: callbackOptions.headers,
+                headers: callbackOptions.headers ?? {},
                 method: callbackOptions.method,
                 url: callbackOptions.origin + callbackOptions.path,
             }, options ?? {}, ({ body, headers, status }) => ({
@@ -484,7 +484,7 @@ export class PatreonMock {
                 data: body,
                 responseOptions: { headers },
             }))
-        }
+        }) satisfies import('undici-types/mock-interceptor').MockInterceptor.MockReplyOptionsCallback
     }
 
     /**
