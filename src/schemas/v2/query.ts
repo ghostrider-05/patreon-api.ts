@@ -174,6 +174,7 @@ export class QueryBuilder<
 
     /**
      * The actual encoded query string.
+     * If the query is not empty, the query will be prefixed with `?`.
      * @example `'?fields%5Buser%5D=url%2Cname'`
      */
     public get query (): string {
@@ -222,7 +223,7 @@ export class QueryBuilder<
      * Gets the attributes configured for a relationship
      * @param relationship The name of the relationship
      * @returns The attributes, or undefined for no attributes
-     * @throws When using an invalid relationship for the current resource
+     * @throws {Error} When using an invalid relationship for the current resource
      */
     public attributesFor<R extends Relationships> (relationship: R): Attributes[RelationshipFieldToFieldType<T, R>] | undefined {
         // Can be undefined for relationships without attributes added
@@ -394,7 +395,7 @@ export class QueryBuilder<
     /**
      * Create a record to convert relation names to resources.
      * @param type The resource to create the map for
-     * @throws When using an invalid type
+     * @throws {Error} When using an invalid type
      */
     public static createRelationMap <T extends ItemType> (type: T) {
         const resource = this.getResource<T>(type)
@@ -406,7 +407,7 @@ export class QueryBuilder<
      * Convert a relationship name to a resource name
      * @param type The resource that holds the relationship
      * @param relation The name of the relationship to find the resource name of
-     * @throws When using an invalid type
+     * @throws {Error} When using an invalid type
      */
     public static convertRelationToType <
         T extends ItemType,
@@ -419,7 +420,7 @@ export class QueryBuilder<
      * Convert a relation resource name to a relationship name
      * @param type The resource that holds the relationship
      * @param relationType The resource name of the relationship to find the relationship name of
-     * @throws When using an invalid type or unknown relation type
+     * @throws {Error} When using an invalid type or unknown relation type
      */
     public static convertTypeToRelation <
         T extends ItemType,

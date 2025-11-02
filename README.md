@@ -62,7 +62,7 @@ To read more about how to use this library, go to the [documentation](https://pa
 To check for compatibility with this package, look if your platform:
 
 - has the globals: `AbortController`, `setTimeout`, `clearTimeout`, `setInterval`, `clearInterval`, `Request`, `fetch`, `URL` and `URLSearchParams`
-  - for node.js: `v18` or higher
+  - for node.js: `v22` or higher
   - for Cloudflare workers: [enable Node.js](https://developers.cloudflare.com/workers/runtime-apis/nodejs/#enable-nodejs-with-workers)
 - supports `ES2020`
 - supports the `node:crypto` module: `createHmac` and `randomUUID`

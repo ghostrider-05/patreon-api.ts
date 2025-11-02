@@ -22,7 +22,7 @@
     "lint:fix": "npx eslint --fix \"src/**/*.ts\" \"apps/**/*.ts\" \"examples/**/*.ts\""
   },
   "engines": {
-    "node": ">=18.17"
+    "node": ">=22"
   },
   "funding": "https://paypal.me/05ghostrider",
   "homepage": "https://github.com/ghostrider-05/patreon-api.ts#readme",
@@ -55,7 +55,7 @@
   "license": "MIT",
   "devDependencies": {
     "@eslint/js": "^9.36.0",
-    "@types/node": "^18.19.31",
+    "@types/node": "^22.18.13",
     "@vitest/coverage-istanbul": "^3.2.1",
     "eslint": "^9.36.0",
     "eslint-plugin-jsdoc": "^60.7.0",

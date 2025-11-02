@@ -30,7 +30,7 @@ body:
       label: System settings
       description: Which versions are you using?
       value: |
-        Node version: 20.x.x
+        Node version: 22.x.x
         Npm version: 10.x.x
         Patreon-api.ts version: 0.x.x
   - type: textarea
