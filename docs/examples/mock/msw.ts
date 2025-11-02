@@ -15,17 +15,10 @@ const mockHandlers = mockAPI.getMockHandlers({
 
 export const handlers = [
     http.get(mockHandlers.getCampaign.url, ({ request }) => {
-        return mockHandlers.getCampaign.handler({
-            headers: request.headers,
-            url: request.url,
-        })
+        return mockHandlers.getCampaign.handler(request)
     }),
     http.post(mockHandlers.createWebhook.url, async ({ request }) => {
-        return mockHandlers.createWebhook.handler({
-            headers: request.headers,
-            url: request.url,
-            body: await request.text(),
-        })
+        return mockHandlers.createWebhook.handler(request)
     }),
 ]
 // #endregion handler
@@ -46,13 +39,7 @@ const mockHandlers = mockAPI.getMockHandlers({
 
 export const allHandlers = Object.values(mockHandlers).map(handler => {
     return http[handler.method](handler.url, async ({ request }) => {
-        return handler.handler({
-            headers: request.headers,
-            url: request.url,
-            body: handler.method !== 'get'
-                ? await request.text()
-                : null,
-        })
+        return handler.handler(request)
     })
 })
 // #endregion all-handlers
@@ -69,7 +56,7 @@ export const errorHandlers = [
             mockAPI.data.createError(400),
         ]}), {
             status: 400,
-            headers: {},
+            headers: mockAPI.data.createHeaders(),
         })
     })
 ]

@@ -75,6 +75,11 @@ export interface CacheStoreEventMap {
 //     maxSize: number
 // }
 
+export interface CacheStoreItem<T extends ItemType> extends CacheItem<T> {
+    type: T
+    id: string
+}
+
 export interface CacheStoreOptions extends CacheStoreSharedOptions {
     events?: NodeJS.EventEmitter<CacheStoreEventMap> | undefined
     requestSyncOptions?: {
@@ -92,11 +97,7 @@ export interface CacheStoreOptions extends CacheStoreSharedOptions {
     // sweepers?: {}
     // limits?: {}
     initial?: {
-        [T in ItemType]: {
-            id: string
-            type: T
-            value: CacheItem<T>
-        }
+        [T in ItemType]: CacheStoreItem<T>
     }[ItemType][]
 }
 
@@ -159,15 +160,15 @@ export class CacheStore<IsAsync extends boolean>
     }
 
     // @ts-expect-error expanded override
-    public override bulkPut<T extends ItemType>(items: {
-        type: T
-        id: string
-        value: CacheItem<T>
-    }[]): IfAsync<IsAsync, void> {
-        const keys = items.map(item => ({
-            key: this.options.convert.toKey(item),
-            value: item.value,
-        }))
+    public override bulkPut<T extends ItemType>(items: CacheStoreItem<T>[]): IfAsync<IsAsync, void> {
+        const keys = items.map(item => {
+            const { id, type, ...value } = item
+
+            return {
+                key: this.options.convert.toKey({ id, type}),
+                value,
+            }
+        })
 
         return super.bulkPut(keys)
     }

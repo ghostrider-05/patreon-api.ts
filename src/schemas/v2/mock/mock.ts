@@ -123,21 +123,29 @@ export interface PatreonMockHandlerCallbackOptions {
     path: string
     origin: string
     method: string
-    body?: import('undici-types').BodyInit
-    headers: Headers | Record<string, string>
+    body?:
+        | import('undici-types').BodyInit
+        | import('undici-types').Dispatcher.DispatchOptions['body']
+        | undefined
+    headers:
+        | import('undici-types').Headers
+        | Headers
+        | Record<string, string>
 }
 
-export interface PatreonMockHandler<R = {
+export interface PatreonMockHandlerDefaultResponse {
     body: string
     status: number
     headers: Record<string, string>
-}> {
+}
+
+export interface PatreonMockHandler<R = PatreonMockHandlerDefaultResponse> {
     url: string
     method: Lowercase<RequestMethod>
     handler: (request: {
         url: string
         headers: Record<string, string> | Headers
-        text: () => Promise<string>
+        text?: () => Promise<string>
     }) => Promise<R>
 }
 
@@ -154,6 +162,22 @@ interface ParsedRoute {
  * @see https://patreon-api.pages.dev/guide/features/sandbox
  */
 export class PatreonMock {
+    public cache: CacheStore<false>
+    public data: PatreonMockData
+    public webhooks: PatreonMockWebhooks
+
+    public constructor (
+        public options: PatreonMockOptions = {},
+    ) {
+        this.cache = new CacheStore(false, undefined, options.cache)
+
+        this.data = options.data != undefined && options.data instanceof PatreonMockData
+            ? options.data
+            : new PatreonMockData(options.data)
+
+        this.webhooks = new PatreonMockWebhooks(options.webhooks ?? {}, this.data, this.cache)
+    }
+
     /**
      * The origin url for the Patreon API
      * @constant 'https://patreon.com'
@@ -171,24 +195,29 @@ export class PatreonMock {
      * @param path The path to check. Can include query parameters
      * @returns if the path is valid route for the V2 Patreon API
      */
-    public static pathFilter = (path: string): boolean => {
+    public static pathFilter (path: string): boolean {
         return findAPIPath(path, PatreonMock.path) != undefined
     }
 
-    public cache: CacheStore<false>
-    public data: PatreonMockData
-    public webhooks: PatreonMockWebhooks
-
-    public constructor (
-        public options: PatreonMockOptions = {},
-    ) {
-        this.cache = new CacheStore(false, undefined, options.cache)
-
-        this.data = options.data != undefined && options.data instanceof PatreonMockData
-            ? options.data
-            : new PatreonMockData(options.data)
-
-        this.webhooks = new PatreonMockWebhooks(options.webhooks ?? {}, this.data, this.cache)
+    /**
+     * Create a mocked route
+     * @param path The request path to use: /api/oauth2/v2{path}
+     * @param options Path options
+     * @param options.includeOrigin Include the origin url (default false)
+     * @param options.query The url query to append
+     * @returns the mocked API route
+     */
+    public static route (
+        path: string,
+        options?: {
+            includeOrigin?: boolean
+            query?: string
+        },
+    ): string {
+        return (options?.includeOrigin ? PatreonMock.origin : '')
+            + PatreonMock.path
+            + path
+            + (options?.query ? ((options.query.startsWith('?') ? '?' : '') + options.query) : '')
     }
 
     private validateHeaders (headers: Record<string, string> | Headers): void {
@@ -250,7 +279,7 @@ export class PatreonMock {
         }
     }
 
-    private getResponseStatus (route: Route, method?: string) {
+    private getDefaultResponseStatus (route: Route, method?: string) {
         const options = route.methods.find(m => {
             return m.method.toLowerCase() === (method ?? RequestMethod.Get).toLowerCase()
         })
@@ -275,12 +304,8 @@ export class PatreonMock {
 
     private buildResponseFromUrl (route: ParsedRoute, options?: PatreonMockHandlerOptions & {
         resourceId?: string
-        method?: string
-    }) {
+    }): string {
         const { param, path, searchParams } = route
-
-        const defaultResponseStatus = this.getResponseStatus(path, options?.method)
-        if (defaultResponseStatus !== 200) return null
 
         const parsed = this.parseQueryRelationships(searchParams, path.resource)
         // Add typed query?
@@ -369,7 +394,7 @@ export class PatreonMock {
         }
     }
 
-    protected handleMockRequest (
+    protected handleMockRequest<T> (
         request: {
             url: string
             headers: Record<string, string> | Headers
@@ -377,11 +402,12 @@ export class PatreonMock {
             body: string | null
         },
         options: PatreonMockHandlerOptions,
-    ) {
+        transform: (response: PatreonMockHandlerDefaultResponse) => T,
+    ): T {
         this.validateHeaders(request.headers)
         const route = this.parseAPIPath(request.url)
         const headers = this.getResponseHeaders(options.headers)
-        const status = options.statusCode ?? this.getResponseStatus(route.path, request.method)
+        const status = options.statusCode ?? this.getDefaultResponseStatus(route.path, request.method)
 
         this.cache.syncRequest(
             {
@@ -403,7 +429,7 @@ export class PatreonMock {
 
         // Return an error
         if (options.statusCode != undefined && options.statusCode >= 400) {
-            return {
+            return transform({
                 body: JSON.stringify({
                     errors: [
                         this.data.createError(options.statusCode),
@@ -411,24 +437,26 @@ export class PatreonMock {
                 }),
                 headers,
                 status,
-            }
+            })
         } else if (request.method.toLowerCase() === 'get') {
-            return {
-                body: this.buildResponseFromUrl(route, {
+            const responseBody = status === 200
+                ? this.buildResponseFromUrl(route, {
                     cache: options?.cache,
                     random: options?.random,
-                    method: request.method,
-                }) ?? '',
+                }) : '' // Using an empty body for 201 and 204 responses
+
+            return transform({
+                body: responseBody,
                 headers,
                 status,
-            }
+            })
         } else {
-            return {
+            return transform({
                 // TODO: the response body should be different from the request body, right?
                 body: request.body ?? '',
                 headers,
                 status,
-            }
+            })
         }
     }
 
@@ -446,18 +474,16 @@ export class PatreonMock {
      */
     public getMockAgentReplyCallback (options?: PatreonMockHandlerOptions) {
         return (callbackOptions: PatreonMockHandlerCallbackOptions) => {
-            const { body, headers, status } = this.handleMockRequest({
+            return this.handleMockRequest({
                 body: callbackOptions.body?.toString() ?? null,
                 headers: callbackOptions.headers,
                 method: callbackOptions.method,
                 url: callbackOptions.origin + callbackOptions.path,
-            }, options ?? {})
-
-            return {
+            }, options ?? {}, ({ body, headers, status }) => ({
                 statusCode: status,
                 data: body,
                 responseOptions: { headers },
-            }
+            }))
         }
     }
 
@@ -473,11 +499,11 @@ export class PatreonMock {
      * @returns Handlers for each route that returns a successful response.
      */
     public getMockHandlers <
-        R = Awaited<ReturnType<PatreonMockHandler['handler']>>
+        R = PatreonMockHandlerDefaultResponse
     >(options?: PatreonMockHandlerOptions & {
         pathParam?: string
         includeOrigin?: boolean
-        transformResponse?: (response: Awaited<ReturnType<PatreonMockHandler['handler']>>) => R
+        transformResponse?: (response: PatreonMockHandlerDefaultResponse) => R
     }) {
         const {
             pathParam,
@@ -491,16 +517,16 @@ export class PatreonMock {
                 ...handlers,
                 ...route.methods.reduce<Record<PatreonMockRouteId, PatreonMockHandler<R>>>((obj, { method, id }) => {
                     const handler: PatreonMockHandler<R>['handler'] = async (request) => {
-                        const data = this.handleMockRequest({
+                        return this.handleMockRequest({
                             body: [RequestMethod.Patch, RequestMethod.Post].includes(method.toUpperCase() as RequestMethod)
-                                ? await request.text()
+                                ? await request.text?.() ?? null
                                 : null,
                             headers: request.headers,
                             url: request.url,
                             method,
-                        }, handlerOptions)
-
-                        return transformResponse?.(data) ?? <R>data
+                        }, handlerOptions, data => {
+                            return transformResponse?.(data) ?? <R>data
+                        })
                     }
 
                     return {
@@ -508,9 +534,9 @@ export class PatreonMock {
                         [id]: {
                             handler,
                             method: method.toLowerCase(),
-                            url: ((includeOrigin ?? true) ? PatreonMock.origin : '')
-                                + PatreonMock.path
-                                + route.route(pathParam ?? '*'),
+                            url: PatreonMock.route(route.route(pathParam ?? '*'), {
+                                includeOrigin: includeOrigin ?? true,
+                            }),
                         }
                     }
                 }, {} as never),

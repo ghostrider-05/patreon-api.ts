@@ -62,31 +62,25 @@ const initialTestCache: InitialCache = [
     {
         id: '1234',
         type: 'webhook',
-        value: testWebhook,
+        ...testWebhook,
     },
     {
         id: mockData.createId(Type.Webhook),
         type: 'webhook',
-        value: {
-            item: {},
-            relationships: {},
-        }
+        item: {},
+        relationships: {},
     },
     {
         id: mockData.createId(Type.Webhook),
         type: 'webhook',
-        value: {
-            item: {},
-            relationships: {},
-        }
+        item: {},
+        relationships: {},
     },
     {
         id: mockData.createId(Type.Webhook),
         type: 'webhook',
-        value: {
-            item: {},
-            relationships: {},
-        }
+        item: {},
+        relationships: {},
     },
 ]
 
