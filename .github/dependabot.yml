@@ -16,6 +16,23 @@ updates:
     schedule:
       interval: "monthly"
     groups:
+      docs:
+        patterns:
+          - "*"
+    directories:
+      - "/docs/"
+    ignore:
+        - dependency-name: '@types/node'
+        - dependency-name: "*"
+          update-types:
+            - "version-update:semver-patch"
+    labels:
+      - "dependencies"
+  - package-ecosystem: "npm"
+    versioning-strategy: increase
+    schedule:
+      interval: "monthly"
+    groups:
       cloudflare:
           patterns:
             - wrangler
@@ -35,16 +52,8 @@ updates:
           - vitest
           - "@vitest/*"
           - msw
-      vue:
-        patterns:
-          - vue*
-          - vite*
-          - "@vue*"
-        exclude-patterns:
-          - vitest
     directories:
       - "/"
-      - "/docs/"
       - "/apps/*/"
       - "/examples/*/"
     ignore:
