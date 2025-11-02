@@ -478,7 +478,7 @@ export class PatreonMock {
                 body: callbackOptions.body?.toString() ?? null,
                 headers: callbackOptions.headers ?? {},
                 method: callbackOptions.method,
-                url: callbackOptions.origin + callbackOptions.path,
+                url: (callbackOptions.origin ?? PatreonMock.origin) + callbackOptions.path,
             }, options ?? {}, ({ body, headers, status }) => ({
                 statusCode: status,
                 data: body,
