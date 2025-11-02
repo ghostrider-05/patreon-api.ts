@@ -375,6 +375,7 @@ export class PatreonOauthClient {
      * Check if a token is likely expired
      * @param token The token to check
      * @returns `true` only if `token.expires_in_epoch` is present and not in the past
+     * @internal
      */
     public static isExpired(token: Oauth2CreatorToken | Oauth2StoredToken): boolean {
         if (!token.expires_in_epoch) return false
@@ -385,6 +386,7 @@ export class PatreonOauthClient {
      * Create a stored version of a token by including the current timestamp
      * @param token The token to create a stored version of
      * @returns the same token if `expires_in` is missing. Otherwise the stored token version.
+     * @internal
      */
     public static toStored<SupportsCreator extends boolean = true>(
         token: Oauth2Token | Oauth2CreatorToken

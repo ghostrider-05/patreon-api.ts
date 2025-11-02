@@ -105,7 +105,6 @@
         "PatreonClientMethods",
         "GenericPatreonClientMethods",
         "OauthClientOptions",
-        "Oauth2RedirectOptions",
         // payload types
         "RequestPayload",
         "PayloadFromQuery",

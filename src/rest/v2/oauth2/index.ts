@@ -3,6 +3,7 @@ export * from './scopes'
 export type {
     PatreonOauthClient,
     PatreonOauthClientOptions,
+    Oauth2RedirectOptions,
 } from './client'
 export {
     PatreonStore,
