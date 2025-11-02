@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.16.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.15.1...patreon-api.ts-v0.16.0) (2025-11-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* bump (recommended) node version to v22
+* **PatreonMock:** change mock handler to be async and rename body argument to text
+* **PatreonMock:** set all cache and random options to default to true
+* **PatreonMock:** refactor cache ([#175](https://github.com/ghostrider-05/patreon-api.ts/issues/175))
+
+### Features
+
+* bump (recommended) node version to v22 ([428ee5d](https://github.com/ghostrider-05/patreon-api.ts/commit/428ee5defba8849652a351f580b52d1e2c7dd41e))
+* **openapi:** mark DELETE /api/oauth2/v2/webhooks/:id as documented ([904962b](https://github.com/ghostrider-05/patreon-api.ts/commit/904962b63c56c179eef7fd5081c51ff131bbd517))
+* **PatreonMock:** add cache and random options to getMockHandlers method ([904962b](https://github.com/ghostrider-05/patreon-api.ts/commit/904962b63c56c179eef7fd5081c51ff131bbd517))
+* **PatreonMock:** add responseOptions: cache, random and unknownCacheResponse options ([904962b](https://github.com/ghostrider-05/patreon-api.ts/commit/904962b63c56c179eef7fd5081c51ff131bbd517))
+* **PatreonMock:** add static `route` method to create mocked urls ([#232](https://github.com/ghostrider-05/patreon-api.ts/issues/232)) ([629ccbe](https://github.com/ghostrider-05/patreon-api.ts/commit/629ccbebfe36feaa705b3ddc71f98544dae4a470))
+* **PatreonMock:** change mock handler to be async and rename body argument to text ([904962b](https://github.com/ghostrider-05/patreon-api.ts/commit/904962b63c56c179eef7fd5081c51ff131bbd517))
+* **PatreonMock:** refactor cache ([#175](https://github.com/ghostrider-05/patreon-api.ts/issues/175)) ([904962b](https://github.com/ghostrider-05/patreon-api.ts/commit/904962b63c56c179eef7fd5081c51ff131bbd517))
+* **PatreonMock:** set all cache and random options to default to true ([904962b](https://github.com/ghostrider-05/patreon-api.ts/commit/904962b63c56c179eef7fd5081c51ff131bbd517))
+* **WebhookClient:** remove experimental warning from delete webhook method ([904962b](https://github.com/ghostrider-05/patreon-api.ts/commit/904962b63c56c179eef7fd5081c51ff131bbd517))
+
+
+### Bug Fixes
+
+* export types for oauth client with options ([904962b](https://github.com/ghostrider-05/patreon-api.ts/commit/904962b63c56c179eef7fd5081c51ff131bbd517))
+* **openapi:** improve json:api schemas ([904962b](https://github.com/ghostrider-05/patreon-api.ts/commit/904962b63c56c179eef7fd5081c51ff131bbd517))
+* **openapi:** only show retry-after header on 429 status ([904962b](https://github.com/ghostrider-05/patreon-api.ts/commit/904962b63c56c179eef7fd5081c51ff131bbd517))
+
 ## [0.15.1](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.15.0...patreon-api.ts-v0.15.1) (2025-08-02)
 
 
