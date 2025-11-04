@@ -14,8 +14,11 @@ import type {
 } from '../../../schemas/v2/'
 
 import type { AdditionalKeys } from '../../../utils'
+
 import { ListRequestPayload } from '../internals/list'
 import type { RequestPayload } from '../internals/request'
+
+import type { AnyToCamelCase } from './capitalize'
 
 export type NormalizedAttributeItem<
     Type extends ItemType,
@@ -77,5 +80,21 @@ export type NormalizeRequest<
     : never
 
 export type GetNormalizedResponsePayload<Query extends BasePatreonQuery> = Query extends PatreonQuery<infer T, infer I, infer A, infer L>
-    ? L extends true ? NormalizedListRequestPayload<T, I, A> : NormalizedGetRequestPayload<T, I, A>
+    ? L extends false
+        ? NormalizedGetRequestPayload<T, I, A>
+        : NormalizedListRequestPayload<T, I, A>
+    : never
+
+export type SimplifyRequest<
+    Request extends RequestPayload<Type, RelationshipFields<Type>, RelationshipMap<Type, RelationshipFields<Type>>, boolean>
+> = Request extends RequestPayload<infer T, infer R, infer M, boolean>
+    ? ListRequestPayload<T, R, M> extends Request
+        ? AnyToCamelCase<NormalizedListRequestPayload<T, R, M>>
+        : AnyToCamelCase<NormalizedGetRequestPayload<T, R, M>>
+    : never
+
+export type GetSimplifiedResponsePayload<Query extends BasePatreonQuery> = Query extends PatreonQuery<infer T, infer I, infer A, infer L>
+    ? L extends false
+        ? AnyToCamelCase<NormalizedGetRequestPayload<T, I, A>>
+        : AnyToCamelCase<NormalizedListRequestPayload<T, I, A>>
     : never
