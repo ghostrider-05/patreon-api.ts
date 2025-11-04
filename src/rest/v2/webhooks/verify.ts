@@ -9,7 +9,7 @@ import type { WebhookPayload } from '../../../payloads/v2/webhook'
  * @param secret The webhook secret. Can be found in the portal or in the API response for client webhooks
  * @param signature The signature of the request. Can be found in the request headers
  * @param body The raw request body
- * @throws if no secret is given
+ * @throws {Error} if no secret is given
  * @returns whether the signature is valid for the associated body
  */
 export function verify (
@@ -23,6 +23,22 @@ export function verify (
     return hash === signature
 }
 
+// eslint-disable-next-line jsdoc/require-jsdoc
+async function parseRequestBody (
+    request:
+        | Pick<Request, 'headers' | 'body' | 'clone'>
+        | Pick<Request, 'headers' | 'text'>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        | (import('http').IncomingMessage & { body: any }),
+): Promise<string> {
+    return 'clone' in request && typeof request.clone === 'function'
+        ? await request.clone().text()
+        // TODO: do not this
+        : ('text' in request && typeof request.text === 'function'
+            ? await request.text()
+            : JSON.stringify(request['body']))
+}
+
 /**
  * Verify and parse the incoming Patreon webhook event
  * @param request The incoming request. Can be either:
@@ -31,8 +47,8 @@ export function verify (
  * and afterwards the body cannot be read again.
  * - HTTP Incoming message (like express) with a JSON parsed body.
  * @param secret The secret of the webhook to use for verifying the request
- * @throws if no secret is given
- * @throws if no event header is not found
+ * @throws {Error} if no secret is given
+ * @throws {Error} if no event header is not found
  * @returns the parsed request body and event, or indicates if the verification has failed
  * @example The following examples on GitHub implement this method:
  * - express-webhook: for usage with express.js
@@ -51,13 +67,7 @@ export async function parseWebhookRequest <
     | { verified: false, event: undefined, payload: undefined }
     | { verified: true, event: Trigger, payload: WebhookPayload<Trigger> }
 >{
-    const body = 'clone' in request && typeof request.clone === 'function'
-        ? await request.clone().text()
-        // TODO: do not this
-        : ('text' in request && typeof request.text === 'function'
-            ? await request.text()
-            : JSON.stringify(request['body'])
-        )
+    const body = await parseRequestBody(request)
     const headers = WebhookClient.getWebhookHeaders(request.headers)
 
     const verified = verify(secret, headers.signature, body)
@@ -69,7 +79,9 @@ export async function parseWebhookRequest <
         }
     }
 
-    if (headers.event == null) throw new Error('failed to get event header from request for webhooks')
+    if (headers.event == null) {
+        throw new Error('failed to get event header from request for webhooks')
+    }
 
     return {
         event: <Trigger> headers.event,

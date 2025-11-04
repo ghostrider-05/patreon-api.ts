@@ -128,6 +128,30 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
     globalRequestPerSecond: number
 
     /**
+     * The maximum amount of requests for this client.
+     * Set to `0` to disable the limit.
+     *
+     * The limit is set to `{amount} req/{interval}s`. The default interval is 1 second.
+     * @default 0
+     */
+    // globalRequestsLimit:
+    //     | number
+    //     | { amount: number, interval: number }
+
+    /**
+     * The maximum amount of invalid (4XX) requests for this client.
+     * Set to `0` to disable the limit.
+     *
+     * The limit is set to `{amount} req/{interval}s`. The default interval is 1 second.
+     * As of writing this, your client will be paused from using the API when this limit has reached `2000 req / 600s`.
+     * @default 0
+     * @see https://docs.patreon.com/#edge-rate-limiting
+     */
+    // invalidRequestsLimit:
+    //     | number
+    //     | { amount: number, interval: number }
+
+    /**
      * The string to append to the user agent header
      */
     userAgentAppendix: string | undefined

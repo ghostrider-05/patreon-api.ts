@@ -27,16 +27,14 @@ import { type InternalClientSharedOptions, RestClient } from '../oauth2/rest/cli
 
 import { Routes } from '../oauth2/routes'
 
-type BaseFetchOptions = Omit<RequestOptions,
-    | 'route'
-    | 'accessToken'
-    | 'query'
->
-
 /**
  * Options for the raw Oauth2 request methods
  */
-export interface Oauth2FetchOptions extends BaseFetchOptions {
+export interface Oauth2FetchOptions extends Omit<RequestOptions,
+    | 'route'
+    | 'accessToken'
+    | 'query'
+> {
     /**
      * Overwrite the client token with a new (access) token
      * @default undefined
@@ -88,13 +86,13 @@ class GenericPatreonClientMethods<TransformType extends ResponseTransformType, I
      * @param query The query builder with included fields and attributes
      * @param options Request options
      * @returns the response for succesful requests
-     * @throws on failed request
+     * @throws {Error} on failed request
      */
     public async fetchOauth2<Query extends BasePatreonQuery>(
         path: string,
         query: Query,
         options?: Oauth2FetchOptions | undefined
-    ) {
+    ): Promise<ReturnType<ResponseTransformMap<Query>[TransformType]>> {
         if (this._token) {
             options ??= {}
             options.token ??= this._token
@@ -104,6 +102,7 @@ class GenericPatreonClientMethods<TransformType extends ResponseTransformType, I
             .then(res => this._replace<Query>(res))
     }
 
+    // eslint-disable-next-line jsdoc/require-yields-type
     /**
      * Paginate the Patreon Oauth V2 API until all pages are fetched
      * @param path The Oauth V2 API Route
@@ -116,7 +115,7 @@ class GenericPatreonClientMethods<TransformType extends ResponseTransformType, I
         path: string,
         query: Query,
         options?: Oauth2FetchOptions | undefined
-    ) {
+    ): AsyncGenerator<ReturnType<ResponseTransformMap<Query>[TransformType]>, number, unknown> {
         if (this._token) {
             options ??= {}
             options.token ??= this._token

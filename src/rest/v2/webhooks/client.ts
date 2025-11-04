@@ -143,6 +143,7 @@ export class WebhookClient {
         }) as unknown as WriteResourceResponse<Type.Webhook>
     }
 
+    // TODO: write test
     /**
      * Delete a webhook created by this client
      * @param webhookId The webhook id

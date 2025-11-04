@@ -114,7 +114,7 @@ export class QueryBuilder<
     Relationships extends RelationshipFields<T> = never,
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     Attributes extends RelationshipMap<T, Relationships> = {}
-> {
+> implements BasePatreonQueryType<T, Listing> {
     /**
      * The options for the request, e.g. pagination and sorting.
      */
