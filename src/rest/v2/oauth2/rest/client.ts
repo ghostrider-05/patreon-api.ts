@@ -11,7 +11,6 @@ import {
 
 import {
     DefaultRestOptions,
-    type InternalRequestOptions,
     RequestMethod,
     type RequestOptions,
     type RESTOptions,
@@ -22,6 +21,12 @@ import {
     getRetryAmount,
     type InternalRetryData,
 } from './retries'
+
+import {
+    sleep,
+    RequestCounter,
+    type RestRequestCounter,
+} from './internal/counter'
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 async function parseResponse <Parsed = unknown>(response: RestResponse) {
@@ -43,49 +48,6 @@ function isMissingAuthorization (status: number) {
     return [401].includes(status)
 }
 
-// eslint-disable-next-line jsdoc/require-jsdoc
-async function sleep (ms: number) {
-    return new Promise<void>((resolve) => setTimeout(resolve, ms))
-}
-
-class InternalRequestCounter {
-    public constructor (
-        public period: number,
-        public limit: number,
-    ) {}
-
-    private _count: number | null = null
-    private timer: NodeJS.Timeout | undefined = undefined
-
-    public async addRequest (): Promise<void> {
-        if (this.limit <= 0) return
-
-        if (this._count != null) {
-            this._count += 1
-        } else {
-            this._count = 1
-            this.timer = setInterval(() => {
-                this._count = 0
-            }, this.period).unref()
-        }
-
-        if (this._count > this.limit) {
-            await sleep(this.period)
-        }
-    }
-
-    public clear (): void {
-        clearInterval(this.timer)
-    }
-
-    public get count() {
-        return this._count
-    }
-
-    public get limited () {
-        return this._count != null && this._count > this.limit
-    }
-}
 
 interface PatreonErrorResponseBody {
     errors: PatreonErrorData[]
@@ -95,12 +57,16 @@ export interface InternalClientSharedOptions {
     name: string | null
 }
 
+interface SharedRequestOptions extends RequestOptions {
+    method?: RequestMethod | `${RequestMethod}`
+}
+
 export class RestClient {
     public readonly options: RESTOptions
     public name: string | null
 
     private ratelimitedUntil: Date | null = null
-    private requestCounter: InternalRequestCounter
+    private counter: RequestCounter
 
     public constructor (
         options: Partial<RESTOptions> = {},
@@ -115,18 +81,11 @@ export class RestClient {
             throw new Error('No global fetch function found. Specify options.fetch with your fetch function')
         }
 
-        this.requestCounter = new InternalRequestCounter(
-            1000,
+        this.counter = new RequestCounter(
             this.options.globalRequestPerSecond,
         )
 
         this.name = client.name
-    }
-
-    protected static defaultClientName = 'PatreonBot'
-
-    public static get defaultUserAgent (): string {
-        return makeUserAgentHeader(RestClient.defaultClientName)
     }
 
     public get userAgent (): string {
@@ -134,33 +93,36 @@ export class RestClient {
     }
 
     public get limited (): boolean {
-        return this.ratelimitedUntil != null || this.requestCounter.limited
+        return this.ratelimitedUntil != null || this.counter.limited
     }
 
-    public clearRequestInterval (): void {
-        this.requestCounter.clear()
+    public get requestCounter(): RestRequestCounter {
+        return this.counter
     }
 
     public async delete<T> (path: string, options?: RequestOptions) {
-        return await this.request<T>({ ...options, method: RequestMethod.Delete, path })
+        return await this.request<T>(path, { ...options, method: RequestMethod.Delete })
     }
 
     public async get<T> (path: string, options?: RequestOptions) {
-        return await this.request<T>({ ...options, method: RequestMethod.Get, path })
+        return await this.request<T>(path, { ...options, method: RequestMethod.Get })
     }
 
     public async patch<T> (path: string, options?: RequestOptions) {
-        return await this.request<T>({ ...options, method: RequestMethod.Patch, path })
+        return await this.request<T>(path, { ...options, method: RequestMethod.Patch })
     }
 
     public async post<T> (path: string, options?: RequestOptions) {
-        return await this.request<T>({ ...options, method: RequestMethod.Post, path })
+        return await this.request<T>(path, { ...options, method: RequestMethod.Post })
     }
 
-    public async request <Parsed = unknown>(options: InternalRequestOptions) {
+    protected async request <
+        Parsed = unknown
+    >(path: string, options: SharedRequestOptions) {
         const tryRequest = async (retries = 0): Promise<RestResponse> => {
             const response = await this.makeRequest({
                 ...options,
+                path,
                 currentRetries: retries,
             })
 
@@ -181,7 +143,7 @@ export class RestClient {
 
                     if (this.options.emitter?.listenerCount('ratelimit')) {
                         this.options.emitter.emit('ratelimit', {
-                            url: this.buildUrl(options),
+                            url: this.buildUrl(path, options),
                             timeout: this.options.ratelimitTimeout,
                         })
                     }
@@ -235,9 +197,11 @@ export class RestClient {
         return parsed
     }
 
-    private async makeRequest (options: InternalRequestOptions & { currentRetries: number }) {
+    private async makeRequest (options: SharedRequestOptions & { path: string, currentRetries: number }) {
         await this.waitForRatelimit()
-        await this.requestCounter.addRequest()
+        await this.counter.wait()
+
+        this.counter.add()
 
         // copied from @discordjs/rest
         const controller = new AbortController()
@@ -248,7 +212,7 @@ export class RestClient {
             else options.signal.addEventListener('abort', () => controller.abort())
         }
 
-        const init = this.buildRequest(options), url = this.buildUrl(options)
+        const init = this.buildRequest(options), url = this.buildUrl(options.path, options)
         const fetchAPI = async () => await (options.fetch ?? this.options.fetch)(url, init)
 
         if (this.options.emitter?.listenerCount('request')) {
@@ -280,15 +244,15 @@ export class RestClient {
         return res
     }
 
-    private buildUrl (options: InternalRequestOptions): string {
+    private buildUrl (path: string, options: Pick<RequestOptions, 'route' | 'query'>): string {
         const route = options.route != undefined
             ? options.route
-            : this.options.api + options.path
+            : this.options.api + path
 
         return route + (options.query ?? '')
     }
 
-    private buildRequest (options: InternalRequestOptions) {
+    private buildRequest (options: SharedRequestOptions) {
         const defaultHeaders = {
             'Content-Type': 'application/json',
             'User-Agent': this.userAgent,
@@ -377,5 +341,11 @@ export class RestClient {
 
             return null
         }
+    }
+
+    protected static defaultClientName = 'PatreonBot'
+
+    protected static get defaultUserAgent (): string {
+        return makeUserAgentHeader(RestClient.defaultClientName)
     }
 }

@@ -7,11 +7,13 @@ import {
 import type { Oauth2FetchOptions } from '../clients'
 
 import { type RestClient } from './rest/client'
+import type { RequestOptions } from './rest'
+
 import { getRequiredScopes } from './scopes'
 
 import type { If } from '../../../utils/generics'
 
-export interface OauthClientOptions {
+interface OauthClientOptions {
     /**
      * The client id of the application.
      * Can be found in the Patreon developer portal.
@@ -98,6 +100,21 @@ export interface Oauth2StoredToken extends Oauth2Token {
  */
 export type PatreonOauthClientOptions = OauthClientOptions & Partial<Oauth2RedirectOptions>
 
+// eslint-disable-next-line jsdoc/require-jsdoc
+function makeOauthRequestOptions (
+    url: string,
+    params: Record<string, string>,
+): [string, options: RequestOptions] {
+    return ['', {
+        route: url,
+        auth: false,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(params).toString(),
+    }]
+}
+
 export class PatreonOauthClient {
     public options: Required<Omit<OauthClientOptions, 'token'>> & Partial<Oauth2RedirectOptions>
 
@@ -117,8 +134,10 @@ export class PatreonOauthClient {
         private rest: RestClient,
     ) {
         this.options = {
-            accessTokenUri: options.accessTokenUri ?? 'https://patreon.com/api/oauth2/token',
-            authorizationUri: options.authorizationUri ?? 'https://patreon.com/oauth2/authorize',
+            accessTokenUri: options.accessTokenUri
+                ?? 'https://patreon.com/api/oauth2/token',
+            authorizationUri: options.authorizationUri
+                ?? 'https://patreon.com/oauth2/authorize',
             clientId: options.clientId,
             clientSecret: options.clientSecret,
             scopes: 'scopes' in options ? options.scopes ?? [] : [],
@@ -128,22 +147,15 @@ export class PatreonOauthClient {
             validateToken: options.validateToken ?? false,
         }
 
-        if ('redirectUri' in options) this.options.redirectUri = options.redirectUri
+        if ('redirectUri' in options) {
+            this.options.redirectUri = options.redirectUri
+        }
 
-        if (options.token) this.cachedToken = 'expires_in_epoch' in options.token
-            ? <Oauth2StoredToken>options.token
-            : PatreonOauthClient.toStored(options.token)
-    }
-
-    private async makeOauthRequest<T>(url: string, params: Record<string, string>) {
-        return await this.rest.post<T>('', {
-            route: url,
-            auth: false,
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams(params).toString(),
-        }) as Promise<T>
+        if (options.token) {
+            this.cachedToken = 'expires_in_epoch' in options.token
+                ? <Oauth2StoredToken>options.token
+                : PatreonOauthClient.toStored(options.token)
+        }
     }
 
     /**
@@ -152,60 +164,6 @@ export class PatreonOauthClient {
      */
     public get userAgent(): string {
         return this.rest.userAgent
-    }
-
-    protected static async validateToken(
-        client: PatreonOauthClient,
-        token: Oauth2CreatorToken | Oauth2StoredToken | string | undefined = client.cachedToken
-    ) {
-        if (token != undefined && (typeof token === 'object' && !PatreonOauthClient.isExpired(token))) return token
-        if (token == undefined) throw new Error('No token found to validate!')
-
-        // Since the token is the access token, you cannot use this to refresh a token
-        if (typeof token === 'string') return
-
-        const refreshed = await client.refreshToken(token)
-        await client.onTokenRefreshed?.(refreshed ? this.toStored<false>(refreshed) : undefined)
-        if (refreshed) client.cachedToken = refreshed
-
-        return refreshed
-    }
-
-    protected validateScopes (
-        path: string,
-        query: BasePatreonQuery,
-    ): void {
-        const validate = this.options.validateScopes
-        if (this.options.tokenType === 'creator' || !validate) return
-
-        const requiredScopes = getRequiredScopes.forPath(path, query)
-        const missingScopes = requiredScopes.filter(scope => !this.options.scopes?.includes(scope))
-
-        if (missingScopes.length === 0) return
-
-        const msg = `Missing oauth scopes for ${path}: "${missingScopes.join('", "')}"`
-        if (validate === 'warn') console.log(msg)
-        else throw new Error(msg)
-    }
-
-    protected async getRequestOptions (
-        path: string,
-        query: BasePatreonQuery,
-        options?: Oauth2FetchOptions,
-    ) {
-        const token = this.options.validateToken ? await PatreonOauthClient.validateToken(
-            this,
-            options?.token
-        ) : (options?.token ?? this.cachedToken)
-
-        this.validateScopes(path, query)
-
-        return {
-            ...options,
-            path,
-            query: query.query,
-            accessToken: typeof token === 'string' ? token : token?.access_token,
-        }
     }
 
     /**
@@ -220,11 +178,23 @@ export class PatreonOauthClient {
         query: Query,
         options?: Oauth2FetchOptions,
     ): Promise<GetResponsePayload<Query>> {
-        const rawOptions = await this.getRequestOptions(path, query, options)
+        const token = this.options.validateToken ? await PatreonOauthClient.validateToken(
+            this,
+            options?.token
+        ) : (options?.token ?? this.cachedToken)
 
-        return await this.rest.request(rawOptions)
+        this.validateScopes(path, query)
+
+        const restOptions = {
+            ...options,
+            query: query.query,
+            accessToken: typeof token === 'string' ? token : token?.access_token,
+        }
+
+        return await this.rest['request'](path, restOptions)
     }
 
+    // eslint-disable-next-line jsdoc/require-yields-type
     /**
      * Make a paginated request to the Patreon API.
      * Abort the loop if either condition is met:
@@ -243,6 +213,7 @@ export class PatreonOauthClient {
         options?: Oauth2FetchOptions,
     ): AsyncGenerator<GetResponsePayload<Query>, number, unknown> {
         let total: number | null = null, page = 1, count = 0
+        // Must be a variable as calling a method on the parameter does not update the params.
         const params = query.params
         let lastResourceId: string | undefined = undefined
 
@@ -289,7 +260,7 @@ export class PatreonOauthClient {
      * @param url The request url, or the code, to use for fetching the access token
      * @returns Returns the token on success.
      * Returns `undefined` for missing code missing redirect uri.
-     * @throws on a failed request: can be e.g. because of missing permissions or invalid code
+     * @throws {Error} on a failed request: can be e.g. because of missing permissions or invalid code
      */
     public async getOauthTokenFromCode(url: string | { code: string }): Promise<Oauth2StoredToken | undefined> {
         const code = typeof url === 'string'
@@ -299,13 +270,15 @@ export class PatreonOauthClient {
         if (!code) return undefined
         if (!this.options.redirectUri) return undefined
 
-        const token: Oauth2Token = await this.makeOauthRequest(this.options.accessTokenUri, {
+        const options = makeOauthRequestOptions(this.options.accessTokenUri, {
             code,
             client_id: this.options.clientId,
             client_secret: this.options.clientSecret,
             grant_type: 'authorization_code',
             redirect_uri: this.options.redirectUri,
         })
+
+        const token: Oauth2Token = await this.rest.post(...options)
 
         return token
             ? PatreonOauthClient.toStored<false>(token)
@@ -316,25 +289,27 @@ export class PatreonOauthClient {
      * Update an access token with the refresh token
      * @param token The refresh token, or the token with a `refresh_token`, to use
      * @returns the updated access token
-     * @throws on a failed request
+     * @throws {Error} on a failed request
      */
     public async refreshToken(token: Oauth2CreatorToken | Oauth2Token | Oauth2StoredToken | string): Promise<Oauth2StoredToken> {
         const refresh_token = typeof token === 'string'
             ? token
             : token.refresh_token
 
-        return await this.makeOauthRequest(this.options.accessTokenUri, {
+        const options = makeOauthRequestOptions(this.options.accessTokenUri, {
             refresh_token,
             client_id: this.options.clientId,
             client_secret: this.options.clientSecret,
             grant_type: 'refresh_token',
         })
+
+        return await this.rest.post(...options)
     }
 
     /**
      * The uri to redirect users to in the first step of the Oauth flow
      * @returns the url to use for redirecting the user to
-     * @throws if the redirectUri is not defined or an empty string
+     * @throws {Error} if the redirectUri is not defined or an empty string
      */
     public get oauthUri(): string {
         return this.createOauthUri()
@@ -346,7 +321,7 @@ export class PatreonOauthClient {
      * @param options.redirectUri The uri to redirect to after authorization
      * @param options.scopes The scopes to request for this client.
      * @param options.state The state to check after authorization.
-     * @throws if the redirectUri is not defined or an empty string, in both the options and client options
+     * @throws {Error} if the redirectUri is not defined or an empty string, in both the options and client options
      * @returns the uri to redirect the user to in order to authorize this client.
      */
     public createOauthUri(options?: Partial<Oauth2RedirectOptions>) {
@@ -371,13 +346,46 @@ export class PatreonOauthClient {
         return this.options.authorizationUri + '?' + params.toString()
     }
 
+    protected validateScopes (
+        path: string,
+        query: BasePatreonQuery,
+    ): void {
+        const validate = this.options.validateScopes
+        if (this.options.tokenType === 'creator' || !validate) return
+
+        const requiredScopes = getRequiredScopes.forPath(path, query)
+        const missingScopes = requiredScopes.filter(scope => !this.options.scopes?.includes(scope))
+
+        if (missingScopes.length === 0) return
+
+        const msg = `Missing oauth scopes for ${path}: "${missingScopes.join('", "')}"`
+        if (validate === 'warn') console.log(msg)
+        else throw new Error(msg)
+    }
+
+    protected static async validateToken(
+        client: PatreonOauthClient,
+        token: Oauth2CreatorToken | Oauth2StoredToken | string | undefined = client.cachedToken
+    ) {
+        if (token != undefined && (typeof token === 'object' && !PatreonOauthClient.isExpired(token))) return token
+        if (token == undefined) throw new Error('No token found to validate!')
+
+        // Since the token is the access token, you cannot use this to refresh a token
+        if (typeof token === 'string') return
+
+        const refreshed = await client.refreshToken(token)
+        await client.onTokenRefreshed?.(refreshed ? this.toStored<false>(refreshed) : undefined)
+        if (refreshed) client.cachedToken = refreshed
+
+        return refreshed
+    }
+
     /**
      * Check if a token is likely expired
      * @param token The token to check
      * @returns `true` only if `token.expires_in_epoch` is present and not in the past
-     * @internal
      */
-    public static isExpired(token: Oauth2CreatorToken | Oauth2StoredToken): boolean {
+    protected static isExpired(token: Oauth2CreatorToken | Oauth2StoredToken): boolean {
         if (!token.expires_in_epoch) return false
         else return Date.now() > parseInt(token.expires_in_epoch)
     }
@@ -386,9 +394,8 @@ export class PatreonOauthClient {
      * Create a stored version of a token by including the current timestamp
      * @param token The token to create a stored version of
      * @returns the same token if `expires_in` is missing. Otherwise the stored token version.
-     * @internal
      */
-    public static toStored<SupportsCreator extends boolean = true>(
+    protected static toStored<SupportsCreator extends boolean = true>(
         token: Oauth2Token | Oauth2CreatorToken
     ): If<SupportsCreator, Oauth2StoredToken | Oauth2CreatorToken, Oauth2StoredToken> {
         if (!token.expires_in) return <never>token
