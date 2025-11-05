@@ -21,6 +21,12 @@ The methods on the client return the default `JSON:API` response. Use the [`simp
 > [!INFO] Include all
 > To fetch all attributes and relationships on every request, you can use the [`rest.includeAllQueries`](../configuration.md#rest-include-allqueries) client options.
 
+### Pagination
+
+The Patreon API has implemented [pagination using cursors](https://docs.patreon.com/#pagination). You can set the page size and cursor in the request options using [the `setRequestOptions` method on the query builder](/api/classes/QueryBuilder#setrequestoptions).
+
+To paginate the API without manually setting the cursors, you can use the `paginate*` client methods. These methods return an [`AsyncGenerator`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncGenerator) to iterate over the pages.
+
 ## Routes
 
 ### Fetch a campaign

@@ -4,6 +4,9 @@ targets:
   - apps
   - games
   - bots
+  - blog
+  - website
+  - tools
 hero:
   name: patreon-api.ts
   text: Monetize your <span class="hero-target">bots</span> with Patreon
@@ -26,14 +29,14 @@ features:
     details: This library supports all documented endpoints for the version 2 API
     link: https://docs.patreon.com/#apiv2-resource-endpoints
     linkText: Patreon documentation
-  - title: ESM & CJS
-    details: Works with ESM and CJS projects on Node.js and edge platforms, like Cloudflare, and no dependencies!
-    link: /guide/installation#platform
-    linkText: See runtime requirements
   - title: OpenAPI schema
     details: Use the Patreon API with popular OpenAPI tools
     link: https://patreon.apidocumentation.com/v2-stable/reference
     linkText: Explore the API
+  - title: ESM & CJS
+    details: Works with ESM and CJS projects on Node.js and edge platforms, like Cloudflare, and no dependencies!
+    link: /guide/installation#platform
+    linkText: See runtime requirements
   - title: Simplified payloads
     details: Don't want to deal with the JSON:API? Use the simplified payloads
     link: /guide/features/simplify
@@ -46,10 +49,10 @@ features:
     details: Test your application before it goes live and without paying to yourself
     link: /guide/features/sandbox
     linkText: Read more
-  - title: Apps
-    details: Explore applications built with this library to be used as templates
-    link: /apps/dashboard
-    linkText: Explore apps
+  # - title: Apps
+  #   details: Explore applications built with this library to be used as templates
+  #   link: /apps/dashboard
+  #   linkText: Explore apps
 ---
 
 <script setup lang="ts">
