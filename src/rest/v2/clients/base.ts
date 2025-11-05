@@ -1,12 +1,15 @@
 import {
-    PatreonClientMethods,
+    PatreonSharedClient,
     type Oauth2FetchOptions,
     type Oauth2RouteOptions,
     type ResponseTransformMap,
     type ResponseTransformType,
-} from './baseMethods'
+} from './shared'
+
+import { RestClient } from '../oauth2/rest/client'
 
 import {
+    PatreonOauthClient,
     type Oauth2CreatorToken,
     type Oauth2StoredToken,
     type Oauth2Token,
@@ -18,6 +21,15 @@ import {
     type RESTOptions,
 } from '../oauth2'
 import { WebhookClient } from '../webhooks'
+
+import {
+    normalizeFromQuery,
+    simplifyFromQuery,
+} from '../../../payloads/v2'
+
+import {
+    type BasePatreonQuery,
+} from '../../../schemas/v2'
 
 export type {
     ResponseTransformMap,
@@ -56,7 +68,7 @@ export interface PatreonClientOptions<IncludeAll extends boolean = false> {
     store?: PatreonTokenFetchOptions
 }
 
-export abstract class PatreonClient<IncludeAll extends boolean = false> extends PatreonClientMethods<IncludeAll> {
+export abstract class PatreonClient<IncludeAll extends boolean = false> extends PatreonSharedClient<'default', IncludeAll> {
     private store: PatreonTokenFetchOptions | undefined = undefined
 
     /**
@@ -66,12 +78,38 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
      */
     public webhooks: WebhookClient
 
+    public simplified: PatreonSharedClient<'simplified', IncludeAll>
+
+    public normalized: PatreonSharedClient<'normalized', IncludeAll>
+
+    public get oauth (): PatreonOauthClient {
+        return this._oauth
+    }
+
+    // eslint-disable-next-line jsdoc/require-returns
+    /**
+     * The application name of the client.
+     */
+    public get name(): string | null {
+        return this._oauth['rest'].name
+    }
+
+    public set name (value) {
+        this._oauth['rest'].name = value
+    }
+
     public constructor(options: PatreonClientOptions<IncludeAll>, type: 'oauth' | 'creator') {
         options.oauth.tokenType ??= type
+        const includeAllQueries = options.rest?.includeAllQueries ?? <IncludeAll>false
 
-        super(options.oauth, options.rest, {
-            name: options.name ?? null,
-        })
+        const restClient = new RestClient(options.rest, { name: options.name ?? null })
+        const oauth = new PatreonOauthClient(options.oauth, restClient)
+
+        super(oauth, 'default', (res) => res, includeAllQueries)
+
+        this.normalized = new PatreonSharedClient(oauth, 'normalized', normalizeFromQuery, includeAllQueries)
+        this.simplified = new PatreonSharedClient(oauth, 'simplified', simplifyFromQuery, includeAllQueries)
+
         this.webhooks = new WebhookClient(this.oauth)
 
         this.store = options.store
@@ -84,6 +122,24 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
             return await this.fetchStoredToken()
                 .then(token => token?.access_token)
         }
+    }
+
+    public static hasAllQueriesEnabled <
+        Client extends PatreonClient<boolean>
+    >(client: Client): client is Client & PatreonClient<true> {
+        return client._include_all_query
+    }
+
+    public static createCustomParser <
+        Type extends keyof ResponseTransformMap<BasePatreonQuery>,
+        IncludeAll extends boolean = boolean
+    >(
+        client: PatreonClient<IncludeAll>,
+        type: Type,
+        parser: ResponseTransformMap<BasePatreonQuery>[Type],
+        includeAllQueries: IncludeAll
+    ): PatreonSharedClient<Type, IncludeAll> {
+        return new PatreonSharedClient(client.oauth, type, parser, includeAllQueries)
     }
 
     protected static async fetchStored(store?: PatreonTokenFetchOptions): Promise<Oauth2StoredToken | undefined> {

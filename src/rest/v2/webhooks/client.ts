@@ -16,7 +16,7 @@ import {
 import type { PatreonOauthClient } from '../oauth2/client'
 import { resolveHeaders } from '../oauth2/rest/headers'
 
-import type { Oauth2RouteOptions } from '../clients/baseMethods'
+import type { Oauth2RouteOptions } from '../clients/shared'
 
 import { WebhookPayloadClient } from './payload'
 

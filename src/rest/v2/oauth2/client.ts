@@ -363,7 +363,7 @@ export class PatreonOauthClient {
         else throw new Error(msg)
     }
 
-    protected static async validateToken(
+    protected static async validateToken (
         client: PatreonOauthClient,
         token: Oauth2CreatorToken | Oauth2StoredToken | string | undefined = client.cachedToken
     ) {
