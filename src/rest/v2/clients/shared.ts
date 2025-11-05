@@ -69,7 +69,7 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
     ) {}
 
     private setRequestToken (options: Oauth2FetchOptions): Oauth2FetchOptions {
-        const token = this._token ?? this._oauth.cachedToken ?? options.token
+        const token = options.token ?? this._token ?? this._oauth.cachedToken
 
         return {
             ...options,
