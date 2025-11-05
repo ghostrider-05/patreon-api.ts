@@ -102,8 +102,7 @@
         "PaginationQuerySort",
         // client types
         "RestClient",
-        "PatreonClientMethods",
-        "GenericPatreonClientMethods",
+        "PatreonSharedClient",
         "OauthClientOptions",
         // payload types
         "RequestPayload",
@@ -112,12 +111,13 @@
         "GetRequestPayload",
         "ListRequestPaginationPayload",
         // simplified types
-        "AnyToCamelCase",
         "ListRequestPayload",
         "NormalizedRequestPayload",
         "NormalizedListRequestPayload",
         "NormalizeRequest",
         "GetNormalizedResponsePayload",
+        "SimplifyRequest",
+        "GetSimplifiedResponsePayload",
         // Mock data types
         "RandomDataGenerator",
         "PatreonMockDataRandomResources",
