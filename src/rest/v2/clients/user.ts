@@ -5,10 +5,11 @@ import { PatreonSharedClient } from './shared'
 
 export class PatreonUserClientInstance<IncludeAll extends boolean> extends PatreonSharedClient<'default', IncludeAll> {
     public readonly token: Oauth2StoredToken
-    public client: PatreonUserClient<boolean>
+    public client: PatreonUserClient<IncludeAll>
 
     public constructor (client: PatreonUserClient<IncludeAll>, token: Oauth2StoredToken) {
         super(client.oauth, 'default', (res) => res, client['_include_all_query'], token)
+
         this.client = client
         this.token = token
     }
