@@ -58,7 +58,7 @@ export class RequestCounter implements RestRequestCounter {
         clearInterval(this.timer)
     }
 
-    public get count(): number {
+    public get count (): number {
         return this._count ?? 0
     }
 

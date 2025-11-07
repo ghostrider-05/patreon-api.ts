@@ -7,7 +7,7 @@ import {
 import type { Oauth2FetchOptions } from '../clients'
 
 import { type RestClient } from './rest/client'
-import type { RequestOptions } from './rest'
+import { RequestMethod, type RequestOptions } from './rest'
 
 import { getRequiredScopes } from './scopes'
 
@@ -191,7 +191,7 @@ export class PatreonOauthClient {
             accessToken: typeof token === 'string' ? token : token?.access_token,
         }
 
-        return await this.rest['request'](path, restOptions)
+        return await this.rest.request(path, options?.method ?? RequestMethod.Get, restOptions)
     }
 
     // eslint-disable-next-line jsdoc/require-yields-type

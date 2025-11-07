@@ -101,27 +101,30 @@ export class RestClient {
     }
 
     public async delete<T> (path: string, options?: RequestOptions) {
-        return await this.request<T>(path, { ...options, method: RequestMethod.Delete })
+        return await this.request<T>(path, RequestMethod.Delete, options)
     }
 
     public async get<T> (path: string, options?: RequestOptions) {
-        return await this.request<T>(path, { ...options, method: RequestMethod.Get })
+        return await this.request<T>(path, RequestMethod.Get, options)
     }
 
     public async patch<T> (path: string, options?: RequestOptions) {
-        return await this.request<T>(path, { ...options, method: RequestMethod.Patch })
+        return await this.request<T>(path, RequestMethod.Patch, options)
     }
 
     public async post<T> (path: string, options?: RequestOptions) {
-        return await this.request<T>(path, { ...options, method: RequestMethod.Post })
+        return await this.request<T>(path, RequestMethod.Post, options)
     }
 
-    protected async request <
-        Parsed = unknown
-    >(path: string, options: SharedRequestOptions) {
+    public async request <Parsed = unknown>(
+        path: string,
+        method: RequestMethod | `${RequestMethod}`,
+        options: RequestOptions = {}
+    ) {
         const tryRequest = async (retries = 0): Promise<RestResponse> => {
             const response = await this.makeRequest({
                 ...options,
+                method,
                 path,
                 currentRetries: retries,
             })
