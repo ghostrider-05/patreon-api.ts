@@ -6,6 +6,8 @@ import {
     RequestMethod,
 } from '../../../rest/v2/'
 
+import { shouldIncludeRequestBody } from '../../../rest/v2/oauth2/rest/client'
+
 import {
     type ItemType,
     QueryBuilder,
@@ -217,7 +219,7 @@ export class PatreonMock {
         return (options?.includeOrigin ? PatreonMock.origin : '')
             + PatreonMock.path
             + path
-            + (options?.query ? ((options.query.startsWith('?') ? '?' : '') + options.query) : '')
+            + (options?.query ? ((!options.query.startsWith('?') ? '?' : '') + options.query) : '')
     }
 
     private validateHeaders (headers: Record<string, string> | Headers): void {
@@ -518,7 +520,7 @@ export class PatreonMock {
                 ...route.methods.reduce<Record<PatreonMockRouteId, PatreonMockHandler<R>>>((obj, { method, id }) => {
                     const handler: PatreonMockHandler<R>['handler'] = async (request) => {
                         return this.handleMockRequest({
-                            body: [RequestMethod.Patch, RequestMethod.Post].includes(method.toUpperCase() as RequestMethod)
+                            body: shouldIncludeRequestBody(method.toUpperCase() as RequestMethod)
                                 ? await request.text?.() ?? null
                                 : null,
                             headers: request.headers,

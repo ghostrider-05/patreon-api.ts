@@ -48,6 +48,17 @@ function isMissingAuthorization (status: number) {
     return [401].includes(status)
 }
 
+// eslint-disable-next-line jsdoc/require-returns
+/**
+ * Check if the request should include a body on the request using the request method
+ * @param method The method of the request to check
+ */
+export function shouldIncludeRequestBody (method: RequestMethod): boolean {
+    return [
+        RequestMethod.Patch,
+        RequestMethod.Post,
+    ].includes(method)
+}
 
 interface PatreonErrorResponseBody {
     errors: PatreonErrorData[]
@@ -116,11 +127,11 @@ export class RestClient {
         return await this.request<T>(path, RequestMethod.Post, options)
     }
 
-    public async request <Parsed = unknown>(
+    public async request <TypedResponse = unknown>(
         path: string,
         method: RequestMethod | `${RequestMethod}`,
         options: RequestOptions = {}
-    ) {
+    ): Promise<TypedResponse> {
         const tryRequest = async (retries = 0): Promise<RestResponse> => {
             const response = await this.makeRequest({
                 ...options,
@@ -138,24 +149,15 @@ export class RestClient {
                     return response
                 }
 
-                let errors: PatreonErrorData[] | null = null
+                const retryInvalidRequestResult = await this.handleInvalidRequest(
+                    response,
+                    retries,
+                    path,
+                    options
+                )
 
-                if (response.status === 429) {
-                    const parsed = await this.handleRatelimit(response)
-                    if (parsed != null) errors = parsed.errors
-
-                    if (this.options.emitter?.listenerCount('ratelimit')) {
-                        this.options.emitter.emit('ratelimit', {
-                            url: this.buildUrl(path, options),
-                            timeout: this.options.ratelimitTimeout,
-                        })
-                    }
-                }
-
-                const data = this.shouldRetry(retries, response.status)
-                if (data != null) {
-                    await sleep(data.backoff(retries))
-
+                // Check for true value specific
+                if (retryInvalidRequestResult === true) {
                     // Retry with updated access token
                     if (isMissingAuthorization(response.status)) {
                         const updatedToken = await this.options.getAccessToken()
@@ -165,26 +167,13 @@ export class RestClient {
 
                     return await tryRequest(++retries)
                 } else {
-                    // Invalid request, but not retried
-                    if (errors == null) {
-                        const body = await parseResponse<PatreonErrorResponseBody>(response)
-
-                        if (isValidErrorBody(body)) {
-                            errors = body.errors
-                        } else {
-                            throw new Error('Received an invalid error response:\n' + JSON.stringify(body))
-                        }
-                    }
-
-                    throw errors.map(error => {
-                        return new PatreonError(error, getHeaders(response.headers))
-                    })
+                    throw retryInvalidRequestResult
                 }
             }
         }
 
         const response = await tryRequest()
-        const parsed = parseResponse<Parsed>(response)
+        const parsed = parseResponse<TypedResponse>(response)
 
         if (this.options.emitter?.listenerCount('response')) {
             this.options.emitter.emit('response', {
@@ -234,7 +223,7 @@ export class RestClient {
         } catch (error) {
             if (!(error instanceof Error)) throw new Error(JSON.stringify(error))
 
-            const data = this.shouldRetry(options.currentRetries, null, error)
+            const data = this.getRetryData(options.currentRetries, null, error)
             if (data != null) {
                 return null
             }
@@ -277,7 +266,7 @@ export class RestClient {
                 ...(options.headers ?? {}),
             },
             method,
-            body: ![RequestMethod.Get].includes(method)
+            body: shouldIncludeRequestBody(method)
                 ? options.body ?? null
                 : null,
             // AbortSignal | undefined is not a possible type...
@@ -285,7 +274,54 @@ export class RestClient {
         }
     }
 
-    private shouldRetry (current: number, status: number | null, error?: Error): InternalRetryData | null {
+    // eslint-disable-next-line jsdoc/require-param
+    /**
+     * @returns A boolean if it should be retried or the errors to throw
+     */
+    private async handleInvalidRequest (
+        response: RestResponse,
+        retries: number,
+        path: string,
+        options: RequestOptions,
+    ): Promise<true | PatreonError[]> {
+        let errors: PatreonErrorData[] | null = null
+
+        if (response.status === 429) {
+            const parsed = await this.handleRatelimit(response)
+            if (parsed != null) errors = parsed.errors
+
+            if (this.options.emitter?.listenerCount('ratelimit')) {
+                this.options.emitter.emit('ratelimit', {
+                    url: this.buildUrl(path, options),
+                    timeout: this.options.ratelimitTimeout,
+                })
+            }
+        }
+
+        const data = this.getRetryData(retries, response.status)
+        if (data != null) {
+            await sleep(data.backoff(retries))
+
+            return true
+        } else {
+            // Invalid request, but not retried
+            if (errors == null) {
+                const body = await parseResponse<PatreonErrorResponseBody>(response)
+
+                if (isValidErrorBody(body)) {
+                    errors = body.errors
+                } else {
+                    throw new Error('Received an invalid error response:\n' + JSON.stringify(body))
+                }
+            }
+
+            return errors.map(error => {
+                return new PatreonError(error, getHeaders(response.headers))
+            })
+        }
+    }
+
+    private getRetryData (current: number, status: number | null, error?: Error): InternalRetryData | null {
         const data = getRetryAmount(this.options.retries, status)
 
         if (error) {

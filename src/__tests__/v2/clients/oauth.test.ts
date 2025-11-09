@@ -30,31 +30,29 @@ describe('oauth methods', () => {
 })
 
 describe('oauth client', () => {
-    const client = creatorClient
-
     test('client options', () => {
-        expect(client.name).toBeNull()
-        expect(client.oauth.userAgent).toBeTypeOf('string')
+        expect(creatorClient.name).toBeNull()
+        expect(creatorClient.oauth.userAgent).toBeTypeOf('string')
 
-        client.name = 'new'
-        expect(client.name).toEqual('new')
-        expect(client.oauth['rest'].name).toEqual('new')
+        creatorClient.name = 'new'
+        expect(creatorClient.name).toEqual('new')
+        expect(creatorClient.oauth['rest'].name).toEqual('new')
     })
 
     test('util: is expired', () => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        expect(PatreonOauthClient.isExpired(client.oauth.cachedToken!)).toBeFalsy()
+        expect(PatreonOauthClient['isExpired'](creatorClient.oauth.cachedToken!)).toBeFalsy()
 
-        expect(PatreonOauthClient.isExpired(<never>{
+        expect(PatreonOauthClient['isExpired'](<never>{
             expires_in_epoch: (Date.now() + 86000).toString(),
         }))
     })
 
     test('util: to stored', () => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        expect(PatreonOauthClient.toStored(client.oauth.cachedToken!)).toEqual(client.oauth.cachedToken)
+        expect(PatreonOauthClient['toStored'](creatorClient.oauth.cachedToken!)).toEqual(creatorClient.oauth.cachedToken)
 
-        expect(parseInt(PatreonOauthClient.toStored(<never>{ expires_in: '600'}).expires_in_epoch)).approximately(Date.now() + 600_000, 20)
+        expect(parseInt(PatreonOauthClient['toStored'](<never>{ expires_in: '600'}).expires_in_epoch)).approximately(Date.now() + 600_000, 20)
     })
 
     test('uri', () => {
@@ -73,9 +71,9 @@ describe('oauth client', () => {
 
     test('validate scopes', () => {
         // no option set
-        expect(() => client.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrowError()
-        client.oauth.options.validateScopes = true
-        expect(() => client.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrowError()
+        expect(() => creatorClient.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrowError()
+        creatorClient.oauth.options.validateScopes = true
+        expect(() => creatorClient.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrowError()
 
         // const userClient = createTestClient('user', async () => new Response())
         expect(() => userClient.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrowError()
@@ -88,14 +86,14 @@ describe('oauth client', () => {
     })
 
     test('validate token', async () => {
-        client.oauth.options.validateToken = true
+        creatorClient.oauth.options.validateToken = true
 
-        expect(async () => await PatreonOauthClient['validateToken'](client.oauth, undefined)).not.toThrowError()
-        expect(await PatreonOauthClient['validateToken'](client.oauth)).toEqual(client.oauth.cachedToken)
+        expect(async () => await PatreonOauthClient['validateToken'](creatorClient.oauth, undefined)).not.toThrowError()
+        expect(await PatreonOauthClient['validateToken'](creatorClient.oauth)).toEqual(creatorClient.oauth.cachedToken)
 
-        client.oauth.cachedToken = undefined
-        expect(await PatreonOauthClient['validateToken'](client.oauth).catch(() => undefined)).toBeUndefined()
+        creatorClient.oauth.cachedToken = undefined
+        expect(await PatreonOauthClient['validateToken'](creatorClient.oauth).catch(() => undefined)).toBeUndefined()
 
-        expect(await PatreonOauthClient['validateToken'](client.oauth, 'access_token')).toBeUndefined()
+        expect(await PatreonOauthClient['validateToken'](creatorClient.oauth, 'access_token')).toBeUndefined()
     })
 })
