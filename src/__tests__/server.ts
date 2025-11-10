@@ -1,4 +1,4 @@
-import { afterAll, beforeAll } from 'vitest'
+import { afterAll, afterEach, beforeAll } from 'vitest'
 
 import { setupServer } from 'msw/node'
 
@@ -8,6 +8,10 @@ const server = setupServer(...[
     ...apiHandlers,
 ])
 
+server.events.on('request:start', ({ request }) => {
+    console.log('Outgoing:', request.method, request.url)
+})
+
 beforeAll(() => {
     server.listen({
         onUnhandledRequest: 'error',
@@ -15,4 +19,4 @@ beforeAll(() => {
 })
 
 afterAll(() => server.close())
-//afterEach(() => server.resetHandlers())
+afterEach(() => server.resetHandlers())

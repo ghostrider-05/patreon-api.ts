@@ -29,7 +29,7 @@ import {
 } from './internal/counter'
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-async function parseResponse <Parsed = unknown>(response: RestResponse) {
+async function parseResponse <Parsed = unknown>(response: RestResponse): Promise<Parsed> {
     // Can also be checked with the content-type response header.
     // Add that as an improvement in the future
     // if the Patreon API can return something else than JSON.
@@ -39,6 +39,8 @@ async function parseResponse <Parsed = unknown>(response: RestResponse) {
         // Response is not JSON, so parse the body as a string and throw the response as an error
         // It is likely HTML of the client being blocked or another error
         const body = await response.text()
+        // For an empty body, e.g. for a 204 response, return null
+        if (body.length === 0) return null as Parsed
         throw new Error(body)
     }
 }

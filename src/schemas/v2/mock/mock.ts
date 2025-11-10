@@ -136,7 +136,10 @@ export interface PatreonMockHandlerCallbackOptions {
 }
 
 export interface PatreonMockHandlerDefaultResponse {
-    body: string
+    /**
+     * The request body is only null for succesful requests with not a 200 status (e.g 201 or 204)
+     */
+    body: string | null
     status: number
     headers: Record<string, string>
 }
@@ -445,7 +448,7 @@ export class PatreonMock {
                 ? this.buildResponseFromUrl(route, {
                     cache: options?.cache,
                     random: options?.random,
-                }) : '' // Using an empty body for 201 and 204 responses
+                }) : null // Using an empty body for 201 and 204 responses
 
             return transform({
                 body: responseBody,
@@ -455,7 +458,7 @@ export class PatreonMock {
         } else {
             return transform({
                 // TODO: the response body should be different from the request body, right?
-                body: request.body ?? '',
+                body: request.body,
                 headers,
                 status,
             })
@@ -483,7 +486,7 @@ export class PatreonMock {
                 url: (callbackOptions.origin ?? PatreonMock.origin) + callbackOptions.path,
             }, options ?? {}, ({ body, headers, status }) => ({
                 statusCode: status,
-                data: body,
+                data: body ?? '',
                 responseOptions: { headers },
             }))
         }) satisfies import('undici-types/mock-interceptor').MockInterceptor.MockReplyOptionsCallback
