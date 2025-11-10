@@ -1,5 +1,7 @@
 import { RouteBases } from '../../routes'
 
+import type { RestRequestCounterOptions } from './internal/counter'
+
 import type {
     PatreonHeadersData,
     RestHeaders,
@@ -134,9 +136,7 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
      * The limit is set to `{amount} req/{interval}s`. The default interval is 1 second.
      * @default 0
      */
-    // globalRequestsLimit:
-    //     | number
-    //     | { amount: number, interval: number }
+    // globalRequestsLimit: RestRequestCounterOptions
 
     /**
      * The maximum amount of invalid (4XX) requests for this client.
@@ -147,9 +147,7 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
      * @default 0
      * @see https://docs.patreon.com/#edge-rate-limiting
      */
-    // invalidRequestsLimit:
-    //     | number
-    //     | { amount: number, interval: number }
+    invalidRequestsLimit: RestRequestCounterOptions
 
     /**
      * The string to append to the user agent header
@@ -165,6 +163,7 @@ export const DefaultRestOptions: RESTOptions = {
     fetch: (...args) => fetch(...args),
     getAccessToken: async () => undefined,
     globalRequestPerSecond: 0,
+    invalidRequestsLimit: 0,
     ratelimitTimeout: 0,
     retries: defaultRetries,
     timeout: 15_000,
@@ -206,7 +205,7 @@ export interface RequestOptions {
     /**
      * For authenticated requests, the token to use.
      * @default undefined
-     * @throws if the request is authenticated but no token is given
+     * @throws {Error} if the request is authenticated but no token is given
      */
     accessToken?: string | undefined
 

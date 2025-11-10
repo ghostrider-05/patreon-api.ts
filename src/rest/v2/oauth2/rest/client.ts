@@ -80,6 +80,7 @@ export class RestClient {
 
     private ratelimitedUntil: Date | null = null
     private counter: RequestCounter
+    private invalidCounter: RequestCounter
 
     public constructor (
         options: Partial<RESTOptions> = {},
@@ -97,6 +98,9 @@ export class RestClient {
         this.counter = new RequestCounter(
             this.options.globalRequestPerSecond,
         )
+        this.invalidCounter = new RequestCounter(
+            this.options.invalidRequestsLimit,
+        )
 
         this.name = client.name
     }
@@ -109,8 +113,12 @@ export class RestClient {
         return this.ratelimitedUntil != null || this.counter.limited
     }
 
-    public get requestCounter(): RestRequestCounter {
+    public get requestCounter (): RestRequestCounter {
         return this.counter
+    }
+
+    public get invalidRequestCounter (): RestRequestCounter {
+        return this.invalidCounter
     }
 
     public async delete<T> (path: string, options?: RequestOptions) {
@@ -193,7 +201,9 @@ export class RestClient {
 
     private async makeRequest (options: SharedRequestOptions & { path: string, currentRetries: number }) {
         await this.waitForRatelimit()
+
         await this.counter.wait()
+        await this.invalidCounter.wait()
 
         this.counter.add()
 
@@ -287,6 +297,10 @@ export class RestClient {
         options: RequestOptions,
     ): Promise<true | PatreonError[]> {
         let errors: PatreonErrorData[] | null = null
+
+        if (response.status >= 400 && response.status < 500) {
+            this.invalidCounter.add()
+        }
 
         if (response.status === 429) {
             const parsed = await this.handleRatelimit(response)
