@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.16.1](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.16.0...patreon-api.ts-v0.16.1) (2025-11-10)
+
+
+### Bug Fixes
+
+* **ci:** show difference in coverage in comments ([00a951c](https://github.com/ghostrider-05/patreon-api.ts/commit/00a951ccdef4fe75806f8f2b32631a8bc921a775))
+* **PatreonMock:** align callback types with undici by optional origin and headers ([03a7f01](https://github.com/ghostrider-05/patreon-api.ts/commit/03a7f017fec6d789ba05520b54422f29f9f78ecd))
+* **PatreonMock:** invert query check on `route` method for prepending `?` ([00a951c](https://github.com/ghostrider-05/patreon-api.ts/commit/00a951ccdef4fe75806f8f2b32631a8bc921a775))
+* **PatreonMock:** set response body to null for 201 and 204 status ([00a951c](https://github.com/ghostrider-05/patreon-api.ts/commit/00a951ccdef4fe75806f8f2b32631a8bc921a775))
+* **PatreonUserClientInstance:** correctly use fetched token by default ([00a951c](https://github.com/ghostrider-05/patreon-api.ts/commit/00a951ccdef4fe75806f8f2b32631a8bc921a775))
+* **PatreonUserClientInstance:** use type generics from client ([00a951c](https://github.com/ghostrider-05/patreon-api.ts/commit/00a951ccdef4fe75806f8f2b32631a8bc921a775))
+* **RestClient:** disable body for DELETE requests ([00a951c](https://github.com/ghostrider-05/patreon-api.ts/commit/00a951ccdef4fe75806f8f2b32631a8bc921a775))
+* **RestClient:** do not parse empty response body ([00a951c](https://github.com/ghostrider-05/patreon-api.ts/commit/00a951ccdef4fe75806f8f2b32631a8bc921a775))
+* **types:** export Oauth2RedirectOptions interface ([42f77c2](https://github.com/ghostrider-05/patreon-api.ts/commit/42f77c24a26dfb0de284323f6af7492def9b2b3a))
+
 ## [0.16.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.15.1...patreon-api.ts-v0.16.0) (2025-11-02)
 
 
