@@ -30,7 +30,8 @@ export class RequestCounter implements RestRequestCounter {
             this.period = 1000 // 1 second
             this.limit = options
         } else {
-            this.period = options.interval * 1000 // convert seconds to ms
+            // Validate that the period is at least 1ms
+            this.period = Math.max(options.interval, 0.001) * 1000 // convert seconds to ms
             this.limit = options.amount
         }
     }

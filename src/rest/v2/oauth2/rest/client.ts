@@ -66,10 +66,6 @@ interface PatreonErrorResponseBody {
     errors: PatreonErrorData[]
 }
 
-export interface InternalClientSharedOptions {
-    name: string | null
-}
-
 interface SharedRequestOptions extends RequestOptions {
     method?: RequestMethod | `${RequestMethod}`
 }
@@ -84,7 +80,9 @@ export class RestClient {
 
     public constructor (
         options: Partial<RESTOptions> = {},
-        client: InternalClientSharedOptions,
+        client: {
+            name: string | null
+        },
     ) {
         this.options = {
             ...DefaultRestOptions,
@@ -95,12 +93,13 @@ export class RestClient {
             throw new Error('No global fetch function found. Specify options.fetch with your fetch function')
         }
 
-        this.counter = new RequestCounter(
-            this.options.globalRequestPerSecond,
-        )
-        this.invalidCounter = new RequestCounter(
-            this.options.invalidRequestsLimit,
-        )
+        const { globalRequestsLimit, globalRequestPerSecond, invalidRequestsLimit } = this.options
+        const requestLimitOptions = (typeof globalRequestsLimit === 'number' ? globalRequestsLimit : globalRequestsLimit.amount) <= 0
+            ? globalRequestPerSecond
+            : globalRequestsLimit
+
+        this.counter = new RequestCounter(requestLimitOptions)
+        this.invalidCounter = new RequestCounter(invalidRequestsLimit)
 
         this.name = client.name
     }

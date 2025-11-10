@@ -126,6 +126,7 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
      * The maximum amount of requests per second for this client.
      * Set to `0` to disable the limit.
      * @default 0
+     * @deprecated use {@link globalRequestsLimit}
      */
     globalRequestPerSecond: number
 
@@ -136,7 +137,7 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
      * The limit is set to `{amount} req/{interval}s`. The default interval is 1 second.
      * @default 0
      */
-    // globalRequestsLimit: RestRequestCounterOptions
+    globalRequestsLimit: RestRequestCounterOptions
 
     /**
      * The maximum amount of invalid (4XX) requests for this client.
@@ -163,6 +164,7 @@ export const DefaultRestOptions: RESTOptions = {
     fetch: (...args) => fetch(...args),
     getAccessToken: async () => undefined,
     globalRequestPerSecond: 0,
+    globalRequestsLimit: 0,
     invalidRequestsLimit: 0,
     ratelimitTimeout: 0,
     retries: defaultRetries,
@@ -240,6 +242,7 @@ export interface RequestOptions {
     signal?: AbortSignal | undefined
 }
 
+/** @deprecated use RequestOptions */
 export interface InternalRequestOptions extends RequestOptions {
     path: string
     method?: RequestMethod | `${RequestMethod}`
