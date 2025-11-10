@@ -90,5 +90,16 @@ export const Routes = {
     },
 }
 
-/** @deprecated use Routes instead */
-export const Oauth2Routes = Routes
+export const Oauth2Routes = {
+    /**
+     * The uri for getting an oauth2 access token from a code.
+     * @see https://docs.patreon.com/#step-4-validating-receipt-of-the-oauth-token
+     */
+    accessTokenUri: 'https://patreon.com/api/oauth2/token' as const,
+
+    /**
+     * The uri for the authorization step of oauth2
+     * @see https://docs.patreon.com/#step-2-making-the-log-in-button
+     */
+    authorizationUri: 'https://patreon.com/oauth2/authorize' as const,
+}

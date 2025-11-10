@@ -9,6 +9,7 @@ import type { Oauth2FetchOptions } from '../clients'
 import { type RestClient } from './rest/client'
 import { RequestMethod, type RequestOptions } from './rest'
 
+import { Oauth2Routes } from './routes'
 import { getRequiredScopes } from './scopes'
 
 import type { If } from '../../../utils/generics'
@@ -134,10 +135,8 @@ export class PatreonOauthClient {
         private rest: RestClient,
     ) {
         this.options = {
-            accessTokenUri: options.accessTokenUri
-                ?? 'https://patreon.com/api/oauth2/token',
-            authorizationUri: options.authorizationUri
-                ?? 'https://patreon.com/oauth2/authorize',
+            accessTokenUri: options.accessTokenUri ?? Oauth2Routes.accessTokenUri,
+            authorizationUri: options.authorizationUri ?? Oauth2Routes.authorizationUri,
             clientId: options.clientId,
             clientSecret: options.clientSecret,
             scopes: 'scopes' in options ? options.scopes ?? [] : [],
