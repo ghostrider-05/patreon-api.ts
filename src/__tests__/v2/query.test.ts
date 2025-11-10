@@ -1,39 +1,41 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import { describe, expect, expectTypeOf, test } from 'vitest'
 
-import { buildQuery, QueryBuilder, RelationshipFields, RelationshipMap, Type } from '../../v2'
+import {
+    QueryBuilder,
+    RelationshipFields,
+    RelationshipMap,
+    Type,
+} from '../../v2'
 
-describe('old query options', () => {
+describe('query build options', () => {
     test('pagination options', () => {
-        expect(buildQuery.campaigns()(undefined, {
+        expect(QueryBuilder.campaigns.build()(undefined, {
             count: 100,
             sort: 'created'
         }).query).toEqual('?' + new URLSearchParams({ 'page[count]': '100', sort: 'created' }).toString())
 
-        expect(buildQuery.campaigns()(undefined, {
+        expect(QueryBuilder.campaigns.build()(undefined, {
             count: 100,
             sort: ['created'],
         }).query).toEqual('?' + new URLSearchParams({ 'page[count]': '100', sort: 'created' }).toString())
 
-        expect(buildQuery.campaigns()(undefined, {
+        expect(QueryBuilder.campaigns.build()(undefined, {
             count: 100,
             sort: { key: 'created' },
         }).query).toEqual('?' + new URLSearchParams({ 'page[count]': '100', sort: 'created' }).toString())
 
-        expect(buildQuery.campaigns()(undefined, {
+        expect(QueryBuilder.campaigns.build()(undefined, {
             count: 100,
             sort: { key: 'created', descending: true },
         }).query).toEqual('?' + new URLSearchParams({ 'page[count]': '100', sort: '-created' }).toString())
 
-        expect(buildQuery.campaigns()(undefined, {
+        expect(QueryBuilder.campaigns.build()(undefined, {
             count: 100,
             cursor: 'cursor',
             sort: { key: 'created', descending: true },
         }).query).toEqual('?' + new URLSearchParams({ 'page[count]': '100', 'page[cursor]': 'cursor', sort: '-created' }).toString())
     })
-
-    // test('resource options', () => {
-    // })
 })
 
 describe('query builder', () => {
