@@ -1,6 +1,8 @@
 import { QueryBuilder } from '../../../schemas/v2'
 
-import { PatreonClient, type PatreonClientOptions, type Oauth2StoredToken } from './base'
+import type { Oauth2StoredToken } from '../oauth2/'
+
+import { PatreonClient, type PatreonClientOptions } from './base'
 import { PatreonSharedClient } from './shared'
 
 export class PatreonUserClientInstance<IncludeAll extends boolean> extends PatreonSharedClient<'default', IncludeAll> {

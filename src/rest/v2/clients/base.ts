@@ -10,9 +10,7 @@ import { RestClient } from '../oauth2/rest/client'
 
 import {
     PatreonOauthClient,
-    type Oauth2CreatorToken,
     type Oauth2StoredToken,
-    type Oauth2Token,
     type PatreonOauthClientOptions,
 } from '../oauth2/client'
 
@@ -34,9 +32,6 @@ import {
 export type {
     ResponseTransformMap,
     ResponseTransformType,
-    Oauth2CreatorToken,
-    Oauth2StoredToken,
-    Oauth2Token,
     Oauth2FetchOptions,
     Oauth2RouteOptions,
 }
