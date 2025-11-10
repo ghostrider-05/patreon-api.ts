@@ -240,6 +240,9 @@ export class QueryBuilder<
         return this
     }
 
+    /**
+     * Include all relationships for the main resource.
+     */
     public includeAllRelationships () {
         const { include } = QueryBuilder.createCompleteOptions(this.resource)
 
@@ -248,6 +251,9 @@ export class QueryBuilder<
         return this as QueryBuilder<T, Listing, RelationshipFields<T>, Attributes>
     }
 
+    /**
+     * Include all relationships and attributes for the main resource.
+     */
     public includeAll () {
         const { include, attributes } = QueryBuilder.createCompleteOptions(this.resource)
 
@@ -364,19 +370,22 @@ export class QueryBuilder<
         return createCompleteQueryOptions<T>(resource)
     }
 
-    /** @deprecated This will be removed some time after buildQuery has been removed */
+    /**
+     * Dynamically build a query using callbacks.
+     */
     public get build () {
         return QueryBuilder.createFunctionBuilder(this)
     }
 
+    public toString (): string {
+        return this.query
+    }
+
     /**
      * Create a function builder from a query builder.
-     *
-     * This is to support the legacy `buildQuery`.
-     * @deprecated
      * @param builder The query builder to convert
      */
-    public static createFunctionBuilder <T extends Type, Listing extends boolean> (builder: QueryBuilder<T, Listing>) {
+    private static createFunctionBuilder <T extends Type, Listing extends boolean> (builder: QueryBuilder<T, Listing>) {
         return function <Includes extends RelationshipFields<`${T}`> = never>(include?: Includes[]) {
             return function <
                 Attributes extends RelationshipMap<T, Includes>,
