@@ -1,4 +1,8 @@
 export {
+    RestClient,
+} from './client'
+
+export {
     type PatreonErrorData,
 } from './error'
 
