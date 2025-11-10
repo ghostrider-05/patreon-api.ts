@@ -1,12 +1,14 @@
 import type { OpenAPIV3_1 } from 'openapi-types'
 
+import { Oauth2Routes } from '../../../../rest/v2/oauth2/routes'
+
 export default (scopes?: Record<string, string>) => ({
     Oauth2: {
         type: 'oauth2',
         flows: {
             authorizationCode: {
-                tokenUrl: 'https://patreon.com/api/oauth2/token',
-                authorizationUrl: 'https://patreon.com/oauth2/authorize',
+                tokenUrl: Oauth2Routes.accessTokenUri,
+                authorizationUrl: Oauth2Routes.authorizationUri,
                 scopes: scopes ?? {}
             }
         }

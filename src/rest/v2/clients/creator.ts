@@ -1,7 +1,8 @@
+import type { Oauth2StoredToken } from '../oauth2/'
+
 import {
     PatreonClient,
     type PatreonClientOptions,
-    type Oauth2StoredToken,
 } from './base'
 
 export class PatreonCreatorClient<IncludeAll extends boolean = false> extends PatreonClient<IncludeAll> {
