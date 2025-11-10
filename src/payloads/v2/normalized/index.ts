@@ -8,15 +8,17 @@ import type {
 
 import type { RequestPayload } from '../internals/request'
 
-import { type AnyToCamelCase, convertToCamelcase } from './capitalize'
+import { convertToCamelcase } from './capitalize'
 import { findRelationships } from './find'
 
 import type {
     GetNormalizedResponsePayload,
+    GetSimplifiedResponsePayload,
     NormalizedGetRequestPayload,
     NormalizedListRequestPayload,
     NormalizedRequestPayload,
     NormalizeRequest,
+    SimplifyRequest,
 } from './payload'
 
 /**
@@ -124,14 +126,16 @@ export function simplify<
     Attributes extends RelationshipMap<T, Includes>,
     Listing extends boolean,
     Request extends RequestPayload<T, Includes, Attributes, Listing>
->(payload: Request): AnyToCamelCase<NormalizeRequest<Request>> {
-    return convertToCamelcase(normalize(payload))
+>(payload: Request): SimplifyRequest<Request> {
+    return convertToCamelcase(normalize(payload)) as SimplifyRequest<Request>
 }
 
 /**
  * @param payload The raw payload from the API
  * @returns the normalized response, with keys converted to camel case
  */
-export function simplifyFromQuery<Query extends BasePatreonQuery>(payload: GetResponsePayload<Query>): AnyToCamelCase<GetNormalizedResponsePayload<Query>> {
-    return convertToCamelcase(normalizeFromQuery(payload))
+export function simplifyFromQuery<
+    Query extends BasePatreonQuery
+>(payload: GetResponsePayload<Query>): GetSimplifiedResponsePayload<Query> {
+    return convertToCamelcase(normalizeFromQuery(payload)) as GetSimplifiedResponsePayload<Query>
 }

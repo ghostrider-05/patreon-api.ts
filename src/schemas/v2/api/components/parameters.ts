@@ -110,7 +110,7 @@ export default {
         schema: {
             type: 'string',
             examples: [
-                RestClient.defaultUserAgent,
+                RestClient['defaultUserAgent'],
             ],
         }
     },

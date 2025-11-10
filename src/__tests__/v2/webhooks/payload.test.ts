@@ -29,6 +29,7 @@ describe('webhook payload client', () => {
             const convert = WebhookPayloadClient.convert({
                 default: {
                     title: '{{title}} is published',
+                    description: undefined,
                     color: 0,
                     footer: { text: 'Hello world' },
                     fields: [{
@@ -44,6 +45,7 @@ describe('webhook payload client', () => {
                     data: { attributes: { title: 'Title', is_public: true } }
                 })).toEqual({
                     title: 'Title is published',
+                    description: undefined,
                     color: 0,
                     footer: { text: 'Hello world' },
                     fields: [{ name: 'Is public', value: 'true', inline: true }]

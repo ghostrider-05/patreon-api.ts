@@ -15,6 +15,8 @@ const mockHandlers = mock.getMockHandlers({
     cache: true,
     pathParam: ':id',
     transformResponse(response) {
+        console.log('Returning mocked response', response.status)
+
         return new Response(response.body, {
             headers: response.headers,
             status: response.status,

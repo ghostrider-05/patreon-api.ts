@@ -15,6 +15,17 @@ describe('client methods', () => {
         expect(campaigns.data.every(d => d.type === Type.Campaign)).toBeTruthy()
     })
 
+    test('simplified campaigns', async () => {
+        const campaign = await creatorClient.normalized.fetchCampaign('id', QueryBuilder.campaign, { token: 'token' })
+        const campaigns = await creatorClient.normalized.fetchCampaigns(QueryBuilder.campaigns, { token: 'token' })
+
+        expect(Array.isArray(campaigns.data)).toBeTruthy()
+        expect(campaigns.data.every(d => d.type === Type.Campaign)).toBeTruthy()
+
+        expect(campaign.id).toBeDefined()
+        expect(campaign.type).toEqual(Type.Campaign)
+    })
+
     test('members', async () => {
         const member = await creatorClient.fetchMember('id', QueryBuilder.member, { token: 'token' })
         const members = await creatorClient.fetchCampaignMembers('campaign', QueryBuilder.campaignMembers, { token: 'token' })

@@ -71,6 +71,8 @@ export class WebhookPayloadClient<Trigger extends PatreonWebhookTrigger> {
                 ...obj,
                 [key]: this.createAttributeObj(value, attributes)
             }), {})
+        } else {
+            return value
         }
     }
 

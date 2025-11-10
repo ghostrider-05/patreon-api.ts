@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/require-jsdoc */
 // #region instance
 import {
     type Oauth2StoredToken,

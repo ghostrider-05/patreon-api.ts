@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          ref: ${{ matrix.branch }}
 
       - name: Install node.js v${{ env.NODE_VERSION }}
         uses: actions/setup-node@v6

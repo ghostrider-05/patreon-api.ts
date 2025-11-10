@@ -13,30 +13,24 @@ import {
 import {
     PatreonOauthClient,
     type Oauth2CreatorToken,
-    type PatreonOauthClientOptions,
     type Oauth2StoredToken,
 } from '../oauth2/client'
 
 import {
     type RequestMethod,
     type RequestOptions,
-    type RESTOptions,
-} from '../oauth2/rest/'
-
-import { type InternalClientSharedOptions, RestClient } from '../oauth2/rest/client'
+} from '../oauth2/rest'
 
 import { Routes } from '../oauth2/routes'
-
-type BaseFetchOptions = Omit<RequestOptions,
-    | 'route'
-    | 'accessToken'
-    | 'query'
->
 
 /**
  * Options for the raw Oauth2 request methods
  */
-export interface Oauth2FetchOptions extends BaseFetchOptions {
+export interface Oauth2FetchOptions extends Omit<RequestOptions,
+    | 'route'
+    | 'accessToken'
+    | 'query'
+> {
     /**
      * Overwrite the client token with a new (access) token
      * @default undefined
@@ -65,14 +59,23 @@ export interface ResponseTransformMap<Query extends BasePatreonQuery> {
 
 export type ResponseTransformType = keyof ResponseTransformMap<BasePatreonQuery>
 
-class GenericPatreonClientMethods<TransformType extends ResponseTransformType, IncludeAll extends boolean> {
+export class PatreonSharedClient<TransformType extends ResponseTransformType, IncludeAll extends boolean> {
     public constructor (
         protected _oauth: PatreonOauthClient,
         protected transformType: TransformType,
         private parser: ResponseTransformMap<BasePatreonQuery>[TransformType],
         protected _include_all_query: IncludeAll,
-        private _token?: Oauth2StoredToken,
+        private _token?: Oauth2CreatorToken | Oauth2StoredToken,
     ) {}
+
+    private setRequestToken (options: Oauth2FetchOptions): Oauth2FetchOptions {
+        const token = options.token ?? this._token ?? this._oauth.cachedToken
+
+        return {
+            ...options,
+            ...(token ? { token } : {}),
+        }
+    }
 
     private _replace <Query extends BasePatreonQuery> (res: GetResponsePayload<Query>): ReturnType<ResponseTransformMap<Query>[TransformType]> {
         return this.parser(<never>res)
@@ -88,22 +91,20 @@ class GenericPatreonClientMethods<TransformType extends ResponseTransformType, I
      * @param query The query builder with included fields and attributes
      * @param options Request options
      * @returns the response for succesful requests
-     * @throws on failed request
+     * @throws {Error} on failed request
      */
     public async fetchOauth2<Query extends BasePatreonQuery>(
         path: string,
         query: Query,
         options?: Oauth2FetchOptions | undefined
-    ) {
-        if (this._token) {
-            options ??= {}
-            options.token ??= this._token
-        }
+    ): Promise<ReturnType<ResponseTransformMap<Query>[TransformType]>> {
+        const requestOptions = this.setRequestToken(options ?? {})
 
-        return await this._oauth.fetch(path, query, options)
+        return await this._oauth.fetch(path, query, requestOptions)
             .then(res => this._replace<Query>(res))
     }
 
+    // eslint-disable-next-line jsdoc/require-yields-type
     /**
      * Paginate the Patreon Oauth V2 API until all pages are fetched
      * @param path The Oauth V2 API Route
@@ -116,13 +117,10 @@ class GenericPatreonClientMethods<TransformType extends ResponseTransformType, I
         path: string,
         query: Query,
         options?: Oauth2FetchOptions | undefined
-    ) {
-        if (this._token) {
-            options ??= {}
-            options.token ??= this._token
-        }
+    ): AsyncGenerator<ReturnType<ResponseTransformMap<Query>[TransformType]>, number, unknown> {
+        const requestOptions = this.setRequestToken(options ?? {})
 
-        const paginator = this._oauth.paginate(path, query, options)
+        const paginator = this._oauth.paginate(path, query, requestOptions)
 
         let page = await paginator.next()
         while (!page.done) {
@@ -241,67 +239,11 @@ class GenericPatreonClientMethods<TransformType extends ResponseTransformType, I
     }
 
     /** @deprecated */
-    public listOauth2: GenericPatreonClientMethods<TransformType, IncludeAll>['paginateOauth2'] = (...args) => this.paginateOauth2(...args)
+    public listOauth2: PatreonSharedClient<TransformType, IncludeAll>['paginateOauth2'] = (...args) => this.paginateOauth2(...args)
     /** @deprecated */
-    public listCampaignPosts: GenericPatreonClientMethods<TransformType, IncludeAll>['paginateCampaignPosts'] = (...args) => this.paginateCampaignPosts(...args)
+    public listCampaignPosts: PatreonSharedClient<TransformType, IncludeAll>['paginateCampaignPosts'] = (...args) => this.paginateCampaignPosts(...args)
     /** @deprecated */
-    public listCampaignMembers: GenericPatreonClientMethods<TransformType, IncludeAll>['paginateCampaignMembers'] = (...args) => this.paginateCampaignMembers(...args)
+    public listCampaignMembers: PatreonSharedClient<TransformType, IncludeAll>['paginateCampaignMembers'] = (...args) => this.paginateCampaignMembers(...args)
     /** @deprecated */
-    public listCampaigns: GenericPatreonClientMethods<TransformType, IncludeAll>['paginateCampaigns'] = (...args) => this.paginateCampaigns(...args)
-}
-
-export abstract class PatreonClientMethods<IncludeAll extends boolean> extends GenericPatreonClientMethods<'default', IncludeAll> {
-    public get oauth (): PatreonOauthClient {
-        return this._oauth
-    }
-
-    public simplified: GenericPatreonClientMethods<'simplified', IncludeAll>
-
-    public normalized: GenericPatreonClientMethods<'normalized', IncludeAll>
-
-    /**
-     * The application name of the client.
-     */
-    public get name(): string | null {
-        return this._oauth['rest'].name
-    }
-
-    public set name (value) {
-        this._oauth['rest'].name = value
-    }
-
-    public constructor (
-        protected rawOauthOptions: PatreonOauthClientOptions,
-        rest: Partial<RESTOptions<IncludeAll>> = {},
-        internalOptions: InternalClientSharedOptions,
-        _token?: Oauth2StoredToken,
-    ) {
-        const restClient = new RestClient(rest, internalOptions)
-
-        const oauth = new PatreonOauthClient(rawOauthOptions, restClient)
-        const includeAllQueries = rest.includeAllQueries ?? <IncludeAll>false
-
-        super(oauth, 'default', (res) => res, includeAllQueries,  _token)
-
-        this.normalized = new GenericPatreonClientMethods(oauth, 'normalized', normalizeFromQuery, includeAllQueries, _token)
-        this.simplified = new GenericPatreonClientMethods(oauth, 'simplified', simplifyFromQuery, includeAllQueries, _token)
-    }
-
-    public static hasAllQueriesEnabled <
-        Client extends PatreonClientMethods<boolean>
-    >(client: Client): client is Client & PatreonClientMethods<true> {
-        return client._include_all_query
-    }
-
-    public static createCustomParser <
-        Type extends keyof ResponseTransformMap<BasePatreonQuery>,
-        IncludeAll extends boolean = boolean
-    >(
-        client: PatreonClientMethods<IncludeAll>,
-        type: Type,
-        parser: ResponseTransformMap<BasePatreonQuery>[Type],
-        includeAllQueries: IncludeAll
-    ) {
-        return new GenericPatreonClientMethods(client.oauth, type, parser, includeAllQueries, client['_token'])
-    }
+    public listCampaigns: PatreonSharedClient<TransformType, IncludeAll>['paginateCampaigns'] = (...args) => this.paginateCampaigns(...args)
 }

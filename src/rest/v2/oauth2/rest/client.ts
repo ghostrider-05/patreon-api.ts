@@ -11,7 +11,6 @@ import {
 
 import {
     DefaultRestOptions,
-    type InternalRequestOptions,
     RequestMethod,
     type RequestOptions,
     type RESTOptions,
@@ -23,8 +22,14 @@ import {
     type InternalRetryData,
 } from './retries'
 
+import {
+    sleep,
+    RequestCounter,
+    type RestRequestCounter,
+} from './internal/counter'
+
 // eslint-disable-next-line jsdoc/require-jsdoc
-async function parseResponse <Parsed = unknown>(response: RestResponse) {
+async function parseResponse <Parsed = unknown>(response: RestResponse): Promise<Parsed> {
     // Can also be checked with the content-type response header.
     // Add that as an improvement in the future
     // if the Patreon API can return something else than JSON.
@@ -34,6 +39,8 @@ async function parseResponse <Parsed = unknown>(response: RestResponse) {
         // Response is not JSON, so parse the body as a string and throw the response as an error
         // It is likely HTML of the client being blocked or another error
         const body = await response.text()
+        // For an empty body, e.g. for a 204 response, return null
+        if (body.length === 0) return null as Parsed
         throw new Error(body)
     }
 }
@@ -43,48 +50,16 @@ function isMissingAuthorization (status: number) {
     return [401].includes(status)
 }
 
-// eslint-disable-next-line jsdoc/require-jsdoc
-async function sleep (ms: number) {
-    return new Promise<void>((resolve) => setTimeout(resolve, ms))
-}
-
-class InternalRequestCounter {
-    public constructor (
-        public period: number,
-        public limit: number,
-    ) {}
-
-    private _count: number | null = null
-    private timer: NodeJS.Timeout | undefined = undefined
-
-    public async addRequest (): Promise<void> {
-        if (this.limit <= 0) return
-
-        if (this._count != null) {
-            this._count += 1
-        } else {
-            this._count = 1
-            this.timer = setInterval(() => {
-                this._count = 0
-            }, this.period).unref()
-        }
-
-        if (this._count > this.limit) {
-            await sleep(this.period)
-        }
-    }
-
-    public clear (): void {
-        clearInterval(this.timer)
-    }
-
-    public get count() {
-        return this._count
-    }
-
-    public get limited () {
-        return this._count != null && this._count > this.limit
-    }
+// eslint-disable-next-line jsdoc/require-returns
+/**
+ * Check if the request should include a body on the request using the request method
+ * @param method The method of the request to check
+ */
+export function shouldIncludeRequestBody (method: RequestMethod): boolean {
+    return [
+        RequestMethod.Patch,
+        RequestMethod.Post,
+    ].includes(method)
 }
 
 interface PatreonErrorResponseBody {
@@ -95,12 +70,16 @@ export interface InternalClientSharedOptions {
     name: string | null
 }
 
+interface SharedRequestOptions extends RequestOptions {
+    method?: RequestMethod | `${RequestMethod}`
+}
+
 export class RestClient {
     public readonly options: RESTOptions
     public name: string | null
 
     private ratelimitedUntil: Date | null = null
-    private requestCounter: InternalRequestCounter
+    private counter: RequestCounter
 
     public constructor (
         options: Partial<RESTOptions> = {},
@@ -115,18 +94,11 @@ export class RestClient {
             throw new Error('No global fetch function found. Specify options.fetch with your fetch function')
         }
 
-        this.requestCounter = new InternalRequestCounter(
-            1000,
+        this.counter = new RequestCounter(
             this.options.globalRequestPerSecond,
         )
 
         this.name = client.name
-    }
-
-    protected static defaultClientName = 'PatreonBot'
-
-    public static get defaultUserAgent (): string {
-        return makeUserAgentHeader(RestClient.defaultClientName)
     }
 
     public get userAgent (): string {
@@ -134,33 +106,39 @@ export class RestClient {
     }
 
     public get limited (): boolean {
-        return this.ratelimitedUntil != null || this.requestCounter.limited
+        return this.ratelimitedUntil != null || this.counter.limited
     }
 
-    public clearRequestInterval (): void {
-        this.requestCounter.clear()
+    public get requestCounter(): RestRequestCounter {
+        return this.counter
     }
 
     public async delete<T> (path: string, options?: RequestOptions) {
-        return await this.request<T>({ ...options, method: RequestMethod.Delete, path })
+        return await this.request<T>(path, RequestMethod.Delete, options)
     }
 
     public async get<T> (path: string, options?: RequestOptions) {
-        return await this.request<T>({ ...options, method: RequestMethod.Get, path })
+        return await this.request<T>(path, RequestMethod.Get, options)
     }
 
     public async patch<T> (path: string, options?: RequestOptions) {
-        return await this.request<T>({ ...options, method: RequestMethod.Patch, path })
+        return await this.request<T>(path, RequestMethod.Patch, options)
     }
 
     public async post<T> (path: string, options?: RequestOptions) {
-        return await this.request<T>({ ...options, method: RequestMethod.Post, path })
+        return await this.request<T>(path, RequestMethod.Post, options)
     }
 
-    public async request <Parsed = unknown>(options: InternalRequestOptions) {
+    public async request <TypedResponse = unknown>(
+        path: string,
+        method: RequestMethod | `${RequestMethod}`,
+        options: RequestOptions = {}
+    ): Promise<TypedResponse> {
         const tryRequest = async (retries = 0): Promise<RestResponse> => {
             const response = await this.makeRequest({
                 ...options,
+                method,
+                path,
                 currentRetries: retries,
             })
 
@@ -173,24 +151,15 @@ export class RestClient {
                     return response
                 }
 
-                let errors: PatreonErrorData[] | null = null
+                const retryInvalidRequestResult = await this.handleInvalidRequest(
+                    response,
+                    retries,
+                    path,
+                    options
+                )
 
-                if (response.status === 429) {
-                    const parsed = await this.handleRatelimit(response)
-                    if (parsed != null) errors = parsed.errors
-
-                    if (this.options.emitter?.listenerCount('ratelimit')) {
-                        this.options.emitter.emit('ratelimit', {
-                            url: this.buildUrl(options),
-                            timeout: this.options.ratelimitTimeout,
-                        })
-                    }
-                }
-
-                const data = this.shouldRetry(retries, response.status)
-                if (data != null) {
-                    await sleep(data.backoff(retries))
-
+                // Check for true value specific
+                if (retryInvalidRequestResult === true) {
                     // Retry with updated access token
                     if (isMissingAuthorization(response.status)) {
                         const updatedToken = await this.options.getAccessToken()
@@ -200,26 +169,13 @@ export class RestClient {
 
                     return await tryRequest(++retries)
                 } else {
-                    // Invalid request, but not retried
-                    if (errors == null) {
-                        const body = await parseResponse<PatreonErrorResponseBody>(response)
-
-                        if (isValidErrorBody(body)) {
-                            errors = body.errors
-                        } else {
-                            throw new Error('Received an invalid error response:\n' + JSON.stringify(body))
-                        }
-                    }
-
-                    throw errors.map(error => {
-                        return new PatreonError(error, getHeaders(response.headers))
-                    })
+                    throw retryInvalidRequestResult
                 }
             }
         }
 
         const response = await tryRequest()
-        const parsed = parseResponse<Parsed>(response)
+        const parsed = parseResponse<TypedResponse>(response)
 
         if (this.options.emitter?.listenerCount('response')) {
             this.options.emitter.emit('response', {
@@ -235,9 +191,11 @@ export class RestClient {
         return parsed
     }
 
-    private async makeRequest (options: InternalRequestOptions & { currentRetries: number }) {
+    private async makeRequest (options: SharedRequestOptions & { path: string, currentRetries: number }) {
         await this.waitForRatelimit()
-        await this.requestCounter.addRequest()
+        await this.counter.wait()
+
+        this.counter.add()
 
         // copied from @discordjs/rest
         const controller = new AbortController()
@@ -248,7 +206,7 @@ export class RestClient {
             else options.signal.addEventListener('abort', () => controller.abort())
         }
 
-        const init = this.buildRequest(options), url = this.buildUrl(options)
+        const init = this.buildRequest(options), url = this.buildUrl(options.path, options)
         const fetchAPI = async () => await (options.fetch ?? this.options.fetch)(url, init)
 
         if (this.options.emitter?.listenerCount('request')) {
@@ -267,7 +225,7 @@ export class RestClient {
         } catch (error) {
             if (!(error instanceof Error)) throw new Error(JSON.stringify(error))
 
-            const data = this.shouldRetry(options.currentRetries, null, error)
+            const data = this.getRetryData(options.currentRetries, null, error)
             if (data != null) {
                 return null
             }
@@ -280,15 +238,15 @@ export class RestClient {
         return res
     }
 
-    private buildUrl (options: InternalRequestOptions): string {
+    private buildUrl (path: string, options: Pick<RequestOptions, 'route' | 'query'>): string {
         const route = options.route != undefined
             ? options.route
-            : this.options.api + options.path
+            : this.options.api + path
 
         return route + (options.query ?? '')
     }
 
-    private buildRequest (options: InternalRequestOptions) {
+    private buildRequest (options: SharedRequestOptions) {
         const defaultHeaders = {
             'Content-Type': 'application/json',
             'User-Agent': this.userAgent,
@@ -310,7 +268,7 @@ export class RestClient {
                 ...(options.headers ?? {}),
             },
             method,
-            body: ![RequestMethod.Get].includes(method)
+            body: shouldIncludeRequestBody(method)
                 ? options.body ?? null
                 : null,
             // AbortSignal | undefined is not a possible type...
@@ -318,7 +276,54 @@ export class RestClient {
         }
     }
 
-    private shouldRetry (current: number, status: number | null, error?: Error): InternalRetryData | null {
+    // eslint-disable-next-line jsdoc/require-param
+    /**
+     * @returns A boolean if it should be retried or the errors to throw
+     */
+    private async handleInvalidRequest (
+        response: RestResponse,
+        retries: number,
+        path: string,
+        options: RequestOptions,
+    ): Promise<true | PatreonError[]> {
+        let errors: PatreonErrorData[] | null = null
+
+        if (response.status === 429) {
+            const parsed = await this.handleRatelimit(response)
+            if (parsed != null) errors = parsed.errors
+
+            if (this.options.emitter?.listenerCount('ratelimit')) {
+                this.options.emitter.emit('ratelimit', {
+                    url: this.buildUrl(path, options),
+                    timeout: this.options.ratelimitTimeout,
+                })
+            }
+        }
+
+        const data = this.getRetryData(retries, response.status)
+        if (data != null) {
+            await sleep(data.backoff(retries))
+
+            return true
+        } else {
+            // Invalid request, but not retried
+            if (errors == null) {
+                const body = await parseResponse<PatreonErrorResponseBody>(response)
+
+                if (isValidErrorBody(body)) {
+                    errors = body.errors
+                } else {
+                    throw new Error('Received an invalid error response:\n' + JSON.stringify(body))
+                }
+            }
+
+            return errors.map(error => {
+                return new PatreonError(error, getHeaders(response.headers))
+            })
+        }
+    }
+
+    private getRetryData (current: number, status: number | null, error?: Error): InternalRetryData | null {
         const data = getRetryAmount(this.options.retries, status)
 
         if (error) {
@@ -377,5 +382,11 @@ export class RestClient {
 
             return null
         }
+    }
+
+    protected static defaultClientName = 'PatreonBot'
+
+    protected static get defaultUserAgent (): string {
+        return makeUserAgentHeader(RestClient.defaultClientName)
     }
 }

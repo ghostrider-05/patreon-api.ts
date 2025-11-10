@@ -1,16 +1,15 @@
 import { QueryBuilder } from '../../../schemas/v2'
 
 import { PatreonClient, type PatreonClientOptions, type Oauth2StoredToken } from './base'
-import { PatreonClientMethods } from './baseMethods'
+import { PatreonSharedClient } from './shared'
 
-export class PatreonUserClientInstance extends PatreonClientMethods<boolean> {
+export class PatreonUserClientInstance<IncludeAll extends boolean> extends PatreonSharedClient<'default', IncludeAll> {
     public readonly token: Oauth2StoredToken
-    public client: PatreonUserClient<boolean>
+    public client: PatreonUserClient<IncludeAll>
 
-    public constructor (client: PatreonUserClient<boolean>, token: Oauth2StoredToken) {
-        super(client['rawOauthOptions'], client.oauth['rest'].options, {
-            name: client.name,
-        }, token)
+    public constructor (client: PatreonUserClient<IncludeAll>, token: Oauth2StoredToken) {
+        super(client.oauth, 'default', (res) => res, client['_include_all_query'], token)
+
         this.client = client
         this.token = token
     }
@@ -34,13 +33,12 @@ export class PatreonUserClientInstance extends PatreonClientMethods<boolean> {
     }
 }
 
-/* eslint-disable @typescript-eslint/unified-signatures */
-
 export class PatreonUserClient<IncludeAll extends boolean = false> extends PatreonClient<IncludeAll> {
     public constructor (options: PatreonClientOptions<IncludeAll>) {
         super(options, 'oauth')
     }
 
+    /* eslint-disable @typescript-eslint/unified-signatures */
     /**
      * Fetch the token from the incoming redirect request (with a code query).
      * @see {@link PatreonUserClient.oauth}.getOauthTokenFromCode
@@ -63,9 +61,9 @@ export class PatreonUserClient<IncludeAll extends boolean = false> extends Patre
      * Create a client with the current user authenticated.
      * @param request The request or url with the code query
      * @returns a similar Oauth client that has the token of the current token
-     * @throws when failed to fetch access token
+     * @throws {Error} when failed to fetch access token
      */
-    public async createInstance (request: string | { url: string }): Promise<PatreonUserClientInstance> {
+    public async createInstance (request: string | { url: string }): Promise<PatreonUserClientInstance<IncludeAll>> {
         const token = await this.fetchToken(request)
         if (!token) throw new Error('Failed to fetch access token for: ' + request)
 
