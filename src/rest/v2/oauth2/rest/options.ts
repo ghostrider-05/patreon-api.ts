@@ -52,7 +52,7 @@ export interface RestEventMap {
     }]
 }
 
-export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
+export interface RestClientOptions<IncludeAllQuery extends boolean = boolean> {
     /**
      * The base url of the Patreon API
      * @default 'https://patreon.com/api/oauth2/v2'
@@ -156,7 +156,7 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
     userAgentAppendix: string | undefined
 }
 
-export const DefaultRestOptions: RESTOptions = {
+export const DefaultRestOptions: RestClientOptions = {
     authPrefix: 'Bearer',
     api: RouteBases.oauth2,
     emitter: null,
@@ -247,3 +247,6 @@ export interface InternalRequestOptions extends RequestOptions {
     path: string
     method?: RequestMethod | `${RequestMethod}`
 }
+
+/** @deprecated use RestClientOptions */
+export type RESTOptions<IncludeAllQuery extends boolean = boolean> = RestClientOptions<IncludeAllQuery>

@@ -13,7 +13,7 @@ import {
     DefaultRestOptions,
     RequestMethod,
     type RequestOptions,
-    type RESTOptions,
+    type RestClientOptions,
     type RestResponse,
 } from './options'
 
@@ -71,7 +71,7 @@ interface SharedRequestOptions extends RequestOptions {
 }
 
 export class RestClient {
-    public readonly options: RESTOptions
+    public readonly options: RestClientOptions
     public name: string | null
 
     private ratelimitedUntil: Date | null = null
@@ -79,7 +79,7 @@ export class RestClient {
     private invalidCounter: RequestCounter
 
     public constructor (
-        options: Partial<RESTOptions> = {},
+        options: Partial<RestClientOptions> = {},
         client: {
             name: string | null
         },

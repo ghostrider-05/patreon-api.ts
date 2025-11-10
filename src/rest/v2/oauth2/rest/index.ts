@@ -18,6 +18,7 @@ export {
     type InternalRequestOptions,
     type RESTOptions,
     type RequestOptions,
+    type RestClientOptions,
     type RestEventMap,
     type RestFetcher,
     type RestResponse,

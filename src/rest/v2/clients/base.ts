@@ -12,7 +12,7 @@ import {
     type Oauth2StoredToken,
     type PatreonOauthClientOptions,
     type PatreonTokenFetchOptions,
-    type RESTOptions,
+    type RestClientOptions,
 } from '../oauth2/'
 
 import { WebhookClient } from '../webhooks/'
@@ -51,7 +51,7 @@ export interface PatreonClientOptions<IncludeAll extends boolean = false> {
     /**
      * The rest options for this client
      */
-    rest?: Partial<RESTOptions<IncludeAll>>
+    rest?: Partial<RestClientOptions<IncludeAll>>
 
     /**
      * Options for storing and getting API (creator) tokens.
