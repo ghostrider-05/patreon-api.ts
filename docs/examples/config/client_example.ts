@@ -51,3 +51,45 @@ export async function fetchPatreonRaw (client: PatreonClient) {
     }
 }
 // #endregion fetch-raw
+// @ts-expect-error duplicate-imports
+// #region fetch-rest
+import { type PatreonClient, QueryBuilder, Routes, Type, type PatreonQuery, type GetResponsePayload } from 'patreon-api.ts'
+
+export async function fetchPatreonRest (client: PatreonClient) {
+    type Query = PatreonQuery<Type.Campaign, 'creator', {
+        user: ('full_name')[]
+    }, true>
+
+    const { query } = QueryBuilder.fromParams<Query>(new URLSearchParams({
+        include: 'creator',
+        'fields[user]': 'full_name',
+    }))
+
+    // get the campaigns
+    const campaigns = await client.rest.get<GetResponsePayload<Query>>(Routes.campaigns(), {
+        accessToken: client.oauth.cachedToken?.access_token,
+        query,
+    })
+    // or fetch the post(s), member(s), post(s) or current user
+
+    // Or list resources to paginate multiple pages
+    let nextCursor: string | null | undefined = campaigns.meta.pagination.cursors?.next
+    const pages: GetResponsePayload<Query>[] = [campaigns]
+
+    while (nextCursor) {
+        const response = await client.rest.get<GetResponsePayload<Query>>(Routes.campaigns(), {
+            accessToken: client.oauth.cachedToken?.access_token,
+            query: query + encodeURIComponent(`&page[cursor]=${nextCursor}`),
+        })
+
+        pages.push(response)
+        nextCursor = response.meta.pagination.cursors?.next
+    }
+
+    for (const campaigns of pages) {
+        for (const campaign of campaigns.data) {
+            console.log(campaign.id)
+        }
+    }
+}
+// #endregion fetch-rest

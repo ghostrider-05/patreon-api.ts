@@ -94,7 +94,7 @@ describe('webhook client', () => {
 
         test('delete a webhook', async () => {
             const deleteWebhook = () => client.deleteWebhook(id)
-            expect(deleteWebhook()).resolves.not.toThrowError()
+            await expect(deleteWebhook()).resolves.not.toThrowError()
         })
     })
 })

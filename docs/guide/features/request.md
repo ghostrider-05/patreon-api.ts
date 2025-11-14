@@ -6,11 +6,27 @@
 You can use the methods on the client to access the API.
 If no token is given in the client options, you can use the [`token` option in the request options](/api/interfaces/Oauth2FetchOptions).
 
+| Feature in client       | PatreonClient | PatreonOauthClient | RestClient |
+| ----------------------- | ------------- | ------------------ | ---------- |
+| Rate limit              | ✅             | ✅                  | ✅          |
+| Edge rate limit         | ✅             | ✅                  | ✅          |
+| Response parsing        | ✅             | ✅                  | ✅          |
+| Request pagination      | ✅             | ✅                  | ❌          |
+| Client token            | ✅             | ✅                  | ❌          |
+| Scope validation        | ✅             | ✅                  | ❌          |
+| Token validation        | ✅             | ✅                  | ❌          |
+| Query response typed    | ✅             | ✅                  | ❌          |
+| Response transformation | ✅             | ❌                  | ❌          |
+| Default query           | ✅             | ❌                  | ❌          |
+| Route methods           | ✅             | ❌                  | ❌          |
+
 ::: code-group
 
 <<< @/examples/config/client_example.ts#fetch{ts twoslash} [Client example]
 
-<<< @/examples/config/client_example.ts#fetch-raw{ts twoslash} [Raw example]
+<<< @/examples/config/client_example.ts#fetch-raw{ts twoslash} [Oauth client example]
+
+<<< @/examples/config/client_example.ts#fetch-rest{ts twoslash} [Rest client example]
 
 :::
 
@@ -18,8 +34,14 @@ The methods on the client return the default `JSON:API` response. Use the [`simp
 
 ## Query builder
 
-> [!INFO] Include all
+### Include all
+
+> [!INFO] Client option
 > To fetch all attributes and relationships on every request, you can use the [`rest.includeAllQueries`](../configuration.md#rest-include-allqueries) client options.
+
+By default the Patreon API will return no attributes and relationships and you will have to add the resources needed to your query.
+When you want to request all relationships on a query, the `includeAllRelationships` method can be used.
+To also request all attributes (including the attributes of the relationships), the `includeAll` method can be used.
 
 ### Pagination
 

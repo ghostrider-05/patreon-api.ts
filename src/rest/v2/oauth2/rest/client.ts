@@ -13,7 +13,7 @@ import {
     DefaultRestOptions,
     RequestMethod,
     type RequestOptions,
-    type RESTOptions,
+    type RestClientOptions,
     type RestResponse,
 } from './options'
 
@@ -26,7 +26,10 @@ import {
     sleep,
     RequestCounter,
     type RestRequestCounter,
+    type RestRequestCounterOptions,
 } from './internal/counter'
+
+import { RatelimitManager } from './internal/ratelimit'
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 async function parseResponse <Parsed = unknown>(response: RestResponse): Promise<Parsed> {
@@ -55,35 +58,41 @@ function isMissingAuthorization (status: number) {
  * Check if the request should include a body on the request using the request method
  * @param method The method of the request to check
  */
-export function shouldIncludeRequestBody (method: RequestMethod): boolean {
-    return [
+export function shouldIncludeRequestBody (method: RequestMethod | `${RequestMethod}`): boolean {
+    const methods: (RequestMethod | `${RequestMethod}`)[] = [
         RequestMethod.Patch,
         RequestMethod.Post,
-    ].includes(method)
+    ]
+
+    return methods.includes(method)
 }
 
 interface PatreonErrorResponseBody {
     errors: PatreonErrorData[]
 }
 
-export interface InternalClientSharedOptions {
-    name: string | null
+interface SharedRequestOptions extends RequestOptions {
+    method: RequestMethod | `${RequestMethod}`
 }
 
-interface SharedRequestOptions extends RequestOptions {
-    method?: RequestMethod | `${RequestMethod}`
+export type {
+    RestRequestCounter,
+    RestRequestCounterOptions,
 }
 
 export class RestClient {
-    public readonly options: RESTOptions
+    public readonly options: RestClientOptions
     public name: string | null
 
-    private ratelimitedUntil: Date | null = null
+    private ratelimiter: RatelimitManager
     private counter: RequestCounter
+    private invalidCounter: RequestCounter
 
     public constructor (
-        options: Partial<RESTOptions> = {},
-        client: InternalClientSharedOptions,
+        options: Partial<RestClientOptions> = {},
+        client: {
+            name: string | null
+        } = { name: null },
     ) {
         this.options = {
             ...DefaultRestOptions,
@@ -94,9 +103,16 @@ export class RestClient {
             throw new Error('No global fetch function found. Specify options.fetch with your fetch function')
         }
 
-        this.counter = new RequestCounter(
-            this.options.globalRequestPerSecond,
-        )
+        const { globalRequestsLimit, globalRequestPerSecond, invalidRequestsLimit } = this.options
+        const requestLimitOptions = (typeof globalRequestsLimit === 'number' ? globalRequestsLimit : globalRequestsLimit.amount) <= 0
+            ? globalRequestPerSecond
+            : globalRequestsLimit
+
+        this.ratelimiter = new RatelimitManager()
+        this.counter = new RequestCounter(requestLimitOptions, () => true)
+        this.invalidCounter = new RequestCounter(invalidRequestsLimit, (_url, { status }) => {
+            return status >= 400 && status < 500
+        })
 
         this.name = client.name
     }
@@ -106,11 +122,21 @@ export class RestClient {
     }
 
     public get limited (): boolean {
-        return this.ratelimitedUntil != null || this.counter.limited
+        return this.ratelimiter.limited
+            || this.counter.limited
+            || this.invalidCounter.limited
     }
 
-    public get requestCounter(): RestRequestCounter {
+    public get requestCounter (): RestRequestCounter {
         return this.counter
+    }
+
+    public get invalidRequestCounter (): RestRequestCounter {
+        return this.invalidCounter
+    }
+
+    public clearRatelimitTimeout (): void {
+        this.ratelimiter.clear()
     }
 
     public async delete<T> (path: string, options?: RequestOptions) {
@@ -135,10 +161,11 @@ export class RestClient {
         options: RequestOptions = {}
     ): Promise<TypedResponse> {
         const tryRequest = async (retries = 0): Promise<RestResponse> => {
+            const url = this.buildUrl(path, options)
             const response = await this.makeRequest({
                 ...options,
                 method,
-                path,
+                url,
                 currentRetries: retries,
             })
 
@@ -147,6 +174,15 @@ export class RestClient {
             } else if (response == null) {
                 return await tryRequest(++retries)
             } else {
+                const counterOptions = { method, status: response.status }
+                if (this.counter.filter(url, counterOptions)) {
+                    this.counter.add()
+                }
+
+                if (this.invalidCounter.filter(url, counterOptions)) {
+                    this.invalidCounter.add()
+                }
+
                 if (response.ok) {
                     return response
                 }
@@ -191,11 +227,14 @@ export class RestClient {
         return parsed
     }
 
-    private async makeRequest (options: SharedRequestOptions & { path: string, currentRetries: number }) {
-        await this.waitForRatelimit()
-        await this.counter.wait()
+    private async makeRequest (options: SharedRequestOptions & { url: string, currentRetries: number }) {
+        const waited = await this.ratelimiter.wait()
+        if (waited > 0) {
+            console.log('This client is queueing a request to avoid ratelimits')
+        }
 
-        this.counter.add()
+        await this.counter.wait()
+        await this.invalidCounter.wait()
 
         // copied from @discordjs/rest
         const controller = new AbortController()
@@ -206,7 +245,7 @@ export class RestClient {
             else options.signal.addEventListener('abort', () => controller.abort())
         }
 
-        const init = this.buildRequest(options), url = this.buildUrl(options.path, options)
+        const init = this.buildRequest(options), url = options.url
         const fetchAPI = async () => await (options.fetch ?? this.options.fetch)(url, init)
 
         if (this.options.emitter?.listenerCount('request')) {
@@ -238,15 +277,7 @@ export class RestClient {
         return res
     }
 
-    private buildUrl (path: string, options: Pick<RequestOptions, 'route' | 'query'>): string {
-        const route = options.route != undefined
-            ? options.route
-            : this.options.api + path
-
-        return route + (options.query ?? '')
-    }
-
-    private buildRequest (options: SharedRequestOptions) {
+    private getHeaders (options: Pick<RequestOptions, 'headers' | 'accessToken' | 'auth' | 'authPrefix'>) {
         const defaultHeaders = {
             'Content-Type': 'application/json',
             'User-Agent': this.userAgent,
@@ -259,20 +290,29 @@ export class RestClient {
             defaultHeaders['Authorization'] = prefix + options.accessToken
         }
 
-        const method = <RequestMethod>(options.method ?? RequestMethod.Get)
-
         return {
-            headers: {
-                ...defaultHeaders,
-                ...this.options.headers,
-                ...(options.headers ?? {}),
-            },
-            method,
-            body: shouldIncludeRequestBody(method)
+            ...defaultHeaders,
+            ...this.options.headers,
+            ...(options.headers ?? {}),
+        }
+    }
+
+    private buildUrl (path: string, options: Pick<RequestOptions, 'route' | 'query' | 'api'>): string {
+        const route = options.route != undefined
+            ? options.route
+            : (options.api ?? this.options.api) + path
+
+        return route + (options.query ?? '')
+    }
+
+    private buildRequest (options: SharedRequestOptions) {
+        return {
+            headers: this.getHeaders(options),
+            method: options.method,
+            body: shouldIncludeRequestBody(<RequestMethod>options.method)
                 ? options.body ?? null
                 : null,
-            // AbortSignal | undefined is not a possible type...
-            signal: <AbortSignal>options.signal,
+            ...(options.signal ? { signal: options.signal } : {}),
         }
     }
 
@@ -336,18 +376,6 @@ export class RestClient {
         return (current < data.retries) ? data : null
     }
 
-    private async waitForRatelimit (): Promise<number> {
-        if (this.ratelimitedUntil == null) return 0
-
-        console.log('This client is queueing a request to avoid ratelimits')
-        const offset = Date.now() - this.ratelimitedUntil.getTime()
-
-        await sleep(offset)
-        this.ratelimitedUntil = null
-
-        return offset
-    }
-
     private async handleRatelimit (response: RestResponse) {
         const timeout = this.options.ratelimitTimeout
         const headers = getHeaders(response.headers)
@@ -355,33 +383,19 @@ export class RestClient {
         console.log('This client is currently ratelimited. Please contact Patreon or reduce your requests', headers)
 
         if (headers.retryafter != null) {
-            const RetryAfter = parseInt(headers.retryafter) * 1000
-
-            if ((RetryAfter + timeout) > 0) {
-                this.ratelimitedUntil = new Date(Date.now() + RetryAfter + timeout)
-            }
-
-            return null
-        } else {
-            console.warn('Missing retry after header for ratelimited response, parsing request body')
-
-            const body = await parseResponse<PatreonErrorResponseBody>(response)
-            if (isValidErrorBody(body)) {
-                const retry_after_seconds = body.errors.at(0)?.retry_after_seconds ?? 0
-
-                if (retry_after_seconds === 0) {
-                    console.warn('No retry_after_seconds found in the response body. Not applying rate limit retry timeout')
-                }
-
-                if ((retry_after_seconds + timeout) > 0) {
-                    this.ratelimitedUntil = new Date(Date.now() + (retry_after_seconds * 1000) + timeout)
-                }
-
-                return body
-            }
+            this.ratelimiter.applyTimeout(headers.retryafter, timeout)
 
             return null
         }
+
+        console.warn('Missing retry after header for ratelimited response, parsing request body')
+
+        const body = await parseResponse<PatreonErrorResponseBody>(response)
+        if (!isValidErrorBody(body)) return null
+
+        this.ratelimiter.applyTimeout(body.errors.at(0)?.retry_after_seconds, timeout)
+
+        return body
     }
 
     protected static defaultClientName = 'PatreonBot'

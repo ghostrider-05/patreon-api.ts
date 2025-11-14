@@ -6,6 +6,8 @@ export default defineConfig({
     root: 'src',
     test: {
         watch: false,
+        clearMocks: true,
+        mockReset: true,
 
         reporters: ['default']
             .concat(process.env.GITHUB_ACTIONS ? ['github-actions'] : []),
