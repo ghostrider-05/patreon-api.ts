@@ -11,7 +11,14 @@ type RequestFilter = (url: string, init: { status: number, method: string }) => 
 
 export type RestRequestCounterOptions =
     | number
-    | { amount: number, interval: number, filter?: RequestFilter }
+    | {
+        amount: number
+        interval: number
+        filter?: RequestFilter
+        getStartCount?: () => number
+        onRequest?: (counter: RestRequestCounter) => void
+        onTimerEnd?: (counter: RestRequestCounter) => void
+    }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export async function sleep (ms: number): Promise<void> {
@@ -25,6 +32,11 @@ export class RequestCounter implements RestRequestCounter {
 
     private _count: number | null = null
     private timer: NodeJS.Timeout | undefined = undefined
+    private hooks: Partial<Record<
+        | 'onRequest'
+        | 'onTimerEnd',
+        ((counter: RestRequestCounter) => void) | undefined
+    >> = {}
 
     public constructor (
         options: RestRequestCounterOptions,
@@ -39,6 +51,12 @@ export class RequestCounter implements RestRequestCounter {
             this.period = Math.max(options.interval, 0.001) * 1000 // convert seconds to ms
             this.limit = options.amount
             this.filter = options.filter ?? filter
+
+            this._count = options.getStartCount?.() ?? null
+            this.hooks = {
+                onRequest: options.onRequest,
+                onTimerEnd: options.onTimerEnd,
+            }
         }
     }
 
@@ -50,9 +68,13 @@ export class RequestCounter implements RestRequestCounter {
         } else {
             this._count = 1
             this.timer = setInterval(() => {
+                this.hooks.onTimerEnd?.(this)
+
                 this._count = 0
             }, this.period).unref()
         }
+
+        this.hooks.onRequest?.(this)
     }
 
     public async wait (): Promise<void> {
