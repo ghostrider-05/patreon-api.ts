@@ -145,6 +145,7 @@ export interface RestClientOptions<IncludeAllQuery extends boolean = boolean> {
      *
      * The limit is set to `{amount} req/{interval}s`. The default interval is 1 second.
      * As of writing this, your client will be paused from using the API when this limit has reached `2000 req / 600s`.
+     * By default, counts any 4XX response but this can be adjusted using `filter`.
      * @default 0
      * @see https://docs.patreon.com/#edge-rate-limiting
      */

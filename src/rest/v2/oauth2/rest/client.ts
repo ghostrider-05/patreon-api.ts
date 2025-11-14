@@ -55,11 +55,13 @@ function isMissingAuthorization (status: number) {
  * Check if the request should include a body on the request using the request method
  * @param method The method of the request to check
  */
-export function shouldIncludeRequestBody (method: RequestMethod): boolean {
-    return [
+export function shouldIncludeRequestBody (method: RequestMethod | `${RequestMethod}`): boolean {
+    const methods: (RequestMethod | `${RequestMethod}`)[] = [
         RequestMethod.Patch,
         RequestMethod.Post,
-    ].includes(method)
+    ]
+
+    return methods.includes(method)
 }
 
 interface PatreonErrorResponseBody {
@@ -67,7 +69,7 @@ interface PatreonErrorResponseBody {
 }
 
 interface SharedRequestOptions extends RequestOptions {
-    method?: RequestMethod | `${RequestMethod}`
+    method: RequestMethod | `${RequestMethod}`
 }
 
 export class RestClient {
@@ -82,7 +84,7 @@ export class RestClient {
         options: Partial<RestClientOptions> = {},
         client: {
             name: string | null
-        },
+        } = { name: null },
     ) {
         this.options = {
             ...DefaultRestOptions,
@@ -98,8 +100,10 @@ export class RestClient {
             ? globalRequestPerSecond
             : globalRequestsLimit
 
-        this.counter = new RequestCounter(requestLimitOptions)
-        this.invalidCounter = new RequestCounter(invalidRequestsLimit)
+        this.counter = new RequestCounter(requestLimitOptions, () => true)
+        this.invalidCounter = new RequestCounter(invalidRequestsLimit, (_url, { status }) => {
+            return status >= 400 && status < 500
+        })
 
         this.name = client.name
     }
@@ -142,10 +146,11 @@ export class RestClient {
         options: RequestOptions = {}
     ): Promise<TypedResponse> {
         const tryRequest = async (retries = 0): Promise<RestResponse> => {
+            const url = this.buildUrl(path, options)
             const response = await this.makeRequest({
                 ...options,
                 method,
-                path,
+                url,
                 currentRetries: retries,
             })
 
@@ -156,6 +161,15 @@ export class RestClient {
             } else {
                 if (response.ok) {
                     return response
+                }
+
+                const counterOptions = { method, status: response.status }
+                if (this.counter.filter(url, counterOptions)) {
+                    this.counter.add()
+                }
+
+                if (this.invalidCounter.filter(url, counterOptions)) {
+                    this.invalidCounter.add()
                 }
 
                 const retryInvalidRequestResult = await this.handleInvalidRequest(
@@ -198,13 +212,11 @@ export class RestClient {
         return parsed
     }
 
-    private async makeRequest (options: SharedRequestOptions & { path: string, currentRetries: number }) {
+    private async makeRequest (options: SharedRequestOptions & { url: string, currentRetries: number }) {
         await this.waitForRatelimit()
 
         await this.counter.wait()
         await this.invalidCounter.wait()
-
-        this.counter.add()
 
         // copied from @discordjs/rest
         const controller = new AbortController()
@@ -215,7 +227,7 @@ export class RestClient {
             else options.signal.addEventListener('abort', () => controller.abort())
         }
 
-        const init = this.buildRequest(options), url = this.buildUrl(options.path, options)
+        const init = this.buildRequest(options), url = options.url
         const fetchAPI = async () => await (options.fetch ?? this.options.fetch)(url, init)
 
         if (this.options.emitter?.listenerCount('request')) {
@@ -247,15 +259,7 @@ export class RestClient {
         return res
     }
 
-    private buildUrl (path: string, options: Pick<RequestOptions, 'route' | 'query'>): string {
-        const route = options.route != undefined
-            ? options.route
-            : this.options.api + path
-
-        return route + (options.query ?? '')
-    }
-
-    private buildRequest (options: SharedRequestOptions) {
+    private getHeaders (options: Pick<RequestOptions, 'headers' | 'accessToken' | 'auth' | 'authPrefix'>) {
         const defaultHeaders = {
             'Content-Type': 'application/json',
             'User-Agent': this.userAgent,
@@ -268,20 +272,29 @@ export class RestClient {
             defaultHeaders['Authorization'] = prefix + options.accessToken
         }
 
-        const method = <RequestMethod>(options.method ?? RequestMethod.Get)
-
         return {
-            headers: {
-                ...defaultHeaders,
-                ...this.options.headers,
-                ...(options.headers ?? {}),
-            },
-            method,
-            body: shouldIncludeRequestBody(method)
+            ...defaultHeaders,
+            ...this.options.headers,
+            ...(options.headers ?? {}),
+        }
+    }
+
+    private buildUrl (path: string, options: Pick<RequestOptions, 'route' | 'query'>): string {
+        const route = options.route != undefined
+            ? options.route
+            : this.options.api + path
+
+        return route + (options.query ?? '')
+    }
+
+    private buildRequest (options: SharedRequestOptions) {
+        return {
+            headers: this.getHeaders(options),
+            method: options.method,
+            body: shouldIncludeRequestBody(<RequestMethod>options.method)
                 ? options.body ?? null
                 : null,
-            // AbortSignal | undefined is not a possible type...
-            signal: <AbortSignal>options.signal,
+            ...(options.signal ? { signal: options.signal } : {}),
         }
     }
 
@@ -296,10 +309,6 @@ export class RestClient {
         options: RequestOptions,
     ): Promise<true | PatreonError[]> {
         let errors: PatreonErrorData[] | null = null
-
-        if (response.status >= 400 && response.status < 500) {
-            this.invalidCounter.add()
-        }
 
         if (response.status === 429) {
             const parsed = await this.handleRatelimit(response)
@@ -368,33 +377,30 @@ export class RestClient {
         console.log('This client is currently ratelimited. Please contact Patreon or reduce your requests', headers)
 
         if (headers.retryafter != null) {
-            const RetryAfter = parseInt(headers.retryafter) * 1000
+            const retryTimeout = (parseInt(headers.retryafter) * 1000) + timeout
 
-            if ((RetryAfter + timeout) > 0) {
-                this.ratelimitedUntil = new Date(Date.now() + RetryAfter + timeout)
-            }
-
-            return null
-        } else {
-            console.warn('Missing retry after header for ratelimited response, parsing request body')
-
-            const body = await parseResponse<PatreonErrorResponseBody>(response)
-            if (isValidErrorBody(body)) {
-                const retry_after_seconds = body.errors.at(0)?.retry_after_seconds ?? 0
-
-                if (retry_after_seconds === 0) {
-                    console.warn('No retry_after_seconds found in the response body. Not applying rate limit retry timeout')
-                }
-
-                if ((retry_after_seconds + timeout) > 0) {
-                    this.ratelimitedUntil = new Date(Date.now() + (retry_after_seconds * 1000) + timeout)
-                }
-
-                return body
+            if (retryTimeout > 0) {
+                this.ratelimitedUntil = new Date(Date.now() + retryTimeout)
             }
 
             return null
         }
+
+        console.warn('Missing retry after header for ratelimited response, parsing request body')
+
+        const body = await parseResponse<PatreonErrorResponseBody>(response)
+        if (!isValidErrorBody(body)) return null
+
+        const retry_after_seconds = body.errors.at(0)?.retry_after_seconds ?? 0
+        const retryTimeout = (retry_after_seconds * 1000) + timeout
+
+        if (retryTimeout > 0) {
+            this.ratelimitedUntil = new Date(Date.now() + retryTimeout)
+        } else {
+            console.warn('No retry_after_seconds found in the response body. Not applying rate limit retry timeout')
+        }
+
+        return body
     }
 
     protected static defaultClientName = 'PatreonBot'
