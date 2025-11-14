@@ -2,6 +2,10 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { PatreonMockData, RestClient } from '../../../v2'
 
+// Cannot use expect().rejects.toThrow(message),
+// see https://github.com/vitest-dev/vitest/issues/4559
+// TODO: figure out how to validate PatreonError[] error being thrown
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const fetch = vi.fn(async (url: string, init?: RequestInit) => new Response(null, { status: 500 }))
 
@@ -69,24 +73,47 @@ describe('requests', () => {
             headers: PatreonMockData.createHeaders(),
         }))
 
-        await expect(async () => {
-            await client.get<{ data: [] }>('/api')
-        }).rejects.toThrowError('Missing access token for authenticated request')
+        await expect(client.get<{ data: [] }>('/api'))
+            .rejects.toThrowError('Missing access token for authenticated request')
     })
 
     it('GET request: ratelimited, no retry information', async () => {
-        fetch.mockReturnValue(ratelimitedResponse(10))
+        const error = ratelimitedResponse(10)
+        fetch.mockReturnValue(error)
 
-        const data = await client.get<{ data: [] }>('/api', {
+        await expect(client.get<{ data: [] }>('/api', {
+            accessToken: 'token',
+        })).rejects.toThrowError()
+    })
+
+    it('GET request: ratelimited, retry information in body', async () => {
+        const error = ratelimitedResponse(10, { body: true })
+        fetch.mockReturnValue(error)
+
+        await expect(client.get<{ data: [] }>('/api', {
+            accessToken: 'token',
+        })).rejects.toThrowError()
+    })
+
+    it('GET request: ratelimited, retry information in body and headers', async () => {
+        const error = ratelimitedResponse(10, { body: true, headers: true })
+        fetch.mockReturnValue(error)
+
+        await expect(client.get<{ data: [] }>('/api', {
+            accessToken: 'token',
+        })).rejects.toThrowError()
+    })
+
+    it('DELETE request: 204 response', async () => {
+        fetch.mockReturnValue(Promise.resolve(new Response(null, {
+            status: 204,
+            headers: PatreonMockData.createHeaders(),
+        })))
+
+        const response = await client.delete('/api/id', {
             accessToken: 'token',
         })
 
-        expect(data).toBeUndefined()
-
-        await expect(async () => {
-            await client.get<{ data: [] }>('/api', {
-                accessToken: 'token',
-            })
-        }).rejects.toThrowError('RequestThrottled[0]: You have made too many attempts. Please try again later.')
+        expect(response).toBeNull()
     })
 })

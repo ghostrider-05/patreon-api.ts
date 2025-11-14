@@ -29,6 +29,8 @@ import {
     type RestRequestCounterOptions,
 } from './internal/counter'
 
+import { RatelimitManager } from './internal/ratelimit'
+
 // eslint-disable-next-line jsdoc/require-jsdoc
 async function parseResponse <Parsed = unknown>(response: RestResponse): Promise<Parsed> {
     // Can also be checked with the content-type response header.
@@ -82,7 +84,7 @@ export class RestClient {
     public readonly options: RestClientOptions
     public name: string | null
 
-    private ratelimitedUntil: Date | null = null
+    private ratelimiter: RatelimitManager
     private counter: RequestCounter
     private invalidCounter: RequestCounter
 
@@ -106,6 +108,7 @@ export class RestClient {
             ? globalRequestPerSecond
             : globalRequestsLimit
 
+        this.ratelimiter = new RatelimitManager()
         this.counter = new RequestCounter(requestLimitOptions, () => true)
         this.invalidCounter = new RequestCounter(invalidRequestsLimit, (_url, { status }) => {
             return status >= 400 && status < 500
@@ -119,7 +122,9 @@ export class RestClient {
     }
 
     public get limited (): boolean {
-        return this.ratelimitedUntil != null || this.counter.limited
+        return this.ratelimiter.limited
+            || this.counter.limited
+            || this.invalidCounter.limited
     }
 
     public get requestCounter (): RestRequestCounter {
@@ -128,6 +133,10 @@ export class RestClient {
 
     public get invalidRequestCounter (): RestRequestCounter {
         return this.invalidCounter
+    }
+
+    public clearRatelimitTimeout (): void {
+        this.ratelimiter.clear()
     }
 
     public async delete<T> (path: string, options?: RequestOptions) {
@@ -165,10 +174,6 @@ export class RestClient {
             } else if (response == null) {
                 return await tryRequest(++retries)
             } else {
-                if (response.ok) {
-                    return response
-                }
-
                 const counterOptions = { method, status: response.status }
                 if (this.counter.filter(url, counterOptions)) {
                     this.counter.add()
@@ -176,6 +181,10 @@ export class RestClient {
 
                 if (this.invalidCounter.filter(url, counterOptions)) {
                     this.invalidCounter.add()
+                }
+
+                if (response.ok) {
+                    return response
                 }
 
                 const retryInvalidRequestResult = await this.handleInvalidRequest(
@@ -219,7 +228,10 @@ export class RestClient {
     }
 
     private async makeRequest (options: SharedRequestOptions & { url: string, currentRetries: number }) {
-        await this.waitForRatelimit()
+        const waited = await this.ratelimiter.wait()
+        if (waited > 0) {
+            console.log('This client is queueing a request to avoid ratelimits')
+        }
 
         await this.counter.wait()
         await this.invalidCounter.wait()
@@ -364,18 +376,6 @@ export class RestClient {
         return (current < data.retries) ? data : null
     }
 
-    private async waitForRatelimit (): Promise<number> {
-        if (this.ratelimitedUntil == null) return 0
-
-        console.log('This client is queueing a request to avoid ratelimits')
-        const offset = Date.now() - this.ratelimitedUntil.getTime()
-
-        await sleep(offset)
-        this.ratelimitedUntil = null
-
-        return offset
-    }
-
     private async handleRatelimit (response: RestResponse) {
         const timeout = this.options.ratelimitTimeout
         const headers = getHeaders(response.headers)
@@ -383,11 +383,7 @@ export class RestClient {
         console.log('This client is currently ratelimited. Please contact Patreon or reduce your requests', headers)
 
         if (headers.retryafter != null) {
-            const retryTimeout = (parseInt(headers.retryafter) * 1000) + timeout
-
-            if (retryTimeout > 0) {
-                this.ratelimitedUntil = new Date(Date.now() + retryTimeout)
-            }
+            this.ratelimiter.applyTimeout(headers.retryafter, timeout)
 
             return null
         }
@@ -397,14 +393,7 @@ export class RestClient {
         const body = await parseResponse<PatreonErrorResponseBody>(response)
         if (!isValidErrorBody(body)) return null
 
-        const retry_after_seconds = body.errors.at(0)?.retry_after_seconds ?? 0
-        const retryTimeout = (retry_after_seconds * 1000) + timeout
-
-        if (retryTimeout > 0) {
-            this.ratelimitedUntil = new Date(Date.now() + retryTimeout)
-        } else {
-            console.warn('No retry_after_seconds found in the response body. Not applying rate limit retry timeout')
-        }
+        this.ratelimiter.applyTimeout(body.errors.at(0)?.retry_after_seconds, timeout)
 
         return body
     }
