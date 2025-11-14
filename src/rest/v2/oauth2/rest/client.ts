@@ -26,6 +26,7 @@ import {
     sleep,
     RequestCounter,
     type RestRequestCounter,
+    type RestRequestCounterOptions,
 } from './internal/counter'
 
 // eslint-disable-next-line jsdoc/require-jsdoc
@@ -70,6 +71,11 @@ interface PatreonErrorResponseBody {
 
 interface SharedRequestOptions extends RequestOptions {
     method: RequestMethod | `${RequestMethod}`
+}
+
+export type {
+    RestRequestCounter,
+    RestRequestCounterOptions,
 }
 
 export class RestClient {
