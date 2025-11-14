@@ -50,6 +50,29 @@ describe('requests', () => {
         expect(client.userAgent).toBeDefined()
     })
 
+    it ('with no fetch defined', () => {
+        const globalFetch = global.fetch
+        // @ts-expect-error Making fetch undefined
+        global.fetch = undefined
+
+        expect(() => {
+            new RestClient({
+                fetch: undefined,
+            })
+        }).toThrowError('No global fetch function found. Specify options.fetch with your fetch function')
+
+        global.fetch = globalFetch
+    })
+
+    it('clear ratelimit', () => {
+        // set a limit of 10s
+        client['ratelimiter'].applyTimeout(10, 0)
+        expect(client.limited).toBe(true)
+
+        client.clearRatelimitTimeout()
+        expect(client.limited).toBe(false)
+    })
+
     it('GET request: 200 status', async () => {
         fetch.mockReturnValueOnce(JsonResponse({ data: [] }, {
             status: 200,
@@ -64,6 +87,46 @@ describe('requests', () => {
         expect(url).toEqual('https://patreon.com/api')
         // @ts-expect-error ??????????
         expect(init?.headers['Authorization']).toEqual('Bearer token')
+        expect(response).toEqual({ data: [] })
+    })
+
+    it('GET request: 200 status, no auth', async () => {
+        fetch.mockReturnValueOnce(JsonResponse({ data: [] }, {
+            status: 200,
+            headers: PatreonMockData.createHeaders(),
+        }))
+
+        const response = await client.get<{ data: [] }>('/api', {
+            auth: false,
+            api: 'https://api.patreon.com',
+            fetch,
+            query: '?with_query=true',
+            headers: {
+                'X-Custom-Header': 'test',
+            },
+        })
+
+        const [url, init] = getLastCall()
+        expect(url).toEqual('https://api.patreon.com/api?with_query=true')
+        // @ts-expect-error ??????????
+        expect(init?.headers['Authorization']).toBeUndefined()
+        // @ts-expect-error ??????????
+        expect(init?.headers['X-Custom-Header']).toBe('test')
+
+        expect(response).toEqual({ data: [] })
+    })
+
+    it('PATCH request: 200 status', async () => {
+        fetch.mockReturnValueOnce(JsonResponse({ data: [] }, {
+            status: 200,
+            headers: PatreonMockData.createHeaders(),
+        }))
+
+        const response = await client.patch<{ data: [] }>('/api', {
+            accessToken: 'token',
+            body: JSON.stringify({}),
+        })
+
         expect(response).toEqual({ data: [] })
     })
 
@@ -110,7 +173,7 @@ describe('requests', () => {
             headers: PatreonMockData.createHeaders(),
         })))
 
-        const response = await client.delete('/api/id', {
+        const response = await client.delete<null>('/api/id', {
             accessToken: 'token',
         })
 

@@ -297,10 +297,10 @@ export class RestClient {
         }
     }
 
-    private buildUrl (path: string, options: Pick<RequestOptions, 'route' | 'query'>): string {
+    private buildUrl (path: string, options: Pick<RequestOptions, 'route' | 'query' | 'api'>): string {
         const route = options.route != undefined
             ? options.route
-            : this.options.api + path
+            : (options.api ?? this.options.api) + path
 
         return route + (options.query ?? '')
     }
