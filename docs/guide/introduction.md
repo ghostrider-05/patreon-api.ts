@@ -138,9 +138,7 @@ keys:
 
 <!-- @include:../../README.md#introduction -->
 
-## Contributing
-
-<!-- @include: ../../README.md#contributing -->
+Do you have a question about using this library? [Open a Q&A discussion on GitHub](https://github.com/ghostrider-05/patreon-api.ts/discussions/categories/q-a).
 
 ## Comparison
 

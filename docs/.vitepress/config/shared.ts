@@ -42,6 +42,10 @@ export function createLinksItem (options: {
                 link: `${options.repoUrl}/blob/${options.branch}/CHANGELOG.md`,
             },
             {
+                text: 'Repository',
+                link: options.repoUrl,
+            },
+            {
                 text: 'Roadmap',
                 link: 'https://github.com/users/ghostrider-05/projects/5',
             },
