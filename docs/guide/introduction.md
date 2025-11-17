@@ -138,6 +138,10 @@ keys:
 
 <!-- @include:../../README.md#introduction -->
 
+## Contributing
+
+<!-- @include: ../../README.md#contributing -->
+
 ## Comparison
 
 See why I made this library with all* [JavaScript and TypeScript repositories for the Patreon API](https://github.com/search?q=patreon+language:JavaScript+language:TypeScript++archived:false++is:public+stars:%3E0&type=repositories&s=stars&o=desc) compared (scroll to see all features):
