@@ -1,6 +1,10 @@
-import { type ItemType, QueryBuilder, RequestMethod, Type } from '../../../../v2'
-
-import { RestClient } from '../../../../rest/v2/oauth2/rest/client'
+import {
+    type ItemType,
+    QueryBuilder,
+    RequestMethod,
+    RestClient,
+    Type,
+} from '../../../../v2'
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function getResourceParameters (resource: Type | ItemType) {

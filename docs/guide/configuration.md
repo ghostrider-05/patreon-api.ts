@@ -50,13 +50,20 @@ You can also change:
 - the range of status codes that can be retried
 - the backoff strategy for delaying repeated retries
 
+### rest.\{invalidRequestsLimit\}
+
+The API is limiting the amount of invalid requests before rate limiting your client. See the API documentation for the currently documented limit and choose a balanced limit for your client. According to the documentation, they only count `4XX` responses but you can adjust this filter with the `filter` option on the client.
+
+You can also limit all requests with `globalRequestsLimit`.
+
 ### rest.\{timeout\}
 
 The following timeout options can be configured:
 
 - `rest.timeout`: the default timeout for a request. Can be overwritten per request.
 - `rest.ratelimitTimeout`: the timeout to wait after a request is rate limited.
-- `rest.globalRequestPerSecond`: the maximum amount of request / second for this client.
+
+For more options, such as `api`, `headers` and more, see [the `RestClientOptions` reference](/api/interfaces/RestClientOptions).
 
 ## Module augmentation
 

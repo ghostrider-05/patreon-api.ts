@@ -6,19 +6,16 @@ import {
     type ResponseTransformType,
 } from './shared'
 
-import { RestClient } from '../oauth2/rest/client'
-
 import {
     PatreonOauthClient,
+    RestClient,
     type Oauth2StoredToken,
     type PatreonOauthClientOptions,
-} from '../oauth2/client'
-
-import {
     type PatreonTokenFetchOptions,
-    type RESTOptions,
-} from '../oauth2'
-import { WebhookClient } from '../webhooks'
+    type RestClientOptions,
+} from '../oauth2/'
+
+import { WebhookClient } from '../webhooks/'
 
 import {
     normalizeFromQuery,
@@ -54,7 +51,7 @@ export interface PatreonClientOptions<IncludeAll extends boolean = false> {
     /**
      * The rest options for this client
      */
-    rest?: Partial<RESTOptions<IncludeAll>>
+    rest?: Partial<RestClientOptions<IncludeAll>>
 
     /**
      * Options for storing and getting API (creator) tokens.
@@ -76,6 +73,15 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
     public simplified: PatreonSharedClient<'simplified', IncludeAll>
 
     public normalized: PatreonSharedClient<'normalized', IncludeAll>
+
+    // eslint-disable-next-line jsdoc/require-returns
+    /**
+     * Interact with the API directly.
+     * Calling the API using the rest client will not use any of the client options for oauth and tokens.
+     */
+    public get rest (): RestClient {
+        return this._oauth['rest']
+    }
 
     public get oauth (): PatreonOauthClient {
         return this._oauth

@@ -1,4 +1,10 @@
 export {
+    RestClient,
+    type RestRequestCounter,
+    type RestRequestCounterOptions,
+} from './client'
+
+export {
     type PatreonErrorData,
 } from './error'
 
@@ -14,6 +20,7 @@ export {
     type InternalRequestOptions,
     type RESTOptions,
     type RequestOptions,
+    type RestClientOptions,
     type RestEventMap,
     type RestFetcher,
     type RestResponse,

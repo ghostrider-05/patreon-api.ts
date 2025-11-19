@@ -1,5 +1,7 @@
 import { RouteBases } from '../../routes'
 
+import type { RestRequestCounterOptions } from './internal/counter'
+
 import type {
     PatreonHeadersData,
     RestHeaders,
@@ -29,6 +31,9 @@ export type RestResponse = Pick<Response,
 export type RestFetcher = (url: string, init: RequestInit) => Promise<RestResponse>
 
 export interface RestEventMap {
+    debug: [data: {
+        message: string
+    }]
     request: [data: {
         url: string
         headers: Record<string, unknown>
@@ -50,7 +55,7 @@ export interface RestEventMap {
     }]
 }
 
-export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
+export interface RestClientOptions<IncludeAllQuery extends boolean = boolean> {
     /**
      * The base url of the Patreon API
      * @default 'https://patreon.com/api/oauth2/v2'
@@ -64,7 +69,14 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
     authPrefix: string
 
     /**
+     * Use the Node.js Console to log messages if no debug listeners are found
+     * @default true
+     */
+    debug: boolean
+
+    /**
      * The event emitter to use for emitting data for:
+     * - debug
      * - response
      * - request
      * - ratelimit
@@ -124,6 +136,7 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
      * The maximum amount of requests per second for this client.
      * Set to `0` to disable the limit.
      * @default 0
+     * @deprecated use {@link globalRequestsLimit}
      */
     globalRequestPerSecond: number
 
@@ -134,9 +147,7 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
      * The limit is set to `{amount} req/{interval}s`. The default interval is 1 second.
      * @default 0
      */
-    // globalRequestsLimit:
-    //     | number
-    //     | { amount: number, interval: number }
+    globalRequestsLimit: RestRequestCounterOptions
 
     /**
      * The maximum amount of invalid (4XX) requests for this client.
@@ -144,12 +155,11 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
      *
      * The limit is set to `{amount} req/{interval}s`. The default interval is 1 second.
      * As of writing this, your client will be paused from using the API when this limit has reached `2000 req / 600s`.
+     * By default, counts any 4XX response but this can be adjusted using `filter`.
      * @default 0
      * @see https://docs.patreon.com/#edge-rate-limiting
      */
-    // invalidRequestsLimit:
-    //     | number
-    //     | { amount: number, interval: number }
+    invalidRequestsLimit: RestRequestCounterOptions
 
     /**
      * The string to append to the user agent header
@@ -157,14 +167,17 @@ export interface RESTOptions<IncludeAllQuery extends boolean = boolean> {
     userAgentAppendix: string | undefined
 }
 
-export const DefaultRestOptions: RESTOptions = {
+export const DefaultRestOptions: RestClientOptions = {
     authPrefix: 'Bearer',
     api: RouteBases.oauth2,
+    debug: true,
     emitter: null,
     includeAllQueries: false,
     fetch: (...args) => fetch(...args),
     getAccessToken: async () => undefined,
     globalRequestPerSecond: 0,
+    globalRequestsLimit: 0,
+    invalidRequestsLimit: 0,
     ratelimitTimeout: 0,
     retries: defaultRetries,
     timeout: 15_000,
@@ -206,7 +219,7 @@ export interface RequestOptions {
     /**
      * For authenticated requests, the token to use.
      * @default undefined
-     * @throws if the request is authenticated but no token is given
+     * @throws {Error} if the request is authenticated but no token is given
      */
     accessToken?: string | undefined
 
@@ -241,7 +254,11 @@ export interface RequestOptions {
     signal?: AbortSignal | undefined
 }
 
+/** @deprecated use RequestOptions */
 export interface InternalRequestOptions extends RequestOptions {
     path: string
     method?: RequestMethod | `${RequestMethod}`
 }
+
+/** @deprecated use RestClientOptions */
+export type RESTOptions<IncludeAllQuery extends boolean = boolean> = RestClientOptions<IncludeAllQuery>

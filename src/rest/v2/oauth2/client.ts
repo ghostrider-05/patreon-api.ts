@@ -6,8 +6,11 @@ import {
 
 import type { Oauth2FetchOptions } from '../clients'
 
-import { type RestClient } from './rest/client'
-import { RequestMethod, type RequestOptions } from './rest'
+import {
+    RequestMethod,
+    type RestClient,
+    type RequestOptions,
+} from './rest/'
 
 import { Oauth2Routes } from './routes'
 import { getRequiredScopes } from './scopes'

@@ -101,9 +101,9 @@
         "ModifiableResourceRelationships",
         "PaginationQuerySort",
         // client types
-        "RestClient",
         "PatreonSharedClient",
         "OauthClientOptions",
+        "RequestFilter",
         // payload types
         "RequestPayload",
         "PayloadFromQuery",

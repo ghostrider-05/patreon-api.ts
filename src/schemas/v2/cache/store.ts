@@ -240,8 +240,6 @@ export class CacheStore<IsAsync extends boolean>
         const uniqueTypes: ItemType[] = [...new Set(options.map(t => t.type))]
         const keys = this.promise.all(uniqueTypes.map(prefix => this.binding.list({ prefix })))
 
-        // console.log('Cached keys', keys)
-
         return this.promise.consume(keys, lists => {
             return lists.flatMap(list => list.keys.filter(item => {
                 return options.some(option => {

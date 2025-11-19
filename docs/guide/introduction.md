@@ -138,6 +138,8 @@ keys:
 
 <!-- @include:../../README.md#introduction -->
 
+Do you have a question about using this library? [Open a Q&A discussion on GitHub](https://github.com/ghostrider-05/patreon-api.ts/discussions/categories/q-a).
+
 ## Comparison
 
 See why I made this library with all* [JavaScript and TypeScript repositories for the Patreon API](https://github.com/search?q=patreon+language:JavaScript+language:TypeScript++archived:false++is:public+stars:%3E0&type=repositories&s=stars&o=desc) compared (scroll to see all features):
