@@ -27,11 +27,13 @@ export class RatelimitManager {
     public applyTimeout (
         response: number | string | undefined,
         timeout: number,
-    ) {
+    ): Date | null {
         const retryTimeout = (parseToInt(response ?? 0) * 1000) + timeout
 
         if (retryTimeout > 0) {
             this.limitedUntil = new Date(Date.now() + retryTimeout)
         }
+
+        return this.limitedUntil
     }
 }

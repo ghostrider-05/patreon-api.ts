@@ -30,10 +30,6 @@ describe('oauth methods', () => {
 })
 
 describe('oauth client', () => {
-    test('rest client', () => {
-        expect(creatorClient.rest.userAgent).toBeDefined()
-    })
-
     test('client options', () => {
         expect(creatorClient.name).toBeNull()
         expect(creatorClient.oauth.userAgent).toBeTypeOf('string')

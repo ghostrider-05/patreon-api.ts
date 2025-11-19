@@ -36,20 +36,20 @@ async function parseResponse <Parsed = unknown>(response: RestResponse): Promise
     // Can also be checked with the content-type response header.
     // Add that as an improvement in the future
     // if the Patreon API can return something else than JSON.
+
+    const body = await response.text()
+    // For an empty body, e.g. for a 204 response, return the body
+    if (body.length === 0) return body as Parsed
+
     try {
-        return await response.json() as Promise<Parsed>
+        return JSON.parse(body) as Parsed
     } catch {
-        // Response is not JSON, so parse the body as a string and throw the response as an error
-        // It is likely HTML of the client being blocked or another error
-        const body = await response.text()
-        // For an empty body, e.g. for a 204 response, return null
-        if (body.length === 0) return null as Parsed
-        throw new Error(body)
+        return body as Parsed
     }
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-function isMissingAuthorization (status: number) {
+function isMissingAuthorization (status: number): boolean {
     return [401].includes(status)
 }
 
@@ -73,6 +73,8 @@ interface PatreonErrorResponseBody {
 
 interface SharedRequestOptions extends RequestOptions {
     method: RequestMethod | `${RequestMethod}`
+    url: string
+    currentRetries: number
 }
 
 export type {
@@ -94,6 +96,7 @@ export class RestClient {
             name: string | null
         } = { name: null },
     ) {
+        this.name = client.name
         this.options = {
             ...DefaultRestOptions,
             ...options,
@@ -113,8 +116,6 @@ export class RestClient {
         this.invalidCounter = new RequestCounter(invalidRequestsLimit, (_url, { status }) => {
             return status >= 400 && status < 500
         })
-
-        this.name = client.name
     }
 
     public get userAgent (): string {
@@ -139,19 +140,27 @@ export class RestClient {
         this.ratelimiter.clear()
     }
 
-    public async delete<T> (path: string, options?: RequestOptions) {
+    public debug (message: string): void {
+        const emitted = this.options.emitter?.emit('debug', { message }) ?? false
+
+        if (!emitted && this.options.debug) {
+            console.log(message)
+        }
+    }
+
+    public async delete<T> (path: string, options?: RequestOptions): Promise<T> {
         return await this.request<T>(path, RequestMethod.Delete, options)
     }
 
-    public async get<T> (path: string, options?: RequestOptions) {
+    public async get<T> (path: string, options?: RequestOptions): Promise<T> {
         return await this.request<T>(path, RequestMethod.Get, options)
     }
 
-    public async patch<T> (path: string, options?: RequestOptions) {
+    public async patch<T> (path: string, options?: RequestOptions): Promise<T> {
         return await this.request<T>(path, RequestMethod.Patch, options)
     }
 
-    public async post<T> (path: string, options?: RequestOptions) {
+    public async post<T> (path: string, options?: RequestOptions): Promise<T> {
         return await this.request<T>(path, RequestMethod.Post, options)
     }
 
@@ -213,54 +222,56 @@ export class RestClient {
         const response = await tryRequest()
         const parsed = parseResponse<TypedResponse>(response)
 
-        if (this.options.emitter?.listenerCount('response')) {
-            this.options.emitter.emit('response', {
-                data: getHeaders(response.headers),
-                bodyUsed: response.bodyUsed,
-                response,
-                headers: response.headers,
-                ok: response.ok,
-                status: response.status,
-            })
-        }
+        this.options.emitter?.emit('response', {
+            data: getHeaders(response.headers),
+            bodyUsed: response.bodyUsed,
+            response,
+            headers: response.headers,
+            ok: response.ok,
+            status: response.status,
+        })
 
         return parsed
     }
 
-    private async makeRequest (options: SharedRequestOptions & { url: string, currentRetries: number }) {
+    private async makeRequest (options: SharedRequestOptions) {
         const waited = await this.ratelimiter.wait()
         if (waited > 0) {
-            console.log('This client is queueing a request to avoid ratelimits')
+            this.debug('This client is queueing a request to avoid ratelimits')
         }
 
         await this.counter.wait()
         await this.invalidCounter.wait()
 
-        // copied from @discordjs/rest
-        const controller = new AbortController()
-        const timeout = setTimeout(() => controller.abort(), options.timeout ?? this.options.timeout)
+        // Timeout and abort options
+        const signal = AbortSignal.any([
+            options.signal,
+            AbortSignal.timeout(options.timeout ?? this.options.timeout),
+        ].filter(s => s != undefined))
 
-        if (options.signal) {
-            if (options.signal.aborted) controller.abort()
-            else options.signal.addEventListener('abort', () => controller.abort())
-        }
+        const headers = this.getHeaders(options)
+        const body = shouldIncludeRequestBody(<RequestMethod>options.method)
+            ? options.body ?? null
+            : null
 
-        const init = this.buildRequest(options), url = options.url
-        const fetchAPI = async () => await (options.fetch ?? this.options.fetch)(url, init)
-
-        if (this.options.emitter?.listenerCount('request')) {
-            this.options.emitter.emit('request', {
-                headers: init.headers,
-                url,
-                method: init.method,
-                body: init.body,
-            })
-        }
-
-        let res: RestResponse
+        this.options.emitter?.emit('request', {
+            body,
+            headers,
+            url: options.url,
+            method: options.method,
+        })
 
         try {
-            res = await fetchAPI()
+            const fetcher = options.fetch ?? this.options.fetch
+            const init = {
+                body,
+                headers,
+                method: options.method,
+                signal,
+            } satisfies RequestInit
+
+            signal.throwIfAborted()
+            return await fetcher(options.url, init)
         } catch (error) {
             if (!(error instanceof Error)) throw new Error(JSON.stringify(error))
 
@@ -270,11 +281,7 @@ export class RestClient {
             }
 
             return error
-        } finally {
-            clearTimeout(timeout)
         }
-
-        return res
     }
 
     private getHeaders (options: Pick<RequestOptions, 'headers' | 'accessToken' | 'auth' | 'authPrefix'>) {
@@ -305,17 +312,6 @@ export class RestClient {
         return route + (options.query ?? '')
     }
 
-    private buildRequest (options: SharedRequestOptions) {
-        return {
-            headers: this.getHeaders(options),
-            method: options.method,
-            body: shouldIncludeRequestBody(<RequestMethod>options.method)
-                ? options.body ?? null
-                : null,
-            ...(options.signal ? { signal: options.signal } : {}),
-        }
-    }
-
     // eslint-disable-next-line jsdoc/require-param
     /**
      * @returns A boolean if it should be retried or the errors to throw
@@ -332,12 +328,10 @@ export class RestClient {
             const parsed = await this.handleRatelimit(response)
             if (parsed != null) errors = parsed.errors
 
-            if (this.options.emitter?.listenerCount('ratelimit')) {
-                this.options.emitter.emit('ratelimit', {
-                    url: this.buildUrl(path, options),
-                    timeout: this.options.ratelimitTimeout,
-                })
-            }
+            this.options.emitter?.emit('ratelimit', {
+                url: this.buildUrl(path, options),
+                timeout: this.options.ratelimitTimeout,
+            })
         }
 
         const data = this.getRetryData(retries, response.status)
@@ -368,6 +362,7 @@ export class RestClient {
 
         if (error) {
             const shouldRetry = error.name === 'AbortError'
+                || error.name === 'TimeoutError'
                 || (('code' in error && error.code === 'ECONNRESET') || error.message.includes('ECONNRESET'))
 
             return (shouldRetry && current < data.retries) ? data : null
@@ -376,24 +371,26 @@ export class RestClient {
         return (current < data.retries) ? data : null
     }
 
-    private async handleRatelimit (response: RestResponse) {
+    private async handleRatelimit (response: RestResponse): Promise<PatreonErrorResponseBody | null> {
         const timeout = this.options.ratelimitTimeout
         const headers = getHeaders(response.headers)
 
-        console.log('This client is currently ratelimited. Please contact Patreon or reduce your requests', headers)
+        this.debug('This client is currently ratelimited. Please contact Patreon or reduce your requests')
 
         if (headers.retryafter != null) {
-            this.ratelimiter.applyTimeout(headers.retryafter, timeout)
+            const until = this.ratelimiter.applyTimeout(headers.retryafter, timeout)
+            this.debug('This client is ratelimited until: ' + (until?.toISOString() ?? 'no retry time found'))
 
             return null
         }
 
-        console.warn('Missing retry after header for ratelimited response, parsing request body')
+        this.debug('Missing retry after header for ratelimited response, parsing request body')
 
         const body = await parseResponse<PatreonErrorResponseBody>(response)
         if (!isValidErrorBody(body)) return null
 
-        this.ratelimiter.applyTimeout(body.errors.at(0)?.retry_after_seconds, timeout)
+        const until = this.ratelimiter.applyTimeout(body.errors.at(0)?.retry_after_seconds, timeout)
+        this.debug('This client is ratelimited until: ' + (until?.toISOString() ?? 'no retry time found'))
 
         return body
     }

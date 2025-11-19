@@ -31,6 +31,9 @@ export type RestResponse = Pick<Response,
 export type RestFetcher = (url: string, init: RequestInit) => Promise<RestResponse>
 
 export interface RestEventMap {
+    debug: [data: {
+        message: string
+    }]
     request: [data: {
         url: string
         headers: Record<string, unknown>
@@ -66,7 +69,14 @@ export interface RestClientOptions<IncludeAllQuery extends boolean = boolean> {
     authPrefix: string
 
     /**
+     * Use the Node.js Console to log messages if no debug listeners are found
+     * @default true
+     */
+    debug: boolean
+
+    /**
      * The event emitter to use for emitting data for:
+     * - debug
      * - response
      * - request
      * - ratelimit
@@ -160,6 +170,7 @@ export interface RestClientOptions<IncludeAllQuery extends boolean = boolean> {
 export const DefaultRestOptions: RestClientOptions = {
     authPrefix: 'Bearer',
     api: RouteBases.oauth2,
+    debug: true,
     emitter: null,
     includeAllQueries: false,
     fetch: (...args) => fetch(...args),

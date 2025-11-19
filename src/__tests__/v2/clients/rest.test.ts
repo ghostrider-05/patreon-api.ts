@@ -1,26 +1,25 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { PatreonMockData, RestClient } from '../../../v2'
+import {
+    getLastFetchMockCall,
+    mockFetch,
+    mockFetchReturnValue,
+    restClient as client,
+} from '../../client'
 
-// Cannot use expect().rejects.toThrow(message),
-// see https://github.com/vitest-dev/vitest/issues/4559
-// TODO: figure out how to validate PatreonError[] error being thrown
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const fetch = vi.fn(async (url: string, init?: RequestInit) => new Response(null, { status: 500 }))
-
-const getLastCall = () => {
-    const options = fetch.mock.lastCall
-
-    if (!options) throw new Error()
-    return options
-}
+import {
+    PatreonMockData,
+    RestClient,
+} from '../../../v2'
 
 const JsonResponse = (...args: Parameters<typeof Response.json>) => {
     return Promise.resolve(Response.json(...args))
 }
 
-const ratelimitedResponse = (retryAfter: number, options?: { headers?: boolean, body?: boolean }) => JsonResponse({
+const ratelimitedResponse = (
+    retryAfter: number,
+    options?: { headers?: boolean, body?: boolean },
+) => JsonResponse({
     errors: [PatreonMockData.createError(429, {
         code_name: 'RequestThrottled',
         title: 'You have made too many attempts. Please try again later.',
@@ -33,12 +32,7 @@ const ratelimitedResponse = (retryAfter: number, options?: { headers?: boolean, 
     }),
 })
 
-const client = new RestClient({
-    api: 'https://patreon.com',
-    fetch,
-})
-
-describe('requests', () => {
+describe('client methods', () => {
     it('default values before any requests', () => {
         expect(client.limited).toBeFalsy()
         expect(client.requestCounter.count).toBe(0)
@@ -47,6 +41,10 @@ describe('requests', () => {
 
     it('default user agent', () => {
         expect(RestClient['defaultUserAgent']).toBeDefined()
+        expect(client.userAgent).toBeDefined()
+    })
+
+    it('user agent', () => {
         expect(client.userAgent).toBeDefined()
     })
 
@@ -70,11 +68,14 @@ describe('requests', () => {
         expect(client.limited).toBe(true)
 
         client.clearRatelimitTimeout()
+        client.requestCounter.clear()
         expect(client.limited).toBe(false)
     })
+})
 
+describe('requests', () => {
     it('GET request: 200 status', async () => {
-        fetch.mockReturnValueOnce(JsonResponse({ data: [] }, {
+        mockFetchReturnValue(JsonResponse({ data: [] }, {
             status: 200,
             headers: PatreonMockData.createHeaders(),
         }))
@@ -83,7 +84,7 @@ describe('requests', () => {
             accessToken: 'token',
         })
 
-        const [url, init] = getLastCall()
+        const [url, init] = getLastFetchMockCall()
         expect(url).toEqual('https://patreon.com/api')
         // @ts-expect-error ??????????
         expect(init?.headers['Authorization']).toEqual('Bearer token')
@@ -91,7 +92,7 @@ describe('requests', () => {
     })
 
     it('GET request: 200 status, no auth', async () => {
-        fetch.mockReturnValueOnce(JsonResponse({ data: [] }, {
+        mockFetchReturnValue(JsonResponse({ data: [] }, {
             status: 200,
             headers: PatreonMockData.createHeaders(),
         }))
@@ -99,14 +100,14 @@ describe('requests', () => {
         const response = await client.get<{ data: [] }>('/api', {
             auth: false,
             api: 'https://api.patreon.com',
-            fetch,
+            fetch: mockFetch,
             query: '?with_query=true',
             headers: {
                 'X-Custom-Header': 'test',
             },
         })
 
-        const [url, init] = getLastCall()
+        const [url, init] = getLastFetchMockCall()
         expect(url).toEqual('https://api.patreon.com/api?with_query=true')
         // @ts-expect-error ??????????
         expect(init?.headers['Authorization']).toBeUndefined()
@@ -117,7 +118,7 @@ describe('requests', () => {
     })
 
     it('PATCH request: 200 status', async () => {
-        fetch.mockReturnValueOnce(JsonResponse({ data: [] }, {
+        mockFetchReturnValue(JsonResponse({ data: [] }, {
             status: 200,
             headers: PatreonMockData.createHeaders(),
         }))
@@ -131,7 +132,7 @@ describe('requests', () => {
     })
 
     it('GET request: missing access token', async () => {
-        fetch.mockReturnValueOnce(JsonResponse({ data: [] }, {
+        mockFetchReturnValue(JsonResponse({ data: [] }, {
             status: 200,
             headers: PatreonMockData.createHeaders(),
         }))
@@ -140,9 +141,53 @@ describe('requests', () => {
             .rejects.toThrowError('Missing access token for authenticated request')
     })
 
+    it('GET request: retried request', async () => {
+        mockFetchReturnValue(JsonResponse({ errors: [] }, {
+            status: 500,
+            headers: PatreonMockData.createHeaders(),
+        }))
+        mockFetchReturnValue(JsonResponse({ data: [] }, {
+            status: 200,
+            headers: PatreonMockData.createHeaders(),
+        }))
+
+        const response = await client.get<{ data: [] }>('/api', {
+            accessToken: 'token',
+        })
+
+        expect(response).toEqual({ data: [] })
+    })
+
+    it('GET request: returns Error', async () => {
+        // @ts-expect-error Error is no Response
+        mockFetchReturnValue(Promise.resolve(new Error('Something went wrong...')))
+
+        await expect(client.get<{ data: [] }>('/api', { accessToken: 'token' }))
+            .rejects.toThrowError('Something went wrong...')
+    })
+
+    it('GET request: invalid body', async () => {
+        mockFetchReturnValue(Promise.resolve(new Response('Some Cloudflare block message', { status: 400 })))
+
+        await expect(client.get<{ data: [] }>('/api', { accessToken: 'token' }))
+            .rejects.toThrowError('Received an invalid error response:\n"Some Cloudflare block message"')
+    })
+
+    it('GET request: timed out', { timeout: 500 }, async () => {
+        // Resolve after test timeout
+        mockFetchReturnValue(new Promise(resolve => setTimeout(() => resolve(Response.json({})), 1_000)), {
+            retries: 3,
+        })
+
+        await expect(client.get<{ data: [] }>('/api', {
+            accessToken: 'token',
+            timeout: 10,
+        })).rejects.toThrowError('The operation was aborted due to timeout')
+    })
+
     it('GET request: ratelimited, no retry information', async () => {
         const error = ratelimitedResponse(10)
-        fetch.mockReturnValue(error)
+        mockFetchReturnValue(error)
 
         await expect(client.get<{ data: [] }>('/api', {
             accessToken: 'token',
@@ -151,7 +196,7 @@ describe('requests', () => {
 
     it('GET request: ratelimited, retry information in body', async () => {
         const error = ratelimitedResponse(10, { body: true })
-        fetch.mockReturnValue(error)
+        mockFetchReturnValue(error)
 
         await expect(client.get<{ data: [] }>('/api', {
             accessToken: 'token',
@@ -160,23 +205,49 @@ describe('requests', () => {
 
     it('GET request: ratelimited, retry information in body and headers', async () => {
         const error = ratelimitedResponse(10, { body: true, headers: true })
-        fetch.mockReturnValue(error)
+        mockFetchReturnValue(error)
 
         await expect(client.get<{ data: [] }>('/api', {
             accessToken: 'token',
         })).rejects.toThrowError()
     })
 
+    it('GET request: ratelimited, with second attempt', async () => {
+        const error = ratelimitedResponse(3, { body: true })
+        mockFetchReturnValue(error)
+
+        await expect(client.get<{ data: [] }>('/api', {
+            accessToken: 'token',
+        })).rejects.toThrowError()
+
+        expect(client.limited).toEqual(true)
+        // Ensure all counters are not limited
+        expect(client.requestCounter.limited).toBe(false)
+        expect(client.invalidRequestCounter.limited).toBe(false)
+        
+        // New request, awaited
+        mockFetchReturnValue(JsonResponse({ data: [] }, {
+            status: 200,
+            headers: PatreonMockData.createHeaders(),
+        }))
+
+        const response = await client.get<{ data: [] }>('/api', {
+            accessToken: 'token',
+        })
+
+        expect(response).toEqual({ data: [] })
+    })
+
     it('DELETE request: 204 response', async () => {
-        fetch.mockReturnValue(Promise.resolve(new Response(null, {
+        mockFetchReturnValue(Promise.resolve(new Response(null, {
             status: 204,
             headers: PatreonMockData.createHeaders(),
         })))
 
-        const response = await client.delete<null>('/api/id', {
+        const response = await client.delete<string>('/api/id', {
             accessToken: 'token',
         })
 
-        expect(response).toBeNull()
+        expect(response).toHaveLength(0)
     })
 })

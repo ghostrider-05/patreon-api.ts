@@ -49,7 +49,6 @@ describe('oauth client', () => {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const cursor = parseInt(searchParams.get('page[cursor]') ?? '0'), count = parseInt(searchParams.get('page[count]')!)
             return new Response(JSON.stringify({
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 data: webhooks.slice(cursor, cursor + count),
                 meta: {
                     pagination: {
