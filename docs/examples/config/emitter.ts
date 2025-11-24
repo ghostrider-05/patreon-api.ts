@@ -1,5 +1,5 @@
 // #region config
-import { EventEmitter } from 'node:stream'
+import { EventEmitter } from 'node:events'
 import { PatreonCreatorClient, type RestEventMap } from 'patreon-api.ts'
 
 const emitter = new EventEmitter<RestEventMap>()

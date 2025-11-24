@@ -105,6 +105,13 @@ By default a handler will return an object with a status, body and headers. You 
 
 :::
 
+### Fetch spy
+
+When writing unit tests for a function you might want to mock an API call [without the MockAgent API](#mockagent).
+You can use the `rest.fetch` option with a mocked function to test API or Oauth2 responses.
+
+<<< @/examples/mock/vitest.ts#mock-fn{ts twoslash}
+
 ### Other
 
 Is there another popular testing / mocking framework that uses a completely different API? Open an issue on GitHub to add new mocking functionality and/or guides.

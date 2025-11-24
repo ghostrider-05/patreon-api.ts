@@ -5,12 +5,7 @@ import { PatreonMock } from 'patreon-api.ts'
 const mockAPI = new PatreonMock()
 
 const mockHandlers = mockAPI.getMockHandlers({
-    transformResponse(response) {
-        return new Response(response.body, {
-            headers: response.headers,
-            status: response.status,
-        })
-    },
+    transformToResponse: true,
 })
 
 export const handlers = [
@@ -29,12 +24,7 @@ import { PatreonMock } from 'patreon-api.ts'
 const mockAPI = new PatreonMock()
 
 const mockHandlers = mockAPI.getMockHandlers({
-    transformResponse(response) {
-        return new Response(response.body, {
-            headers: response.headers,
-            status: response.status,
-        })
-    },
+    transformToResponse: true,
 })
 
 export const allHandlers = Object.values(mockHandlers).map(handler => {

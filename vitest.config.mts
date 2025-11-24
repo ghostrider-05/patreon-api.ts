@@ -30,8 +30,6 @@ export default defineConfig({
                 '**/schemas/v2/api/',
                 '**/schemas/v2/generated/',
                 '**/scripts/v2/',
-                // TODO: add tests
-                '**/schemas/v2/mock/',
             ],
             thresholds: {
                 branches: threshold,

@@ -23,6 +23,8 @@ import {
 import { PatreonMockData, type PatreonMockDataOptions } from './data'
 import { PatreonMockWebhooks, type PatreonMockWebhooksOptions } from './webhooks'
 
+import type { If } from '../../../utils/generics'
+
 // eslint-disable-next-line jsdoc/require-jsdoc
 function getAPIRoutesWithRegex (routes: Route[]) {
     const escapeDots = (s: string) => Array.from(s, c => c === '.' ? '\\.' : c).join('')
@@ -497,6 +499,7 @@ export class PatreonMock {
      * @param options Options for generating the routes
      * @param options.pathParam The path param template value, defaults to `*`
      * @param options.includeOrigin Whether to include the API origin in the url of the handler, defaults to `true`
+     * @param options.transformToResponse Transform the response to the global `Response`. To use a custom transformers, use the {@link transformResponse}
      * @param options.transformResponse Method to transform the default response for a handler
      * @param options.random Whether to allow random generated responses if the resource is not found in the cache.
      * @param options.cache Whether to use a cache to search for the resource. When disabled, only generated items will be returned.
@@ -504,24 +507,29 @@ export class PatreonMock {
      * @returns Handlers for each route that returns a successful response.
      */
     public getMockHandlers <
-        R = PatreonMockHandlerDefaultResponse
+        R = PatreonMockHandlerDefaultResponse,
+        T extends boolean = false,
     >(options?: PatreonMockHandlerOptions & {
         pathParam?: string
         includeOrigin?: boolean
         transformResponse?: (response: PatreonMockHandlerDefaultResponse) => R
+        transformToResponse?: T
     }) {
         const {
             pathParam,
             includeOrigin,
             transformResponse,
+            transformToResponse,
             ...handlerOptions
         } = options ?? {}
 
-        return paths.reduce<Record<PatreonMockRouteId, PatreonMockHandler<R>>>((handlers, route) => {
+        type Handlers = Record<PatreonMockRouteId, PatreonMockHandler<If<T, Response, R>>>
+
+        return paths.reduce<Handlers>((handlers, route) => {
             return {
                 ...handlers,
-                ...route.methods.reduce<Record<PatreonMockRouteId, PatreonMockHandler<R>>>((obj, { method, id }) => {
-                    const handler: PatreonMockHandler<R>['handler'] = async (request) => {
+                ...route.methods.reduce<Handlers>((obj, { method, id }) => {
+                    const handler: PatreonMockHandler<If<T, Response, R>>['handler'] = async (request) => {
                         return this.handleMockRequest({
                             body: shouldIncludeRequestBody(method.toUpperCase() as RequestMethod)
                                 ? await request.text?.() ?? null
@@ -529,8 +537,13 @@ export class PatreonMock {
                             headers: request.headers,
                             url: request.url,
                             method,
-                        }, handlerOptions, data => {
-                            return transformResponse?.(data) ?? <R>data
+                        }, handlerOptions, (data): If<T, Response, R> => {
+                            return <If<T, Response, R>>(transformToResponse
+                                ? new Response(data.body, {
+                                    headers: data.headers,
+                                    status: data.status,
+                                })
+                                : transformResponse?.(data) ?? <R>data)
                         })
                     }
 

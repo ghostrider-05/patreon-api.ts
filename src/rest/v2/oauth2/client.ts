@@ -228,6 +228,7 @@ export class PatreonOauthClient {
             if (response == undefined) break
             yield response
 
+            // TODO: add test for this case
             // Abort if the response is not paginated
             if (!('meta' in response)) {
                 break
@@ -245,6 +246,7 @@ export class PatreonOauthClient {
             const lastDataId = response.data.at(-1)?.id
             const nextCursor = response.meta.pagination.cursors?.next
 
+            // TODO: add test for this case
             if (lastResourceId === lastDataId || !nextCursor) {
                 break
             } else {
@@ -375,6 +377,7 @@ export class PatreonOauthClient {
         // Since the token is the access token, you cannot use this to refresh a token
         if (typeof token === 'string') return
 
+        // TODO: add test for this case
         const refreshed = await client.refreshToken(token)
         await client.onTokenRefreshed?.(refreshed ? this.toStored<false>(refreshed) : undefined)
         if (refreshed) client.cachedToken = refreshed
