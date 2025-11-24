@@ -23,7 +23,7 @@ jobs:
     if: github.ref_name == 'main' && github.ref_type == 'branch'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Install node.js v${{ env.NODE_VERSION }}
         uses: actions/setup-node@v6
@@ -66,7 +66,7 @@ jobs:
       deployments: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Install node.js v${{ env.NODE_VERSION }}
         uses: actions/setup-node@v6
