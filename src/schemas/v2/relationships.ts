@@ -1,4 +1,4 @@
-import type { If } from '../../utils/generics'
+import type { If } from '../../utils/'
 
 import {
     Type,

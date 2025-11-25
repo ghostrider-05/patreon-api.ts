@@ -48,6 +48,15 @@ export type AdditionalKeys<
     ToAdd
 >;
 
+/**
+ * Returns the types based on the logic:\
+ * if T:\
+ *      return A\
+ * else:\
+ *      return B
+ */
+export type If<T extends boolean, A, B = never> = T extends true ? A : B;
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface CustomTypeOptions {}
 

@@ -1,4 +1,4 @@
-import type { If } from '../../../utils/generics'
+import type { If } from '../../../utils/'
 
 export type IfAsync<IsAsync extends boolean, T> = If<IsAsync, Promise<T>, T>
 

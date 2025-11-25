@@ -11,8 +11,6 @@ export type Tuple<T, N extends number> = N extends N
         : _TupleOf<T, N, []>
     : never;
 
-export type If<T extends boolean, A, B = never> = T extends true ? A : B;
-
 export type Length<T extends unknown[] | string> =
     T extends { length: infer L } ? L extends number ? L : 0 : 0;
 

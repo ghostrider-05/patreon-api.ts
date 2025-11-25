@@ -23,7 +23,7 @@ import {
 import { PatreonMockData, type PatreonMockDataOptions } from './data'
 import { PatreonMockWebhooks, type PatreonMockWebhooksOptions } from './webhooks'
 
-import type { If } from '../../../utils/generics'
+import type { If } from '../../../utils/'
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 function getAPIRoutesWithRegex (routes: Route[]) {

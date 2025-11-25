@@ -13,7 +13,7 @@ import * as SchemaResourcesData from './generated/schemas'
 
 import { ItemMap, ItemType, Type } from './item'
 
-import type { If } from '../../utils/generics'
+import type { If } from '../../utils/'
 
 type PaginationQuerySort =
     | string
