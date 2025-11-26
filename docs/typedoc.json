@@ -88,14 +88,17 @@
     "intentionallyNotDocumented": [],
     "intentionallyNotExported": [
         // utility types
-        "If",
         "IfAsync",
         "Additional",
         "StringObject",
+        "LastOf",
+        "TuplifyUnion",
+        "ObjValueTuple",
         // relationship types
         "RelationDataItem",
         "ResolvedRelation",
         "RelationshipItemProperty",
+        "StringifiedRelationships",
         // schema types
         "ModifiableResourceAttributes",
         "ModifiableResourceRelationships",

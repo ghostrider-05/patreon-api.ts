@@ -25,11 +25,6 @@ You can also enable validation to ensure your mocked requests are valid. If vali
 
 ### Random data
 
-You can create a random:
-
-- id: `PatreonMockData.createId(type: Type)`
-- resource: `PatreonMockData.random[Type](id: string)`
-
 :::warning External library
 
 The random data generator in this library is quite simple at the moment, so I suggest to use a random generator library like `faker-js`.
@@ -50,13 +45,6 @@ To add relationships to the response, define the included items:
 ### Cache
 
 The cache for mocking requests holds all attributes and relationships to act as a consistent server.
-
-:::info Relationships
-
-The cache will only require an id for relationships and rebuild a response using the relation map for that resource.
-When a resource is not in the cache, the `onMissingRelationship` option will decide what action is taken: throw an error, log a warning or nothing (default).
-
-:::
 
 To define items in the cache, use the `initial` option:
 
