@@ -7,9 +7,33 @@ import {
     CacheStoreEventMap,
     CacheStoreShared,
     CacheTokenStore,
+    Type,
 } from '../../v2'
 
 import { DefaultBinding } from '../../schemas/v2/cache/bindings/memory'
+import { RelationshipsUtils } from '../../schemas/v2/cache/base'
+
+describe('relationships util', () => {
+    const original = {
+        benefits: { data: null },
+        tiers: { data: [{ id: 'tier_id', type: <const>Type.Tier }] },
+        creator: { data: { id: 'creator_id', type: <const>Type.User }, links: { related: '' } },
+    }
+
+    const stringified = {
+        benefits: null,
+        tiers: ['tier_id'],
+        creator: 'creator_id',
+    }
+
+    test('stringify', () => {
+        expect(RelationshipsUtils.stringify<'campaign', 'benefits' | 'creator' | 'tiers'>(original)).toEqual(stringified)
+    })
+
+    test('parse', () => {
+        expect(RelationshipsUtils.parse('campaign', stringified).relationships).toEqual(original)
+    })
+})
 
 describe('shared cache', () => {
     const syncCache = new CacheStoreShared<false, string>(false, undefined, {})
@@ -122,8 +146,6 @@ describe('token cache', () => {
 })
 
 describe('item cache', () => {
-    // const cache = new CacheStore(true)
-
     test('with initial items', async () => {
         let isReady = false
 
@@ -160,9 +182,36 @@ describe('item cache', () => {
         }])
     })
 
-    // describe('shared binding methods', { todo: true }, () => {
+    describe('shared binding methods', () => {
+        const cache = new CacheStore(true)
 
-    // })
+        test('edit', async () => {
+            await cache.put('campaign', 'campaign_id', {
+                item: { is_monthly: true, patron_count: 1 },
+                relationships: {
+                    benefits: null,
+                    creator: 'user_id',
+                },
+            })
+
+            const result = await cache.edit('campaign', 'campaign_id', {
+                is_monthly: false,
+                is_charged_immediately: true,
+            })
+
+            expect(result).toEqual({
+                item: {
+                    is_monthly: false,
+                    is_charged_immediately: true,
+                    patron_count: 1,
+                },
+                relationships: {
+                    benefits: null,
+                    creator: 'user_id',
+                },
+            })
+        })
+    })
 
     // describe('Sync methods', { todo: true }, () => {})
 })

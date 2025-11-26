@@ -1,25 +1,19 @@
-import { ObjValueTuple } from '../../../utils/fields'
 import { type ItemMap, type ItemType } from '../item'
+
+import { QueryBuilder } from '../query'
 
 import type {
     Relationship,
+    RelationshipData,
     RelationshipFields,
+    RelationshipFieldToFieldType,
 } from '../relationships'
 
-import type { IfAsync } from './promise'
+export type {
+    CacheStoreBinding,
+} from './bindings/types'
 
-export type CacheItem<T extends ItemType> = {
-    item: Partial<ItemMap[T]>
-    relationships: {
-        [R in keyof Relationship<T, RelationshipFields<T>>['relationships']]?: (
-            Relationship<T, RelationshipFields<T>>['relationships'][R]['data'] extends infer K
-                ? NonNullable<K> extends unknown[]
-                    ? string[]
-                    : string
-                : never
-        ) | null
-    }
-}
+import type { ObjValueTuple } from '../../../utils/fields'
 
 export interface CacheStoreConvertOptions<
     O extends Record<string, unknown> = Record<string, unknown>
@@ -29,32 +23,60 @@ export interface CacheStoreConvertOptions<
     toKeyFromObject (key: O): string
 }
 
-export interface CacheStoreBinding<IsAsync extends boolean, Value> {
-    /**
-     * Store the value from the client to an external resource
-     * @param key The key that has information about the item type and id
-     * @param value The value to store
-     */
-    put(key: string, value: Value): IfAsync<IsAsync, void>
+type StringifiedRelationships<T extends ItemType, F extends RelationshipFields<T> = RelationshipFields<T>> = {
+    [R in keyof Relationship<T, F>['relationships']]?: (
+        Relationship<T, F>['relationships'][R]['data'] extends infer K
+            ? NonNullable<K> extends unknown[]
+                ? string[]
+                : string
+            : never
+    ) | null
+}
 
-    /**
-     * Method to retreive the stored value.
-     * @param key The key that has information about the item type and id
-     */
-    get(key: string): IfAsync<IsAsync, Value | undefined>
-    delete(key: string): IfAsync<IsAsync, void>
+export type CacheItem<T extends ItemType> = {
+    item: Partial<ItemMap[T]>
+    relationships: StringifiedRelationships<T>
+}
 
-    list?(options?: {
-        prefix?: string
-        getMetadata?: (item: Value) => object
-    }): IfAsync<IsAsync, { keys: { key: string; metadata: object }[] }>
+export const RelationshipsUtils = {
+    stringify <
+        T extends ItemType,
+        F extends RelationshipFields<T>
+    >(relationships: Relationship<T, F>['relationships']): StringifiedRelationships<T, F> {
+        return Object.entries<Relationship<T, F>['relationships']>(relationships).reduce((output, [key, value]) => {
+            const data = value['data'] as RelationshipData<T, F>
 
-    bulkPut?(items: {
-        key: string
-        value: Value
-    }[]): IfAsync<IsAsync, void>
-    bulkGet?(keys: string[]): IfAsync<IsAsync, ({ key: string, value: Value } | undefined)[]>
-    bulkDelete?(keys: string[]): IfAsync<IsAsync, void>
+            return {
+                ...output,
+                [key]: data == null ? null : (Array.isArray(data) ? data.map(d => d.id) : data.id)
+            }
+        }, {})
+    },
+    parse<
+        T extends ItemType,
+        F extends RelationshipFields<T>,
+    > (
+        type: T,
+        relationships: StringifiedRelationships<T, F>,
+    ): Relationship<T, F> & {
+            fields: RelationshipFields<T>[]
+            map: { [R in RelationshipFields<T>]: RelationshipFieldToFieldType<T, R> }
+        } {
+        const relationFields = Object.keys(relationships) as F[]
+        const relationMap = QueryBuilder.createRelationMap(type)
 
-    deleteAll?(): IfAsync<IsAsync, void>
+        return {
+            fields: Object.keys(relationMap) as F[],
+            map: relationMap,
+            relationships: relationFields.reduce<Relationship<T, F>['relationships']>((obj, key) => {
+                const ids = relationships[key]
+                return {
+                    ...obj,
+                    [key]: ids == null ? { data: null } : (Array.isArray(ids)
+                        ? { data: ids.map(id => ({ id, type: relationMap[key] })) }
+                        : { data: { id: ids, type: relationMap[key] }, links: { related: '' } })
+                }
+            }, {} as never)
+        }
+    },
 }

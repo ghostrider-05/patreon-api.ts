@@ -182,3 +182,12 @@ export type RelationshipMainItemAttributes<T extends `${Type}`, Keys extends `${
 export type RelationshipFieldsToItem<T extends `${Type}`> = ItemType extends infer R ? R extends ItemType
     ? T extends `${RelationshipTypeFields<R>}` ? R : never
     : never : never
+
+export type RelationshipData<
+    T extends ItemType,
+    F extends RelationshipFields<T>
+> = (
+    | DataItem<RelationshipFieldToFieldType<T, F>, true>
+    | DataItems<RelationshipFieldToFieldType<T, F>, false>
+    | { data: null }
+)['data']

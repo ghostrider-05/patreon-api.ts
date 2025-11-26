@@ -1,25 +1,14 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import type {
-    DataItem,
-    DataItems,
     ItemType,
     Relationship,
+    RelationshipData,
     RelationshipFields,
-    RelationshipFieldToFieldType,
     RelationshipItem,
     RelationshipMap,
 } from '../../../schemas/v2/'
 
 import type { NormalizedRelationshipItem } from './payload'
-
-export type RelationshipData<
-    T extends ItemType,
-    F extends RelationshipFields<T>
-> = (
-    | DataItem<RelationshipFieldToFieldType<T, F>, true>
-    | DataItems<RelationshipFieldToFieldType<T, F>, false>
-    | { data: null }
-)['data']
 
 class NormalizedError extends Error {
     public constructor (message: string) {

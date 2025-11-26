@@ -1,8 +1,4 @@
 /* eslint-disable jsdoc/check-param-names */
-import type {
-    RelationshipData,
-} from '../../../payloads/v2/normalized/find'
-
 import { RequestMethod } from '../../../rest/v2'
 
 import {
@@ -17,10 +13,6 @@ import type {
     WriteResourceType,
 } from '../modifiable'
 
-import {
-    QueryBuilder,
-} from '../query'
-
 import type {
     Relationship,
     RelationshipFields,
@@ -28,9 +20,10 @@ import type {
     RelationshipFieldToFieldType,
 } from '../relationships'
 
-import type {
-    CacheStoreBinding,
-    CacheItem,
+import {
+    RelationshipsUtils,
+    type CacheStoreBinding,
+    type CacheItem,
 } from './base'
 
 import {
@@ -193,44 +186,6 @@ export class CacheStore<IsAsync extends boolean>
 
     // ---- relationship methods ----
 
-    private convertFromRelationships<T extends ItemType, R extends RelationshipFields<T>>(
-        relationships: Relationship<T, R>['relationships']
-    ): CacheItem<T>['relationships'] {
-        return Object.entries<Relationship<T, R>['relationships']>(relationships).reduce((output, [key, value]) => {
-            const data = value['data'] as RelationshipData<T, R>
-
-            return {
-                ...output,
-                [key]: data == null ? null : (Array.isArray(data) ? data.map(d => d.id) : data.id)
-            }
-        }, {})
-    }
-
-    private convertToRelationships<T extends ItemType> (
-        type: T,
-        relationships: CacheItem<T>['relationships'],
-    ): Relationship<T, RelationshipFields<T>> & {
-        fields: RelationshipFields<T>[]
-        map: { [R in RelationshipFields<T>]: RelationshipFieldToFieldType<T, R> }
-    } {
-        const relationFields = Object.keys(relationships) as RelationshipFields<T>[]
-        const relationMap = QueryBuilder.createRelationMap(type)
-
-        return {
-            fields: relationFields,
-            map: relationMap,
-            relationships: relationFields.reduce<Relationship<T, RelationshipFields<T>>['relationships']>((obj, key) => {
-                const ids = relationships[key]
-                return {
-                    ...obj,
-                    [key]: ids == null ? null : (Array.isArray(ids)
-                        ? { data: ids.map(id => ({ id, type: relationMap[key] })) }
-                        : { data: { id: ids, type: relationMap[key] }, links: { related: '' } })
-                }
-            }, {} as never)
-        }
-    }
-
     /**
      * List all resources (with certain relationships) of a resource type
      * If the binding has no list method implemented, an empty array is always returned.
@@ -242,6 +197,7 @@ export class CacheStore<IsAsync extends boolean>
         relationships: { id: string | null; type: ItemType }[]
     }[]): IfAsync<IsAsync, { id: string; type: ItemType }[]> {
         if (this.binding.list == undefined) return [] as IfAsync<IsAsync, []>
+
         const uniqueTypes: ItemType[] = [...new Set(options.map(t => t.type))]
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keys = this.promise.all(uniqueTypes.map(prefix => this.binding.list!({
@@ -289,7 +245,7 @@ export class CacheStore<IsAsync extends boolean>
     > {
         return this.promise.consume(this.get(type, id), (result) => {
             if (result == undefined) return undefined
-            const converted = this.convertToRelationships(type, result.relationships)
+            const converted = RelationshipsUtils.parse(type, result.relationships)
 
             const ids = result.relationships[related]
             if (ids == null) return null
@@ -355,7 +311,7 @@ export class CacheStore<IsAsync extends boolean>
             }
         }[RelationshipFields<T>][]
     }> {
-        const converted = this.convertToRelationships(type, relationships)
+        const converted = RelationshipsUtils.parse(type, relationships)
 
         return this.promise.consume(this.promise.all(converted.fields.flatMap(relation => {
             if (relationships[relation] == null) return []
@@ -434,7 +390,7 @@ export class CacheStore<IsAsync extends boolean>
                 relationships: {
                     ...(item?.relationships ?? {}),
                     ...(attributeItem.relationships
-                        ? this.convertFromRelationships(attributeItem.relationships)
+                        ? RelationshipsUtils.stringify<T, R>(attributeItem.relationships)
                         : {}
                     ),
                 },

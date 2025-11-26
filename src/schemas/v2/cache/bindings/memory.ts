@@ -1,6 +1,6 @@
 import type {
     CacheStoreBinding,
-} from '../base'
+} from './types'
 
 import type { IfAsync } from '../promise'
 
@@ -40,7 +40,7 @@ export default class<IsAsync extends boolean, Value> extends DefaultBinding<IsAs
     }
 
     public list<Metadata extends object = object>(options?: {
-        prefix?: string;
+        prefix?: string
         getMetadata?: (item: Value) => Metadata
     }): IfAsync<IsAsync, { keys: { key: string; metadata: Metadata }[] }> {
         // Converted to array, as iterator functions are only added in Node.js v22
