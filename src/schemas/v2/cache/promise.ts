@@ -9,15 +9,18 @@ export class PromiseManager<IsAsync extends boolean> {
 
     public consume <T, R>(result: IfAsync<IsAsync, T>, consume: (result: T) => R): IfAsync<IsAsync, R> {
         if (this.async) {
-            return (result as Promise<T>).then(resolved => consume(resolved)) as IfAsync<IsAsync, R>
+            // the result of an async storage operation can be something else then a promise
+            // For bindings that accept async, but they can be sync too
+            return Promise.resolve<T>(result).then(resolved => consume(resolved)) as IfAsync<IsAsync, R>
         } else {
+            // Assume that if the storage is sync, do not await at all
             return consume(<T>result) as IfAsync<IsAsync, R>
         }
     }
 
     public all <T>(result: IfAsync<IsAsync, T>[]): IfAsync<IsAsync, T[]> {
         if (this.async) {
-            return Promise.all(result as Promise<T>[]) as IfAsync<IsAsync, T[]>
+            return Promise.all(result.map(item => Promise.resolve(item))) as IfAsync<IsAsync, T[]>
         } else {
             return <T>result as IfAsync<IsAsync, T[]>
         }

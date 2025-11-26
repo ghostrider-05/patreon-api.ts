@@ -4,7 +4,6 @@ export * from './token'
 export type {
     CacheItem,
     CacheStoreBinding,
-    CacheStoreBindingOptions,
     CacheStoreConvertOptions,
 } from './base'
 

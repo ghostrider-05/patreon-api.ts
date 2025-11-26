@@ -30,7 +30,6 @@ import type {
 
 import type {
     CacheStoreBinding,
-    CacheStoreConvertOptions,
     CacheItem,
 } from './base'
 
@@ -80,7 +79,7 @@ export interface CacheStoreItem<T extends ItemType> extends CacheItem<T> {
     id: string
 }
 
-export interface CacheStoreOptions extends CacheStoreSharedOptions {
+export interface CacheStoreOptions extends Omit<CacheStoreSharedOptions<{ type: ItemType; id: string }>, 'convert'> {
     events?: NodeJS.EventEmitter<CacheStoreEventMap> | undefined
     requestSyncOptions?: {
         /**
@@ -102,31 +101,35 @@ export interface CacheStoreOptions extends CacheStoreSharedOptions {
 }
 
 export class CacheStore<IsAsync extends boolean>
-    extends CacheStoreShared<IsAsync, CacheItem<ItemType>> {
+    extends CacheStoreShared<IsAsync, CacheItem<ItemType>, { type: ItemType; id: string }> {
     public override options: Required<Omit<CacheStoreOptions, 'events' | 'initial'>>
         & Pick<CacheStoreOptions, 'events'>
-        & { convert: CacheStoreConvertOptions<{ id: string | null; type: ItemType }> }
+        & Required<Pick<CacheStoreSharedOptions<{ type: ItemType; id: string }>, 'convert'>>
 
     public constructor (
         async: IsAsync,
         binding?: CacheStoreBinding<IsAsync, CacheItem<ItemType>>,
         options?: CacheStoreOptions,
     ) {
-        super(async, binding, options)
-
-        this.options = {
-            events: options?.events,
-            requestSyncOptions: options?.requestSyncOptions ?? {},
-            patchUnknownItem: options?.patchUnknownItem ?? true,
+        const parentOptions: Required<CacheStoreSharedOptions<{ type: ItemType; id: string }>> = {
+            patchUnknownItem: options?.patchUnknownItem ?? false,
             convert: {
-                toKey: (options) => options.type + '/' + options.id,
+                toKeyFromObject: (options) => options.type + '/' + options.id,
+                toKey: (type, id) => type + '/' + id,
                 fromKey: (key) => {
                     const [type, id] = key.split('/')
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     return { type: type! as ItemType, id: id! }
                 },
-                toMetadata: (value: CacheItem<ItemType>) => value.relationships,
-            },
+            }
+        }
+
+        super(async, binding, parentOptions)
+
+        this.options = {
+            events: options?.events,
+            requestSyncOptions: options?.requestSyncOptions ?? {},
+            ...parentOptions,
         }
 
         this.promise.consume(this.bulkPut(options?.initial ?? []), () => {
@@ -136,36 +139,29 @@ export class CacheStore<IsAsync extends boolean>
 
     // ---- binding methods ----
 
-    // @ts-expect-error expanded override
-    public override delete(type: ItemType, id: string) {
-        return super.delete(this.options.convert.toKey({ type, id }))
-    }
-
-    // @ts-expect-error expanded override
     public override put<T extends ItemType>(type: T, id: string, value: CacheItem<T>) {
-        return super.put(this.options.convert.toKey({ type, id }), value)
+        return super.put(type, id, value)
     }
 
-    // @ts-expect-error Generic overwrite
     public override edit<T extends ItemType>(type: T, id: string, value: Partial<ItemMap[T]>) {
-        return super.edit(this.options.convert.toKey({ id, type }), (stored) => ({
+        return super.edit(type, id, (stored) => ({
             item: { ...(stored?.item ?? {}), ...value },
             relationships: stored?.relationships ?? {},
         })) as IfAsync<IsAsync, CacheItem<T> | undefined>
     }
 
-    // @ts-expect-error Generic overwrite
     public override get<T extends ItemType>(type: T, id: string) {
-        return this.binding.get(this.options.convert.toKey({ type, id })) as IfAsync<IsAsync, CacheItem<T> | undefined>
+        return super.get(type, id) as IfAsync<IsAsync, CacheItem<T> | undefined>
     }
 
-    // @ts-expect-error expanded override
+    // @ts-expect-error Incorrect overwrite
     public override bulkPut<T extends ItemType>(items: CacheStoreItem<T>[]): IfAsync<IsAsync, void> {
         const keys = items.map(item => {
             const { id, type, ...value } = item
 
             return {
-                key: this.options.convert.toKey({ id, type}),
+                type,
+                id,
                 value,
             }
         })
@@ -173,24 +169,26 @@ export class CacheStore<IsAsync extends boolean>
         return super.bulkPut(keys)
     }
 
-    // @ts-expect-error Generic overwrite
     public override bulkGet<T extends ItemType> (items: {
         type: T
         id: string
-    }[]): IfAsync<IsAsync, ({ id: string, value: CacheItem<T> } | undefined)[]> {
-        const keys = items.map(item => this.options.convert.toKey(item))
-
-        return super.bulkGet(keys) as IfAsync<IsAsync, ({ id: string, value: CacheItem<T> } | undefined)[]>
-    }
-
-    // @ts-expect-error expanded override
-    public override bulkDelete(items: {
-        type: ItemType
-        id: string
-    }[]): IfAsync<IsAsync, void> {
-        const keys = items.map(item => this.options.convert.toKey(item))
-
-        return super.bulkDelete(keys)
+    }[]): IfAsync<IsAsync, ({ key: string, value: CacheStoreItem<T> } | undefined)[]> {
+        return this.promise.consume(super.bulkGet(items), items => items.map(item => {
+            if (!item) return undefined
+            const { type, id } = this.options.convert.fromKey(item.key)
+            return {
+                key: item.key,
+                value: {
+                    item: item.value.item,
+                    relationships: item.value.relationships,
+                    type,
+                    id,
+                }
+            }
+        })) as IfAsync<IsAsync, ({
+            key: string
+            value: CacheStoreItem<T>
+        } | undefined)[]>
     }
 
     // ---- relationship methods ----
@@ -233,12 +231,23 @@ export class CacheStore<IsAsync extends boolean>
         }
     }
 
+    /**
+     * List all resources (with certain relationships) of a resource type
+     * If the binding has no list method implemented, an empty array is always returned.
+     * @param options The resources to list, optionally with required relationships to other resources/ types.
+     * @returns The matched ids + type combinations for the resources in the cache.
+     */
     public list(options: {
         type: ItemType
         relationships: { id: string | null; type: ItemType }[]
     }[]): IfAsync<IsAsync, { id: string; type: ItemType }[]> {
+        if (this.binding.list == undefined) return [] as IfAsync<IsAsync, []>
         const uniqueTypes: ItemType[] = [...new Set(options.map(t => t.type))]
-        const keys = this.promise.all(uniqueTypes.map(prefix => this.binding.list({ prefix })))
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const keys = this.promise.all(uniqueTypes.map(prefix => this.binding.list!({
+            prefix,
+            getMetadata: (item) => item.relationships,
+        })))
 
         return this.promise.consume(keys, lists => {
             return lists.flatMap(list => list.keys.filter(item => {
@@ -313,6 +322,14 @@ export class CacheStore<IsAsync extends boolean>
         })
     }
 
+    /**
+     * Get all items in the cache related to an item.
+     * If no `list` method is present on the binding, an empty array will always be returned.
+     * @param resourceId The id of the original item
+     * @param resourceType The type of the original item
+     * @param type The type of the related items to search
+     * @returns A list of `type` resources
+     */
     public getRelatedToResource<
         T extends keyof ItemMap,
         R extends RelationshipFieldsToItem<T>
@@ -351,10 +368,7 @@ export class CacheStore<IsAsync extends boolean>
             return ids.map(id => {
                 return this.promise.consume(this.get(relationType, id), (item => {
                     if (!item) {
-                        if (this.options.events?.listenerCount('missingItem')) {
-                            this.options.events.emit('missingItem', relationType, id)
-                        }
-
+                        this.options.events?.emit('missingItem', relationType, id)
                         return
                     }
 
@@ -480,9 +494,7 @@ export class CacheStore<IsAsync extends boolean>
             return this.syncResource({ ...mockedAttributes.data, id: path.id })
         }
 
-        if (this.options.events?.listenerCount('missingMockedAttributes')) {
-            this.options.events.emit('missingMockedAttributes', path)
-        }
+        this.options.events?.emit('missingMockedAttributes', path)
 
         if (syncOptions?.requireMockAttributes) {
             throw new Error('Failed to find mocked attributes for resource: ' + path.resource)

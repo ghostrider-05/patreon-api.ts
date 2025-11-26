@@ -1,33 +1,48 @@
 import type {
     CacheStoreBinding,
-    CacheStoreBindingOptions
 } from '../base'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export default class<Value, Metadata extends {} = {}> implements CacheStoreBinding<false, Value> {
-    protected cache: Map<string, Value> = new Map()
+import type { IfAsync } from '../promise'
 
-    public constructor (
-        public options: CacheStoreBindingOptions = {},
-    ) {}
+type MapLikeInterface<K, V> = Pick<Map<K, V>,
+    | 'clear'
+    | 'delete'
+    | 'get'
+    | 'keys'
+    | 'set'
+>
 
-    public get (key: string): Value | undefined {
-        return this.cache.get(key)
+// TODO: make binding with a weak map and Symbol.for?
+// Only exposed for testing the binding
+export class DefaultBinding<IsAsync extends boolean, Value> implements CacheStoreBinding<IsAsync, Value> {
+    protected cache: MapLikeInterface<string, Value> = new Map()
+
+    public get (key: string) {
+        return this.cache.get(key) as IfAsync<IsAsync, Value | undefined>
     }
 
-    public delete(key: string): void {
+    public delete (key: string) {
         this.cache.delete(key)
+
+        return void 0 as IfAsync<IsAsync, void>
     }
 
-    public deleteAll(): void {
-        this.cache.clear()
-    }
-
-    public put(key: string, value: Value): void {
+    public put (key: string, value: Value) {
         this.cache.set(key, value)
+
+        return void 0 as IfAsync<IsAsync, void>
+    }
+}
+
+export default class<IsAsync extends boolean, Value> extends DefaultBinding<IsAsync, Value> implements Required<CacheStoreBinding<IsAsync, Value>> {
+    public deleteAll(): IfAsync<IsAsync, void> {
+        return this.cache.clear() as IfAsync<IsAsync, void>
     }
 
-    public list(options?: { prefix?: string; }): { keys: { key: string; metadata: Metadata }[] } {
+    public list<Metadata extends object = object>(options?: {
+        prefix?: string;
+        getMetadata?: (item: Value) => Metadata
+    }): IfAsync<IsAsync, { keys: { key: string; metadata: Metadata }[] }> {
         // Converted to array, as iterator functions are only added in Node.js v22
         const iterator = [...this.cache.keys()]
         const keys = typeof options?.prefix === 'string'
@@ -38,36 +53,39 @@ export default class<Value, Metadata extends {} = {}> implements CacheStoreBindi
         return {
             keys: keys.map(key => ({
                 key,
+                // @ts-expect-error Typed as possible promise
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                metadata: <Metadata>this.options.convert?.toMetadata?.(this.get(key)!)
-                    ?? <Metadata>{}
+                metadata: <Metadata>options?.getMetadata?.(this.get(key)!)
+                    ?? <Metadata>{},
             }))
-        }
+        } as IfAsync<IsAsync, { keys: { key: string; metadata: Metadata }[] }>
     }
 
-    public bulkDelete(keys: string[]): void {
+    public bulkDelete(keys: string[]): IfAsync<IsAsync, void> {
         for (const key of keys) {
             this.cache.delete(key)
         }
+
+        return void 0 as IfAsync<IsAsync, void>
     }
 
-    public bulkGet(keys: string[]): ({ key: string, value: Value } | undefined)[] {
+    public bulkGet(keys: string[]): IfAsync<IsAsync, ({ key: string, value: Value } | undefined)[]> {
         return keys.map(key => {
             const value = this.cache.get(key)
             if (!value) return undefined
 
             return {
                 value,
-                key: this.options.convert
-                    ? this.options.convert.fromKey(key).id
-                    : key,
+                key,
             }
-        })
+        }) as IfAsync<IsAsync, ({ key: string, value: Value } | undefined)[]>
     }
 
-    public bulkPut(items: { key: string; value: Value }[]): void {
+    public bulkPut(items: { key: string; value: Value }[]): IfAsync<IsAsync, void> {
         for (const { key, value } of items) {
             this.cache.set(key, value)
         }
+
+        return void 0 as IfAsync<IsAsync, void>
     }
 }

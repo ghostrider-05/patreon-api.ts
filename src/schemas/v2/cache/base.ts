@@ -1,4 +1,4 @@
-import type { ObjValueTuple } from '../../../utils/fields'
+import { ObjValueTuple } from '../../../utils/fields'
 import { type ItemMap, type ItemType } from '../item'
 
 import type {
@@ -24,37 +24,12 @@ export type CacheItem<T extends ItemType> = {
 export interface CacheStoreConvertOptions<
     O extends Record<string, unknown> = Record<string, unknown>
 > {
-    toKey (options: O & { id: string }): string
-    fromKey (key: string): O & { id: string }
-    toMetadata? (value: object): object
-}
-
-export interface CacheStore<IsAsync extends boolean, Key extends object> {
-    delete (...args: ObjValueTuple<Key>): IfAsync<IsAsync, void>
-    put <T extends ItemType>(...args: [...ObjValueTuple<Key>, value: CacheItem<T>]): IfAsync<IsAsync, void>
-
-    edit <T extends ItemType>(...args: [...ObjValueTuple<Key>, value: Partial<ItemMap[T]>]): IfAsync<IsAsync, ItemMap[T] | undefined>
-    get <T extends ItemType> (...args: ObjValueTuple<Key>): IfAsync<IsAsync, CacheItem<T> | undefined>
-
-    bulkPut<T extends ItemType>(items: {
-        type: T
-        id: string
-        value: CacheItem<T>
-    }[]): IfAsync<IsAsync, void>
-    bulkGet<T extends ItemType> (items: {
-        type: T
-        id: string
-    }[]): IfAsync<IsAsync, ((Key & { value: CacheItem<T> }) | undefined)[]>
-    bulkDelete(items?: Key[]): IfAsync<IsAsync, void>
-}
-
-export interface CacheStoreBindingOptions {
-    convert?: CacheStoreConvertOptions
+    toKey (...args: ObjValueTuple<O>): string
+    fromKey (key: string): O
+    toKeyFromObject (key: O): string
 }
 
 export interface CacheStoreBinding<IsAsync extends boolean, Value> {
-    options: CacheStoreBindingOptions
-
     /**
      * Store the value from the client to an external resource
      * @param key The key that has information about the item type and id
@@ -68,8 +43,10 @@ export interface CacheStoreBinding<IsAsync extends boolean, Value> {
      */
     get(key: string): IfAsync<IsAsync, Value | undefined>
     delete(key: string): IfAsync<IsAsync, void>
-    list(options?: {
+
+    list?(options?: {
         prefix?: string
+        getMetadata?: (item: Value) => object
     }): IfAsync<IsAsync, { keys: { key: string; metadata: object }[] }>
 
     bulkPut?(items: {
