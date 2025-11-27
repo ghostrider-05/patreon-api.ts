@@ -14,6 +14,9 @@
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview"
   },
+  "dependencies": {
+    "patreon-api.ts": "../"
+  },
   "devDependencies": {
     "@shikijs/vitepress-twoslash": "^3.14.0",
     "@vueuse/core": "^14.0.0",
