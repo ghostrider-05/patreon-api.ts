@@ -1,5 +1,45 @@
 # Changelog
 
+## [0.17.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.16.1...patreon-api.ts-v0.17.0) (2025-11-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* **VERSION:** rename to lowercase `version`
+* refactor usage for standalone caches ([#238](https://github.com/ghostrider-05/patreon-api.ts/issues/238))
+* **CacheStoreShared:** refactor binding and bulk methods
+* **Oauth2Routes:** refactor to use oauth2 routes
+* **QueryBuilder:** remove static `createFunctionBuilder`
+* remove buildQuery function
+* remove createQuery function
+
+### Features
+
+* **CacheStoreShared:** refactor binding and bulk methods ([1ac0fac](https://github.com/ghostrider-05/patreon-api.ts/commit/1ac0fac0d4b352c84eadc12d3a8f23bb4e7674e7))
+* **Oauth2Routes:** refactor to use oauth2 routes ([8e068e9](https://github.com/ghostrider-05/patreon-api.ts/commit/8e068e98b0980ac9d1e5d917318848525f87fdb1))
+* **PatreonMock:** add `transformToResponse` option for `getMockHandlers` ([210d9ad](https://github.com/ghostrider-05/patreon-api.ts/commit/210d9adea42e0824d1076564c660847e9781dd82))
+* **QueryBuilder:** add toString method ([397178e](https://github.com/ghostrider-05/patreon-api.ts/commit/397178e26dff963f5d7495086a367215ee12b628))
+* **QueryBuilder:** remove deprecation from build method ([397178e](https://github.com/ghostrider-05/patreon-api.ts/commit/397178e26dff963f5d7495086a367215ee12b628))
+* **QueryBuilder:** remove static `createFunctionBuilder` ([397178e](https://github.com/ghostrider-05/patreon-api.ts/commit/397178e26dff963f5d7495086a367215ee12b628))
+* refactor usage for standalone caches ([#238](https://github.com/ghostrider-05/patreon-api.ts/issues/238)) ([1ac0fac](https://github.com/ghostrider-05/patreon-api.ts/commit/1ac0fac0d4b352c84eadc12d3a8f23bb4e7674e7))
+* remove buildQuery function ([1a062b4](https://github.com/ghostrider-05/patreon-api.ts/commit/1a062b418aefce7b53516cbc00203c320640369b))
+* remove createQuery function ([1a062b4](https://github.com/ghostrider-05/patreon-api.ts/commit/1a062b418aefce7b53516cbc00203c320640369b))
+* **RestClient:** add debug event and option to disable logs ([b15de42](https://github.com/ghostrider-05/patreon-api.ts/commit/b15de421e8ebdb51ff9287eb4615ff2fd9a313cf))
+* **RestClient:** add edge ratelimit support ([#236](https://github.com/ghostrider-05/patreon-api.ts/issues/236)) ([b15de42](https://github.com/ghostrider-05/patreon-api.ts/commit/b15de421e8ebdb51ff9287eb4615ff2fd9a313cf))
+* **RestClient:** expose on client and export class ([b15de42](https://github.com/ghostrider-05/patreon-api.ts/commit/b15de421e8ebdb51ff9287eb4615ff2fd9a313cf))
+* **RESTOptions:** add globalRequestsLimit and deprecate globalRequestPerSecond option ([b15de42](https://github.com/ghostrider-05/patreon-api.ts/commit/b15de421e8ebdb51ff9287eb4615ff2fd9a313cf))
+* **RESTOptions:** deprecate in favor of RestClientOptions ([b15de42](https://github.com/ghostrider-05/patreon-api.ts/commit/b15de421e8ebdb51ff9287eb4615ff2fd9a313cf))
+* **types:** deprecate InternalRequestOptions interface ([b15de42](https://github.com/ghostrider-05/patreon-api.ts/commit/b15de421e8ebdb51ff9287eb4615ff2fd9a313cf))
+* **VERSION:** rename to lowercase `version` ([7df880f](https://github.com/ghostrider-05/patreon-api.ts/commit/7df880f57fc867259ee2a7a74c4989e62c4ec79f))
+
+
+### Bug Fixes
+
+* **CacheStore:** use generics for `syncRequest` method ([1ac0fac](https://github.com/ghostrider-05/patreon-api.ts/commit/1ac0fac0d4b352c84eadc12d3a8f23bb4e7674e7))
+* **PatreonOauthClient:** remove type export from client ([909425b](https://github.com/ghostrider-05/patreon-api.ts/commit/909425b44ad189b7ba1ae212a6583b1ab1718bf3))
+* **RestClient:** apply RequestOptions api property when used ([b15de42](https://github.com/ghostrider-05/patreon-api.ts/commit/b15de421e8ebdb51ff9287eb4615ff2fd9a313cf))
+* **types:** export `If` type utility ([1ac0fac](https://github.com/ghostrider-05/patreon-api.ts/commit/1ac0fac0d4b352c84eadc12d3a8f23bb4e7674e7))
+
 ## [0.16.1](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.16.0...patreon-api.ts-v0.16.1) (2025-11-10)
 
 
