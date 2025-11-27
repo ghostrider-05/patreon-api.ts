@@ -410,17 +410,19 @@ export class CacheStore<IsAsync extends boolean>
      * @throws {Error} when the request body is `null` for non-`DELETE` requests
      * @throws {Error} when `options.requests.syncOptions.requireMockAttributes` is `true` and no mock attributes are generated.
      */
-    public syncRequest (
+    public syncRequest<
+        R extends RequestMethod = RequestMethod,
+        T extends WriteResourceType = WriteResourceType,
+    > (
         request: {
-            method: RequestMethod
-            body: WriteResourcePayload<WriteResourceType, RequestMethod> | null
+            method: R
+            body: WriteResourcePayload<T, R> | null
         },
         path: {
             id: string
-            // should this be generic in the future?
-            resource: WriteResourceType
+            resource: T
             mockAttributes?: Partial<{
-                [M in RequestMethod]: (body: WriteResourcePayload<WriteResourceType, M>) => WriteResourceResponse<WriteResourceType>
+                [M in RequestMethod]: (body: WriteResourcePayload<T, M>) => WriteResourceResponse<T>
             }>
         }
     ): IfAsync<IsAsync, void> {
@@ -444,7 +446,7 @@ export class CacheStore<IsAsync extends boolean>
             throw new Error('Missing request body to sync with cache')
         }
 
-        const mockedAttributes = path.mockAttributes?.[path.resource]?.[request.method]?.(request.body)
+        const mockedAttributes = path.mockAttributes?.[path.resource]?.[<RequestMethod>request.method]?.(request.body)
 
         if (mockedAttributes != undefined) {
             return this.syncResource({ ...mockedAttributes.data, id: path.id })

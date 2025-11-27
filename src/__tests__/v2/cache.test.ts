@@ -3,10 +3,12 @@ import EventEmitter from 'node:events'
 import { describe, expect, test } from 'vitest'
 
 import {
+    CacheItem,
     CacheStore,
     CacheStoreEventMap,
     CacheStoreShared,
     CacheTokenStore,
+    RequestMethod,
     Type,
 } from '../../v2'
 
@@ -213,5 +215,151 @@ describe('item cache', () => {
         })
     })
 
-    // describe('Sync methods', { todo: true }, () => {})
+    describe('Sync methods', () => {
+        const cache = new CacheStore(true, undefined, {
+            initial: [{
+                id: 'campaign_id',
+                type: 'campaign',
+                item: { is_monthly: true },
+                relationships: { creator: 'user_id' },
+            }],
+        })
+
+        test('sync resource', async () => {
+            await cache.syncResource({
+                type: 'campaign',
+                id: 'campaign_id',
+                attributes: { is_charged_immediately: true },
+                relationships: { benefits: { data: null } },
+            })
+
+            const resource = await cache.getResource('campaign', 'campaign_id')
+            expect(resource).toEqual({
+                data: {
+                    attributes: {
+                        is_monthly: true,
+                        is_charged_immediately: true,
+                    },
+                    relationships: {
+                        benefits: { data: null },
+                        creator: { 
+                            data: { type: 'user', id: 'user_id' },
+                            links: { related: '' },
+                        },
+                    },
+                },
+                included: [],
+            })
+        })
+
+        test('sync resource with relationship', async () => {
+            await cache.syncResource({
+                type: 'campaign',
+                id: 'campaign_id',
+                attributes: { is_charged_immediately: true },
+                relationships: { benefits: { data: null } },
+            })
+
+            await cache.syncResource({
+                type: 'user',
+                id: 'user_id',
+                attributes: { is_creator: true },
+            })
+
+            const resource = await cache.getResource('campaign', 'campaign_id')
+            expect(resource).toEqual({
+                data: {
+                    attributes: {
+                        is_monthly: true,
+                        is_charged_immediately: true,
+                    },
+                    relationships: {
+                        benefits: { data: null },
+                        creator: { 
+                            data: { type: 'user', id: 'user_id' },
+                            links: { related: '' },
+                        },
+                    },
+                },
+                included: [{
+                    type: 'user',
+                    id: 'user_id',
+                    item: {
+                        item: { is_creator: true },
+                        relationships: {},
+                    } satisfies CacheItem<'user'>
+                }],
+            })
+        })
+
+        test('sync request: GET request', async () => {
+            await cache.syncRequest(
+                { body: null, method: RequestMethod.Get },
+                { id: 'webhook_id', resource: Type.Webhook }
+            )
+
+            const item = await cache.get('webhook', 'webhook_id')
+            expect(item).toBeUndefined()
+        })
+
+        test('sync request: POST request with no body', async () => {
+            await expect(async () => await cache.syncRequest(
+                { body: null, method: RequestMethod.Post },
+                { id: 'webhook_id', resource: Type.Webhook }
+            )).rejects.toThrow('Missing request body to sync with cache')
+        })
+
+        test('sync request: POST request with no id', async () => {
+            await expect(async () => await cache.syncRequest(
+                { body: null, method: RequestMethod.Post },
+                { id: <never>null, resource: Type.Webhook }
+            )).rejects.toThrow('Missing id of resource webhook to update in cache')
+        })
+
+        test('sync request: POST request with no mocked attributes', async () => {
+            const cache = new CacheStore(true, undefined, {
+                requestSyncOptions: {
+                    requireMockAttributes: true,
+                },
+            })
+
+            await expect(async () => await cache.syncRequest(
+                { body: { data: {
+                    type: Type.Webhook,
+                    attributes: {
+                        triggers: [],
+                        uri: 'https://mywebsite.com',
+                    },
+                    relationships: {
+                        campaign: {
+                            data: {
+                                id: 'campaign_id',
+                                type: Type.Campaign,
+                            }
+                        }
+                    }
+                } }, method: RequestMethod.Post },
+                { id: 'webhook_id', resource: Type.Webhook }
+            )).rejects.toThrow('Failed to find mocked attributes for resource: webhook')
+        })
+
+        test('sync request: DELETE request', async () => {
+            await cache.syncResource({
+                type: 'webhook',
+                id: 'webhook_id_1',
+                attributes: { secret: 'secret' },
+            })
+
+            const resource = await cache.get('webhook', 'webhook_id_1')
+            expect(resource).toBeDefined()
+
+            await cache.syncRequest(
+                { body: null, method: RequestMethod.Delete },
+                { id: 'webhook_id_1', resource: Type.Webhook }
+            )
+
+            const item = await cache.get('webhook', 'webhook_id_1')
+            expect(item).toBeUndefined()
+        })
+    })
 })
