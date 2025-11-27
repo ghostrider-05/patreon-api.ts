@@ -5,7 +5,7 @@ import {
     type RestFetcher,
 } from './rest'
 
-import type { If } from '../../../utils/generics'
+import type { If } from '../../../utils/'
 
 export interface PatreonFetchOptions<Value, Options, IsAsync extends boolean = true, ListOptions = Options, ListValue = Value> {
     /**

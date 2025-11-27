@@ -142,7 +142,10 @@ export class PatreonMockData {
      */
     public getListResponsePayload<T extends Type | ItemType, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
         type: T,
-        query: { includes: I[]; attributes: A; },
+        query: {
+            includes: I[];
+            attributes: A;
+        },
         data: {
             items: {
                 item: {
@@ -200,6 +203,7 @@ export class PatreonMockData {
 
     public createRelatedItems<T extends ItemType> (type: T, options?: {
         items?: RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[]
+        // length?: RandomInteger,
     }): RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[] {
         const relationMap = QueryBuilder.createRelationMap(type)
         const relationTypes = Object.values(relationMap) as RelationshipFieldToFieldType<T, RelationshipFields<T>>[]
@@ -208,9 +212,9 @@ export class PatreonMockData {
             const relatedItems = options?.items?.filter(item => item.type === key) ?? []
             if (relatedItems.length > 0) return relatedItems
 
-            // TODO: make the amount of items configurable
-            const id = this.createId(key)
-            return this.getAttributeItem(key, id)
+            return this.getAttributeItems(key, undefined, undefined, {
+                length: 1,
+            })
         })
     }
 

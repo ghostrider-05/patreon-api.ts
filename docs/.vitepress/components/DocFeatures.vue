@@ -1,10 +1,24 @@
 <script setup>
-import Features from '../../node_modules/vitepress/dist/client/theme-default/components/VPHomeFeatures.vue'
+import Features from '../../node_modules/vitepress/dist/client/theme-default/components/VPFeatures.vue'
+import { useData } from 'vitepress'
+
+const { frontmatter: fm } = useData()
+
+const props = defineProps({
+  fmkey: {
+    type: String,
+    required: false
+  },
+})
 </script>
 
 <template>
     <div class="doc-features">
-        <Features />
+        <Features
+            v-if="fm[props.fmkey ?? 'features']"
+            class="VPHomeFeatures"
+            :features="fm[props.fmkey ?? 'features']"
+        />
     </div>
 </template>
 

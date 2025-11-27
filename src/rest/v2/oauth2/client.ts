@@ -15,7 +15,7 @@ import {
 import { Oauth2Routes } from './routes'
 import { getRequiredScopes } from './scopes'
 
-import type { If } from '../../../utils/generics'
+import type { If } from '../../../utils/'
 
 interface OauthClientOptions {
     /**

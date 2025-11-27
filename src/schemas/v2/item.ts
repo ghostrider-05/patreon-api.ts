@@ -1,4 +1,4 @@
-import type { If } from '../../utils/generics'
+import type { If } from '../../utils/'
 
 import type { Address } from './resources/address'
 import type { Benefit } from './resources/benefit'

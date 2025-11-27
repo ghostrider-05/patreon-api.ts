@@ -11,7 +11,7 @@ export class CacheTokenStore<IsAsync extends boolean> extends CacheStoreShared<I
     public constructor (
         async: IsAsync,
         binding?: CacheStoreBinding<IsAsync, Oauth2StoredToken>,
-        options?: CacheStoreSharedOptions,
+        options?: CacheStoreSharedOptions<{ key: string }>,
     ) {
         super(async, binding, options)
     }

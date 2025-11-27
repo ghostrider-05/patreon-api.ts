@@ -1,2 +1,2 @@
-export type { AdditionalKeys, CustomTypeOption, CustomTypeOptions } from './fields'
+export type { AdditionalKeys, CustomTypeOption, CustomTypeOptions, If } from './fields'
 export * from './version'
