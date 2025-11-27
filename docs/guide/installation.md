@@ -1,13 +1,14 @@
 ---
-features:
+webhook-examples:
   - title: Cloudflare webhook
     details: Worker to forward Patreon posts to Discord
     link: https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/cloudflare-webhook/
     linkText: See on GitHub
-  # - title: Express.js webhook
-  #   details: Server to forward Patreon posts to Discord
-  #   link: https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/express-webhook/
-  #   linkText: See on GitHub
+  - title: Express.js webhook
+    details: Server to forward Patreon posts to Discord
+    link: https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/express-webhook/
+    linkText: See on GitHub
+api-examples:
   - title: Node.js - ESM
     details: Fetch creator campaigns and update or create webhooks
     link: https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/node-esm/
@@ -50,9 +51,13 @@ yarn add patreon-api.ts
 
 To get started you can see one of the examples:
 
-<Features />
+<Features fmkey="api-examples" />
 
 or read more about [the features your application needs](./features/oauth).
+
+To [create a webhook server](./features/webhooks#webhook-server) for receiving webhook events, see one of these examples for inspiration:
+
+<Features fmkey="webhook-examples" />
 
 <script setup>
 import Features from '../.vitepress/components/DocFeatures.vue'
