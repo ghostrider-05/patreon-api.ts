@@ -2,7 +2,7 @@ import {
     APIVersion,
     PatreonWebhookTrigger,
     RouteBases,
-    VERSION,
+    version,
     ResponseHeaders,
     SchemaResourcesData,
     type ItemType,
@@ -47,7 +47,7 @@ export default <ExportedHandler>{
                 version: APIVersion,
                 base: RouteBases.oauth2,
                 headers: {
-                    userAgent: `PatreonBot patreon-api.ts (https://github.com/ghostrider-05/patreon-api.ts, ${VERSION})`,
+                    userAgent: `PatreonBot patreon-api.ts (https://github.com/ghostrider-05/patreon-api.ts, ${version})`,
                     response: {
                         id: ResponseHeaders.UUID,
                         sha: ResponseHeaders.Sha,
@@ -68,7 +68,7 @@ export default <ExportedHandler>{
             })
         } else if (pathname.startsWith('/data/library')) {
             return new Response(JSON.stringify({
-                version: VERSION,
+                version,
                 name: 'patreon-api.ts',
                 links: {
                     donate: 'https://paypal.me/05ghostrider',

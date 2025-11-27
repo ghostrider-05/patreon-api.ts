@@ -1,4 +1,4 @@
-import { VERSION } from '../../../../utils'
+import { version } from '../../../../utils'
 
 export const ResponseHeaders = {
     Sha: 'x-patreon-sha',
@@ -49,7 +49,7 @@ export function getHeaders (headers: RestHeaders): PatreonHeadersData {
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function makeUserAgentHeader (clientName: string, appendix?: string): string {
-    const userAgentAppendix = VERSION + (appendix?.length ? `, ${appendix}` : '')
+    const userAgentAppendix = version + (appendix?.length ? `, ${appendix}` : '')
 
     return `${clientName} patreon-api.ts (https://github.com/ghostrider-05/patreon-api.ts, ${userAgentAppendix})`
 }
