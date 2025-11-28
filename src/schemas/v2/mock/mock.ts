@@ -469,7 +469,7 @@ export class PatreonMock {
 
     /**
      * Note: Uses the `undici-types` package for typing.
-     * If you don't have `undici` or `undici-types` installed, ts will be not be able to import the types.
+     * If you don't have `undici`, `@types/node` or `undici-types` installed, ts will be not be able to import the types.
      *
      * Creates a callback for an intercepted request on a mock agent.
      * @param options Options for the mocked response
@@ -488,7 +488,7 @@ export class PatreonMock {
                 url: (callbackOptions.origin ?? PatreonMock.origin) + callbackOptions.path,
             }, options ?? {}, ({ body, headers, status }) => ({
                 statusCode: status,
-                data: body ?? '',
+                ...(body ? { data: body } : {}),
                 responseOptions: { headers },
             }))
         }) satisfies import('undici-types/mock-interceptor').MockInterceptor.MockReplyOptionsCallback
