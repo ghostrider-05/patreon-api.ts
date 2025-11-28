@@ -1,18 +1,6 @@
 /* eslint-disable jsdoc/require-returns */
 import { randomUUID } from 'node:crypto'
 
-import type {
-    Relationship,
-    RelationshipFields,
-    RelationshipFieldToFieldType,
-    RelationshipItem,
-    RelationshipMap,
-} from '../relationships'
-
-import type { AttributeItem, ItemMap, ItemType, Type } from '../item'
-
-import { QueryBuilder, QueryRequestOptions } from '../query'
-
 import {
     type PatreonErrorData,
     RequestMethod,
@@ -22,13 +10,28 @@ import {
 import type { ListRequestPayload } from '../../../payloads/v2/internals/list'
 import type { GetRequestPayload } from '../../../payloads/v2/internals/get'
 
+import { PatreonMockDataRandomResources } from '../generated/random'
+
+import type { AttributeItem, ItemMap, ItemType, Type } from '../item'
+
+import type {
+    Relationship,
+    RelationshipFields,
+    RelationshipFieldToFieldType,
+    RelationshipItem,
+    RelationshipMap,
+} from '../relationships'
+
+import { QueryBuilder, QueryRequestOptions } from '../query'
+
+import { findAPIPath } from './paths'
+
 import {
     defaultRandomDataGenerator,
     type RandomInteger,
     resolveRandomInteger,
     type RandomDataGenerator,
 } from './random'
-import { PatreonMockDataRandomResources } from '../generated/random'
 
 import type {
     WriteResourcePayload,
@@ -43,6 +46,23 @@ export interface PatreonMockHeaderData {
     ratelimit?: {
         retryAfter: string
     }
+}
+
+export interface PatreonMockDataScrubOptions {
+    /**
+     * How to scrub the senstive data
+     * @default `(value) => '*'.repeat(value.length)`
+     */
+    replacer?: string | ((value: string) => string)
+
+    /**
+     * The attributes on items to scrub.
+     * Define a key with all resource types this attribute should be scrubbed.
+     */
+    attributes?: {
+        key: string
+        resources: ItemType[]
+    }[]
 }
 
 export interface PatreonMockDataQuery<
@@ -485,6 +505,15 @@ export class PatreonMockData {
     }
 
     /**
+     * Scrub sensitive data from resources
+     * @param data The API response, request, url or an id to scrub
+     * @param options Options for how and what to replace
+     */
+    public scrub (data: unknown | unknown[], options?: PatreonMockDataScrubOptions) {
+        return PatreonMockData.scrub(data, options)
+    }
+
+    /**
      * Creates the API url for a resource
      * @param type The type of the resource.
      * The documentation currently allows requests (see documentation for the allowed methods) for:
@@ -563,6 +592,75 @@ export class PatreonMockData {
                 [ResponseHeaders.RetryAfter]: data.ratelimit.retryAfter,
             } : {}),
             'Content-Type': 'application/json',
+        }
+    }
+
+    /**
+     * Scrub sensitive data from resources
+     * @param data The API response, request, url or an id to scrub
+     * @param options Options for how and what to replace
+     */
+    public static scrub <T>(data: T, options?: PatreonMockDataScrubOptions) {
+        const replace = (data: string) => {
+            return options?.replacer
+                ? typeof options.replacer === 'string'
+                    ? options.replacer
+                    : options.replacer(data)
+                : '*'.repeat(data.length)
+        }
+
+        if (typeof data === 'string') {
+            const url = URL.parse(data)
+            if (url) {
+                const path = findAPIPath(url.pathname, {
+                    apiPath: '/api/oauth2/v2',
+                })
+
+                if (!path) return data
+                else return replace(data)
+            } else {
+                return replace(data)
+            }
+        } else if (Array.isArray(data)) {
+            return data.map(item => PatreonMockData.scrub(item, options))
+        } else if (typeof data === 'object' && data) {
+            const { attributes } = options ?? {}
+            const output = data
+
+            if ('attributes' in data && attributes) {
+                const obj = <object>data['attributes']
+                for (const key of Object.keys(obj)) {
+                    if (typeof obj[key] === 'string') {
+                        if (attributes.some(({ key: k, resources }) => k === key && resources.includes(data['type']))) {
+                            obj[key] = PatreonMockData.scrub(obj[key], options)
+                        }
+                    }
+                }
+
+                output['attributes'] = obj
+            }
+
+            if ('included' in data) {
+                output['included'] = PatreonMockData.scrub(data['included'], options)
+            }
+
+            if ('data' in data) {
+                output['data'] = PatreonMockData.scrub(data['data'], options)
+            }
+
+            if ('id' in data) {
+                output['id'] = PatreonMockData.scrub(data['id'], options)
+            }
+
+            if ('links' in data) {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                const key = Object.keys(<object>data['links'])[0]!
+                output['links'][key] = PatreonMockData.scrub((<object>data['links'])[key], options)
+            }
+
+            return output
+        } else {
+            return data
         }
     }
 }

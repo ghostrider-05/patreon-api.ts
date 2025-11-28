@@ -28,46 +28,14 @@ import {
     type PatreonMockDataQuery,
 } from './data'
 
+import { findAPIPath, type PatreonMockRouteId } from './paths'
+
 import {
     PatreonMockWebhooks,
     type PatreonMockWebhooksOptions,
 } from './webhooks'
 
 import type { If } from '../../../utils/'
-
-// eslint-disable-next-line jsdoc/require-jsdoc
-function getAPIRoutesWithRegex (routes: Route[]) {
-    const escapeDots = (s: string) => Array.from(s, c => c === '.' ? '\\.' : c).join('')
-
-    return routes.map(o => ({
-        route: o,
-        exp: new RegExp(`^${o.route(':id')
-            .split('/')
-            .map((s: string) => s.startsWith(':') ? '[^\\/]+': escapeDots(s))
-            .join('\\/')
-        }$`),
-    }))
-}
-
-// eslint-disable-next-line jsdoc/require-jsdoc
-function findAPIPath (path: string, apiPath: string) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const pathWithoutQuery = path.split('?')[0]!
-    const regexs = getAPIRoutesWithRegex(paths)
-
-    const route = regexs.find(reg => {
-        return reg.exp.test(pathWithoutQuery)
-            || reg.exp.test(pathWithoutQuery.slice(apiPath.length))
-    })?.route
-    if (!route) return
-    const routeId = route.route(':id')
-
-    return {
-        param: pathWithoutQuery.split('/').find((_, i) => routeId.split('/')[i] === ':id'),
-        routeId,
-        path: route,
-    }
-}
 
 export interface PatreonMockHandlerOptions {
     cache?: boolean | undefined
@@ -166,8 +134,6 @@ export interface PatreonMockHandler<R = PatreonMockHandlerDefaultResponse> {
     }) => Promise<R>
 }
 
-type PatreonMockRouteId = typeof paths[number]['methods'][number]['id']
-
 interface ParsedRoute {
     searchParams: URLSearchParams
     path: Route
@@ -213,7 +179,9 @@ export class PatreonMock {
      * @returns if the path is valid route for the V2 Patreon API
      */
     public static pathFilter (path: string): boolean {
-        return findAPIPath(path, PatreonMock.path) != undefined
+        return findAPIPath(path, {
+            apiPath: PatreonMock.path,
+        }) != undefined
     }
 
     /**
@@ -327,7 +295,9 @@ export class PatreonMock {
     private parseAPIPath (url: string): ParsedRoute {
         const { pathname, searchParams } = new URL(url)
 
-        const apiPath = findAPIPath(pathname, PatreonMock.path)
+        const apiPath = findAPIPath(pathname, {
+            apiPath: PatreonMock.path,
+        })
         if (apiPath == undefined) throw new Error('No API route found to mock for: ' + url)
 
         return {
