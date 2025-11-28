@@ -218,17 +218,24 @@ export class PatreonMockData {
         })
     }
 
+    /**
+     * @param type The resource type of the item to return
+     * @param id The id of the item to return. If not given, creates a random id
+     * @param data The attributes of the item. If no attributes are defined, they are merged with random attributes
+     * @param attributes The attributes query to apply. This filters all the attributes in the item
+     */
     public getAttributeItem<T extends ItemType, A extends keyof ItemMap[T] = keyof ItemMap[T]>(
         type: T,
-        id: string,
+        id?: string,
         data?: Partial<ItemMap[T]>,
         attributes?: A[],
-    ) {
-        const item = { ...this.random[type](id), ...(data ?? {}) }
+    ): AttributeItem<T, Pick<ItemMap[T], A>> {
+        const itemId = id ?? this.createId(type)
+        const item = { ...this.random[type](itemId), ...(data ?? {}) }
 
         return {
             type,
-            id,
+            id: itemId,
             attributes: (attributes == undefined ? item : (attributes.length === 0
                 ? {}
                 : Object.keys(item)
@@ -244,11 +251,11 @@ export class PatreonMockData {
         options?: {
             length?: RandomInteger,
         }
-    ) {
+    ): AttributeItem<T, Pick<ItemMap[T], A>>[] {
         return Array.from({ length: resolveRandomInteger(options?.length, items, 10) }, (_, i) => {
             return this.getAttributeItem(
                 type,
-                items?.at(i)?.id ?? this.createId(type),
+                items?.at(i)?.id,
                 items?.at(i)?.data,
                 attributes,
             )
