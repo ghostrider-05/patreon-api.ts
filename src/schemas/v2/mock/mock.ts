@@ -11,8 +11,10 @@ import { shouldIncludeRequestBody } from '../../../rest/v2/oauth2/rest/client'
 import {
     type ItemType,
     QueryBuilder,
+    RelationshipFields,
     RelationshipMap,
     Type,
+    WriteResourceType,
 } from '../../../schemas/v2/'
 
 import {
@@ -20,8 +22,16 @@ import {
     type CacheStoreOptions,
 } from '../cache/'
 
-import { PatreonMockData, type PatreonMockDataOptions } from './data'
-import { PatreonMockWebhooks, type PatreonMockWebhooksOptions } from './webhooks'
+import {
+    PatreonMockData,
+    type PatreonMockDataOptions,
+    type PatreonMockDataQuery,
+} from './data'
+
+import {
+    PatreonMockWebhooks,
+    type PatreonMockWebhooksOptions,
+} from './webhooks'
 
 import type { If } from '../../../utils/'
 
@@ -227,6 +237,12 @@ export class PatreonMock {
             + (options?.query ? ((!options.query.startsWith('?') ? '?' : '') + options.query) : '')
     }
 
+    private static isWriteResourceType (type: Type | ItemType): type is WriteResourceType {
+        return [
+            Type.Webhook,
+        ].includes(<Type>type)
+    }
+
     private validateHeaders (headers: Record<string, string> | Headers): void {
         const validation = this.options.validation?.headers
         if (validation == undefined) return
@@ -257,7 +273,10 @@ export class PatreonMock {
         }
     }
 
-    private parseQueryRelationships (params: URLSearchParams, resource: ItemType) {
+    private parseQuery<T extends ItemType> (
+        params: URLSearchParams,
+        resource: T,
+    ): PatreonMockDataQuery<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>> {
         const include: string[] = params.get('include')?.split(',') ?? []
         const { relationships } = QueryBuilder['getResource'](resource)
         const includedKeys: ItemType[] = include
@@ -268,10 +287,13 @@ export class PatreonMock {
             throw new Error('Unable to find relationships in query params: ' + include.join(','))
         }
 
+        const count = params.get('page[count]'), cursor = params.get('page[cursor]')
+        const sort = params.get('sort')?.split(',')
+            .map(key => key.startsWith('-') ? { key: key.slice(1), descending: true } : { key, descending: false })
+
         return {
-            resource,
-            includes: include,
-            attributes: (includedKeys.concat(resource)).reduce<Partial<Record<ItemType, string[]>>>((obj, key) => {
+            includes: <RelationshipFields<T>[]>include,
+            attributes: (includedKeys.concat(resource)).reduce<RelationshipMap<T, RelationshipFields<T>>>((obj, key) => {
                 const attributes: string[] = params.get(`fields[${key}]`)?.split(',') ?? []
 
                 if (this.options.validation?.query) {
@@ -282,7 +304,12 @@ export class PatreonMock {
                     ...obj,
                     [key]: attributes,
                 }
-            }, {})
+            }, {} as RelationshipMap<T, RelationshipFields<T>>),
+            requestOptions: {
+                ...(count ? { count: +count } : {}),
+                ...(cursor ? { cursor } : {}),
+                ...(sort ? { sort } : {}),
+            }
         }
     }
 
@@ -314,7 +341,7 @@ export class PatreonMock {
     }): string {
         const { param, path, searchParams } = route
 
-        const parsed = this.parseQueryRelationships(searchParams, path.resource)
+        const parsed = this.parseQuery(searchParams, path.resource)
         // Add typed query?
         const query = parsed as unknown as { includes: never[], attributes: RelationshipMap<Type, never> }
         const id = options?.resourceId ?? param
@@ -326,12 +353,11 @@ export class PatreonMock {
         const useRandom = options?.random ?? responseOptions?.random ?? true
 
         if (path.response?.array) {
-            // All current list endpoints are related to a campaign
+            // All current list endpoints are related to a resource
             // E.g campaign members, campaign posts
-            // TODO: in the future make this configurable when new endpoints are added
             const cached = id && useCache
                 // @ts-expect-error resource included campaign, but is not available for list responses.
-                ? this.cache.getRelatedToResource(Type.Campaign, id, path.resource)
+                ? this.cache.getRelatedToResource(path.mainResource ?? Type.Campaign, id, path.resource)
                 : null
 
             if (cached && cached.length > 0) {
@@ -345,7 +371,6 @@ export class PatreonMock {
                         return {
                             item: {
                                 id,
-                                // TODO: merge with random attributes if configured
                                 attributes: item,
                             },
                             included,
@@ -372,7 +397,6 @@ export class PatreonMock {
             if (id && cached) {
                 const payload = this.data.getSingleResponsePayload(path.resource, query, {
                     id,
-                    // TODO: merge with random attributes if configured
                     item: cached.data.attributes,
                     relatedItems: cached.included as never[],
                 })
@@ -416,7 +440,17 @@ export class PatreonMock {
         const headers = this.getResponseHeaders(options.headers)
         const status = options.statusCode ?? this.getDefaultResponseStatus(route.path, request.method)
 
-        this.cache.syncRequest(
+        const resourceType = route.path.resource
+        // If no id is found in the route:
+        // - Assume that it is a GET/POST request to an array endpoint.
+        // - Assume that the GET method is excluded.
+        // And generate a new id for the resource.
+        const resourceId = route.param ?? this.data.createId(resourceType)
+        const mockAttributes = PatreonMock.isWriteResourceType(resourceType)
+            ? this.data.options.mockAttributes?.[resourceType] ?? {}
+            : {}
+
+        if (PatreonMock.isWriteResourceType(resourceType)) this.cache.syncRequest(
             {
                 method: request.method as RequestMethod,
                 body: request.body
@@ -424,13 +458,9 @@ export class PatreonMock {
                     : null
             },
             {
-                resource: Type.Webhook,
-                // If no id is found in the route:
-                // - Assume that it is a GET/POST request to an array endpoint.
-                // - Assume that the GET method is excluded.
-                // And generate a new id for the resource.
-                id: route.param ?? this.data.createId(Type.Webhook),
-                mockAttributes: this.data.options.mockAttributes?.[Type.Webhook] ?? {},
+                resource: resourceType,
+                id: resourceId,
+                mockAttributes,
             }
         )
 
@@ -450,6 +480,7 @@ export class PatreonMock {
                 ? this.buildResponseFromUrl(route, {
                     cache: options?.cache,
                     random: options?.random,
+                    resourceId,
                 }) : null // Using an empty body for 201 and 204 responses
 
             return transform({
@@ -460,7 +491,7 @@ export class PatreonMock {
         } else {
             return transform({
                 // TODO: the response body should be different from the request body, right?
-                body: request.body,
+                body: mockAttributes[request.method.toUpperCase()]?.(request.body) ?? request.body,
                 headers,
                 status,
             })
@@ -472,6 +503,8 @@ export class PatreonMock {
      * If you don't have `undici`, `@types/node` or `undici-types` installed, ts will be not be able to import the types.
      *
      * Creates a callback for an intercepted request on a mock agent.
+     *
+     * Note: for non-GET requests and if no mocked attributes are defined; the request body is returned as response body.
      * @param options Options for the mocked response
      * @param options.statusCode The status code the response should have, defaults to `200`
      * @param options.headers The headers to include in the response
@@ -496,6 +529,8 @@ export class PatreonMock {
 
     /**
      * Get handlers for mocking a route
+     *
+     * Note: for non-GET requests and if no mocked attributes are defined; the request body is returned as response body.
      * @param options Options for generating the routes
      * @param options.pathParam The path param template value, defaults to `*`
      * @param options.includeOrigin Whether to include the API origin in the url of the handler, defaults to `true`
