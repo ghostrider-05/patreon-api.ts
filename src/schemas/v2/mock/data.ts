@@ -201,9 +201,17 @@ export class PatreonMockData {
         }
     }
 
+    /**
+     * Create items that can be related to the resource type.
+     * @param type The resource type to create items for
+     * @param options Options for how to generate the related items
+     * @param options.items Return these items for related types.
+     * @param options.length If no items are found in `options.items` for the related type, return `length` amount of random items.
+     * Default: `1`.
+     */
     public createRelatedItems<T extends ItemType> (type: T, options?: {
         items?: RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[]
-        // length?: RandomInteger,
+        length?: RandomInteger
     }): RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[] {
         const relationMap = QueryBuilder.createRelationMap(type)
         const relationTypes = Object.values(relationMap) as RelationshipFieldToFieldType<T, RelationshipFields<T>>[]
@@ -213,7 +221,7 @@ export class PatreonMockData {
             if (relatedItems.length > 0) return relatedItems
 
             return this.getAttributeItems(key, undefined, undefined, {
-                length: 1,
+                length: options?.length ?? 1,
             })
         })
     }
