@@ -296,8 +296,13 @@ export class PatreonMockData {
         return {
             relationships,
             included: relatedItems.map(item => {
-                // @ts-expect-error TODO: fix this
-                return this.getAttributeItem(item.type, item.id, item.attributes, query.attributes[item.type])
+                return this.getAttributeItem(
+                    item.type,
+                    item.id,
+                    // @ts-expect-error TODO: WTF is this error
+                    item.attributes,
+                    query.attributes[item.type],
+                )
             })
         }
     }

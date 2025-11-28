@@ -81,7 +81,10 @@ export interface CacheStoreOptions extends Omit<CacheStoreSharedOptions<{ type: 
          */
         requireMockAttributes?: boolean
         /**
-         * The allowed request methods used for syncing requests
+         * The allowed request methods used for syncing requests.
+         * Set to an empty array to disable syncing all requests.
+         *
+         * Note: this will sync actions based on the request body, so it is not recommended to allow GET requests.
          * @default ['DELETE', 'POST', 'PATCH']
          */
         allowedMethods?: RequestMethod[]
