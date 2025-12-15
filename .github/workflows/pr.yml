@@ -41,7 +41,7 @@ jobs:
         run: npm run test:coverage
 
       - name: "Upload Coverage"
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: coverage-${{ matrix.artifact }}
