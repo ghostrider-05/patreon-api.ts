@@ -18,8 +18,8 @@
     "patreon-api.ts": "../"
   },
   "devDependencies": {
-    "@shikijs/vitepress-twoslash": "^3.20.0",
-    "@vueuse/core": "^14.1.0",
+    "@shikijs/vitepress-twoslash": "^3.22.0",
+    "@vueuse/core": "^14.2.0",
     "msw": "^2.12.7",
     "typedoc": "^0.28.3",
     "typedoc-plugin-markdown": "^4.9.0",
