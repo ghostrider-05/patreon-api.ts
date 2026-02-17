@@ -72,8 +72,20 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
      */
     public webhooks: WebhookClient
 
+    /**
+     * Applies the `simplify` method on all responses.
+     *
+     * NOTE: due to type complexity, the response might be typed as an union of a paginated and resource response.
+     * If this happens, apply the `simplify` method on the default response manually. I have no idea how to fix this bug.
+     */
     public simplified: PatreonSharedClient<'simplified', IncludeAll>
 
+    /**
+     * Applies the `normalize` method on all responses.
+     *
+     * NOTE: due to type complexity, the response might be typed as an union of a paginated and resource response.
+     * If this happens, apply the `normalize` method on the default response manually. I have no idea how to fix this bug.
+     */
     public normalized: PatreonSharedClient<'normalized', IncludeAll>
 
     // eslint-disable-next-line jsdoc/require-returns
