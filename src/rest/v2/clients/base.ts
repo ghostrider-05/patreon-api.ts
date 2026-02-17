@@ -56,6 +56,8 @@ export interface PatreonClientOptions<IncludeAll extends boolean = false> {
     /**
      * Options for storing and getting API (creator) tokens.
      * @default undefined
+     * @deprecated Use the `CacheTokenStore` class to store and fetch any tokens.
+     * See the documentation for an example: https://patreon-api.pages.dev/guide/features/oauth#creator-token
      */
     store?: PatreonTokenFetchOptions
 }
@@ -155,6 +157,8 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
     /**
      * Fetch the stored token with the `get` method from the client options
      * @returns the stored token, if `options.store.get` is defined and returns succesfully.
+     * @deprecated Use the `CacheTokenStore` class to store and fetch any tokens.
+     * See the documentation for an example: https://patreon-api.pages.dev/guide/features/oauth#creator-token
      */
     public async fetchStoredToken(): Promise<Oauth2StoredToken | undefined> {
         return PatreonClient.fetchStored(this.store)
@@ -164,6 +168,8 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
      * Save your token with the method from the client options
      * @param token The token to save
      * @param [cache] Whether to overwrite the application token cache and update it with the token
+     * @deprecated Use the `CacheTokenStore` class to store and fetch any tokens.
+     * See the documentation for an example: https://patreon-api.pages.dev/guide/features/oauth#creator-token
      */
     public async putStoredToken(token: Oauth2StoredToken, cache?: boolean): Promise<void> {
         await this.store?.put(token)

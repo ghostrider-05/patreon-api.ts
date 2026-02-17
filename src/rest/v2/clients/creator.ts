@@ -13,6 +13,8 @@ export class PatreonCreatorClient<IncludeAll extends boolean = false> extends Pa
     /**
      * Calls {@link PatreonCreatorClient.fetchApplicationToken}.
      * @returns Whether the call was successful or not
+     * @deprecated Use the `CacheTokenStore` class to store and fetch any tokens.
+     * See the documentation for an example: https://patreon-api.pages.dev/guide/features/oauth#creator-token
      */
     public async initialize(): Promise<boolean> {
         const token = await this.fetchApplicationToken()
@@ -24,6 +26,8 @@ export class PatreonCreatorClient<IncludeAll extends boolean = false> extends Pa
      * Fetch the current application token from the configured store and updates the token.
      * @returns
      * if the token is updated and stored, and the token
+     * @deprecated Use the `CacheTokenStore` class to store and fetch any tokens.
+     * See the documentation for an example: https://patreon-api.pages.dev/guide/features/oauth#creator-token
      */
     public async fetchApplicationToken(): Promise<
         | { success: true, token: Oauth2StoredToken }

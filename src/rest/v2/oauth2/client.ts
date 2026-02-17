@@ -48,11 +48,19 @@ interface OauthClientOptions {
     /**
      * Check if the token is given and not expired before running a request.
      *
-     * If the token is an object and is expired, the client will refresh the token, update the cached token
+     * If the token is an object and is expired, the client will refresh the token, update the cached token (`cachedToken` property)
      * and use the refreshed token to make an API request.
+     * Use {@link onTokenValidationRefreshed} to listen to these updates.
      * @default false
      */
     validateToken?: boolean
+
+    /**
+     * When {@link validateToken} is enabled, this callback is called when a token is refreshed by the library.
+     * @param token The refreshed token
+     * @default undefined
+     */
+    onTokenValidationRefreshed?: (token: Oauth2StoredToken) => Promise<void> | void
 
     /**
      * Whether to validate all requests on Oauth clients before sending to check if the correct scopes are given.
@@ -130,6 +138,12 @@ export class PatreonOauthClient {
     /**
      * Called when the token is refreshed
      * @default <Client>.putStoredToken(token, true)
+     * @deprecated Use the `CacheTokenStore` class to store and fetch any tokens.
+     * See the documentation for an example: https://patreon-api.pages.dev/guide/features/oauth#creator
+     *
+     * To use the callback on the tokens refreshed:
+     * - for validating tokens, use {@link options}.onTokenValidationRefreshed to listen to changes
+     * - for refreshing tokens using {@link refreshToken}, move the callback to your code after refreshing.
      */
     public onTokenRefreshed?: (token: Oauth2StoredToken | undefined) => Promise<void> = undefined
 
@@ -147,6 +161,7 @@ export class PatreonOauthClient {
             tokenType: options.tokenType ?? null,
             validateScopes: options.validateScopes ?? false,
             validateToken: options.validateToken ?? false,
+            onTokenValidationRefreshed: options.onTokenValidationRefreshed ?? (() => {}),
         }
 
         if ('redirectUri' in options) {
@@ -381,7 +396,10 @@ export class PatreonOauthClient {
         // TODO: add test for this case
         const refreshed = await client.refreshToken(token)
         await client.onTokenRefreshed?.(refreshed ? this.toStored<false>(refreshed) : undefined)
-        if (refreshed) client.cachedToken = refreshed
+        if (refreshed) {
+            client.cachedToken = refreshed
+            await client.options.onTokenValidationRefreshed(refreshed)
+        }
 
         return refreshed
     }

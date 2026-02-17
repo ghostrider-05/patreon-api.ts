@@ -24,6 +24,10 @@ export interface PatreonFetchOptions<Value, Options, IsAsync extends boolean = t
     list: (options: ListOptions) => If<IsAsync, Promise<ListValue[]>, ListValue[]>
 }
 
+/**
+ * @deprecated Use the `CacheTokenStore` class to store and fetch any tokens.
+ * See the documentation for an example: https://patreon-api.pages.dev/guide/features/oauth#creator
+ */
 export type PatreonTokenFetchOptions<IsAsync extends boolean = true> = PatreonFetchOptions<
     Oauth2StoredToken,
     { isCreatorToken?: boolean, key?: string },
@@ -70,6 +74,10 @@ class PatreonFetchStore<Value, Options> implements PatreonFetchOptions<Value, Op
     }
 }
 
+/**
+ * @deprecated Use the `CacheTokenStore` class to store and fetch any tokens.
+ * See the documentation for an example: https://patreon-api.pages.dev/guide/features/oauth#creator
+ */
 export interface PatreonStoreKVStorage {
     get: (key: string) => Promise<string | null>
     put: (key: string, value: string) => Promise<void>
@@ -185,6 +193,10 @@ class PatreonMemoryTokenStore extends PatreonMemoryStore<Oauth2StoredToken, { is
     }
 }
 
+/**
+ * @deprecated Use the `CacheTokenStore` class to store and fetch any tokens.
+ * See the documentation for an example: https://patreon-api.pages.dev/guide/features/oauth#creator
+ */
 export const PatreonStore = {
     Fetch: PatreonFetchTokenStore,
     KV: PatreonKVTokenStore,

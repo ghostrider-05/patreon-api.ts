@@ -7,6 +7,13 @@ The Patreon API is only accessible by authorizing your request with an access to
 
 For both types of applications you will need to [create a client in the developer portal](https://www.patreon.com/portal/registration/register-clients). Copy the client id and secret and store them in your secrets. You can also find the creator access and refresh tokens in the client information.
 
+## Authenticate a request
+
+For making a request, there are multiple options to include the access token:
+
+- in the client oauth options: `token`. This will be the default token on the client and exposed on `<Client>.oauth.cachedToken`.
+- in the request method: set `options.token`. This will be required if no token is set on the client for every request.
+
 ## Creator token
 
 If you don't need to handle Oauth2 requests, but only your own creator profile, the first example will get you started.
@@ -111,6 +118,9 @@ After refreshing, the token will be stored in `client.oauth.cachedToken` and upd
 If no token is provided in the request options, the validation will throw an error.
 
 ## Store
+
+> [!WARNING]
+> The store feature is deprecated and will be removed in future versions.
 
 There are 3 built-in methods of retrieving and storing tokens:
 

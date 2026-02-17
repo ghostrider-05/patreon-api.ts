@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 // #region token-options
 import { PatreonCreatorClient } from 'patreon-api.ts'
 
@@ -20,7 +21,8 @@ const client = new PatreonCreatorClient({
 })
 // #endregion token-options
 // #region token-store
-import { PatreonCreatorClient, PatreonStore } from 'patreon-api.ts'
+import { PatreonCreatorClient, CacheTokenStore, type RestEventMap } from 'patreon-api.ts'
+import { EventEmitter } from 'node:stream'
 
 declare const env: {
     CLIENT_ID: string
@@ -28,19 +30,37 @@ declare const env: {
     SERVER_TOKEN: string
 }
 
+// Configure async/sync store and the binding depending on the storage used
+const cache = new CacheTokenStore(true)
+// Get the current token saved on starting the process
+const dbToken = (await cache.get('token'))!
+
+const emitter = new EventEmitter<RestEventMap>()
+
 const client = new PatreonCreatorClient({
     oauth: {
         clientId: env.CLIENT_ID,
         clientSecret: env.CLIENT_SECRET,
+        token: dbToken,
     },
-    store: new PatreonStore.Fetch('https://my-server/patreon-token', (url, init) => {
-        return fetch(url, {
-            ...init,
-            headers: {
-                'Authorization': env.SERVER_TOKEN,
-            }
-        })
-    })
+    rest: {
+        emitter,
+    }
+})
+
+emitter.on('response', async ({ response }) => {
+    // Refresh the creator token when a 401 response is received
+    if (response.status === 401) {
+        // Get the token from the client options
+        const currentToken = client.oauth.cachedToken
+        if (!currentToken) return console.log('No token to refresh')
+        const refreshedToken = await client.oauth.refreshToken(currentToken)
+
+        // Save it your DB
+        await cache.put('token', refreshedToken)
+        // Update the token on the client
+        client.oauth.cachedToken = refreshedToken
+    }
 })
 
 // #endregion token-store
