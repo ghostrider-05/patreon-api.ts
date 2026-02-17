@@ -28,7 +28,7 @@
   "homepage": "https://github.com/ghostrider-05/patreon-api.ts#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ghostrider-05/patreon-api.ts.git"
+    "url": "git+https://github.com/ghostrider-05/patreon-api.ts.git"
   },
   "bugs": {
     "url": "https://github.com/ghostrider-05/patreon-api.ts/issues/"
