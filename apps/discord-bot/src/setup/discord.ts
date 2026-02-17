@@ -89,7 +89,6 @@ function getPermissions (env: Config.Options) {
     }
 
     return [...new Set(permissions)]
-    // eslint-disable-next-line
         .reduce((bit, permission) => bit |= permission, BigInt(0))
         .toString()
 }

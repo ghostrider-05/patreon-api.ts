@@ -181,7 +181,6 @@ export class RestClient {
             if (response instanceof Error) {
                 throw response
             } else if (response == null) {
-                // eslint-disable-next-line
                 return await tryRequest(++retries)
             } else {
                 const counterOptions = { method, status: response.status }
@@ -213,7 +212,6 @@ export class RestClient {
                         if (updatedToken) options.accessToken = updatedToken
                     }
 
-                    // eslint-disable-next-line
                     return await tryRequest(++retries)
                 } else {
                     throw retryInvalidRequestResult
@@ -275,7 +273,6 @@ export class RestClient {
             signal.throwIfAborted()
             return await fetcher(options.url, init)
         } catch (error) {
-            // eslint-disable-next-line
             if (!(error instanceof Error)) throw new Error(JSON.stringify(error))
 
             const data = this.getRetryData(options.currentRetries, null, error)
