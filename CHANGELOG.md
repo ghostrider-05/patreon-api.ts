@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.1](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.18.0...patreon-api.ts-v0.18.1) (2026-02-17)
+
+
+### Bug Fixes
+
+* **PatreonClient:** add note for possible type bug on shared clients ([63b0689](https://github.com/ghostrider-05/patreon-api.ts/commit/63b06896afaed03bf7b34bceaa5c502ffed092b6)), closes [#143](https://github.com/ghostrider-05/patreon-api.ts/issues/143)
+
 ## [0.18.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.17.0...patreon-api.ts-v0.18.0) (2026-02-17)
 
 
