@@ -307,7 +307,8 @@ export class PatreonOauthClient {
             grant_type: 'refresh_token',
         })
 
-        return await this.rest.post(...options)
+        const refreshedToken = await this.rest.post<Oauth2Token>(...options)
+        return PatreonOauthClient.toStored<false>(refreshedToken)
     }
 
     /**
