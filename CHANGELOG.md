@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.2](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.18.1...patreon-api.ts-v0.18.2) (2026-02-17)
+
+
+### Bug Fixes
+
+* **ci:** use new NPM trusted publishing ([b583e68](https://github.com/ghostrider-05/patreon-api.ts/commit/b583e68558fc081b7de1d83e06934778ca560362))
+
 ## [0.18.1](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.18.0...patreon-api.ts-v0.18.1) (2026-02-17)
 
 
