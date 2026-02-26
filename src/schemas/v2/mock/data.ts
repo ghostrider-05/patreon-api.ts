@@ -1,16 +1,5 @@
+/* eslint-disable jsdoc/require-returns */
 import { randomUUID } from 'node:crypto'
-
-import type {
-    Relationship,
-    RelationshipFields,
-    RelationshipFieldToFieldType,
-    RelationshipItem,
-    RelationshipMap,
-} from '../relationships'
-
-import type { ItemMap, ItemType, Type } from '../item'
-
-import { QueryBuilder } from '../query'
 
 import {
     type PatreonErrorData,
@@ -21,13 +10,28 @@ import {
 import type { ListRequestPayload } from '../../../payloads/v2/internals/list'
 import type { GetRequestPayload } from '../../../payloads/v2/internals/get'
 
+import { PatreonMockDataRandomResources } from '../generated/random'
+
+import type { AttributeItem, ItemMap, ItemType, Type } from '../item'
+
+import type {
+    Relationship,
+    RelationshipFields,
+    RelationshipFieldToFieldType,
+    RelationshipItem,
+    RelationshipMap,
+} from '../relationships'
+
+import { QueryBuilder, QueryRequestOptions } from '../query'
+
+import { findAPIPath } from './paths'
+
 import {
     defaultRandomDataGenerator,
     type RandomInteger,
     resolveRandomInteger,
     type RandomDataGenerator,
 } from './random'
-import { PatreonMockDataRandomResources } from '../generated/random'
 
 import type {
     WriteResourcePayload,
@@ -41,6 +45,85 @@ export interface PatreonMockHeaderData {
     rayId?: string
     ratelimit?: {
         retryAfter: string
+    }
+}
+
+export interface PatreonMockDataScrubOptions {
+    /**
+     * How to scrub the senstive data
+     * @default `(value) => '*'.repeat(value.length)`
+     */
+    replacer?: string | ((value: string) => string)
+
+    /**
+     * The attributes on items to scrub.
+     * Define a key with all resource types this attribute should be scrubbed.
+     */
+    attributes?: {
+        key: string
+        resources: ItemType[]
+    }[]
+}
+
+export interface PatreonMockDataQuery<
+    T extends Type | ItemType,
+    I extends RelationshipFields<T>,
+    A extends RelationshipMap<T, I>,
+> {
+    /** @deprecated */
+    includes?: I[]
+    relationships?: I[]
+    attributes: A
+    requestOptions?: QueryRequestOptions | undefined
+}
+
+// eslint-disable-next-line jsdoc/require-jsdoc
+function getRelationships<
+    T extends Type | ItemType,
+    I extends RelationshipFields<T>,
+    A extends RelationshipMap<T, I>,
+>(query: PatreonMockDataQuery<T, I, A>): I[] {
+    return query.relationships ?? query.includes ?? []
+}
+
+// eslint-disable-next-line jsdoc/require-jsdoc
+function applySorting<I extends { attributes: object }> (
+    items: I[],
+    sortOptions: NonNullable<QueryRequestOptions['sort']>
+): I[] {
+    const keys = (Array.isArray(sortOptions) ? sortOptions : [sortOptions]
+        .map(key => typeof key === 'string' ? { key } : key)) as { key: string, descending?: boolean }[]
+    if (keys.length === 0) return items
+
+    for (const { key, descending } of keys) {
+        items.sort((first, second) => {
+            const a: unknown = first.attributes[key]
+            const b: unknown = second.attributes[key]
+
+            if (typeof a == 'string' && typeof b === 'string') {
+                return descending ? b.localeCompare(a) : a.localeCompare(b)
+            } else if (typeof a == 'number' && typeof b === 'number') {
+                return descending ? b - a : a - b
+            } else if (typeof a == 'boolean') {
+                return descending ? (a === b) ? 0 : a ? -1 : 1 : (a === b) ? 0 : a ? 1 : -1
+            }
+
+            return 0
+        })
+    }
+
+    return items
+}
+
+export interface PatreonMockDataPaginationOptions {
+    /**
+     * @default 100
+     */
+    defaultCount: number
+
+    cursor: {
+        getOffset: (cursor: string) => number
+        fromOffset: (offset: number) => string
     }
 }
 
@@ -61,6 +144,11 @@ export interface PatreonMockDataOptions {
             [M in RequestMethod]: (body: WriteResourcePayload<WriteResourceType, M>) => WriteResourceResponse<WriteResourceType>
         }>
     }
+
+    /**
+     * Options for creating and filtering paginated responses
+     */
+    pagination?: Partial<PatreonMockDataPaginationOptions>
 }
 
 export interface PatreonMockIdOptions {
@@ -88,7 +176,8 @@ export class PatreonMockData {
      * Get a response body for a single resource to mock a response payload
      * @param type The type of the resource that is returned
      * @param query The query to select the relationships and attributes returned
-     * @param query.includes The requested relationships on the item
+     * @param query.includes DEPRECATED. The requested relationships on the item
+     * @param query.relationships The requested relationships on the item
      * @param query.attributes The attribute map to filter the returned attributes
      * @param data The resource item, id and related items
      * @param data.id The id of the resource
@@ -98,10 +187,7 @@ export class PatreonMockData {
      */
     public getSingleResponsePayload<T extends Type | ItemType, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
         type: T,
-        query: {
-            includes: I[]
-            attributes: A
-        },
+        query: PatreonMockDataQuery<T, I, A>,
         data: {
             id: string
             item: Partial<ItemMap[T]>
@@ -110,8 +196,9 @@ export class PatreonMockData {
     ): GetRequestPayload<T, I, A> {
         const url = this.createAPIUrl(type, data.id)
         const attributeItem = this.getAttributeItem(type, data.id, data.item, query.attributes[type] as (keyof ItemMap[T])[] ?? [])
+        const includes = getRelationships(query)
 
-        if (query.includes.length === 0) {
+        if (includes.length === 0) {
             return {
                 links: { self: url },
                 data: attributeItem,
@@ -134,18 +221,17 @@ export class PatreonMockData {
      * Get a response body for multiple resources to mock a response payload
      * @param type The type of the resource that is returned
      * @param query The query to select the relationships and attributes returned
-     * @param query.includes The requested relationships on the item
+     * @param query.includes DEPRECATED. The requested relationships on the item
+     * @param query.relationships The requested relationships on the item
      * @param query.attributes The attribute map to filter the returned attributes
+     * @param query.requestOptions The pagination limits and sorting to apply to the items
      * @param data The resource item, id and related items
      * @param data.items The attributes of the resources. If partial, the other attributes will be generated randomly.
      * @returns the JSON:API response payload
      */
     public getListResponsePayload<T extends Type | ItemType, I extends RelationshipFields<T>, A extends RelationshipMap<T, I>>(
         type: T,
-        query: {
-            includes: I[];
-            attributes: A;
-        },
+        query: PatreonMockDataQuery<T, I, A>,
         data: {
             items: {
                 item: {
@@ -156,54 +242,59 @@ export class PatreonMockData {
             }[]
         },
     ): ListRequestPayload<T, I, A> {
-        const items = data.items.map(({ item }) => {
+        const { data: items, meta } = this.filterDataItems(data.items.map(({ item }) => {
             // @ts-expect-error TODO: add a new type to remove this error
-            return this.getAttributeItem<T, A[T]>(
+            return this.getAttributeItem<T, NonNullable<A[T][number]>>(
                 type,
                 item.id,
                 item.attributes,
                 query.attributes[type]
             )
-        })
+        }), query.requestOptions)
 
-        const meta = {
-            pagination: {
-                total: items.length,
-                cursors: { next: 'cursor' },
-            }
-        }
+        const includes = getRelationships(query)
 
-        if (query.includes.length === 0) {
+        if (includes.length === 0) {
             return {
                 data: items,
                 meta,
             } as ListRequestPayload<T, I, A>
         } else {
-            const mappedItems = data.items.map(({ included }, i) => {
+            type RelatedListRequestPayload = {
+                meta: ListRequestPayload<T, I, A>['meta']
+                data: (ListRequestPayload<T, I, A>['data'][number] & Relationship<T, I>)[]
+                included: RelationshipItem<T, I, A>[]
+            }
+
+            return items.reduce((output, item) => {
+                const included = data.items.find(i => i.item.id === item.id)?.included ?? []
                 const { included: relatedItems, relationships } = this.filterRelationships(type, included, query)
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                const attributes = items[i]!
+
+                const dataItem = {
+                    ...item,
+                    relationships,
+                } as ListRequestPayload<T, I, A>['data'][number] & Relationship<T, I>
 
                 return {
-                    item: {
-                        ...attributes,
-                        relationships,
-                    },
-                    included: relatedItems,
+                    meta: output.meta,
+                    data: output.data.concat(dataItem),
+                    included: output.included.concat(relatedItems),
                 }
-            })
-
-            return {
-                data: mappedItems.map(item => item.item),
-                included: mappedItems.map(item => item.included).flat(),
-                meta,
-            }
+            }, { meta, data: [], included: [] } as unknown as RelatedListRequestPayload)
         }
     }
 
+    /**
+     * Create items that can be related to the resource type.
+     * @param type The resource type to create items for
+     * @param options Options for how to generate the related items
+     * @param options.items Return these items for related types.
+     * @param options.length If no items are found in `options.items` for the related type, return `length` amount of random items.
+     * Default: `1`.
+     */
     public createRelatedItems<T extends ItemType> (type: T, options?: {
         items?: RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[]
-        // length?: RandomInteger,
+        length?: RandomInteger
     }): RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[] {
         const relationMap = QueryBuilder.createRelationMap(type)
         const relationTypes = Object.values(relationMap) as RelationshipFieldToFieldType<T, RelationshipFields<T>>[]
@@ -213,22 +304,29 @@ export class PatreonMockData {
             if (relatedItems.length > 0) return relatedItems
 
             return this.getAttributeItems(key, undefined, undefined, {
-                length: 1,
+                length: options?.length ?? 1,
             })
         })
     }
 
+    /**
+     * @param type The resource type of the item to return
+     * @param id The id of the item to return. If not given, creates a random id
+     * @param data The attributes of the item. If no attributes are defined, they are merged with random attributes
+     * @param attributes The attributes query to apply. This filters all the attributes in the item
+     */
     public getAttributeItem<T extends ItemType, A extends keyof ItemMap[T] = keyof ItemMap[T]>(
         type: T,
-        id: string,
+        id?: string,
         data?: Partial<ItemMap[T]>,
         attributes?: A[],
-    ) {
-        const item = { ...this.random[type](id), ...(data ?? {}) }
+    ): AttributeItem<T, Pick<ItemMap[T], A>> {
+        const itemId = id ?? this.createId(type)
+        const item = { ...this.random[type](itemId), ...(data ?? {}) }
 
         return {
             type,
-            id,
+            id: itemId,
             attributes: (attributes == undefined ? item : (attributes.length === 0
                 ? {}
                 : Object.keys(item)
@@ -244,17 +342,62 @@ export class PatreonMockData {
         options?: {
             length?: RandomInteger,
         }
-    ) {
+    ): AttributeItem<T, Pick<ItemMap[T], A>>[] {
         return Array.from({ length: resolveRandomInteger(options?.length, items, 10) }, (_, i) => {
             return this.getAttributeItem(
                 type,
-                items?.at(i)?.id ?? this.createId(type),
+                items?.at(i)?.id,
                 items?.at(i)?.data,
                 attributes,
             )
         })
     }
 
+    private get paginationOptions (): PatreonMockDataPaginationOptions {
+        return {
+            defaultCount: 100,
+            cursor: {
+                fromOffset: (offset) => `cursor_${offset}`,
+                getOffset: (cursor) => +(cursor.split('_').at(1) ?? '0'),
+            },
+            ...(this.options.pagination ?? {}),
+        }
+    }
+
+    protected filterDataItems <T extends { attributes: object }> (
+        items: T[],
+        query: QueryRequestOptions | undefined,
+    ) {
+        const { cursor, defaultCount } = this.paginationOptions
+
+        const offset = query?.cursor
+            ? cursor.getOffset(query.cursor)
+            : 0
+        const count = query?.count ?? defaultCount
+        const nextCursor = (items.length - (count + offset)) > 0
+            ? cursor.fromOffset(count + offset)
+            : null
+        const filtered = items.slice(offset, offset + count)
+
+        const meta = {
+            pagination: {
+                total: items.length,
+                cursors: { next: nextCursor },
+            }
+        }
+
+        return {
+            meta,
+            data: applySorting<T>(filtered, query?.sort ?? []),
+        }
+    }
+
+    /**
+     * Filters `relatedItems` to return a filtered `data.relationships` and `included` fields based on `query`.
+     * @param type The resource type of the response
+     * @param relatedItems The related items to the main resource to filter
+     * @param query The query to use for filtering the items
+     */
     public filterRelationships<
         T extends ItemType,
         I extends RelationshipFields<T>,
@@ -262,13 +405,13 @@ export class PatreonMockData {
     >(
         type: T,
         relatedItems: RelationshipItem<T, RelationshipFields<T>, RelationshipMap<T, RelationshipFields<T>>>[],
-        query: { includes: I[]; attributes: A; },
+        query: PatreonMockDataQuery<T, I, A>,
     ): { included: RelationshipItem<T, I, A>[] } & Relationship<T, I> {
         const resource = QueryBuilder['getResource']<T>(type).relationships
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const getRelation = <F extends RelationshipFields<T>>(name: F) => resource.find(r => r.name === name)!
 
-        const relationships = query.includes.reduce<Relationship<T, I>['relationships']>((obj, relation) => {
+        const relationships = getRelationships(query).reduce<Relationship<T, I>['relationships']>((obj, relation) => {
             const rel = getRelation(relation)
             const items = relatedItems.filter(i => i.type === rel.resource)
 
@@ -296,8 +439,13 @@ export class PatreonMockData {
         return {
             relationships,
             included: relatedItems.map(item => {
-                // @ts-expect-error TODO: fix this
-                return this.getAttributeItem(item.type, item.id, item.attributes, query.attributes[item.type])
+                return this.getAttributeItem(
+                    item.type,
+                    item.id,
+                    // @ts-expect-error TODO: WTF is this error
+                    item.attributes,
+                    query.attributes[item.type],
+                )
             })
         }
     }
@@ -354,6 +502,15 @@ export class PatreonMockData {
      */
     public createError (status: number, data?: Partial<Omit<PatreonErrorData, 'status'>>): PatreonErrorData {
         return PatreonMockData.createError(status, data)
+    }
+
+    /**
+     * Scrub sensitive data from resources
+     * @param data The API response, request, url or an id to scrub
+     * @param options Options for how and what to replace
+     */
+    public scrub (data: unknown | unknown[], options?: PatreonMockDataScrubOptions) {
+        return PatreonMockData.scrub(data, options)
     }
 
     /**
@@ -435,6 +592,75 @@ export class PatreonMockData {
                 [ResponseHeaders.RetryAfter]: data.ratelimit.retryAfter,
             } : {}),
             'Content-Type': 'application/json',
+        }
+    }
+
+    /**
+     * Scrub sensitive data from resources
+     * @param data The API response, request, url or an id to scrub
+     * @param options Options for how and what to replace
+     */
+    public static scrub <T>(data: T, options?: PatreonMockDataScrubOptions) {
+        const replace = (data: string) => {
+            return options?.replacer
+                ? typeof options.replacer === 'string'
+                    ? options.replacer
+                    : options.replacer(data)
+                : '*'.repeat(data.length)
+        }
+
+        if (typeof data === 'string') {
+            const url = URL.parse(data)
+            if (url) {
+                const path = findAPIPath(url.pathname, {
+                    apiPath: '/api/oauth2/v2',
+                })
+
+                if (!path) return data
+                else return replace(data)
+            } else {
+                return replace(data)
+            }
+        } else if (Array.isArray(data)) {
+            return data.map(item => PatreonMockData.scrub(item, options))
+        } else if (typeof data === 'object' && data) {
+            const { attributes } = options ?? {}
+            const output = data
+
+            if ('attributes' in data && attributes) {
+                const obj = <object>data['attributes']
+                for (const key of Object.keys(obj)) {
+                    if (typeof obj[key] === 'string') {
+                        if (attributes.some(({ key: k, resources }) => k === key && resources.includes(data['type']))) {
+                            obj[key] = PatreonMockData.scrub(obj[key], options)
+                        }
+                    }
+                }
+
+                output['attributes'] = obj
+            }
+
+            if ('included' in data) {
+                output['included'] = PatreonMockData.scrub(data['included'], options)
+            }
+
+            if ('data' in data) {
+                output['data'] = PatreonMockData.scrub(data['data'], options)
+            }
+
+            if ('id' in data) {
+                output['id'] = PatreonMockData.scrub(data['id'], options)
+            }
+
+            if ('links' in data) {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                const key = Object.keys(<object>data['links'])[0]!
+                output['links'][key] = PatreonMockData.scrub((<object>data['links'])[key], options)
+            }
+
+            return output
+        } else {
+            return data
         }
     }
 }
