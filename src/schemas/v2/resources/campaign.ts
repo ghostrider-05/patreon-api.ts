@@ -80,6 +80,11 @@ export interface Campaign {
      */
     one_liner: string | null
 
+    /**
+     * The campaign's display name
+     */
+    name: string
+
     // TODO: no documentation
     /**
      * @format uri
@@ -138,6 +143,11 @@ export interface Campaign {
      * The ID of the external discord server that is linked to this campaign
      */
     discord_server_id: string | null
+
+    /**
+     * The campaign's currency
+     */
+    currency: string
 
     /**
      * The type of content the creator is creating, as in "{@link Campaign.vanity} is creating {@link Campaign.creation_name}"
