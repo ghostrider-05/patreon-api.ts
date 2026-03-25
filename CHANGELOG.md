@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.18.2](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.18.1...patreon-api.ts-v0.18.2) (2026-02-17)
+
+
+### Bug Fixes
+
+* **ci:** use new NPM trusted publishing ([b583e68](https://github.com/ghostrider-05/patreon-api.ts/commit/b583e68558fc081b7de1d83e06934778ca560362))
+
+## [0.18.1](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.18.0...patreon-api.ts-v0.18.1) (2026-02-17)
+
+
+### Bug Fixes
+
+* **PatreonClient:** add note for possible type bug on shared clients ([63b0689](https://github.com/ghostrider-05/patreon-api.ts/commit/63b06896afaed03bf7b34bceaa5c502ffed092b6)), closes [#143](https://github.com/ghostrider-05/patreon-api.ts/issues/143)
+
+## [0.18.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.17.0...patreon-api.ts-v0.18.0) (2026-02-17)
+
+
+### Features
+
+* deprecate `store` in favor of `CacheTokenStore` ([d92bea5](https://github.com/ghostrider-05/patreon-api.ts/commit/d92bea58d337cd5b72f0363b4ade1dfee5188fb5))
+* **PatreonOauthClient:** deprecated onTokenRefreshed method ([d92bea5](https://github.com/ghostrider-05/patreon-api.ts/commit/d92bea58d337cd5b72f0363b4ade1dfee5188fb5))
+* **Post:** update content to mention it may be html ([#252](https://github.com/ghostrider-05/patreon-api.ts/issues/252)) ([ef71bd8](https://github.com/ghostrider-05/patreon-api.ts/commit/ef71bd89982fd6523b54ecb029fedbb20b2a3663))
+
+
+### Bug Fixes
+
+* **PatreonOauthClient:** add epoch time to refreshed tokens ([9f08ee3](https://github.com/ghostrider-05/patreon-api.ts/commit/9f08ee3366db3f987761f520bfa4867d2a9d99a0))
+
 ## [0.17.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.16.1...patreon-api.ts-v0.17.0) (2025-11-27)
 
 

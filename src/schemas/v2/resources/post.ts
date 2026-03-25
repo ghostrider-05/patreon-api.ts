@@ -12,9 +12,8 @@ export interface Post {
      */
     app_status: string | null
 
-    // TODO: no description
     /**
-     *
+     * Post content, may include html tags
      */
     content: string | null
 
