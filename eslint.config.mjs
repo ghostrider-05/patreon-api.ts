@@ -12,7 +12,6 @@ export default [
         languageOptions: {
             parserOptions: {
                 project: true,
-                // @ts-expect-error global this is not defined
                 tsconfigRootDir: globalThis.__dirname,
             },
             ecmaVersion: 'latest',
@@ -21,6 +20,8 @@ export default [
         ignores: [
             'dist/*',
             'dist/**',
+            // TODO
+            'apps/discord-bot/**',
             '**/*.test.ts',
             // Ignore current file
             'eslint.config.mjs',

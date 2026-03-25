@@ -181,7 +181,7 @@ export class RestClient {
             if (response instanceof Error) {
                 throw response
             } else if (response == null) {
-                return await tryRequest(++retries)
+                return await tryRequest(retries + 1)
             } else {
                 const counterOptions = { method, status: response.status }
                 if (this.counter.filter(url, counterOptions)) {
@@ -212,7 +212,7 @@ export class RestClient {
                         if (updatedToken) options.accessToken = updatedToken
                     }
 
-                    return await tryRequest(++retries)
+                    return await tryRequest(retries + 1)
                 } else {
                     throw retryInvalidRequestResult
                 }
@@ -273,7 +273,7 @@ export class RestClient {
             signal.throwIfAborted()
             return await fetcher(options.url, init)
         } catch (error) {
-            if (!(error instanceof Error)) throw new Error(JSON.stringify(error))
+            if (!(error instanceof Error)) throw new Error(JSON.stringify(error), { cause: error })
 
             const data = this.getRetryData(options.currentRetries, null, error)
             if (data != null) {
