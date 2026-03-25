@@ -10,8 +10,7 @@ All methods that return mocked data implement the following flow:
 
 - by default: if an item is found in the cache, it returns that item. Otherwise it will create a random item of the same resource
 - with `options.cache` equal to `false`: returns a random item of the resource
-- with `options.random` equal to `false`: if an item is found in the cache, it returns that item. Otherwise returns an empty string.
-- with `options.random` equal to `false` and `options.cache` equal to `false`: returns an empty string
+- with `options.random` equal to `false`, and `options.cache` equal to `false` or nothing found in the cache: returns `options.unknownCacheResponse`
 
 ### Validation
 

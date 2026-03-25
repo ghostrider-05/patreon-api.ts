@@ -6,11 +6,16 @@ import type {
 import type { Type } from '../item'
 import type { RelationshipFieldsToItem } from '../relationships'
 
+type MainRouteResource =
+    | Type.Campaign
+
 export interface Route {
     route:
         | ((id: string) => string)
         | (() => string)
-    resource: RelationshipFieldsToItem<Type.Campaign> | Type.Campaign
+    resource: RelationshipFieldsToItem<MainRouteResource> | MainRouteResource
+    /** @default campaign */
+    mainResource?: MainRouteResource
     description?: string
     summary?: string
     tags: string[]
