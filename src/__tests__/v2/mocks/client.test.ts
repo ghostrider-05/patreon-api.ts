@@ -70,4 +70,28 @@ describe('Mock client', () => {
         expect(error['status']).toEqual(statusCode.toString())
         console.log(error)
     })
+
+    test('mock unknown route', async () => {
+        const handler = client.getMockAgentReplyCallback()
+        const mock = () => handler({ path: '/unknown-path', method: 'get' })
+
+        expect(mock).toThrow()
+    })
+})
+
+describe('mock data', () => {
+    const client = new PatreonMock().data
+
+    test('scrub id', () => {
+        expect(client.scrub('fhoiqh203892h29')).toEqual('***************')
+    })
+
+    test('scrub invalid data', () => {
+        expect(client.scrub(0)).toEqual(0)
+    })
+
+    test('scrub with replacer', () => {
+        expect(client.scrub('12345', { replacer: '-' })).toEqual('-----')
+        expect(client.scrub('12345', { replacer: () => '*' })).toEqual('*')
+    })
 })

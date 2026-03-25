@@ -13,10 +13,6 @@ To track spam and more, Patreon has made it a requirement to send a `User-Agent`
 
 See [the oauth guide](./features/oauth) for configuration of the oauth client.
 
-### store
-
-See [the oauth guide](./features/oauth#store) for configuration of the store for the oauth client.
-
 ### rest.emitter
 
 Connect an event emitter to listen to rest events (such as `request`, `response` or `ratelimit`)

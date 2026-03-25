@@ -6,6 +6,7 @@ const client = new PatreonCreatorClient({
     oauth: {
         clientId: 'id',
         clientSecret: 'secret',
+        // Configure your token
     },
     rest: {
         includeAllQueries: true,

@@ -517,9 +517,10 @@ export class PatreonMockData {
      * Scrub sensitive data from resources
      * @param data The API response, request, url or an id to scrub
      * @param options Options for how and what to replace
+     * @experimental This is not a stable method and can change in the future.
      */
-    public scrub (data: unknown | unknown[], options?: PatreonMockDataScrubOptions) {
-        return PatreonMockData.scrub(data, options)
+    public scrub <T>(data: T, options?: PatreonMockDataScrubOptions): T {
+        return PatreonMockData.scrub<T>(data, options)
     }
 
     /**
@@ -608,12 +609,13 @@ export class PatreonMockData {
      * Scrub sensitive data from resources
      * @param data The API response, request, url or an id to scrub
      * @param options Options for how and what to replace
+     * @experimental This is not a stable method and can change in the future.
      */
-    public static scrub <T>(data: T, options?: PatreonMockDataScrubOptions) {
+    public static scrub <T>(data: T, options?: PatreonMockDataScrubOptions): T {
         const replace = (data: string): string => {
             return options?.replacer
                 ? typeof options.replacer === 'string'
-                    ? options.replacer
+                    ? options.replacer.repeat(data.length)
                     : options.replacer(data)
                 : '*'.repeat(data.length)
         }
@@ -626,12 +628,12 @@ export class PatreonMockData {
                 })
 
                 if (!path?.param) return data
-                else return path.path.route(replace(path.param))
+                else return <T>path.path.route(replace(path.param))
             } else {
-                return replace(data)
+                return <T>replace(data)
             }
         } else if (Array.isArray(data)) {
-            return data.map(item => PatreonMockData.scrub(item, options))
+            return <T>data.map(item => PatreonMockData.scrub(item, options))
         } else if (typeof data === 'object' && data) {
             const { attributes } = options ?? {}
             const output = data
