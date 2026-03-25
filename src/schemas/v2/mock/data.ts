@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto'
 
 import {
     type PatreonErrorData,
+    RouteBases,
     RequestMethod,
     ResponseHeaders,
 } from '../../../rest/v2/'
@@ -39,6 +40,8 @@ import type {
     WriteResourceType,
 } from '../modifiable'
 
+const apiBaseUrl = new URL(RouteBases.oauth2)
+
 export interface PatreonMockHeaderData {
     uuid?: string
     sha?: string
@@ -56,12 +59,18 @@ export interface PatreonMockDataScrubOptions {
     replacer?: string | ((value: string) => string)
 
     /**
+     * For scrubbing API urls, the path prefix to use for the API.
+     * @default '/api/oauth2/v2'
+     */
+    apiPath?: string
+
+    /**
      * The attributes on items to scrub.
      * Define a key with all resource types this attribute should be scrubbed.
      */
     attributes?: {
         key: string
-        resources: ItemType[]
+        resources?: ItemType[]
     }[]
 }
 
@@ -601,7 +610,7 @@ export class PatreonMockData {
      * @param options Options for how and what to replace
      */
     public static scrub <T>(data: T, options?: PatreonMockDataScrubOptions) {
-        const replace = (data: string) => {
+        const replace = (data: string): string => {
             return options?.replacer
                 ? typeof options.replacer === 'string'
                     ? options.replacer
@@ -613,11 +622,11 @@ export class PatreonMockData {
             const url = URL.parse(data)
             if (url) {
                 const path = findAPIPath(url.pathname, {
-                    apiPath: '/api/oauth2/v2',
+                    apiPath: options?.apiPath ?? apiBaseUrl.pathname,
                 })
 
-                if (!path) return data
-                else return replace(data)
+                if (!path?.param) return data
+                else return path.path.route(replace(path.param))
             } else {
                 return replace(data)
             }
@@ -631,7 +640,7 @@ export class PatreonMockData {
                 const obj = <object>data['attributes']
                 for (const key of Object.keys(obj)) {
                     if (typeof obj[key] === 'string') {
-                        if (attributes.some(({ key: k, resources }) => k === key && resources.includes(data['type']))) {
+                        if (attributes.some(({ key: k, resources }) => k === key && (resources == undefined || resources.includes(data['type'])))) {
                             obj[key] = PatreonMockData.scrub(obj[key], options)
                         }
                     }

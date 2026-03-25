@@ -135,7 +135,7 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
         Query extends BasePatreonQueryType<Type.Campaign, true> = QueryDefault<IncludeAll, Type.Campaign, true>
     >(
         // @ts-expect-error Nothing is wrong?
-        query?: Query = this.getDefault(QueryBuilder.campaigns),
+        query: Query = this.getDefault(QueryBuilder.campaigns),
         options?: Oauth2RouteOptions
     ) {
         return await this.fetchOauth2<Query>(Routes.campaigns(), query, options)
@@ -146,7 +146,7 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
     >(
         campaignId: string,
         // @ts-expect-error Nothing is wrong?
-        query?: Query = this.getDefault(QueryBuilder.campaign),
+        query: Query = this.getDefault(QueryBuilder.campaign),
         options?: Oauth2RouteOptions
     ) {
         return await this.fetchOauth2<Query>(Routes.campaign(campaignId), query, options)
@@ -157,7 +157,7 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
     >(
         campaignId: string,
         // @ts-expect-error Nothing is wrong?
-        query?: Query = this.getDefault(QueryBuilder.member),
+        query: Query = this.getDefault(QueryBuilder.member),
         options?: Oauth2RouteOptions
     ) {
         return await this.fetchOauth2<Query>(Routes.campaignMembers(campaignId), query, options)
@@ -168,7 +168,7 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
     >(
         campaignId: string,
         // @ts-expect-error Nothing is wrong?
-        query?: Query = this.getDefault(QueryBuilder.campaignPosts),
+        query: Query = this.getDefault(QueryBuilder.campaignPosts),
         options?: Oauth2RouteOptions
     ) {
         return await this.fetchOauth2<Query>(Routes.campaignPosts(campaignId), query, options)
@@ -179,7 +179,7 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
     >(
         memberId: string,
         // @ts-expect-error Nothing is wrong?
-        query?: Query = this.getDefault(QueryBuilder.member),
+        query: Query = this.getDefault(QueryBuilder.member),
         options?: Oauth2RouteOptions
     ) {
         return await this.fetchOauth2<Query>(Routes.member(memberId), query, options)
@@ -190,7 +190,7 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
     >(
         postId: string,
         // @ts-expect-error Nothing is wrong?
-        query?: Query = this.getDefault(QueryBuilder.post),
+        query: Query = this.getDefault(QueryBuilder.post),
         options?: Oauth2RouteOptions
     ) {
         return await this.fetchOauth2<Query>(Routes.post(postId), query, options)
@@ -200,7 +200,7 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
         Query extends BasePatreonQueryType<Type.User, false> = QueryDefault<IncludeAll, Type.User, false>
     >(
         // @ts-expect-error Nothing is wrong?
-        query?: Query = this.getDefault(QueryBuilder.identity),
+        query: Query = this.getDefault(QueryBuilder.identity),
         options?: Oauth2RouteOptions
     ) {
         return await this.fetchOauth2<Query>(Routes.identity(), query, options)
@@ -210,7 +210,7 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
         Query extends BasePatreonQueryType<Type.Campaign, true> = QueryDefault<IncludeAll, Type.Campaign, true>
     >(
         // @ts-expect-error Nothing is wrong?
-        query?: Query = this.getDefault(QueryBuilder.campaigns),
+        query: Query = this.getDefault(QueryBuilder.campaigns),
         options?: Oauth2RouteOptions
     ) {
         return this.paginateOauth2<Query>(Routes.campaigns(), query, options)
@@ -221,7 +221,7 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
     >(
         campaignId: string,
         // @ts-expect-error Nothing is wrong?
-        query?: Query = this.getDefault(QueryBuilder.campaignMembers),
+        query: Query = this.getDefault(QueryBuilder.campaignMembers),
         options?: Oauth2RouteOptions
     ) {
         return this.paginateOauth2<Query>(Routes.campaignMembers(campaignId), query, options)
@@ -232,7 +232,7 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
     >(
         campaignId: string,
         // @ts-expect-error Nothing is wrong?
-        query?: Query = this.getDefault(QueryBuilder.campaignPosts),
+        query: Query = this.getDefault(QueryBuilder.campaignPosts),
         options?: Oauth2RouteOptions
     ) {
         return this.paginateOauth2<Query>(Routes.campaignPosts(campaignId), query, options)

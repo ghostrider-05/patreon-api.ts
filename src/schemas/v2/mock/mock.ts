@@ -163,13 +163,13 @@ export class PatreonMock {
 
     /**
      * The origin url for the Patreon API
-     * @constant 'https://patreon.com'
+     * @default 'https://patreon.com'
      */
     public static origin = new URL(RouteBases.oauth2).origin
 
     /**
      * The API path that every route starts with
-     * @constant '/api/oauth2/v2'
+     * @default '/api/oauth2/v2'
      */
     public static path = new URL(RouteBases.oauth2).pathname
 

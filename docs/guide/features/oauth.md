@@ -11,14 +11,14 @@ For both types of applications you will need to [create a client in the develope
 
 If you don't need to handle Oauth2 requests, but only your own creator profile, the first example will get you started.
 
-:::warning Expiring tokens
+<!-- :::warning Expiring tokens
 
 It is recommended to [sync your token](#store) to your database or store it somewhere safe, so the token is not lost.
 [Creator tokens will expire](https://www.patreondevelopers.com/t/non-expiring-creators-access-token/213/25) after a certain time (likely a few days to a month), so you will need to [refresh the token](#refresh-tokens) regularly.
 
 Note: There have been reports that [tokens expire when the creator logs in](https://www.patreondevelopers.com/t/creators-access-token-refreshes-everytime-creator-logs-in/6917/6).
 
-:::
+::: -->
 
 :::code-group
 
