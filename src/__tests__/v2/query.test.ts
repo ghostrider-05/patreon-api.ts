@@ -207,6 +207,6 @@ describe('query builder', () => {
             'tiers',
         ])
 
-        expect(QueryBuilder.campaign.schemaResourceAttributes).toHaveLength(27)
+        expect(QueryBuilder.campaign.schemaResourceAttributes).toHaveLength(29)
     })
 })

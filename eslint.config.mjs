@@ -20,8 +20,6 @@ export default [
         ignores: [
             'dist/*',
             'dist/**',
-            // TODO
-            'apps/discord-bot/**',
             '**/*.test.ts',
             // Ignore current file
             'eslint.config.mjs',
