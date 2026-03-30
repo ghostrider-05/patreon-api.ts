@@ -11,11 +11,11 @@ webhook-examples:
 api-examples:
   - title: Node.js - ESM
     details: Fetch creator campaigns and update or create webhooks
-    link: https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/node-esm/
+    link: https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/nodejs-esm/
     linkText: See on GitHub
   - title: Node.js - CJS
     details: Fetch creator campaigns and module augmentation
-    link: https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/node-cjs/
+    link: https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/nodejs-cjs/
     linkText: See on GitHub
 ---
 
