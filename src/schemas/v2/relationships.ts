@@ -51,6 +51,13 @@ interface RelationshipTypeMap extends Record<ItemType, BaseRelationDataItem<Item
     goal: {
         [Type.Campaign]: [false]
     }
+    'live-access-rule': {
+        [Type.Tier]: [false]
+    }
+    live: {
+        [Type.Campaign]: [false]
+        [Type.LiveAccessRule]: ['live_access_rules', true]
+    }
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     media: {
     }

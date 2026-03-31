@@ -13,6 +13,7 @@ import {
 } from './relationships'
 
 export type WriteResourceType =
+    | Type.Live
     | Type.Webhook
 
 type ModifiableMap = {
@@ -20,10 +21,31 @@ type ModifiableMap = {
         requiredAttributes?: keyof ItemMap[T]
         optionalAttributes?: keyof ItemMap[T]
         requiredRelationships?: RelationshipFields<T>
+        additionalAttributes?: object
     }>>
 }
 
 interface ModifiableResourceMap extends ModifiableMap {
+    [Type.Live]: {
+        [RequestMethod.Patch]: {
+            requiredAttributes:
+                | 'state'
+        }
+        [RequestMethod.Post]: {
+            // TODO: is this required?
+            requiredAttributes:
+                | 'state'
+            // TODO: Is this optional?
+            optionalAttributes:
+                | 'title'
+                | 'description'
+                | 'scheduled_for'
+            additionalAttributes: {
+                // TODO: why is the example number[]?
+                live_access_rule_ids?: string[]
+            }
+        }
+    }
     [Type.Webhook]: {
         [RequestMethod.Post]: {
             requiredAttributes:
@@ -51,6 +73,9 @@ type ModifiableResourceAttributes<
         & (ModifiableResourceMap[T][Method] extends { optionalAttributes: keyof ItemMap[T] }
             ? Partial<Pick<ItemMap[T], ModifiableResourceMap[T][Method]['optionalAttributes']>>
             : {})
+            & (ModifiableResourceMap[T][Method] extends { additionalAttributes: object }
+                ? ModifiableResourceMap[T][Method]['additionalAttributes']
+                : {})
     : never
 
 // Write relationships should not be nullable (I think)
