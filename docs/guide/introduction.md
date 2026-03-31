@@ -140,6 +140,10 @@ keys:
 
 Do you have a question about using this library? [Open a Q&A discussion on GitHub](https://github.com/ghostrider-05/patreon-api.ts/discussions/categories/q-a).
 
+## Documentation issues
+
+As you may have noticed, the Patreon API documentation is missing explanations for a lot of things. Therefore I needed to guess or test certain things myself when making this library. By doing this I acknowledge that sometimes your application can throw errors or types might not fully reflect the data. To fix this, either open a [GitHub issue](https://github.com/ghostrider-05/patreon-api.ts/issues/) with your findings or [post a discussion](https://patreondevelopers.com) on the Patreon developers forum to ask Patreon developers to update their documentation.
+
 ## Comparison
 
 See why I made this library with all* [JavaScript and TypeScript repositories for the Patreon API](https://github.com/search?q=patreon+language:JavaScript+language:TypeScript++archived:false++is:public+stars:%3E0&type=repositories&s=stars&o=desc) compared (scroll to see all features):
