@@ -6,7 +6,7 @@ import { VariableDeclarationKind } from 'ts-morph'
 
 import { Type } from '../../v2'
 
-import { createTsScriptProgram, type TsScript } from './shared'
+import { createTsScriptProgram, getResourceTypeFromFile, type TsScript } from './shared'
 
 export async function syncResourceSchemas () {
     const program = createTsScriptProgram('schemas.ts')
@@ -17,7 +17,7 @@ export async function syncResourceSchemas () {
     for (const file of files) {
         const sourceFile = program.project.addSourceFileAtPath('./src/schemas/v2/resources/' + file)
         const fileName = parse(file).name
-        const type = <Type>(fileName === 'oauth_client' ? 'client' : fileName.replace('_', '-'))
+        const type = getResourceTypeFromFile(fileName)
 
         const name = snakeCaseToPascalCase(fileName)
         const resource = sourceFile.getInterfaceOrThrow(name)

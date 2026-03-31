@@ -8,11 +8,22 @@ import {
     type SourceFile,
 } from 'ts-morph'
 
+import { Type } from '../../schemas/v2/item'
+
 export interface TsScript {
     project: Project
     file: SourceFile
     save(): Promise<void>
     addVariableStatement: SourceFile['addVariableStatement']
+}
+
+export function getResourceTypeFromFile (fileName: string): Type {
+    const customFileNames: Record<string, Type> = {
+        oauth_client: Type.Client,
+        access_rule: Type.LiveAccessRule,
+    }
+
+    return customFileNames[fileName] ?? <Type>fileName.replace('_', '-')
 }
 
 export function createTsScriptProgram (outFilename: string): TsScript {

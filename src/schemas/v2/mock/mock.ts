@@ -24,6 +24,7 @@ import {
 
 import {
     PatreonMockData,
+    PatreonMockDataAttributes,
     type PatreonMockDataOptions,
     type PatreonMockDataQuery,
 } from './data'
@@ -207,6 +208,7 @@ export class PatreonMock {
 
     private static isWriteResourceType (type: Type | ItemType): type is WriteResourceType {
         return [
+            Type.Live,
             Type.Webhook,
         ].includes(<Type>type)
     }
@@ -416,23 +418,26 @@ export class PatreonMock {
         // - Assume that the GET method is excluded.
         // And generate a new id for the resource.
         const resourceId = route.param ?? this.data.createId(resourceType)
-        const mockAttributes = PatreonMock.isWriteResourceType(resourceType)
+        //@ts-expect-error TODO: Something is wrong
+        const mockAttributes: PatreonMockDataAttributes<WriteResourceType> = PatreonMock.isWriteResourceType(resourceType)
             ? this.data.options.mockAttributes?.[resourceType] ?? {}
             : {}
 
-        if (PatreonMock.isWriteResourceType(resourceType)) this.cache.syncRequest(
-            {
-                method: request.method as RequestMethod,
-                body: request.body
-                    ? JSON.parse(request.body.toString())
-                    : null
-            },
-            {
-                resource: resourceType,
-                id: resourceId,
-                mockAttributes,
-            }
-        )
+        if (PatreonMock.isWriteResourceType(resourceType)) {
+            this.cache.syncRequest<RequestMethod, WriteResourceType>(
+                {
+                    method: request.method as RequestMethod,
+                    body: request.body
+                        ? JSON.parse(request.body.toString())
+                        : null
+                },
+                {
+                    resource: resourceType,
+                    id: resourceId,
+                    mockAttributes,
+                }
+            )
+        }
 
         // Return an error
         if (options.statusCode != undefined && options.statusCode >= 400) {

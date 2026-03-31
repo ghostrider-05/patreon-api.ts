@@ -22,14 +22,14 @@ interface RelationshipTypeMap extends Record<ItemType, BaseRelationDataItem<Item
     }
     benefit: {
         [Type.Campaign]: [true]
-        // TODO: add `campaign_installation` when documentated
+        // TODO: add `campaign_installation` when documented
         [Type.Deliverable]: [true]
         [Type.Tier]: [true]
     }
     campaign: {
         [Type.Benefit]: Multiple<Type.Benefit>
-        // TODO: add `campaign_installation` when documentated
-        // TODO: add `categories` when documentated
+        // TODO: add `campaign_installation` when documented
+        // TODO: add `categories` when documented
         [Type.User]: ['creator', false]
         /** @deprecated Will always be empty */
         [Type.Goal]: Multiple<Type.Goal>
