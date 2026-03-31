@@ -76,7 +76,7 @@ export const Routes = {
      * @param liveId The id of the live
      */
     live (liveId: string) {
-        return `/lives/${liveId}`
+        return `/lives/${liveId}` as const
     },
 
     /**
@@ -85,7 +85,7 @@ export const Routes = {
      * - POST `/lives`
      */
     lives () {
-        return '/lives'
+        return '/lives' as const
     },
 
     /**

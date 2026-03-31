@@ -1,7 +1,6 @@
 import {
     type BasePatreonQueryType,
     type GetResponsePayload,
-    QueryBuilder,
     Type,
     type Webhook,
     type WriteResourcePayload,
@@ -16,7 +15,7 @@ import {
 import type { PatreonOauthClient } from '../oauth2/client'
 import { resolveHeaders } from '../oauth2/rest/headers'
 
-import type { Oauth2RouteOptions } from '../clients/shared'
+import { WriteResourceSharedClient, type Oauth2RouteOptions,  } from '../clients/shared'
 
 import { WebhookPayloadClient } from './payload'
 
@@ -38,10 +37,6 @@ export type WebhookAPIEditBody = WriteResourcePayload<Type.Webhook, RequestMetho
 export type WebhookAPIEditResult = WriteResourceResponse<Type.Webhook>
 
 export class WebhookClient {
-    private static get emptyQuery () {
-        return QueryBuilder.fromParams(new URLSearchParams())
-    }
-
     /**
      * The headers that are sent on webhook requests
      */
@@ -61,10 +56,16 @@ export class WebhookClient {
     }
 
     public payloads = WebhookPayloadClient
+    private shared: WriteResourceSharedClient<Type.Webhook, undefined>
 
     public constructor (
         public oauth: PatreonOauthClient,
-    ) {}
+    ) {
+        this.shared = new WriteResourceSharedClient(Type.Webhook, oauth, {
+            itemRoute: Routes.webhook,
+            listRoute: Routes.webhooks,
+        })
+    }
 
     /**
      * Creates a new webhook owned by this client.
@@ -76,30 +77,19 @@ export class WebhookClient {
         webhook: WebhookAPICreateBody,
         options?: Oauth2WebhookRouteOptions,
     ): Promise<WriteResourceResponse<Type.Webhook>> {
-        const body: WriteResourcePayload<Type.Webhook, RequestMethod.Post> = {
-            data: {
-                type: Type.Webhook,
-                attributes: {
-                    uri: webhook.uri,
-                    triggers: webhook.triggers,
-                },
-                relationships: {
-                    campaign: {
-                        data: {
-                            id: webhook.campaignId,
-                            type: Type.Campaign,
-                        },
-                    },
-                },
-            },
-        }
+        const { campaignId, ...attributes } = webhook
 
-        return await this.oauth.fetch(Routes.webhooks(), WebhookClient.emptyQuery, {
-            ...(options ?? {}),
-            method: RequestMethod.Post,
-            body: JSON.stringify(body),
-        // Typecast needed because of empty query
-        }) as unknown as WriteResourceResponse<Type.Webhook>
+        return this.shared.create({
+            attributes,
+            relationships: {
+                campaign: {
+                    data: {
+                        type: Type.Campaign,
+                        id: campaignId,
+                    }
+                }
+            },
+        }, options)
     }
 
     /**
@@ -112,7 +102,7 @@ export class WebhookClient {
         query: Query,
         options?: Oauth2WebhookRouteOptions,
     ): Promise<GetResponsePayload<Query>> {
-        return await this.oauth.fetch<Query>(Routes.webhooks(), query, options)
+        return this.shared.fetch(query, options)
     }
 
     /**
@@ -125,22 +115,7 @@ export class WebhookClient {
         webhook: WebhookAPIEditBody,
         options?: Oauth2WebhookRouteOptions,
     ): Promise<WriteResourceResponse<Type.Webhook>> {
-        const { id, ...attributes } = webhook
-
-        const body: WriteResourcePayload<Type.Webhook, RequestMethod.Patch> = {
-            data: {
-                type: Type.Webhook,
-                id,
-                attributes,
-            }
-        }
-
-        return await this.oauth.fetch(Routes.webhook(id), WebhookClient.emptyQuery, {
-            ...(options ?? {}),
-            method: RequestMethod.Patch,
-            body: JSON.stringify(body),
-        // Typecast needed because of empty query
-        }) as unknown as WriteResourceResponse<Type.Webhook>
+        return this.shared.edit(webhook, options)
     }
 
     // TODO: write test
@@ -153,10 +128,7 @@ export class WebhookClient {
         webhookId: string,
         options?: Oauth2WebhookRouteOptions,
     ): Promise<void> {
-        await this.oauth.fetch(Routes.webhook(webhookId), WebhookClient.emptyQuery, {
-            ...(options ?? {}),
-            method: RequestMethod.Delete,
-        })
+        await this.shared.delete(webhookId, options)
     }
 
     // TODO: make static too
