@@ -5,6 +5,7 @@ import type { Route } from '../types'
 
 import campaign from './campaign'
 import identity  from './identity'
+import live from './live'
 import member from './member'
 import post from './post'
 import webhook from './webhook'
@@ -21,6 +22,8 @@ export const RoutesData = {
     member: member.at(1)!,
     campaignPosts: post.at(0)!,
     post: post.at(1)!,
+    lives: live.at(1)!,
+    live: live.at(0)!,
     webhook: webhook.at(0)!,
     webhooks: webhook.at(1)!,
 } satisfies Record<keyof typeof Routes, Route>
@@ -31,5 +34,6 @@ export default [
     ...campaign,
     ...member,
     ...post,
+    ...live,
     ...webhook,
 ] satisfies Route[]
