@@ -4,7 +4,7 @@ import { parse, resolve } from 'node:path'
 
 import { MethodDeclarationStructure, OptionalKind } from 'ts-morph'
 
-import { createTsScriptProgram, getJsDocTags, getResourceTypeFromFile } from './shared'
+import { createTsScriptProgram, getJsDocTags, getResourceTypeFileConverter } from './shared'
 
 const isNonStringType = (input: string): boolean => {
     const tryParse = (parse: () => unknown | boolean) => {
@@ -31,7 +31,7 @@ export async function syncRandomData () {
     for (const file of files) {
         const sourceFile = program.project.addSourceFileAtPath('./src/schemas/v2/resources/' + file)
         const fileName = parse(file).name
-        const type = getResourceTypeFromFile(fileName)
+        const type = getResourceTypeFileConverter().fromFile(fileName)
 
         const name = snakeCaseToPascalCase(fileName)
         const resource = sourceFile.getInterfaceOrThrow(name)
@@ -71,7 +71,7 @@ export async function syncRandomData () {
                     if (generator) writer.write(`this.random.${generator}()`)
                     else if (exampleValue) {
                         writer.write(isNonStringType(exampleValue) ? exampleValue : `'${exampleValue}'`)
-                        console.log('Written example value:', type, property.getName(), exampleValue, isNonStringType(exampleValue))
+                        // console.log('Written example value:', type, property.getName(), exampleValue, isNonStringType(exampleValue))
                     }else if (!propType.isNullable() && (propType.isBoolean() || propType.isNumber())) {
                         writer.write(`this.random.${propType.getText()}()`)
                     }
@@ -103,6 +103,8 @@ export async function syncRandomData () {
         namedImports: ['ItemMap'],
         isTypeOnly: true,
         leadingTrivia: writer => {
+            writer.write('/* eslint-disable quotes */')
+            writer.newLine()
             writer.write('/* eslint-disable jsdoc/require-param */')
             writer.newLine()
             writer.write('/* eslint-disable jsdoc/require-returns */')

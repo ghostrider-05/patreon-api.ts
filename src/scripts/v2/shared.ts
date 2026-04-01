@@ -17,13 +17,20 @@ export interface TsScript {
     addVariableStatement: SourceFile['addVariableStatement']
 }
 
-export function getResourceTypeFromFile (fileName: string): Type {
+export function getResourceTypeFileConverter () {
     const customFileNames: Record<string, Type> = {
         oauth_client: Type.Client,
         access_rule: Type.LiveAccessRule,
     }
 
-    return customFileNames[fileName] ?? <Type>fileName.replace('_', '-')
+    const getTypeName = (type: Type) => Object.entries(customFileNames).find(([,t]) => t === type)?.[0] ?? type
+
+    return {
+        getTypeName,
+        fromFile: (fileName: string) => customFileNames[fileName] ?? <Type>fileName.replace('_', '-'),
+        fromType: (type: Type) => getTypeName(type).replace('-', '_'),
+        toFile: (typeName: string) => typeName.replace('-', '_'),
+    }
 }
 
 export function createTsScriptProgram (outFilename: string): TsScript {

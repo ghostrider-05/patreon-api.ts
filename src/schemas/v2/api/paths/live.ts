@@ -70,7 +70,6 @@ export default [
         methods: [
             {
                 method: RequestMethod.Get,
-                experimental: true,
                 id: <const>'getLive',
                 scopes: [
                     PatreonOauthScope.CampaignLives,
@@ -78,7 +77,6 @@ export default [
             },
             {
                 method: RequestMethod.Delete,
-                experimental: true,
                 id: <const>'deleteLive',
                 responseStatus: 204,
                 scopes: [
@@ -87,7 +85,6 @@ export default [
             },
             {
                 method: RequestMethod.Patch,
-                experimental: true,
                 id: <const>'editLive',
                 scopes: [
                     PatreonOauthScope.ManageCampaignLives,
@@ -106,7 +103,6 @@ export default [
         methods: [
             {
                 method: RequestMethod.Post,
-                experimental: true,
                 id: <const>'createLive',
                 body: postBody,
             },
