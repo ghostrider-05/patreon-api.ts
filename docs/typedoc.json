@@ -105,6 +105,7 @@
         "PaginationQuerySort",
         // client types
         "PatreonSharedClient",
+        "WriteResourceSharedClient",
         "OauthClientOptions",
         "RequestFilter",
         // payload types
