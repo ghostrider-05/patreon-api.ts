@@ -31,9 +31,9 @@ export interface Webhook {
      * @see https://docs.patreon.com/#triggers-v2
      * @example
      * [
-     *    'members:pledge:create',
-     *    'members:update',
-     *    'members:pledge:delete',
+     *    "members:pledge:create",
+     *    "members:update",
+     *    "members:pledge:delete"
      * ]
      */
     triggers: string[]

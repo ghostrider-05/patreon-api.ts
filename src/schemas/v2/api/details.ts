@@ -29,6 +29,7 @@ export default {
     tags: [
         {
             name: 'Resources',
+            description: '',
             externalDocs: {
                 description: 'Resource endpoints documentation',
                 url: 'https://docs.patreon.com/#apiv2-resource-endpoints',
@@ -36,6 +37,7 @@ export default {
         },
         {
             name: 'Webhooks',
+            description: '',
             externalDocs: {
                 description: 'Webhook endpoints documentation',
                 url: 'https://docs.patreon.com/#apiv2-webhook-endpoints',

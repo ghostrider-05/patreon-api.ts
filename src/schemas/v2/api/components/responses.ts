@@ -115,6 +115,9 @@ export default function (routes: Route[]) {
                 headers: getHeaders(table[0]),
             }
         }), {}),
+        '204': {
+            description: 'A 204 response with no response body',
+        } satisfies OpenAPIV3_1.ResponseObject,
         ...routes.reduce((obj, route) => ({
             ...obj,
             [`${route.resource}${route.response?.array ? 's' : ''}Response`]: {

@@ -71,6 +71,26 @@ export const Routes = {
     /**
      * Routes for:
      *
+     * - GET `/lives/{liveId}`
+     * - PATCH `/lives/{liveId}`
+     * @param liveId The id of the live
+     */
+    live (liveId: string) {
+        return `/lives/${liveId}` as const
+    },
+
+    /**
+     * Routes for:
+     *
+     * - POST `/lives`
+     */
+    lives () {
+        return '/lives' as const
+    },
+
+    /**
+     * Routes for:
+     *
      * - PATCH `/webhooks/{webhookId}`
      * - DELETE `/webhooks/{webhookId}`
      * @param webhookId The id of the webhook

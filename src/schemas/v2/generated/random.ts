@@ -1,3 +1,5 @@
+/* eslint-disable quotes */
+/* eslint-disable linebreak-style */
 /* eslint-disable jsdoc/require-param */
 /* eslint-disable jsdoc/require-returns */
 import type { ItemMap } from '../item'
@@ -7,6 +9,13 @@ export class PatreonMockDataRandomResources {
     public constructor(
         public random: RandomDataGenerator,
         public resources?: Partial<{ [T in keyof ItemMap]: (id: string) => Partial<ItemMap[T]> }>,) {
+    }
+
+    'live-access-rule'(id: string): ItemMap['live-access-rule'] {
+        return {
+            access_rule_type: 'tier',
+            ...(this.resources?.['live-access-rule']?.(id) ?? {}),
+        }
     }
 
     address(id: string): ItemMap['address'] {
@@ -93,6 +102,18 @@ export class PatreonMockDataRandomResources {
     goal(id: string): ItemMap['goal'] {
         return {
             ...(this.resources?.goal?.(id) ?? {}),
+        }
+    }
+
+    live(id: string): ItemMap['live'] {
+        return {
+            description: this.random.description(),
+            rtmp_url: null,
+            scheduled_for: this.random.futureDate(),
+            state: this.random.state(),
+            stream_key: null,
+            title: this.random.title(),
+            ...(this.resources?.live?.(id) ?? {}),
         }
     }
 
@@ -242,9 +263,9 @@ export class PatreonMockDataRandomResources {
             paused: this.random.boolean(),
             secret: '',
             triggers: [
-                'members:pledge:create',
-                'members:update',
-                'members:pledge:delete',
+                "members:pledge:create",
+                "members:update",
+                "members:pledge:delete"
             ],
             uri: this.random.uri(),
             ...(this.resources?.webhook?.(id) ?? {}),

@@ -1,3 +1,15 @@
+/* eslint-disable linebreak-style */
+export const AccessRule = {
+    resource: <const>'live-access-rule',
+    properties: <const>[
+        'access_rule_type',
+    ],
+    relationships: <const>[
+        {
+            resource: 'tier', name: 'tier', type: 'item'
+        },
+    ],
+}
 export const Address = {
     resource: <const>'address',
     properties: <const>[
@@ -128,6 +140,25 @@ export const Goal = {
     relationships: <const>[
         {
             resource: 'campaign', name: 'campaign', type: 'item'
+        },
+    ],
+}
+export const Live = {
+    resource: <const>'live',
+    properties: <const>[
+        'description',
+        'rtmp_url',
+        'scheduled_for',
+        'state',
+        'stream_key',
+        'title',
+    ],
+    relationships: <const>[
+        {
+            resource: 'campaign', name: 'campaign', type: 'item'
+        },
+        {
+            resource: 'live-access-rule', name: 'live_access_rules', type: 'array'
         },
     ],
 }

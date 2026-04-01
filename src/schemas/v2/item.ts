@@ -1,10 +1,12 @@
 import type { If } from '../../utils/'
 
+import type { AccessRule } from './resources/access_rule'
 import type { Address } from './resources/address'
 import type { Benefit } from './resources/benefit'
 import type { Campaign } from './resources/campaign'
 import type { Deliverable } from './resources/deliverable'
 import type { Goal } from './resources/goal'
+import type { Live } from './resources/live'
 import type { Media } from './resources/media'
 import type { Member } from './resources/member'
 import type { OauthClient } from './resources/oauth_client'
@@ -22,6 +24,8 @@ export enum Type {
     Deliverable = 'deliverable',
     /** @deprecated */
     Goal = 'goal',
+    LiveAccessRule = 'live-access-rule',
+    Live = 'live',
     Media = 'media',
     Member = 'member',
     Post = 'post',
@@ -41,6 +45,8 @@ export interface ItemMap {
     deliverable: Deliverable
     /** @deprecated */
     goal: Goal
+    'live-access-rule': AccessRule
+    live: Live
     media: Media
     member: Member
     'pledge-event': PledgeEvent

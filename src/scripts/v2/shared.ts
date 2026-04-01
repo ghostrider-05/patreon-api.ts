@@ -1,5 +1,6 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import {
+    type CodeBlockWriter,
     NewLineKind,
     Project,
     QuoteKind,
@@ -8,11 +9,37 @@ import {
     type SourceFile,
 } from 'ts-morph'
 
+import { Type } from '../../schemas/v2/item'
+
 export interface TsScript {
     project: Project
     file: SourceFile
     save(): Promise<void>
     addVariableStatement: SourceFile['addVariableStatement']
+}
+
+export function getResourceTypeFileConverter () {
+    const customFileNames: Record<string, Type> = {
+        oauth_client: Type.Client,
+        access_rule: Type.LiveAccessRule,
+    }
+
+    const getTypeName = (type: Type) => Object.entries(customFileNames).find(([,t]) => t === type)?.[0] ?? type
+
+    return {
+        getTypeName,
+        fromFile: (fileName: string) => customFileNames[fileName] ?? <Type>fileName.replace('_', '-'),
+        fromType: (type: Type) => getTypeName(type).replace('-', '_'),
+        toFile: (typeName: string) => typeName.replace('-', '_'),
+    }
+}
+
+export function writeDisabledEslintRules (writer: CodeBlockWriter, disabledEslintRules: string[]) {
+    // Keep the disabled rules on new lines to make it clear and force me not to add too many
+    for (const disabledRule of disabledEslintRules) {
+        writer.write(`/* eslint-disable ${disabledRule} */`)
+        writer.newLine()
+    }
 }
 
 export function createTsScriptProgram (outFilename: string): TsScript {

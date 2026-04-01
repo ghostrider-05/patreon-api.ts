@@ -4,6 +4,7 @@ import { PatreonWebhookTrigger, Type } from '../../../../v2'
 import {
     getJsDocDescription,
     getJsDocTags,
+    getResourceTypeFileConverter,
     getTypes,
 } from '../../../../scripts/v2/shared'
 
@@ -77,8 +78,9 @@ export default {
         schemas: Object.values(Type),
         folder: './src/schemas/v2/resources/',
         getDetails: (type) => {
-            const typeName = type === Type.Client ? 'oauth_client' : type
-            const fileName = typeName.replace('-', '_')
+            const converter = getResourceTypeFileConverter()
+            const typeName = converter.getTypeName(type)
+            const fileName = converter.toFile(typeName)
 
             const interfaceName = typeName.split(/-|_/).map(t => t[0]?.toUpperCase() + t.slice(1)).join('')
             const header = typeName.replace('_', '')

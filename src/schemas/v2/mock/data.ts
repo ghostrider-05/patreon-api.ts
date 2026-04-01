@@ -136,6 +136,10 @@ export interface PatreonMockDataPaginationOptions {
     }
 }
 
+export type PatreonMockDataAttributes<T extends WriteResourceType> = Partial<{
+    [M in RequestMethod]: (body: WriteResourcePayload<T, M>) => WriteResourceResponse<T>
+}>
+
 export interface PatreonMockDataOptions {
     /**
      * Overwrite attributes when creating a random resource
@@ -149,9 +153,7 @@ export interface PatreonMockDataOptions {
     random?: Partial<RandomDataGenerator>
 
     mockAttributes?: {
-        [T in WriteResourceType]?: Partial<{
-            [M in RequestMethod]: (body: WriteResourcePayload<WriteResourceType, M>) => WriteResourceResponse<WriteResourceType>
-        }>
+        [T in WriteResourceType]?: PatreonMockDataAttributes<T>
     }
 
     /**
@@ -331,6 +333,7 @@ export class PatreonMockData {
         attributes?: A[],
     ): AttributeItem<T, Pick<ItemMap[T], A>> {
         const itemId = id ?? this.createId(type)
+        // @ ts-expect-error Errors when new resources are added
         const item = { ...this.random[type](itemId), ...(data ?? {}) }
 
         return {

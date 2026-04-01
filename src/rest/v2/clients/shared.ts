@@ -8,6 +8,9 @@ import {
     QueryBuilder,
     type QueryDefault,
     type Type,
+    type WriteResourceType,
+    type WriteResourcePayload,
+    type WriteResourceResponse,
 } from '../../../schemas/v2'
 
 import {
@@ -17,7 +20,7 @@ import {
 } from '../oauth2/client'
 
 import {
-    type RequestMethod,
+    RequestMethod,
     type RequestOptions,
 } from '../oauth2/rest'
 
@@ -49,6 +52,98 @@ export interface Oauth2FetchOptions extends Omit<RequestOptions,
  * Options for the `fetch*` and `list*` Oauth2 methods
  */
 export type Oauth2RouteOptions = Omit<Oauth2FetchOptions, 'method'>
+
+export class WriteResourceSharedClient<T extends WriteResourceType, I extends string | null | undefined> {
+    private static get emptyQuery () {
+        return QueryBuilder.fromParams(new URLSearchParams())
+    }
+
+    public constructor (
+        private resource: T,
+        private oauth: PatreonOauthClient,
+        private config: {
+            listRoute: () => string
+            itemRoute: (id: string) => string
+        },
+    ) {}
+
+    public async fetch<Query extends BasePatreonQueryType<Type.Webhook, true>>(...args: I extends string | null ? [
+        id: I,
+        query: Query,
+        options?: Omit<Oauth2RouteOptions, 'body' | 'contentType'>,
+    ] : [
+        query: Query,
+        options?: Omit<Oauth2RouteOptions, 'body' | 'contentType'>,
+    ]): Promise<GetResponsePayload<Query>> {
+        if (typeof args[0] === 'string' || args[0] == null) {
+            const [id, query, options] = args as [
+                id: string | null,
+                query: Query,
+                options?: Omit<Oauth2RouteOptions, 'body' | 'contentType'>,
+            ]
+
+            if (id) return await this.oauth.fetch<Query>(this.config.itemRoute(id), query, options)
+            else return await this.oauth.fetch<Query>(this.config.listRoute(), query, options)
+        } else {
+            const [query, options] = args as [
+                query: Query,
+                options?: Omit<Oauth2RouteOptions, 'body' | 'contentType'>,
+            ]
+
+            return await this.oauth.fetch<Query>(this.config.listRoute(), query, options)
+        }
+    }
+
+    public async create (
+        resource: Omit<WriteResourcePayload<T, RequestMethod.Post>['data'], 'type'>,
+        options?: Omit<Oauth2RouteOptions, 'body' | 'contentType'>,
+    ) {
+        const body: WriteResourcePayload<T, RequestMethod.Post> = {
+            data: {
+                type: this.resource,
+                attributes: resource.attributes,
+                ...('relationships' in resource ? { relationships: resource.relationships } : {}),
+            } as unknown as WriteResourcePayload<T, RequestMethod.Post>['data'],
+        }
+
+        return await this.oauth.fetch(this.config.listRoute(), WriteResourceSharedClient.emptyQuery, {
+            ...(options ?? {}),
+            method: RequestMethod.Post,
+            body: JSON.stringify(body),
+            // Typecast needed because of empty query
+        }) as unknown as WriteResourceResponse<T>
+    }
+
+    public async edit (
+        resource: { id: string } & WriteResourcePayload<T, RequestMethod.Patch>['data']['attributes'],
+        options?: Omit<Oauth2RouteOptions, 'body' | 'contentType'>,
+    ): Promise<WriteResourceResponse<T>> {
+        const { id, ...attributes } = resource
+
+        // It is not possible currently to edit relationships of a resource
+        const body: WriteResourcePayload<T, RequestMethod.Patch> = {
+            data: {
+                type: this.resource,
+                id,
+                attributes,
+            } as WriteResourcePayload<T, RequestMethod.Patch>['data'],
+        }
+
+        return await this.oauth.fetch(this.config.itemRoute(id), WriteResourceSharedClient.emptyQuery, {
+            ...(options ?? {}),
+            method: RequestMethod.Patch,
+            body: JSON.stringify(body),
+            // Typecast needed because of empty query
+        }) as unknown as WriteResourceResponse<T>
+    }
+
+    public async delete (id: string, options?: Omit<Oauth2RouteOptions, 'body' | 'contentType'>): Promise<void> {
+        await this.oauth.fetch(this.config.itemRoute(id), WriteResourceSharedClient.emptyQuery, {
+            ...(options ?? {}),
+            method: RequestMethod.Delete,
+        })
+    }
+}
 
 // TODO: replace with generics once https://github.com/Microsoft/TypeScript/issues/1213 is closed
 export interface ResponseTransformMap<Query extends BasePatreonQuery> {

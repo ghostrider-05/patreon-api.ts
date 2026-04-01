@@ -4,9 +4,26 @@ import { parse, resolve } from 'node:path'
 
 import { MethodDeclarationStructure, OptionalKind } from 'ts-morph'
 
-import { Type } from '../../v2'
+import {
+    createTsScriptProgram,
+    getJsDocTags,
+    getResourceTypeFileConverter,
+    writeDisabledEslintRules,
+} from './shared'
 
-import { createTsScriptProgram, getJsDocTags } from './shared'
+const isNonStringType = (input: string): boolean => {
+    const tryParse = (parse: () => unknown | boolean) => {
+        try {
+            const result = parse()
+            return typeof result === 'boolean' ? result : true
+        }
+        catch { return false }
+    }
+
+    return ['true', 'false'].includes(input)
+        || tryParse(() => { JSON.parse(input) })
+        || tryParse(() => !isNaN(parseInt(input)))
+}
 
 export async function syncRandomData () {
     const program = createTsScriptProgram('random.ts')
@@ -19,7 +36,7 @@ export async function syncRandomData () {
     for (const file of files) {
         const sourceFile = program.project.addSourceFileAtPath('./src/schemas/v2/resources/' + file)
         const fileName = parse(file).name
-        const type = <Type>(fileName === 'oauth_client' ? 'client' : fileName.replace('_', '-'))
+        const type = getResourceTypeFileConverter().fromFile(fileName)
 
         const name = snakeCaseToPascalCase(fileName)
         const resource = sourceFile.getInterfaceOrThrow(name)
@@ -57,8 +74,10 @@ export async function syncRandomData () {
                     const propType = property.getType()
 
                     if (generator) writer.write(`this.random.${generator}()`)
-                    else if (exampleValue) writer.write(exampleValue)
-                    else if (!propType.isNullable() && (propType.isBoolean() || propType.isNumber())) {
+                    else if (exampleValue) {
+                        writer.write(isNonStringType(exampleValue) ? exampleValue : `'${exampleValue}'`)
+                        // console.log('Written example value:', type, property.getName(), exampleValue, isNonStringType(exampleValue))
+                    }else if (!propType.isNullable() && (propType.isBoolean() || propType.isNumber())) {
                         writer.write(`this.random.${propType.getText()}()`)
                     }
                     else if (propType.getText() === 'object') {
@@ -89,10 +108,12 @@ export async function syncRandomData () {
         namedImports: ['ItemMap'],
         isTypeOnly: true,
         leadingTrivia: writer => {
-            writer.write('/* eslint-disable jsdoc/require-param */')
-            writer.newLine()
-            writer.write('/* eslint-disable jsdoc/require-returns */')
-            writer.newLine()
+            writeDisabledEslintRules(writer, [
+                'quotes',
+                'linebreak-style',
+                'jsdoc/require-param',
+                'jsdoc/require-returns',
+            ])
         }
     })
 

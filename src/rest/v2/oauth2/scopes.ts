@@ -49,6 +49,16 @@ export enum PatreonOauthScope {
      */
     ManageCampaignWebhooks = 'w:campaigns.webhook',
 
+    /**
+     * Allows reading of lives created by the campaign.
+     */
+    CampaignLives = 'campaigns.lives',
+
+    /**
+     * Allows creation and updating of lives on behalf of the campaign.
+     */
+    ManageCampaignLives = 'w:campaigns.lives',
+
     // ManageCampaignApps = 'w:campaigns.apps',
     // ManageCampaignBenefits = 'w:campaigns.benefits',
     // ManageCampaignPosts = 'w:campaigns.posts',
@@ -61,13 +71,22 @@ export enum PatreonOauthScope {
 function getRequiredScopesForPath (
     path: string,
     query: BasePatreonQuery,
+    method?: string,
 ): PatreonOauthScope[] {
     const scopes: PatreonOauthScope[] = []
+    const isManagingResource = method == undefined || method.toLowerCase() !== 'get'
 
     if (path.startsWith(Routes.post('')) || path.endsWith('/posts')) {
         scopes.push(PatreonOauthScope.CampaignPosts)
     } else if (path.startsWith(Routes.webhooks())) {
+        // All webhook routes require the managing scope
         scopes.push(PatreonOauthScope.ManageCampaignWebhooks)
+    } else if (path.startsWith(Routes.live('')) || path.endsWith(Routes.lives())) {
+        const liveScope = isManagingResource
+            ? PatreonOauthScope.ManageCampaignLives
+            : PatreonOauthScope.CampaignLives
+
+        scopes.push(liveScope)
     } else if (path.startsWith(Routes.identity())) {
         scopes.push(PatreonOauthScope.Identity)
 
