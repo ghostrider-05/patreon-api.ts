@@ -1,4 +1,5 @@
 /* eslint-disable quotes */
+/* eslint-disable linebreak-style */
 /* eslint-disable jsdoc/require-param */
 /* eslint-disable jsdoc/require-returns */
 import type { ItemMap } from '../item'

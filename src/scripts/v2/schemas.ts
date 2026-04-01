@@ -6,7 +6,12 @@ import { VariableDeclarationKind } from 'ts-morph'
 
 import { Type } from '../../v2'
 
-import { createTsScriptProgram, getResourceTypeFileConverter, type TsScript } from './shared'
+import {
+    createTsScriptProgram,
+    getResourceTypeFileConverter,
+    writeDisabledEslintRules,
+    type TsScript,
+} from './shared'
 
 export async function syncResourceSchemas () {
     const program = createTsScriptProgram('schemas.ts')
@@ -14,7 +19,7 @@ export async function syncResourceSchemas () {
     const files = await readdir(resolve('.', './src/schemas/v2/resources/'), { encoding: 'utf8' })
     const relationships = getRelationships(program)
 
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
         const sourceFile = program.project.addSourceFileAtPath('./src/schemas/v2/resources/' + file)
         const fileName = parse(file).name
         const type = getResourceTypeFileConverter().fromFile(fileName)
@@ -26,6 +31,13 @@ export async function syncResourceSchemas () {
         program.addVariableStatement({
             declarationKind: VariableDeclarationKind.Const,
             isExported: true,
+            leadingTrivia: writer => {
+                if (index === 0) {
+                    writeDisabledEslintRules(writer, [
+                        'linebreak-style',
+                    ])
+                }
+            },
             declarations: [{
                 name: name,
                 initializer: writer => {

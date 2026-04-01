@@ -1,5 +1,6 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import {
+    type CodeBlockWriter,
     NewLineKind,
     Project,
     QuoteKind,
@@ -30,6 +31,14 @@ export function getResourceTypeFileConverter () {
         fromFile: (fileName: string) => customFileNames[fileName] ?? <Type>fileName.replace('_', '-'),
         fromType: (type: Type) => getTypeName(type).replace('-', '_'),
         toFile: (typeName: string) => typeName.replace('-', '_'),
+    }
+}
+
+export function writeDisabledEslintRules (writer: CodeBlockWriter, disabledEslintRules: string[]) {
+    // Keep the disabled rules on new lines to make it clear and force me not to add too many
+    for (const disabledRule of disabledEslintRules) {
+        writer.write(`/* eslint-disable ${disabledRule} */`)
+        writer.newLine()
     }
 }
 

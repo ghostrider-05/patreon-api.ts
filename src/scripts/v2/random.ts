@@ -4,7 +4,12 @@ import { parse, resolve } from 'node:path'
 
 import { MethodDeclarationStructure, OptionalKind } from 'ts-morph'
 
-import { createTsScriptProgram, getJsDocTags, getResourceTypeFileConverter } from './shared'
+import {
+    createTsScriptProgram,
+    getJsDocTags,
+    getResourceTypeFileConverter,
+    writeDisabledEslintRules,
+} from './shared'
 
 const isNonStringType = (input: string): boolean => {
     const tryParse = (parse: () => unknown | boolean) => {
@@ -103,12 +108,12 @@ export async function syncRandomData () {
         namedImports: ['ItemMap'],
         isTypeOnly: true,
         leadingTrivia: writer => {
-            writer.write('/* eslint-disable quotes */')
-            writer.newLine()
-            writer.write('/* eslint-disable jsdoc/require-param */')
-            writer.newLine()
-            writer.write('/* eslint-disable jsdoc/require-returns */')
-            writer.newLine()
+            writeDisabledEslintRules(writer, [
+                'quotes',
+                'linebreak-style',
+                'jsdoc/require-param',
+                'jsdoc/require-returns',
+            ])
         }
     })
 

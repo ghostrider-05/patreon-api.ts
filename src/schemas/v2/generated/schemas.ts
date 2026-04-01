@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 export const AccessRule = {
     resource: <const>'live-access-rule',
     properties: <const>[
