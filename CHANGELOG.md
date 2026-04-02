@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.19.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.18.2...patreon-api.ts-v0.19.0) (2026-04-02)
+
+
+### Features
+
+* add new campaign attributes (closes [#266](https://github.com/ghostrider-05/patreon-api.ts/issues/266)) ([fba5255](https://github.com/ghostrider-05/patreon-api.ts/commit/fba52551e8506f5408bd7dca50814c9b032a4875))
+* add support for new live streaming early access API (closes [#267](https://github.com/ghostrider-05/patreon-api.ts/issues/267)) ([#270](https://github.com/ghostrider-05/patreon-api.ts/issues/270)) ([4a836ca](https://github.com/ghostrider-05/patreon-api.ts/commit/4a836ca8fc0e483280f0924bf5f6894c11f6206e))
+* **PatreonMockData:** add `length` option to `createRelatedItems` ([be43d3e](https://github.com/ghostrider-05/patreon-api.ts/commit/be43d3e827a177286bbff68c52b483ce46071b5c))
+* **PatreonMockData:** add scrub method (closes [#149](https://github.com/ghostrider-05/patreon-api.ts/issues/149) ) ([be43d3e](https://github.com/ghostrider-05/patreon-api.ts/commit/be43d3e827a177286bbff68c52b483ce46071b5c))
+* **PatreonMockData:** add support for pagination and sorting responses ([be43d3e](https://github.com/ghostrider-05/patreon-api.ts/commit/be43d3e827a177286bbff68c52b483ce46071b5c))
+* **PatreonMockData:** set `id` option in `getAttributeItem` to optional ([be43d3e](https://github.com/ghostrider-05/patreon-api.ts/commit/be43d3e827a177286bbff68c52b483ce46071b5c))
+
+
+### Bug Fixes
+
+* **docs:** update example links (closes [#271](https://github.com/ghostrider-05/patreon-api.ts/issues/271)) ([#272](https://github.com/ghostrider-05/patreon-api.ts/issues/272)) ([870ee12](https://github.com/ghostrider-05/patreon-api.ts/commit/870ee12563b333cb6281f7653f2128346327268c))
+* **PatreonMock:** parse request options from mocked url query ([be43d3e](https://github.com/ghostrider-05/patreon-api.ts/commit/be43d3e827a177286bbff68c52b483ce46071b5c))
+* **PatreonMock:** return optional body in reply callback instead of empty ([be43d3e](https://github.com/ghostrider-05/patreon-api.ts/commit/be43d3e827a177286bbff68c52b483ce46071b5c))
+
 ## [0.18.2](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.18.1...patreon-api.ts-v0.18.2) (2026-02-17)
 
 
