@@ -23,7 +23,7 @@ import {
 
 import typedocSidebar from '../../api/typedoc-sidebar.json'
 
-const repoUrl = repository.url.replace('.git', ''), branch = 'main'
+const repoUrl = repository.url.slice(4, -4), branch = 'main'
 
 const createSidebarItems = () => [
     shared.createGuideItem(true),
