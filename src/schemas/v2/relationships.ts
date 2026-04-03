@@ -33,6 +33,7 @@ interface RelationshipTypeMap extends Record<ItemType, BaseRelationDataItem<Item
         [Type.User]: ['creator', false]
         /** @deprecated Will always be empty */
         [Type.Goal]: Multiple<Type.Goal>
+        [Type.LiveAccessRule]: ['live_access_rules', true]
         [Type.Tier]: Multiple<Type.Tier>
     }
     client: {

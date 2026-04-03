@@ -4,113 +4,30 @@
 export interface Campaign {
 
     /**
-     * The campaign's vanity name
-     */
-    vanity: string | null
-
-    /**
-     * The url to visit this campaign
-     * @format uri
-     */
-    url: string
-
-    /**
-     * The URL of the video that is shown to patrons after pledging
-     * @format uri
-     */
-    thanks_video_url: string | null
-
-    /**
-     * The message that is shown to patrons after pledging
-     */
-    thanks_msg: string | null
-
-    // TODO: I assume, no description in documentation
-    /**
-     * The embed that is shown to patrons after pledging
-     */
-    thanks_embed: string | null
-
-    /**
-     * The summary of this campaign.
-     * Can be viewed in the About section of the campaign
-     */
-    summary: string | null
-
-    /**
-     * Whether the campaign's total earnings are shown publicly
-     */
-    show_earnings: boolean
-
-    /**
-     * The title of the campaigns rss feed
-     */
-    rss_feed_title: string | null
-
-    /**
-     * The url for the rss album artwork
-     * @format uri
-     */
-    rss_artwork_url: string | null
-
-    /**
-     * Datetime that the creator most recently published (made publicly visible) the campaign.
-     * Null when the campaign has not been public.
+     * Datetime that the creator first began the campaign creation process
      * @format date-time
      */
-    published_at: string | null
+    created_at: string
 
     /**
-     * Relative (to patreon.com) URL for the pledge checkout flow for this campaign
+     * The type of content the creator is creating, as in "{@link Campaign.vanity} is creating {@link Campaign.creation_name}"
      */
-    pledge_url: string
+    creation_name: string | null
 
     /**
-     * The thing which patrons are paying per, as in "{@link Campaign.vanity} is making $1000 per {@link Campaign.pay_per_name}"
+     * The campaign's currency
      */
-    pay_per_name: string | null
+    currency: string
 
     /**
-     * Number of patrons having access to this creator
+     * The ID of the external discord server that is linked to this campaign
      */
-    patron_count: number
+    discord_server_id: string | null
 
     /**
-     * Pithy one-liner for this campaign, displayed on the creator page
+     * The ID of the Google Analytics tracker that the creator wants metrics to be sent to
      */
-    one_liner: string | null
-
-    /**
-     * The campaign's display name
-     */
-    name: string
-
-    // TODO: no documentation
-    /**
-     * @format uri
-     */
-    main_video_url: string | null
-
-    // TODO: no documentation
-    /**
-     *
-     */
-    main_video_embed: string | null
-
-    /**
-     * Whether the creator has marked the campaign as containing nsfw content
-     */
-    is_nsfw: boolean
-
-    /**
-     * Whether the campaign charges per month
-     */
-    is_monthly: boolean
-
-    /**
-     * Whether the campaign charges upfront
-     */
-    is_charged_immediately: boolean
+    google_analytics_id: string | null
 
     /**
      * Banner image URL for the campaign
@@ -125,9 +42,19 @@ export interface Campaign {
     image_small_url: string
 
     /**
-     * Whether the creator has sent a one-time rss notification email
+     * Whether the campaign charges upfront
      */
-    has_sent_rss_notify: boolean
+    is_charged_immediately: boolean
+
+    /**
+     * Whether the campaign charges per month
+     */
+    is_monthly: boolean
+
+    /**
+     * Whether the creator has marked the campaign as containing nsfw content
+     */
+    is_nsfw: boolean
 
     /**
      * Whether this user has opted-in to rss feeds
@@ -135,28 +62,101 @@ export interface Campaign {
     has_rss: boolean
 
     /**
-     * The ID of the Google Analytics tracker that the creator wants metrics to be sent to
+     * Whether the creator has sent a one-time rss notification email
      */
-    google_analytics_id: string | null
+    has_sent_rss_notify: boolean
+
+    // TODO: no documentation
+    /**
+     *
+     */
+    main_video_embed: string | null
+
+    // TODO: no documentation
+    /**
+     * @format uri
+     */
+    main_video_url: string | null
 
     /**
-     * The ID of the external discord server that is linked to this campaign
+     * The campaign's display name
      */
-    discord_server_id: string | null
+    name: string
 
     /**
-     * The campaign's currency
+     * Pithy one-liner for this campaign, displayed on the creator page
      */
-    currency: string
+    one_liner: string | null
 
     /**
-     * The type of content the creator is creating, as in "{@link Campaign.vanity} is creating {@link Campaign.creation_name}"
+     * The thing which patrons are paying per, as in "{@link Campaign.vanity} is making $1000 per {@link Campaign.pay_per_name}"
      */
-    creation_name: string | null
+    pay_per_name: string | null
 
     /**
-     * Datetime that the creator first began the campaign creation process
+     * Number of patrons having access to this creator
+     */
+    patron_count: number
+
+    /**
+     * Relative (to patreon.com) URL for the pledge checkout flow for this campaign
+     */
+    pledge_url: string
+
+    /**
+     * Datetime that the creator most recently published (made publicly visible) the campaign.
+     * Null when the campaign has not been public.
      * @format date-time
      */
-    created_at: string
+    published_at: string | null
+
+    /**
+     * The url for the rss album artwork
+     * @format uri
+     */
+    rss_artwork_url: string | null
+
+    /**
+     * The title of the campaigns rss feed
+     */
+    rss_feed_title: string | null
+
+    /**
+     * Whether the campaign's total earnings are shown publicly
+     */
+    show_earnings: boolean
+
+    /**
+     * The summary of this campaign.
+     * Can be viewed in the About section of the campaign
+     */
+    summary: string | null
+
+    // TODO: I assume, no description in documentation
+    /**
+     * The embed that is shown to patrons after pledging
+     */
+    thanks_embed: string | null
+
+    /**
+     * The message that is shown to patrons after pledging
+     */
+    thanks_msg: string | null
+
+    /**
+     * The URL of the video that is shown to patrons after pledging
+     * @format uri
+     */
+    thanks_video_url: string | null
+
+    /**
+     * The url to visit this campaign
+     * @format uri
+     */
+    url: string
+
+    /**
+     * The campaign's vanity name
+     */
+    vanity: string | null
 }

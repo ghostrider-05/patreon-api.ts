@@ -8,6 +8,10 @@ export interface Deliverable {
      */
     completed_at: string | null
 
+    // TODO: no other documentation
+    /**
+     *
+     */
     delivery_status:
         | 'delivered'
         | 'not_delivered'
