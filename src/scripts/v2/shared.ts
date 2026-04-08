@@ -1,4 +1,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
+import { readdir } from 'node:fs/promises'
+import { resolve } from 'node:path'
+
 import {
     type CodeBlockWriter,
     NewLineKind,
@@ -16,6 +19,12 @@ export interface TsScript {
     file: SourceFile
     save(): Promise<void>
     addVariableStatement: SourceFile['addVariableStatement']
+}
+
+export async function getResourceFiles (): Promise<string[]> {
+    const files = await readdir(resolve('.', './src/schemas/v2/resources/'), { encoding: 'utf8' })
+
+    return files.filter(file => file !== 'index.ts')
 }
 
 export function getResourceTypeFileConverter () {

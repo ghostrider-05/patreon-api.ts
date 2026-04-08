@@ -3,6 +3,7 @@ export * from './modifiable'
 export * from './query'
 export * from './relationships'
 
+export * from './resources/'
 export * from './resources/access_rule'
 export * from './resources/address'
 export * from './resources/benefit'

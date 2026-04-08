@@ -1,6 +1,5 @@
 /* eslint-disable jsdoc/require-jsdoc */
-import { readdir } from 'node:fs/promises'
-import { parse, resolve } from 'node:path'
+import { parse } from 'node:path'
 
 import { VariableDeclarationKind } from 'ts-morph'
 
@@ -8,6 +7,7 @@ import { Type } from '../../v2'
 
 import {
     createTsScriptProgram,
+    getResourceFiles,
     getResourceTypeFileConverter,
     writeDisabledEslintRules,
     type TsScript,
@@ -16,7 +16,7 @@ import {
 export async function syncResourceSchemas () {
     const program = createTsScriptProgram('schemas.ts')
 
-    const files = await readdir(resolve('.', './src/schemas/v2/resources/'), { encoding: 'utf8' })
+    const files = await getResourceFiles()
     const relationships = getRelationships(program)
 
     for (const [index, file] of files.entries()) {

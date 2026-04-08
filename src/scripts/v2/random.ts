@@ -1,12 +1,12 @@
 /* eslint-disable jsdoc/require-jsdoc */
-import { readdir } from 'node:fs/promises'
-import { parse, resolve } from 'node:path'
+import { parse } from 'node:path'
 
 import { MethodDeclarationStructure, OptionalKind } from 'ts-morph'
 
 import {
     createTsScriptProgram,
     getJsDocTags,
+    getResourceFiles,
     getResourceTypeFileConverter,
     writeDisabledEslintRules,
 } from './shared'
@@ -28,7 +28,7 @@ const isNonStringType = (input: string): boolean => {
 export async function syncRandomData () {
     const program = createTsScriptProgram('random.ts')
 
-    const files = await readdir(resolve('.', './src/schemas/v2/resources/'), { encoding: 'utf8' })
+    const files = await getResourceFiles()
     // const relationships = getRelationships(program)
 
     const methods: OptionalKind<MethodDeclarationStructure>[] = []
