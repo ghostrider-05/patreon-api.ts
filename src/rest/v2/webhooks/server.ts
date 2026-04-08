@@ -1,4 +1,5 @@
 import { RestHeaders } from '../oauth2'
+import { resolveHeaders } from '../oauth2/rest/headers'
 
 import { WebhookClient } from './client'
 import { WebhookPayloadClient } from './payload'
@@ -28,7 +29,7 @@ export class WebhookServer {
     public verify (signature: RestHeaders | string | null, body: string): boolean {
         const signatureStr = typeof signature === 'string' || signature == null
             ? signature
-            : signature[WebhookClient.headers.signature]
+            : resolveHeaders(signature)[WebhookClient.headers.signature] ?? null
 
         return Array.isArray(this.options.secret)
             ? this.options.secret.some(secret => verify(secret, signatureStr, body))

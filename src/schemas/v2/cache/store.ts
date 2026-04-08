@@ -96,18 +96,23 @@ export interface CacheStoreOptions extends Omit<CacheStoreSharedOptions<{ type: 
     }[ItemType][]
 }
 
+interface CacheStoreItemInput extends Record<string, unknown> {
+    id: string
+    type: ItemType
+}
+
 export class CacheStore<IsAsync extends boolean>
-    extends CacheStoreShared<IsAsync, CacheItem<ItemType>, { type: ItemType; id: string }> {
+    extends CacheStoreShared<IsAsync, CacheItem<ItemType>, CacheStoreItemInput> {
     public override options: Required<Omit<CacheStoreOptions, 'events' | 'initial'>>
         & Pick<CacheStoreOptions, 'events'>
-        & Required<Pick<CacheStoreSharedOptions<{ type: ItemType; id: string }>, 'convert'>>
+        & Required<Pick<CacheStoreSharedOptions<CacheStoreItemInput>, 'convert'>>
 
     public constructor (
         async: IsAsync,
         binding?: CacheStoreBinding<IsAsync, CacheItem<ItemType>>,
         options?: CacheStoreOptions,
     ) {
-        const parentOptions: Required<CacheStoreSharedOptions<{ type: ItemType; id: string }>> = {
+        const parentOptions: Required<CacheStoreSharedOptions<CacheStoreItemInput>> = {
             patchUnknownItem: options?.patchUnknownItem ?? false,
             convert: {
                 toKeyFromObject: (options) => options.type + '/' + options.id,
@@ -214,7 +219,8 @@ export class CacheStore<IsAsync extends boolean>
                     const isSameType = this.options.convert.fromKey(item.key).type === option.type
 
                     return isSameType && option.relationships.every(rel => {
-                        const relValue = item.metadata[rel.type]
+                        const metadata = <Record<string, null | string | (null | string)[]>>item.metadata
+                        const relValue = metadata[rel.type]
 
                         if (typeof rel.id === 'string' && !relValue) return false
                         else if (relValue == null && rel.id == null) return true
@@ -449,7 +455,9 @@ export class CacheStore<IsAsync extends boolean>
             throw new Error('Missing request body to sync with cache')
         }
 
-        const mockedAttributes = path.mockAttributes?.[path.resource]?.[<RequestMethod>request.method]?.(request.body)
+        const mockedRoute = path.mockAttributes?.[request.method as RequestMethod]
+        // @ts-expect-error Type error on intersection of body
+        const mockedAttributes = mockedRoute?.(request.body)
 
         if (mockedAttributes != undefined) {
             return this.syncResource({ ...mockedAttributes.data, id: path.id })

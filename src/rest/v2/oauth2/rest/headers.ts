@@ -26,6 +26,7 @@ export function resolveHeaders (headers: RestHeaders): Record<string, string> {
         ...data,
         [key]: (typeof headers.get === 'function'
             ? headers.get(key)
+            // @ts-expect-error Error when accessing key on headers object
             : headers[key])?.toLowerCase(),
     }), {} as Record<string, string>)
 }

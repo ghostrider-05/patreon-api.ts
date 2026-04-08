@@ -38,7 +38,7 @@ export function convertToCamelcase <T> (item: T): AnyToCamelCase<T>{
     else if (typeof item === 'object' && item != null) {
         return <never>Object.keys(item).reduce((obj, key) => ({
             ...obj,
-            [toCamelcase(key)]: convertToCamelcase(item[key]),
+            [toCamelcase(key)]: convertToCamelcase(item[<keyof typeof item>key]),
         }), {} as KeysToCamelCase<T>)
     } else {
         return <never>item

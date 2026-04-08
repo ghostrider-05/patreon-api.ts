@@ -29,8 +29,13 @@ export class PatreonUserClientInstance<IncludeAll extends boolean> extends Patre
 
         return await this.fetchIdentity(query, { token: this.token })
             .then(res => {
-                const option = <{ user_id: string } | null>(res.data.attributes.social_connections['discord'])
-                return option?.user_id
+                // Typecast is not documented, but returned in API responses
+                const connections = res.data.attributes.social_connections as Record<string,
+                    | { user_id: string }
+                    | null
+                >
+
+                return connections['discord']?.user_id
             })
     }
 }

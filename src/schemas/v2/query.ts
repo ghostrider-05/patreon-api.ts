@@ -167,7 +167,15 @@ export class QueryBuilder<
             } : {}),
             ...Object
                 .keys(this._attributes)
-                .reduce((params, key) => ({ ...params, [`fields[${key}]`]: this._attributes[key].join(',') }), {}),
+                .reduce((params, key) => {
+                    const keys = <string[] | undefined>this._attributes[<keyof Attributes>key]
+                    if (keys == undefined) return params
+
+                    return {
+                        ...params,
+                        [`fields[${key}]`]: keys.join(','),
+                    }
+                }, {}),
             ...QueryBuilder.resolveQueryOptions(this.requestOptions),
         })
     }
@@ -208,7 +216,7 @@ export class QueryBuilder<
      * In the Patreon documentation, see the list of relations on a resource.
      */
     public get schemaRelationships (): ReadonlyArray<RelationshipFields<T>> {
-        return this.schema.relationships.map(rel => rel.name)
+        return this.schema.relationships.map(rel => rel.name as RelationshipFields<T>)
     }
 
     /**

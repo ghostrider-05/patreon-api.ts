@@ -285,7 +285,7 @@ export class RestClient {
     }
 
     private getHeaders (options: Pick<RequestOptions, 'headers' | 'accessToken' | 'auth' | 'authPrefix'>) {
-        const defaultHeaders = {
+        const defaultHeaders: Record<string, string> = {
             'Content-Type': 'application/json',
             'User-Agent': this.userAgent,
         }

@@ -8,6 +8,14 @@ import {
     Type,
 } from '../../v2'
 
+const documentedCampaignRelationships = [
+    'benefits',
+    'creator',
+    'goals',
+    'live_access_rules',
+    'tiers',
+]
+
 describe('query build options', () => {
     test('pagination options', () => {
         expect(QueryBuilder.campaigns.build()(undefined, {
@@ -66,8 +74,8 @@ describe('query builder', () => {
     test('complete options', () => {
         const options = QueryBuilder.createCompleteOptions(Type.Campaign)
 
-        expect(options.include).toEqual(['benefits', 'creator', 'goals', 'tiers'])
-        expect(Object.keys(options.attributes)).toEqual(['campaign', 'benefit', 'user', 'goal', 'tier'])
+        expect(options.include).toEqual(documentedCampaignRelationships)
+        expect(Object.keys(options.attributes)).toEqual(['campaign', 'benefit', 'user', 'goal', 'live-access-rule', 'tier'])
 
         for (const attributes of Object.values(options.attributes)) {
             expect(Array.isArray(attributes)).toEqual(true)
@@ -117,15 +125,10 @@ describe('query builder', () => {
     })
 
     test('query with all relationships', () => {
-        expect(QueryBuilder.campaign.includeAllRelationships().relationships).toEqual([
-            'benefits',
-            'creator',
-            'goals',
-            'tiers'
-        ])
+        expect(QueryBuilder.campaign.includeAllRelationships().relationships).toEqual(documentedCampaignRelationships)
 
         expectTypeOf<
-            QueryBuilder<Type.Campaign, false, 'benefits' | 'goals' | 'creator' | 'tiers', {}>
+            QueryBuilder<Type.Campaign, false, 'benefits' | 'goals' | 'creator' | 'live_access_rules' | 'tiers', {}>
         >().toEqualTypeOf(QueryBuilder.campaign.includeAllRelationships())
     })
 
@@ -178,12 +181,7 @@ describe('query builder', () => {
     test('query with all included', () => {
         const query = QueryBuilder.campaign.includeAll()
 
-        expect(query.relationships).toEqual([
-            'benefits',
-            'creator',
-            'goals',
-            'tiers',
-        ])
+        expect(query.relationships).toEqual(documentedCampaignRelationships)
 
         expectTypeOf<
             QueryBuilder<Type.Campaign, false,
@@ -200,13 +198,18 @@ describe('query builder', () => {
     })
 
     test('query schema', () => {
-        expect(QueryBuilder.campaign.schemaRelationships).toEqual([
-            'benefits',
-            'creator',
-            'goals',
-            'tiers',
-        ])
+        expect(QueryBuilder.campaign.schemaRelationships).toEqual(documentedCampaignRelationships)
 
         expect(QueryBuilder.campaign.schemaResourceAttributes).toHaveLength(29)
+    })
+
+    test('query to string', () => {
+        const query = QueryBuilder.campaign
+            .setAttributes({ campaign: ['discord_server_id']})
+
+        const encodedQuery = `?${encodeURIComponent('fields[campaign]')}=discord_server_id`
+
+        expect(query.query).toEqual(encodedQuery)
+        expect(query.toString()).toEqual(encodedQuery)
     })
 })

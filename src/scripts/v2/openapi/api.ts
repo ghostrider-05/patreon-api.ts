@@ -23,7 +23,7 @@ function getScopes () {
 
             return {
                 ...scopes,
-                [PatreonOauthScope[scope]]: description,
+                [PatreonOauthScope[<keyof typeof PatreonOauthScope>scope]]: description,
             }
         }, {})
 

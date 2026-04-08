@@ -103,11 +103,11 @@ function applySorting<I extends { attributes: object }> (
     const keys = (Array.isArray(sortOptions) ? sortOptions : [sortOptions]
         .map(key => typeof key === 'string' ? { key } : key)) as { key: string, descending?: boolean }[]
     if (keys.length === 0) return items
+    const getAttribute = (item: I, key: string) => (<Record<string, unknown>>item['attributes'])[key]
 
     for (const { key, descending } of keys) {
         items.sort((first, second) => {
-            const a: unknown = first.attributes[key]
-            const b: unknown = second.attributes[key]
+            const a = getAttribute(first, key), b = getAttribute(second, key)
 
             if (typeof a == 'string' && typeof b === 'string') {
                 return descending ? b.localeCompare(a) : a.localeCompare(b)
@@ -334,7 +334,7 @@ export class PatreonMockData {
     ): AttributeItem<T, Pick<ItemMap[T], A>> {
         const itemId = id ?? this.createId(type)
         // @ ts-expect-error Errors when new resources are added
-        const item = { ...this.random[type](itemId), ...(data ?? {}) }
+        const item = <ItemMap[T]>{ ...this.random[type](itemId), ...(data ?? {}) }
 
         return {
             type,
@@ -343,7 +343,7 @@ export class PatreonMockData {
                 ? {}
                 : Object.keys(item)
                     .filter(k => attributes.includes(<A>k))
-                    .reduce((obj, key) => ({ ...obj, [key]: item[key] }), {}))) as Pick<ItemMap[T], A>,
+                    .reduce((obj, key) => ({ ...obj, [key]: item[<keyof typeof item>key] }), {}))) as Pick<ItemMap[T], A>,
         }
     }
 
@@ -639,13 +639,13 @@ export class PatreonMockData {
             return <T>data.map(item => PatreonMockData.scrub(item, options))
         } else if (typeof data === 'object' && data) {
             const { attributes } = options ?? {}
-            const output = data
+            const output = data as Record<string, unknown>
 
-            if ('attributes' in data && attributes) {
-                const obj = <object>data['attributes']
+            if ('attributes' in data && 'type' in data && attributes) {
+                const obj = <Record<string, unknown>>data['attributes']
                 for (const key of Object.keys(obj)) {
                     if (typeof obj[key] === 'string') {
-                        if (attributes.some(({ key: k, resources }) => k === key && (resources == undefined || resources.includes(data['type'])))) {
+                        if (attributes.some(({ key: k, resources }) => k === key && (resources == undefined || resources.includes(data['type'] as Type)))) {
                             obj[key] = PatreonMockData.scrub(obj[key], options)
                         }
                     }
@@ -669,10 +669,11 @@ export class PatreonMockData {
             if ('links' in data) {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const key = Object.keys(<object>data['links'])[0]!
+                // @ts-expect-error Assign an nested object on an unknown type :(
                 output['links'][key] = PatreonMockData.scrub((<object>data['links'])[key], options)
             }
 
-            return output
+            return <T>output
         } else {
             return data
         }

@@ -34,8 +34,9 @@ export class WebhookPayloadClient<Trigger extends PatreonWebhookTrigger> {
     ) {
         return option != undefined
             ? Object.keys(attributes).reduce((text, key) => {
-                if (attributes[key] == null) return text
-                return text.replace(`{{${key}}}`, attributes[key])
+                const value = attributes[<Keys>key]
+                if (value == null) return text
+                return text.replace(`{{${key}}}`, value.toString())
             }, option)
             : new String((attribute ? attributes[attribute] : undefined) ?? unknown ?? '').toString()
     }
@@ -59,18 +60,18 @@ export class WebhookPayloadClient<Trigger extends PatreonWebhookTrigger> {
         return this.isPostTrigger(trigger)
     }
 
-    private static createAttributeObj (value: unknown, attributes: Record<string, unknown>) {
+    private static createAttributeObj <T = unknown>(value: T, attributes: Record<string, unknown>): T {
         if (typeof value === 'number' || typeof value === 'boolean') {
             return value
         } else if (typeof value === 'string') {
-            return this.createAttributeText(value, attributes)
+            return <T>this.createAttributeText(value, attributes)
         } else if (Array.isArray(value)) {
-            return value.map(v => this.createAttributeObj(v, attributes))
+            return <T>value.map(v => this.createAttributeObj(v, attributes))
         } else if (typeof value === 'object' && value != null) {
             return Object.entries(value).reduce((obj, [key, value]) => ({
                 ...obj,
                 [key]: this.createAttributeObj(value, attributes)
-            }), {})
+            }), {} as T)
         } else {
             return value
         }
