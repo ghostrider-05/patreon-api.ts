@@ -14,6 +14,8 @@ import {
     RelationshipFields,
     RelationshipMap,
     Type,
+    WriteResourcePayload,
+    WriteResourceResponse,
     WriteResourceType,
 } from '../../../schemas/v2/'
 
@@ -139,6 +141,10 @@ interface ParsedRoute {
     searchParams: URLSearchParams
     path: Route
     param: string | undefined
+}
+
+function parseRequestBody <T>(body: string | null) {
+    return body ? <T>JSON.parse(body.toString()) : null
 }
 
 /**
@@ -427,9 +433,7 @@ export class PatreonMock {
             this.cache.syncRequest<RequestMethod, WriteResourceType>(
                 {
                     method: request.method as RequestMethod,
-                    body: request.body
-                        ? JSON.parse(request.body.toString())
-                        : null
+                    body: parseRequestBody(request.body),
                 },
                 {
                     resource: resourceType,
@@ -464,9 +468,16 @@ export class PatreonMock {
                 status,
             })
         } else {
+            const requestMethod = request.method.toUpperCase() as RequestMethod
+            const requestBody = parseRequestBody<WriteResourcePayload<WriteResourceType, RequestMethod>>(request.body)
+            const mockedResponseBody: WriteResourceResponse<WriteResourceType> | undefined = requestBody
+                ? mockAttributes[requestMethod]?.(requestBody)
+                : undefined
+
             return transform({
                 // TODO: the response body should be different from the request body, right?
-                body: mockAttributes[request.method.toUpperCase()]?.(request.body) ?? request.body,
+                body: (mockedResponseBody ? JSON.stringify(mockedResponseBody) : undefined)
+                    ?? request.body,
                 headers,
                 status,
             })
