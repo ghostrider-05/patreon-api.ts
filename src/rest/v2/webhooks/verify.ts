@@ -36,7 +36,9 @@ async function parseRequestBody (
         // TODO: do not this
         : ('text' in request && typeof request.text === 'function'
             ? await request.text()
-            : JSON.stringify(request['body']))
+            : 'body' in request
+                ? (typeof request.body === 'string' ? request.body : JSON.stringify(request['body']))
+                : (() => { throw new Error('No request body found') })())
 }
 
 /**
@@ -48,7 +50,8 @@ async function parseRequestBody (
  * - HTTP Incoming message (like express) with a JSON parsed body.
  * @param secret The secret of the webhook to use for verifying the request
  * @throws {Error} if no secret is given
- * @throws {Error} if no event header is not found
+ * @throws {Error} if no event header is found
+ * @throws {Error} if no request body is found
  * @returns the parsed request body and event, or indicates if the verification has failed
  * @example The following examples on GitHub implement this method:
  * - express-webhook: for usage with express.js
