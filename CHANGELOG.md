@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.20.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.19.0...patreon-api.ts-v0.20.0) (2026-05-03)
+
+
+### Features
+
+* add `SchemaResources ` namespace for resource types ([3245082](https://github.com/ghostrider-05/patreon-api.ts/commit/32450826e312eefc2f60449cea0b810b43c4bc82))
+* **CacheStoreShared:** add isAsync method ([0d77c4c](https://github.com/ghostrider-05/patreon-api.ts/commit/0d77c4c635c4cd77fd25f5ae7d31fd153ef013ee))
+
+
+### Bug Fixes
+
+* add `live_access_rules` relationship to campaign resource ([cd59d1e](https://github.com/ghostrider-05/patreon-api.ts/commit/cd59d1e7728287bbf1777b9593cd2979aa56e3a6))
+* **PatreonMock:** resolve mocked attributes issues ([d2add3b](https://github.com/ghostrider-05/patreon-api.ts/commit/d2add3b9df05f21879fdd65ef27c2973b5c5e6ee))
+* **verify:** throw error when no request body found ([7e3a6cc](https://github.com/ghostrider-05/patreon-api.ts/commit/7e3a6cca48cfe7ca227f0b8144fd483c4325bfe3))
+
 ## [0.19.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.18.2...patreon-api.ts-v0.19.0) (2026-04-02)
 
 
