@@ -62,6 +62,13 @@ export class CacheStoreShared<
         }
     }
 
+    /**
+     * Returns whether this cache is using an async binding.
+     */
+    public isAsync (): boolean {
+        return this.async
+    }
+
     public deleteAll (): IfAsync<IsAsync, void> {
         if (!this.binding.deleteAll) return void 0 as IfAsync<IsAsync, void>
         else return this.binding.deleteAll()
