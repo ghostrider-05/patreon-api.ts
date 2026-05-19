@@ -45,7 +45,7 @@ jobs:
         working-directory: ./examples/cloudflare-webhook/
 
       - name: Deploy cloudflare-webhook
-        uses: cloudflare/wrangler-action@v3.6.0
+        uses: cloudflare/wrangler-action@v4.0.0
         env: 
           DISCORD_WEBHOOK_URL: ${{ secrets.CW_DISCORD_WEBHOOK_URL }}
           HTML_MD_KEY: ${{ secrets.CW_HTML_MD_KEY }}
@@ -99,7 +99,7 @@ jobs:
         run: npm i -D wrangler --legacy-peer-deps
 
       - name: Publish to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3.6.0
+        uses: cloudflare/wrangler-action@v4.0.0
         if: ${{ github.actor != 'dependabot[bot]' }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -111,7 +111,7 @@ jobs:
         working-directory: ./apps/worker-docs
       
       - name: Deploy patreon-docs worker
-        uses: cloudflare/wrangler-action@v3.6.0
+        uses: cloudflare/wrangler-action@v4.0.0
         if: ${{ github.actor != 'dependabot[bot]' }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
