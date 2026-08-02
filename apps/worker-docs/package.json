@@ -7,8 +7,8 @@
   "author": "ghostrider-05",
   "license": "MIT",
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20260602.1",
+    "@cloudflare/workers-types": "5.20260730.1",
     "patreon-api.ts": "../../",
-    "wrangler": "^4.97.0"
+    "wrangler": "^4.115.0"
   }
 }
