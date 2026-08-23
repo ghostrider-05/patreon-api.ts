@@ -45,10 +45,10 @@ features:
     details: Verify (and parse) incoming webhook requests to your own server
     link: /guide/features/webhooks
     linkText: Read more
-  - title: Sandbox
-    details: Test your application before it goes live and without paying to yourself
-    link: /guide/features/sandbox
-    linkText: Read more
+  # - title: Sandbox
+  #   details: Test your application before it goes live and without paying to yourself
+  #   link: /guide/features/sandbox
+  #   linkText: Read more
   # - title: Apps
   #   details: Explore applications built with this library to be used as templates
   #   link: /apps/dashboard
@@ -56,34 +56,7 @@ features:
 ---
 
 <script setup lang="ts">
-import { onMounted, nextTick } from 'vue'
-import { useData } from 'vitepress'
-import { useIntervalFn } from '@vueuse/core'
-
-const { page } = useData()
-let index = 0
-
-function replaceTarget () {
-  if (page.value.frontmatter.layout !== 'home') return
-  const { targets } = page.value.frontmatter
-
-  document.getElementsByClassName('hero-target').item(0).innerHTML = targets[index]
-  index = (targets.length - 1) === index ? 0 : ++index
-}
-
-const { resume } = useIntervalFn(() => {
-  replaceTarget()
-}, 5_000)
-
-onMounted(() => nextTick(() => resume()))
+import Layout from './.vitepress/theme/home.vue'
 </script>
 
-<style>
-.hero-target {
-  color: var(--vp-c-brand-1) !important;
-}
-
-.image-src {
-  border-radius: 10px;
-}
-</style>
+<Layout/>
