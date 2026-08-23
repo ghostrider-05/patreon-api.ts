@@ -9,6 +9,7 @@
   "homepage": "https://patreon-api.pages.dev",
   "license": "MIT",
   "scripts": {
+    "install-ci": "npm ci --ignore-scripts",
     "predocs": "typedoc",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
@@ -19,7 +20,7 @@
   },
   "devDependencies": {
     "@shikijs/vitepress-twoslash": "^4.4.3",
-    "@types/node": "^24.13.2",
+    "@types/node": "^24.13.3",
     "@vueuse/core": "^14.4.0",
     "msw": "^2.15.0",
     "typedoc": "^0.28.20",

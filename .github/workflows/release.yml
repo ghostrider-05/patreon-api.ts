@@ -25,7 +25,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: 'https://registry.npmjs.org'
         if: ${{ steps.release.outputs.release_created }}
-      - run: npm ci
+      - run: npm run install-ci
         if: ${{ steps.release.outputs.release_created }}
       - run: npm run prestart
         if: ${{ steps.release.outputs.release_created }}

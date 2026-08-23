@@ -32,7 +32,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm run install-ci
 
       - name: Run tsc
         run: npm run prestart
@@ -75,7 +75,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm run install-ci
 
       - name: Run tsc
         run: npm run prestart
@@ -84,7 +84,7 @@ jobs:
         run: npm run build
 
       - name: Install dependencies
-        run: npm install
+        run: npm run install-ci
         working-directory: docs
 
       - name: Build reference
