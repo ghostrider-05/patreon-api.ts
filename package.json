@@ -13,9 +13,9 @@
     }
   },
   "scripts": {
-    "prestart": "npx tsc && node ./tsc-generated/src/scripts/v2/index.js",
+    "prestart": "npx tsc && node ./tsc-generated/scripts/v2/index.js",
     "build": "tsdown",
-    "build:openapi": "npx tsc && node ./tsc-generated/src/scripts/v2/openapi/index.js",
+    "build:openapi": "npx tsc && node ./tsc-generated/scripts/v2/openapi/index.js",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "npx eslint \"src/**/*.ts\" \"examples/**/*.ts\"",
