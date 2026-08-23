@@ -48,11 +48,9 @@ export default defineConfig({
             transformerTwoslash({
                 twoslashOptions: {
                     compilerOptions: {
-                        paths: {
-                            'patreon-api.ts': ['../']
-                        }
-                    }
-                }
+                        moduleResolution: 100, // = bundler
+                    },
+                },
             }),
         ],
         languages: ['js', 'ts'],
@@ -75,7 +73,7 @@ export default defineConfig({
         nav: [
             shared.createGuideItem(false),
             { text: 'Reference', link: '/api/', activeMatch: '/api/' },
-            { text: 'API Reference', link: 'https://patreon.apidocumentation.com/v2-stable/reference', },
+            { text: 'OpenAPI', link: 'https://patreon.apidocumentation.com/v2-stable/reference', },
             shared.createLinksItem({
                 branch,
                 bugsUrl: bugs.url,

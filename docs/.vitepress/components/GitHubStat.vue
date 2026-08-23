@@ -37,6 +37,7 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-top: 16px;
 }
 
 a:hover {

@@ -40,4 +40,9 @@ const props = defineProps({
 .VPFeatures {
   padding: 0 !important;
 }
+
+:deep(ul) {
+  list-style: none;
+  padding-left: 0;
+}
 </style>

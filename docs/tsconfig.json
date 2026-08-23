@@ -3,17 +3,18 @@
     "compilerOptions": {
         "target": "ES2022",
         "module": "ES2022",
-        "moduleResolution": "Bundler",
+        "moduleResolution": "bundler",
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "allowUnusedLabels": true,
+        "noImplicitAny": true,
         "noUncheckedIndexedAccess": false,
+        "rootDir": ".",
         "paths": {
-            "patreon-api.ts": ["../"]
         }
     },
     "include": [
-        ".vitepress/**/*.ts",
+        "./.vitepress/**/*.ts",
         "./examples/**/*.ts"
     ],
     "exclude": [

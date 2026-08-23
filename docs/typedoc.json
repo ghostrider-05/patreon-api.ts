@@ -87,6 +87,7 @@
     ],
     "intentionallyNotDocumented": [],
     "intentionallyNotExported": [
+        "CacheStoreItemInput",
         // utility types
         "IfAsync",
         "Additional",
