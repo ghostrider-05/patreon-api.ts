@@ -48,11 +48,9 @@ export default defineConfig({
             transformerTwoslash({
                 twoslashOptions: {
                     compilerOptions: {
-                        paths: {
-                            'patreon-api.ts': ['../']
-                        }
-                    }
-                }
+                        moduleResolution: 100, // = bundler
+                    },
+                },
             }),
         ],
         languages: ['js', 'ts'],

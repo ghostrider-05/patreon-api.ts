@@ -3,7 +3,7 @@
     "compilerOptions": {
         "target": "ES2022",
         "module": "ES2022",
-        "moduleResolution": "Bundler",
+        "moduleResolution": "bundler",
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "allowUnusedLabels": true,
@@ -11,7 +11,6 @@
         "noUncheckedIndexedAccess": false,
         "rootDir": ".",
         "paths": {
-            "patreon-api.ts": ["../"]
         }
     },
     "include": [

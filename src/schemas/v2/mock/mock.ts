@@ -111,7 +111,6 @@ export interface PatreonMockHandlerCallbackOptions {
     body?:
         | import('undici-types').BodyInit
         | import('undici-types').Dispatcher.DispatchOptions['body']
-        | undefined
     headers?:
         | import('undici-types').Headers
         | Headers
