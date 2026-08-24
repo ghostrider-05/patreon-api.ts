@@ -30,7 +30,7 @@ If you have a question or want to chat, open [a new discussion](https://github.c
 ## Pull request guidelines
 
 > [!TIP]
-> Pull requests don't have to improve the code. You can also add [how you use this wrapper](./examples/community.md) or [an example / template](./examples/)!
+> Pull requests don't have to improve the code. You can also add [create a discussion on how you use this wrapper](https://github.com/ghostrider-05/patreon-api.ts/discussions/categories/show-and-tell), improve documentation or add a pull request for [an example / template](./examples/)!
 
 The following steps are recommended for creating a new pull request:
 

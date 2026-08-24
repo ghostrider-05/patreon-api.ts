@@ -6,6 +6,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "install-ci": "npm ci --ignore-scripts",
     "start": "node -r dotenv/config . dotenv_config_path=../.env"
   },
   "keywords": [],

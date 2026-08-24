@@ -41,7 +41,7 @@ jobs:
         run: npm run build
 
       - name: Install example dependencies
-        run: npm install
+        run: npm run install-ci
         working-directory: ./examples/cloudflare-webhook/
 
       - name: Deploy cloudflare-webhook
@@ -107,7 +107,7 @@ jobs:
           command: pages deploy docs/.vitepress/dist --project-name=patreon-api --commit-dirty=true
 
       - name: Install worker dependencies
-        run: npm install
+        run: npm run install-ci
         working-directory: ./apps/worker-docs
       
       - name: Deploy patreon-docs worker
