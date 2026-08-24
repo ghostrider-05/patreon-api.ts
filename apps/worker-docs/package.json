@@ -6,6 +6,9 @@
   "type": "module",
   "author": "ghostrider-05",
   "license": "MIT",
+  "scripts": {
+    "install-ci": "npm ci --ignore-scripts"
+  },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20260821.1",
     "patreon-api.ts": "../../",

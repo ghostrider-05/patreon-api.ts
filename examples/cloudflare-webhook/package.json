@@ -8,6 +8,7 @@
   "author": "ghostrider-05",
   "license": "MIT",
   "scripts": {
+    "install-ci": "npm ci --ignore-scripts",
     "deploy": "npx wrangler deploy"
   },
   "devDependencies": {

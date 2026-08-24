@@ -6,13 +6,14 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
+    "install-ci": "npm ci --ignore-scripts",
     "start": "node -r dotenv/config . dotenv_config_path=../.env"
   },
   "keywords": [],
   "author": "ghostrider-05",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^18.19.31",
+    "@types/node": "^24.13.3",
     "dotenv": "^17.4.2",
     "patreon-api.ts": "../../"
   }

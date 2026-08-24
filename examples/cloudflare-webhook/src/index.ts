@@ -13,9 +13,9 @@ interface EnvWithSecrets {
 }
 
 interface Embed extends Record<string, string | number> {
-    title?: string
-    color?: number
-    description?: string
+    title: string
+    color: number
+    description: string
 }
 
 export default <ExportedHandler<EnvWithSecrets>> {

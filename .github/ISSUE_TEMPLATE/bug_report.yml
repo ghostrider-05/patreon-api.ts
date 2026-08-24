@@ -3,6 +3,22 @@ description: Create a report to track incorrect or broken things
 labels:
   - "bug:pending triage"
 body:
+  - type: dropdown
+    id: area
+    attributes:
+      multiple: false
+      default: 0
+      options:
+        - patreon-api.ts package
+        - Documentation
+        - Examples
+        - Apps
+        - Other
+      label: Package
+      description: |
+        The package / code that this issue form is for.
+    validations:
+      required: true
   - type: textarea
     id: description
     attributes:

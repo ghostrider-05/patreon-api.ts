@@ -7,7 +7,7 @@
         "module": "ES2020",
         "strictNullChecks": true,
         "types": [
-            "@cloudflare/workers-types/2023-07-01",
+            "@cloudflare/workers-types",
             "./src/types.d.ts"
         ],
     },

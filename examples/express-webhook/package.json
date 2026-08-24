@@ -7,16 +7,17 @@
   "author": "ghostrider-05",
   "license": "MIT",
   "scripts": {
+    "install-ci": "npm ci --ignore-scripts",
     "prestart": "tsc --noCheck",
     "start": "node -r dotenv/config ./dist/index.js"
   },
   "devDependencies": {
-    "@types/express": "^5.0.5",
-    "@types/node": "^22.7.6"
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.13.3"
   },
   "dependencies": {
     "dotenv": "^17.4.2",
-    "express": "^5.2.0",
+    "express": "^5.2.1",
     "patreon-api.ts": "../../"
   }
 }
