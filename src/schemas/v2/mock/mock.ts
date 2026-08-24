@@ -142,6 +142,7 @@ interface ParsedRoute {
     param: string | undefined
 }
 
+// eslint-disable-next-line jsdoc/require-jsdoc
 function parseRequestBody <T>(body: string | null) {
     return body ? <T>JSON.parse(body.toString()) : null
 }

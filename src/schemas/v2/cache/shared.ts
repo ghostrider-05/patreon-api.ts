@@ -63,7 +63,7 @@ export class CacheStoreShared<
     }
 
     /**
-     * Returns whether this cache is using an async binding.
+     * @returns whether this cache is using an async binding.
      */
     public isAsync (): boolean {
         return this.async
