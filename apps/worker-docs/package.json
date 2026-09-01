@@ -10,8 +10,8 @@
     "install-ci": "npm ci --ignore-scripts"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "5.20260821.1",
+    "@cloudflare/workers-types": "5.20260829.1",
     "patreon-api.ts": "../../",
-    "wrangler": "^4.125.0"
+    "wrangler": "^4.127.1"
   }
 }
