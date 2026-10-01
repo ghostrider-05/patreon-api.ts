@@ -16,7 +16,7 @@
     "@types/node": "^24.13.3"
   },
   "dependencies": {
-    "dotenv": "^17.4.2",
+    "dotenv": "^18.0.4",
     "express": "^5.2.1",
     "patreon-api.ts": "../../"
   }
