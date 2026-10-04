@@ -13,7 +13,7 @@
   "author": "ghostrider-05",
   "license": "MIT",
   "devDependencies": {
-    "dotenv": "^17.4.2",
+    "dotenv": "^18.0.4",
     "patreon-api.ts": "../../"
   }
 }
