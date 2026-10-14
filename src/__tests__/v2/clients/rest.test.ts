@@ -64,7 +64,7 @@ describe('client methods', () => {
 
     it('clear ratelimit', () => {
         // set a limit of 10s
-        client['ratelimiter'].applyTimeout(10, 0)
+        client['ratelimiter'].add(10_000)
         expect(client.limited).toBe(true)
 
         client.clearRatelimitTimeout()
