@@ -27,6 +27,7 @@ import {
     RequestCounter,
     type RestRequestCounter,
     type RestRequestCounterOptions,
+    type RestRequestLimiter,
 } from './internal/counter'
 
 import { RatelimitManager } from './internal/ratelimit'
@@ -78,6 +79,7 @@ interface SharedRequestOptions extends RequestOptions {
 }
 
 export type {
+    RestRequestLimiter,
     RestRequestCounter,
     RestRequestCounterOptions,
 }
@@ -86,9 +88,9 @@ export class RestClient {
     public readonly options: RestClientOptions
     public name: string | null
 
-    private ratelimiter: RatelimitManager
-    private counter: RequestCounter
-    private invalidCounter: RequestCounter
+    private ratelimiter: RestRequestLimiter
+    private counter: RestRequestLimiter & RestRequestCounter
+    private invalidCounter: RestRequestLimiter & RestRequestCounter
 
     public constructor (
         options: Partial<RestClientOptions> = {},
@@ -112,7 +114,7 @@ export class RestClient {
             : globalRequestsLimit
 
         this.ratelimiter = new RatelimitManager()
-        this.counter = new RequestCounter(requestLimitOptions, () => true)
+        this.counter = new RequestCounter(requestLimitOptions)
         this.invalidCounter = new RequestCounter(invalidRequestsLimit, (_url, { status }) => {
             return status >= 400 && status < 500
         })
@@ -378,8 +380,8 @@ export class RestClient {
         this.debug('This client is currently ratelimited. Please contact Patreon or reduce your requests')
 
         if (headers.retryafter != null) {
-            const until = this.ratelimiter.applyTimeout(headers.retryafter, timeout)
-            this.debug('This client is ratelimited until: ' + (until?.toISOString() ?? 'no retry time found'))
+            const until = this.ratelimiter.add(RatelimitManager.applyTimeout(headers.retryafter, timeout))
+            this.debug('This client is ratelimited for (ms): ' + (until ?? 'no retry time found'))
 
             return null
         }
@@ -389,8 +391,8 @@ export class RestClient {
         const body = await parseResponse<PatreonErrorResponseBody>(response)
         if (!isValidErrorBody(body)) return null
 
-        const until = this.ratelimiter.applyTimeout(body.errors.at(0)?.retry_after_seconds, timeout)
-        this.debug('This client is ratelimited until: ' + (until?.toISOString() ?? 'no retry time found'))
+        const until = this.ratelimiter.add(RatelimitManager.applyTimeout(body.errors.at(0)?.retry_after_seconds, timeout))
+        this.debug('This client is ratelimited for (ms): ' + (until ?? 'no retry time found'))
 
         return body
     }

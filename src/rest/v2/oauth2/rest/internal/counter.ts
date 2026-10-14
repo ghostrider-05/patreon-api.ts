@@ -1,10 +1,18 @@
-export interface RestRequestCounter {
+interface Limiter {
+    limited: boolean
+    clear (): void
+}
+
+export interface RestRequestLimiter extends Limiter {
+    wait (): Promise<number>
+    add (time?: number): number
+}
+
+export interface RestRequestCounter extends Limiter {
     limit: number
     period: number
     count: number
-
-    limited: boolean
-    clear(): void
+    filter: RequestFilter
 }
 
 type RequestFilter = (url: string, init: { status: number, method: string }) => boolean
@@ -25,7 +33,7 @@ export async function sleep (ms: number): Promise<void> {
     return new Promise<void>((resolve) => setTimeout(resolve, ms))
 }
 
-export class RequestCounter implements RestRequestCounter {
+export class RequestCounter implements RestRequestCounter, RestRequestLimiter {
     public period: number
     public limit: number
     public filter: RequestFilter
@@ -40,17 +48,17 @@ export class RequestCounter implements RestRequestCounter {
 
     public constructor (
         options: RestRequestCounterOptions,
-        filter: RequestFilter,
+        defaultFilter: RequestFilter = (() => true),
     ) {
         if (typeof options === 'number') {
             this.period = 1000 // 1 second
             this.limit = options
-            this.filter = filter
+            this.filter = defaultFilter
         } else {
             // Validate that the period is at least 1ms
             this.period = Math.max(options.interval, 0.001) * 1000 // convert seconds to ms
             this.limit = options.amount
-            this.filter = options.filter ?? filter
+            this.filter = options.filter ?? defaultFilter
 
             this._count = options.getStartCount?.() ?? null
             this.hooks = {
@@ -60,8 +68,8 @@ export class RequestCounter implements RestRequestCounter {
         }
     }
 
-    public add (): void {
-        if (this.limit <= 0) return
+    public add (): number {
+        if (this.limit <= 0) return 0
 
         if (this._count != null) {
             this._count += 1
@@ -75,12 +83,15 @@ export class RequestCounter implements RestRequestCounter {
         }
 
         this.hooks.onRequest?.(this)
+        return this._count
     }
 
-    public async wait (): Promise<void> {
+    public async wait (): Promise<number> {
         if (this._count != null && this._count > this.limit) {
             await sleep(this.period)
         }
+
+        return this.period
     }
 
     public clear (): void {

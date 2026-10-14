@@ -25,7 +25,7 @@ export default defineConfig({
             provider: 'istanbul',
             exclude: [
                 // Ignore tests
-                '__tests__',
+                '__tests__/**/*',
                 // Ignore generated scripts and code that generates it
                 '**/schemas/v2/api/',
                 '**/schemas/v2/generated/',

@@ -6,19 +6,24 @@
 You can use the methods on the client to access the API.
 If no token is given in the client options, you can use the [`token` option in the request options](/api/interfaces/Oauth2FetchOptions).
 
-| Feature in client       | PatreonClient | PatreonOauthClient | RestClient |
-| ----------------------- | ------------- | ------------------ | ---------- |
-| Rate limit              | ✅             | ✅                  | ✅          |
-| Edge rate limit         | ✅             | ✅                  | ✅          |
-| Response parsing        | ✅             | ✅                  | ✅          |
-| Request pagination      | ✅             | ✅                  | ❌          |
-| Client token            | ✅             | ✅                  | ❌          |
-| Scope validation        | ✅             | ✅                  | ❌          |
-| Token validation        | ✅             | ✅                  | ❌          |
-| Query response typed    | ✅             | ✅                  | ❌          |
-| Response transformation | ✅             | ❌                  | ❌          |
-| Default query           | ✅             | ❌                  | ❌          |
-| Route methods           | ✅             | ❌                  | ❌          |
+The examples below demonstrate how to make a fully typed request to the API with different levels of abstraction.
+Since the Patreon API is 
+
+| Feature in client                             | PatreonClient | PatreonOauthClient | RestClient |
+| --------------------------------------------- | ------------- | ------------------ | ---------- |
+| Rate limit                                    | ✅             | ✅                  | ✅          |
+| Edge rate limit                               | ✅             | ✅                  | ✅          |
+| Response parsing                              | ✅             | ✅                  | ✅          |
+| Request pagination                            | ✅             | ✅                  | ❌          |
+| Client token                                  | ✅             | ✅                  | ❌          |
+| [Scope validation](./oauth#scopes-validation) | ✅             | ✅                  | ❌          |
+| [Token validation](./oauth#token-validation)  | ✅             | ✅                  | ❌          |
+| Query response typed                          | ✅             | ✅                  | ❌          |
+| [Response transformation](./simplify)         | ✅             | ❌                  | ❌          |
+| Default query                                 | ✅             | ❌                  | ❌          |
+| Route methods                                 | ✅             | ❌                  | ❌          |
+
+* Default query: using [`rest.includeAllQueries`](../configuration.md#rest-include-allqueries) from the client options allows to fetch the API without providing a query
 
 ::: code-group
 

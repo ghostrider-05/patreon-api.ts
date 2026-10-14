@@ -52,6 +52,9 @@ describe('shared cache', () => {
     
         expect(sync).toBeInstanceOf(CustomCache)
         expect(async).toBeInstanceOf(CustomCache)
+
+        expect(sync.isAsync()).toBeFalsy()
+        expect(async.isAsync()).toBeTruthy()
     })
 
     test('item read', () => {

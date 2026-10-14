@@ -34,7 +34,7 @@ export interface RestEventMap {
     debug: [data: {
         message: string
     }]
-    request: [data: {
+    request: [request: {
         url: string
         headers: Record<string, unknown>
         method: string
@@ -43,12 +43,11 @@ export interface RestEventMap {
     response: [data: {
         data: PatreonHeadersData
         response: RestResponse
-    } & Pick<RestResponse,
-        | 'bodyUsed'
-        | 'headers'
-        | 'ok'
-        | 'status'
-    >]
+        headers: RestHeaders
+        ok: boolean
+        status: number
+        bodyUsed: boolean
+    }]
     ratelimit: [data: {
         url: string
         timeout: number

@@ -1,8 +1,8 @@
-import { sleep } from './counter'
+import { type RestRequestLimiter, sleep } from './counter'
 
 const parseToInt = (input: string | number) => typeof input === 'string' ? parseInt(input) : input
 
-export class RatelimitManager {
+export class RatelimitManager implements RestRequestLimiter {
     private limitedUntil: Date | null = null
 
     public get limited () {
@@ -24,16 +24,18 @@ export class RatelimitManager {
         return offset
     }
 
-    public applyTimeout (
-        response: number | string | undefined,
-        timeout: number,
-    ): Date | null {
-        const retryTimeout = (parseToInt(response ?? 0) * 1000) + timeout
-
-        if (retryTimeout > 0) {
-            this.limitedUntil = new Date(Date.now() + retryTimeout)
+    public add (time?: number): number {
+        if (time && time > 0) {
+            this.limitedUntil = new Date(Date.now() + time)
         }
 
-        return this.limitedUntil
+        return time ?? 0
+    }
+
+    public static applyTimeout (
+        response: number | string | undefined,
+        timeout: number,
+    ): number {
+        return (parseToInt(response ?? 0) * 1000) + timeout
     }
 }
