@@ -98,7 +98,13 @@ export interface RestClientOptions<IncludeAllQuery extends boolean = boolean> {
     getAccessToken: () => Promise<string | undefined>
 
     /**
-     * Headers to add on every request
+     * Headers to add on every request.
+     * Can also be overwritten on the request options.
+     *
+     * The following headers are already included (and can be overwritten):
+     * - Authorization (if the request is using a token)
+     * - Content-Type
+     * - User-Agent
      * @default {}
      */
     headers: Record<string, string>

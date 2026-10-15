@@ -5,7 +5,8 @@ import {
 } from './error'
 
 import {
-    getHeaders,
+    buildRequestHeaders,
+    getResponseHeaders,
     makeUserAgentHeader,
 } from './headers'
 
@@ -108,14 +109,11 @@ export class RestClient {
             throw new Error('No global fetch function found. Specify options.fetch with your fetch function')
         }
 
-        const { globalRequestsLimit, globalRequestPerSecond, invalidRequestsLimit } = this.options
-        const requestLimitOptions = (typeof globalRequestsLimit === 'number' ? globalRequestsLimit : globalRequestsLimit.amount) <= 0
-            ? globalRequestPerSecond
-            : globalRequestsLimit
+        const { globalRequestsLimit, invalidRequestsLimit } = this.options
 
         this.ratelimiter = new RatelimitManager()
-        this.counter = new RequestCounter(requestLimitOptions)
-        this.invalidCounter = new RequestCounter(invalidRequestsLimit, (_url, { status }) => {
+        this.counter = RequestCounter.fromOptions(globalRequestsLimit)
+        this.invalidCounter = RequestCounter.fromOptions(invalidRequestsLimit, (_url, { status }) => {
             return status >= 400 && status < 500
         })
     }
@@ -195,7 +193,7 @@ export class RestClient {
                 }
 
                 this.options.emitter?.emit('response', {
-                    data: getHeaders(response.headers),
+                    data: getResponseHeaders(response.headers),
                     bodyUsed: response.bodyUsed,
                     response,
                     headers: response.headers,
@@ -251,7 +249,11 @@ export class RestClient {
             AbortSignal.timeout(options.timeout ?? this.options.timeout),
         ].filter(s => s != undefined))
 
-        const headers = this.getHeaders(options)
+        const headers = buildRequestHeaders({
+            authPrefix: this.options.authPrefix,
+            headers: this.options.headers,
+            userAgent: this.userAgent,
+        }, options)
         const body = shouldIncludeRequestBody(<RequestMethod>options.method)
             ? options.body ?? null
             : null
@@ -283,26 +285,6 @@ export class RestClient {
             }
 
             return error
-        }
-    }
-
-    private getHeaders (options: Pick<RequestOptions, 'headers' | 'accessToken' | 'auth' | 'authPrefix'>) {
-        const defaultHeaders: Record<string, string> = {
-            'Content-Type': 'application/json',
-            'User-Agent': this.userAgent,
-        }
-
-        if (options.auth ?? true) {
-            if (!options.accessToken) throw new Error('Missing access token for authenticated request')
-
-            const prefix = (options.authPrefix ?? this.options.authPrefix) + ' '
-            defaultHeaders['Authorization'] = prefix + options.accessToken
-        }
-
-        return {
-            ...defaultHeaders,
-            ...this.options.headers,
-            ...(options.headers ?? {}),
         }
     }
 
@@ -354,7 +336,7 @@ export class RestClient {
             }
 
             return errors.map(error => {
-                return new PatreonError(error, getHeaders(response.headers))
+                return new PatreonError(error, getResponseHeaders(response.headers))
             })
         }
     }
@@ -375,7 +357,7 @@ export class RestClient {
 
     private async handleRatelimit (response: RestResponse): Promise<PatreonErrorResponseBody | null> {
         const timeout = this.options.ratelimitTimeout
-        const headers = getHeaders(response.headers)
+        const headers = getResponseHeaders(response.headers)
 
         this.debug('This client is currently ratelimited. Please contact Patreon or reduce your requests')
 

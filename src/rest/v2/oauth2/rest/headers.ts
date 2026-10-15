@@ -1,5 +1,7 @@
 import { version } from '../../../../utils'
 
+import type { RequestOptions } from './options'
+
 export const ResponseHeaders = {
     Sha: 'x-patreon-sha',
     UUID: 'x-patreon-uuid',
@@ -36,7 +38,7 @@ export function resolveHeaders (headers: RestHeaders): Record<string, string> {
  * @param headers the response headers from Patreon
  * @returns the extracted headers
  */
-export function getHeaders (headers: RestHeaders): PatreonHeadersData {
+export function getResponseHeaders (headers: RestHeaders): PatreonHeadersData {
     const resolved = resolveHeaders(headers)
 
     return {
@@ -53,4 +55,32 @@ export function makeUserAgentHeader (clientName: string, appendix?: string): str
     const userAgentAppendix = version + (appendix?.length ? `, ${appendix}` : '')
 
     return `${clientName} patreon-api.ts (https://github.com/ghostrider-05/patreon-api.ts, ${userAgentAppendix})`
+}
+
+// eslint-disable-next-line jsdoc/require-jsdoc
+export function buildRequestHeaders (
+    client: {
+        authPrefix: string
+        headers: Record<string, string>
+        userAgent: string
+    },
+    options: Pick<RequestOptions, 'headers' | 'accessToken' | 'auth' | 'authPrefix'>
+): Record<string, string> {
+    const defaultHeaders: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'User-Agent': client.userAgent,
+    }
+
+    if (options.auth ?? true) {
+        if (!options.accessToken) throw new Error('Missing access token for authenticated request')
+
+        const prefix = (options.authPrefix ?? client.authPrefix)
+        defaultHeaders['Authorization'] = prefix + ' ' + options.accessToken
+    }
+
+    return {
+        ...defaultHeaders,
+        ...client.headers,
+        ...(options.headers ?? {}),
+    }
 }

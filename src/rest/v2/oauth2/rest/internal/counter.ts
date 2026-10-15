@@ -19,9 +19,14 @@ type RequestFilter = (url: string, init: { status: number, method: string }) => 
 
 export type RestRequestCounterOptions =
     | number
+    | (RestRequestCounter & RestRequestLimiter)
     | {
-        amount: number
-        interval: number
+        /**
+         * The period for this counter (in seconds).
+         * Must be at least 1ms.
+         */
+        period: number
+        limit: number
         filter?: RequestFilter
         getStartCount?: () => number | null
         onRequest?: (counter: RestRequestCounter) => void
@@ -31,6 +36,12 @@ export type RestRequestCounterOptions =
 // eslint-disable-next-line jsdoc/require-jsdoc
 export async function sleep (ms: number): Promise<void> {
     return new Promise<void>((resolve) => setTimeout(resolve, ms))
+}
+
+// Validate that the period is at least 1ms
+// eslint-disable-next-line jsdoc/require-jsdoc
+function getPeriod (option: number): number {
+    return Math.max(option, 0.001) * 1000 // convert seconds to ms
 }
 
 export class RequestCounter implements RestRequestCounter, RestRequestLimiter {
@@ -47,7 +58,7 @@ export class RequestCounter implements RestRequestCounter, RestRequestLimiter {
     >> = {}
 
     public constructor (
-        options: RestRequestCounterOptions,
+        options: Exclude<RestRequestCounterOptions, (RestRequestCounter & RestRequestLimiter)>,
         defaultFilter: RequestFilter = (() => true),
     ) {
         if (typeof options === 'number') {
@@ -55,9 +66,8 @@ export class RequestCounter implements RestRequestCounter, RestRequestLimiter {
             this.limit = options
             this.filter = defaultFilter
         } else {
-            // Validate that the period is at least 1ms
-            this.period = Math.max(options.interval, 0.001) * 1000 // convert seconds to ms
-            this.limit = options.amount
+            this.period = getPeriod(options.period)
+            this.limit = options.limit
             this.filter = options.filter ?? defaultFilter
 
             this._count = options.getStartCount?.() ?? null
@@ -66,6 +76,15 @@ export class RequestCounter implements RestRequestCounter, RestRequestLimiter {
                 onTimerEnd: options.onTimerEnd,
             }
         }
+    }
+
+    public static fromOptions (
+        options: RestRequestCounterOptions,
+        defaultFilter?: RequestFilter,
+    ): (RestRequestCounter & RestRequestLimiter) {
+        if (typeof options !== 'number' && 'wait' in options && 'add' in options && 'count' in options) {
+            return options
+        } else return new RequestCounter(options, defaultFilter)
     }
 
     public add (): number {
