@@ -90,14 +90,6 @@ export interface RestClientOptions<IncludeAllQuery extends boolean = boolean> {
     fetch: RestFetcher
 
     /**
-     * Get the access token for unauthenticated requests
-     * @default <Client>.fetchStoredToken
-     * @deprecated Since this is not able to refresh tokens, this will be removed in the future.
-     * If you do depend on this method, please open an issue with your usecase.
-     */
-    getAccessToken: () => Promise<string | undefined>
-
-    /**
      * Headers to add on every request.
      * Can also be overwritten on the request options.
      *
@@ -138,14 +130,6 @@ export interface RestClientOptions<IncludeAllQuery extends boolean = boolean> {
 
     // TODO: check what a good limit is before being ratelimited.
     /**
-     * The maximum amount of requests per second for this client.
-     * Set to `0` to disable the limit.
-     * @default 0
-     * @deprecated use {@link globalRequestsLimit}
-     */
-    globalRequestPerSecond: number
-
-    /**
      * The maximum amount of requests for this client.
      * Set to `0` to disable the limit.
      *
@@ -179,8 +163,6 @@ export const DefaultRestOptions: RestClientOptions = {
     emitter: null,
     includeAllQueries: false,
     fetch: (...args) => fetch(...args),
-    getAccessToken: async () => undefined,
-    globalRequestPerSecond: 0,
     globalRequestsLimit: 0,
     invalidRequestsLimit: 0,
     ratelimitTimeout: 0,
@@ -258,12 +240,3 @@ export interface RequestOptions {
      */
     signal?: AbortSignal | undefined
 }
-
-/** @deprecated use RequestOptions */
-export interface InternalRequestOptions extends RequestOptions {
-    path: string
-    method?: RequestMethod | `${RequestMethod}`
-}
-
-/** @deprecated use RestClientOptions */
-export type RESTOptions<IncludeAllQuery extends boolean = boolean> = RestClientOptions<IncludeAllQuery>
