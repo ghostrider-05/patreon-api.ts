@@ -21,6 +21,9 @@ api-examples:
 
 # Installation
 
+> [!INFO]
+> The v1 API has been discontinued since october 7, 2026. This package only supports the v2 API.
+
 ## Platform
 
 <!-- @include: ../../README.md#compatibility -->
@@ -44,8 +47,6 @@ yarn add patreon-api.ts
 ```
 
 :::
-
-<!-- @include: ../../README.md#api-versions -->
 
 ## Examples
 

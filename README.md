@@ -36,22 +36,6 @@ yarn add patreon-api.ts
 
 ## Usage
 
-<details>
-<summary>Supported Patreon api: v2</summary>
-
-<!-- #region api-versions -->
-The default API version for this package is `2` and might change in major versions.
-
-> [!CAUTION]
-> This package does not include v1 of the Patreon API and starts with [API v2](https://docs.patreon.com/#apiv2-oauth). The sections in the Patreon documentation are prefixed by `APIv2:`. The Oauth flow, introduction and [sections below sorting](https://docs.patreon.com/#pagination-and-sorting) are related to all versions.
-
-When the default API version is changed, old versions will still receive updates.
-You can not import this module by API version since it is unlikely that Patreon will release a new version any time soon.
-
-<!-- #endregion api-versions -->
-
-</details>
-
 To read more about how to use this library, go to the [documentation](https://patreon-api.pages.dev). Still doubting if this library has everything you need related to the Patreon API? [Compare all libraries yourself](https://patreon-api.pages.dev/guide/introduction#comparison).
 
 <details>
