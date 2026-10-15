@@ -250,6 +250,7 @@ export class QueryBuilder<
 
     /**
      * Include all relationships for the main resource.
+     * Use {@link includeAll} to also include the attributes (for all relationships)
      */
     public includeAllRelationships () {
         const { include } = QueryBuilder.createCompleteOptions(this.resource)
@@ -261,6 +262,7 @@ export class QueryBuilder<
 
     /**
      * Include all relationships and attributes for the main resource.
+     * Use {@link includeAllRelationships} to only include the relationships (without the relationship attributes)
      */
     public includeAll () {
         const { include, attributes } = QueryBuilder.createCompleteOptions(this.resource)
@@ -271,13 +273,32 @@ export class QueryBuilder<
         return this as QueryBuilder<T, Listing, RelationshipFields<T>, Required<RelationshipMap<T, RelationshipFields<T>>>>
     }
 
+    /**
+     * Sets attributes for the resource and relationships.
+     * Use {@link setResourceAttributes} to only set the attributes of the query resource.
+     * @param attributes The attributes mapped to the resource (of the relationship)
+     */
     public setAttributes <A extends RelationshipMap<T, Relationships>>(attributes: A) {
         this._attributes = {
             ...this._attributes,
             ...attributes,
         }
 
-        return this as unknown as QueryBuilder<T, Listing, Relationships, A>
+        return this as unknown as QueryBuilder<T, Listing, Relationships, Omit<Attributes, keyof A> & A>
+    }
+
+    /**
+     * Sets attributes for the query resource.
+     * Use {@link setAttributes} to also set the attributes of the relationships (and query resource).
+     * @param attributes The attributes of the resource
+     */
+    public setResourceAttributes <A extends RelationshipMap<T, Relationships>[T]>(attributes: A) {
+        this._attributes = {
+            ...this._attributes,
+            [this.resource]: attributes,
+        }
+
+        return this as unknown as QueryBuilder<T, Listing, Relationships, Omit<Attributes, `${T}`> & { [t in T]: A }>
     }
 
     public addRelationships<R extends RelationshipFields<T>>(relationships: R[]) {

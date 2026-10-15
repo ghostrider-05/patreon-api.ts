@@ -88,6 +88,22 @@ describe('query builder', () => {
         expect(QueryBuilder.campaign.attributes).toEqual({})
     })
 
+    test('query with resource attributes', () => {
+        const query = QueryBuilder.campaign
+            .setAttributes({ campaign: ['created_at'] })
+            .setResourceAttributes(['patron_count'])
+
+        expect(query.resourceAttributes).toEqual(['patron_count'])
+        expectTypeOf<('patron_count')[]>().toEqualTypeOf(query.resourceAttributes)
+
+        const reverseQuery = QueryBuilder.campaign
+            .setResourceAttributes(['patron_count'])
+            .setAttributes({ campaign: ['created_at'] })
+
+        expect(reverseQuery.resourceAttributes).toEqual(['created_at'])
+        expectTypeOf<('created_at')[]>().toEqualTypeOf(reverseQuery.resourceAttributes)
+    })
+
     test('query with one relationship', () => {
         expect(QueryBuilder.campaign.addRelationships(['creator']).relationships).toEqual(['creator'])
         expect(QueryBuilder.campaign.setRelationships(['tiers']).relationships).toEqual(['tiers'])
@@ -153,14 +169,16 @@ describe('query builder', () => {
             { user: ('full_name' | 'hide_pledges')[] } & { user: 'full_name'[] }
         >().toEqualTypeOf(queryWithPledgesAttributes)
 
-        expect(query.addRelationshipAttributes('tiers', ['patron_count']).attributes).toEqual({
+        const queryWithPatronCount = query.addRelationshipAttributes('tiers', ['patron_count'])
+
+        expect(queryWithPatronCount.attributes).toEqual({
             user: ['full_name', 'hide_pledges'],
             tier: ['patron_count'],
         })
 
         expectTypeOf<
             QueryBuilder<Type.Campaign, false, 'creator' | 'tiers', { user: ('full_name')[] } & { tier: ('patron_count')[] }>
-        >().toEqualTypeOf(query.addRelationshipAttributes('tiers', ['patron_count']))
+        >().toEqualTypeOf(queryWithPatronCount)
     })
 
     test('query with set relationship and attributes', () => {

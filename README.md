@@ -16,7 +16,7 @@ Typescript oauth library for the [V2 Patreon API](https://docs.patreon.com/) wit
 
 ```ts
 const query = QueryBuilder.campaign
-    .setAttributes({ campaign: ['patron_count'] })
+    .setResourceAttributes(['patron_count'])
 
 const payload = await client.fetchCampaign('campaign_id', query)
     // ^? { data: { attributes: { patron_count: number } }, ... }
