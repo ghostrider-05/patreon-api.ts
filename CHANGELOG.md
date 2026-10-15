@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.21.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.20.0...patreon-api.ts-v0.21.0) (2026-10-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* **rest:** rename amount/interval to limit/period in counter options
+
+### Features
+
+* **QueryBuilder:** add `setResourceAttributes` method ([668ecfd](https://github.com/ghostrider-05/patreon-api.ts/commit/668ecfdbbe72e36b7e5a0b16ff406be13cbc9f02))
+* **rest:** allow custom counters for (invalid) request ([cbf29c1](https://github.com/ghostrider-05/patreon-api.ts/commit/cbf29c10680416f7c9ebe1005343409dd9099f58))
+* **rest:** rename amount/interval to limit/period in counter options ([cbf29c1](https://github.com/ghostrider-05/patreon-api.ts/commit/cbf29c10680416f7c9ebe1005343409dd9099f58))
+
+
+### Bug Fixes
+
+* **docs:** update mention of discontinued v1 API ([e3dd962](https://github.com/ghostrider-05/patreon-api.ts/commit/e3dd962358ce3681416e72ed5d3c5f9d9fb30a13)), closes [#303](https://github.com/ghostrider-05/patreon-api.ts/issues/303)
+* **QueryBuilder:** correct return type of `setAttributes` ([668ecfd](https://github.com/ghostrider-05/patreon-api.ts/commit/668ecfdbbe72e36b7e5a0b16ff406be13cbc9f02))
+* **rest:** allow null start values for counters ([6f237d3](https://github.com/ghostrider-05/patreon-api.ts/commit/6f237d3d607fa386daf7e3feb087742a79af4bc0))
+* **rest:** emit response event also on retries and failed responses ([7980c12](https://github.com/ghostrider-05/patreon-api.ts/commit/7980c124cafc8e822d4dbefaf28fd4eee113b2a2))
+
 ## [0.20.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.19.0...patreon-api.ts-v0.20.0) (2026-08-24)
 
 
