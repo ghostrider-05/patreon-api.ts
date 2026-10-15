@@ -194,6 +194,15 @@ export class RestClient {
                     this.invalidCounter.add()
                 }
 
+                this.options.emitter?.emit('response', {
+                    data: getHeaders(response.headers),
+                    bodyUsed: response.bodyUsed,
+                    response,
+                    headers: response.headers,
+                    ok: response.ok,
+                    status: response.status,
+                })
+
                 if (response.ok) {
                     return response
                 }
@@ -223,15 +232,6 @@ export class RestClient {
 
         const response = await tryRequest()
         const parsed = parseResponse<TypedResponse>(response)
-
-        this.options.emitter?.emit('response', {
-            data: getHeaders(response.headers),
-            bodyUsed: response.bodyUsed,
-            response,
-            headers: response.headers,
-            ok: response.ok,
-            status: response.status,
-        })
 
         return parsed
     }
