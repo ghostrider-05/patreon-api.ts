@@ -23,7 +23,7 @@ export type RestRequestCounterOptions =
         amount: number
         interval: number
         filter?: RequestFilter
-        getStartCount?: () => number
+        getStartCount?: () => number | null
         onRequest?: (counter: RestRequestCounter) => void
         onTimerEnd?: (counter: RestRequestCounter) => void
     }
