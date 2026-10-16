@@ -135,18 +135,6 @@ export class PatreonOauthClient {
      */
     public cachedToken: Oauth2CreatorToken | Oauth2StoredToken | undefined = undefined
 
-    /**
-     * Called when the token is refreshed
-     * @default <Client>.putStoredToken(token, true)
-     * @deprecated Use the `CacheTokenStore` class to store and fetch any tokens.
-     * See the documentation for an example: https://patreon-api.pages.dev/guide/features/oauth#creator
-     *
-     * To use the callback on the tokens refreshed:
-     * - for validating tokens, use {@link options}.onTokenValidationRefreshed to listen to changes
-     * - for refreshing tokens using {@link refreshToken}, move the callback to your code after refreshing.
-     */
-    public onTokenRefreshed?: (token: Oauth2StoredToken | undefined) => Promise<void> = undefined
-
     public constructor(
         options: PatreonOauthClientOptions,
         private rest: RestClient,
@@ -395,7 +383,6 @@ export class PatreonOauthClient {
 
         // TODO: add test for this case
         const refreshed = await client.refreshToken(token)
-        await client.onTokenRefreshed?.(refreshed ? this.toStored<false>(refreshed) : undefined)
         if (refreshed) {
             client.cachedToken = refreshed
             await client.options.onTokenValidationRefreshed(refreshed)

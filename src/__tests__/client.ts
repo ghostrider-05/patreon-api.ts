@@ -80,7 +80,7 @@ export const restClient = new RestClient({
     fetch: mockFetch,
     globalRequestsLimit: 600,
     invalidRequestsLimit: {
-        amount: 2000,
-        interval: 600,
+        limit: 2000,
+        period: 600,
     },
 })
