@@ -268,7 +268,7 @@ export class PatreonMock {
             .map(key => key.startsWith('-') ? { key: key.slice(1), descending: true } : { key, descending: false })
 
         return {
-            includes: <RelationshipFields<T>[]>include,
+            relationships: <RelationshipFields<T>[]>include,
             attributes: (includedKeys.concat(resource)).reduce<RelationshipMap<T, RelationshipFields<T>>>((obj, key) => {
                 const attributes: string[] = params.get(`fields[${key}]`)?.split(',') ?? []
 

@@ -79,8 +79,6 @@ export interface PatreonMockDataQuery<
     I extends RelationshipFields<T>,
     A extends RelationshipMap<T, I>,
 > {
-    /** @deprecated */
-    includes?: I[]
     relationships?: I[]
     attributes: A
     requestOptions?: QueryRequestOptions | undefined
@@ -92,7 +90,7 @@ function getRelationships<
     I extends RelationshipFields<T>,
     A extends RelationshipMap<T, I>,
 >(query: PatreonMockDataQuery<T, I, A>): I[] {
-    return query.relationships ?? query.includes ?? []
+    return query.relationships ?? []
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc

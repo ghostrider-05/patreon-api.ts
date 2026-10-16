@@ -103,6 +103,7 @@ export interface RestClientOptions<IncludeAllQuery extends boolean = boolean> {
 
     /**
      * The amount of times to retry failed (defaults to 5XX responses) or aborted requests.
+     * Does not retry 401 responses unless specifically configured with the status option.
      *
      * Can be applied to all statuses, ranges or a specific status.
      * @default 3

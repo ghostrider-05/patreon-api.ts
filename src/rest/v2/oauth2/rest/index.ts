@@ -17,8 +17,6 @@ export {
 export {
     DefaultRestOptions,
     RequestMethod,
-    type InternalRequestOptions,
-    type RESTOptions,
     type RequestOptions,
     type RestClientOptions,
     type RestEventMap,

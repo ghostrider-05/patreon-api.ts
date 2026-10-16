@@ -9,10 +9,4 @@ export {
     type Oauth2Token,
 } from './client'
 
-export {
-    PatreonStore,
-    type PatreonStoreKVStorage,
-    type PatreonTokenFetchOptions,
-} from './store'
-
 export * from './rest/'
