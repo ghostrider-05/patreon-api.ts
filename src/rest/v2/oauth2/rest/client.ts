@@ -50,11 +50,6 @@ async function parseResponse <Parsed = unknown>(response: RestResponse): Promise
     }
 }
 
-// eslint-disable-next-line jsdoc/require-jsdoc
-function isMissingAuthorization (status: number): boolean {
-    return [401].includes(status)
-}
-
 // eslint-disable-next-line jsdoc/require-returns
 /**
  * Check if the request should include a body on the request using the request method
@@ -212,15 +207,8 @@ export class RestClient {
                     options
                 )
 
-                // Check for true value specific
+                // Check for true value specificly
                 if (retryInvalidRequestResult === true) {
-                    // Retry with updated access token
-                    if (isMissingAuthorization(response.status)) {
-                        const updatedToken = await this.options.getAccessToken()
-
-                        if (updatedToken) options.accessToken = updatedToken
-                    }
-
                     return await tryRequest(retries + 1)
                 } else {
                     throw retryInvalidRequestResult
