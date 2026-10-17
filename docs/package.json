@@ -27,7 +27,7 @@
     "typedoc": "^0.28.20",
     "typedoc-plugin-markdown": "^4.13.1",
     "typedoc-vitepress-theme": "^1.1.4",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "vitepress": "^2.0.0-alpha.20",
     "vue": "^3.5.44",
     "vuetify": "^4.2.5"
