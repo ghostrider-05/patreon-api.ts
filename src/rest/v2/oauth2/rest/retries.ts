@@ -36,23 +36,19 @@ export interface RestRetriesBackoffOptions {
 export interface RestRetriesOptions {
     retries: number
     backoff?: RestRetriesBackoffOptions
+    status?: number | [number, number] | [number, number][]
 }
 
 export type RestRetries =
     | number
     | RestRetriesOptions
-    | ({ status: [number, number] | [number, number][] | number } & RestRetriesOptions)[]
+    | RestRetriesOptions[]
 
 export const defaultRetries = 3 satisfies RestRetries
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-function isMissingAuthorization (status: number): boolean {
-    return [401].includes(status)
-}
-
-// eslint-disable-next-line jsdoc/require-jsdoc
 function isRetryable (status: number | null, fromOptions = false) {
-    return status == null || (fromOptions || status >= 500 || !isMissingAuthorization(status))
+    return status == null || fromOptions || status >= 500
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
@@ -72,7 +68,39 @@ export function createBackoff (options: RestRetriesBackoffOptions) {
     }
 }
 
-const isInRange = (range: [number, number], target: number) => range[0] <= target && range[1] >= target
+// eslint-disable-next-line jsdoc/require-jsdoc
+function getRetryOptions (options: RestRetriesOptions[], status: number | null): RestRetriesOptions | undefined {
+    if (status == null) return options.find(option => option.status == undefined)
+    const isInRange = (range: [number, number], target: number) => range[0] <= target && range[1] >= target
+
+    const option = options.find(({ status: optionStatus }) => {
+        if (optionStatus == undefined) return false
+
+        if (typeof optionStatus === 'number') {
+            return optionStatus === status
+        } else if (Array.isArray(optionStatus[0])) {
+            return optionStatus.length > 0 && (optionStatus as [number, number][])
+                .some(range => isInRange(range, status))
+        } else {
+            return isInRange(optionStatus as [number, number], status)
+        }
+    })
+
+    return option ?? options.find(option => option.status == undefined)
+}
+
+// eslint-disable-next-line jsdoc/require-jsdoc
+function createRetryOptions (
+    status: number | null,
+    retries: number,
+    backoff?: RestRetriesBackoffOptions,
+    statusIsInOptions?: boolean,
+): InternalRetryData {
+    return {
+        retries: isRetryable(status, statusIsInOptions) ? retries : 0,
+        backoff: backoff ? createBackoff(backoff) : (() => 0),
+    }
+}
 
 /**
  * Get the amount to retry the failed request
@@ -81,35 +109,11 @@ const isInRange = (range: [number, number], target: number) => range[0] <= targe
  * @returns the final retry options
  */
 export function getRetryAmount (options: RestRetries, status: number | null): InternalRetryData {
-    const createRetryOptions = (
-        retries: number,
-        backoff?: RestRetriesBackoffOptions,
-        useRetryAmount?: boolean,
-    ): InternalRetryData => ({
-        retries: isRetryable(status, useRetryAmount) ? retries : 0,
-        backoff: backoff ? createBackoff(backoff) : (() => 0),
-    })
-
     if (typeof options === 'number') {
-        return createRetryOptions(options)
-    } else if (Array.isArray(options)) {
-        if (status == null) return createRetryOptions(defaultRetries)
-
-        const option = options.find(({ status: optionStatus }) => {
-            if (typeof optionStatus === 'number') {
-                return optionStatus === status
-            } else if (Array.isArray(optionStatus[0])) {
-                if (optionStatus.length === 0) return false
-                else return (optionStatus as [number, number][])
-                    .some(range => isInRange(range, status))
-            } else {
-                return isInRange(optionStatus as [number, number], status)
-            }
-        })
-
-        if (!option) return createRetryOptions(0)
-        return createRetryOptions(option.retries, option.backoff, true)
-    } else {
-        return createRetryOptions(options.retries, options.backoff)
+        return createRetryOptions(status, options)
     }
+
+    const option = getRetryOptions(Array.isArray(options) ? options : [options], status)
+    if (!option) return createRetryOptions(status, 0)
+    else return createRetryOptions(status, option.retries, option.backoff, option.status != undefined)
 }

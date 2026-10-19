@@ -4,7 +4,7 @@ import { DefaultRestOptions } from '../../../v2'
 
 describe('rest options', () => {
     test('default options', async () => {
-        expect(await DefaultRestOptions.getAccessToken()).toEqual(undefined)
+        expect(DefaultRestOptions.emitter).toBeNull()
         expect(DefaultRestOptions.fetch).toBeTypeOf('function')
     })
 })

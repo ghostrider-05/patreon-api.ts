@@ -1,21 +1,19 @@
 import { describe, expect, test } from 'vitest'
 
-import { PatreonCreatorClient, PatreonUserClient, type RestFetcher, PatreonTokenFetchOptions, QueryBuilder } from '../../v2'
+import { PatreonCreatorClient, PatreonUserClient, type RestFetcher, QueryBuilder } from '../../v2'
 
-import { If } from '../../utils/generics'
+import { If } from '../../utils/'
 
 // TODO: expose this to be combined with testing client payloads
 /**
  * Create a test client for Oauth
  * @param type the type of client to create
  * @param fetch the fetch function to use
- * @param store optional store options
  * @returns the created client
  */
 function createTestClient <T extends ('creator' | 'user')>(
     type: T,
     fetch: RestFetcher,
-    store?: PatreonTokenFetchOptions
 ): If<T extends 'creator' ? true : false, PatreonCreatorClient, PatreonUserClient> {
     const instance = type === 'creator'
         ? () => PatreonCreatorClient
@@ -34,7 +32,6 @@ function createTestClient <T extends ('creator' | 'user')>(
             },
             validateToken: false,
         },
-        store,
         rest: {
             fetch,
         }
@@ -99,105 +96,6 @@ describe('oauth client', () => {
             done: true,
             value: 4
         })
-    })
-})
-
-describe('creator client', () => {
-    // eslint-disable-next-line jsdoc/require-jsdoc
-    function createCreatorClientWithStore (body: object, status: number) {
-        return createTestClient('creator', async () => {
-            return new Response(JSON.stringify(body), { status })
-        }, {
-            async get() {
-                return <never>{
-                    access_token: 'stored',
-                }
-            },
-            async put () {},
-        })
-    }
-
-    const expires_in_epoch = (Date.now() + (5000 * 1000)).toString()
-
-    const client = createTestClient('creator', async () => {
-        return new Response(JSON.stringify({ access_token: 'token' }))
-    }, {
-        async get() {
-            return <never>{
-                access_token: 'stored',
-                refresh_token: 'refresh',
-                expires_in_epoch,
-            }
-        },
-        async put () {},
-    })
-
-    test('app token: store', async () => {
-        const token = await client.fetchApplicationToken()
-        expect(token).toHaveProperty('success', true)
-        expect(token).toHaveProperty('token', { access_token: 'token' })
-
-        const result = await client.initialize()
-        expect(result).toEqual(token.success)
-    })
-
-    test('stored token: get', async () => {
-        const stored = await client.fetchStoredToken()
-        
-        expect(stored).toEqual({ access_token: 'stored', refresh_token: 'refresh', expires_in: '5000', expires_in_epoch })
-    })
-
-    test('stored token: put', async () => {
-        await client.putStoredToken(<never>{ access_token: 'stored_2', expires_in: '6000', expires_in_epoch: '6000' }, true)
-        expect(client.oauth.cachedToken).toEqual({ access_token: 'stored_2', expires_in: '6000', expires_in_epoch: '6000' })
-    })
-
-    test('app token: failed store', async () => {
-        const clientWithoutStore = createTestClient('creator', async () => {
-            return new Response(JSON.stringify({ access_token: 'token' }))
-        })
-
-        const token = await clientWithoutStore.fetchApplicationToken()
-
-        expect(token).toHaveProperty('success', false)
-        expect(token).toHaveProperty('token', undefined)
-    })
-
-    test('rest: invalid request', async () => {
-        const client = createCreatorClientWithStore({ errors: [{ title: 'Invalid request'}] }, 400)
-
-        const token = await client.fetchApplicationToken()
-            .catch(() => ({ success: false, token: undefined }))
-
-        expect(token).toHaveProperty('success', false)
-        expect(token).toHaveProperty('token', undefined)
-    })
-
-    test('rest: ratelimited', async () => {
-        const client = createCreatorClientWithStore({ errors: [{ title: 'Rate limited'}] }, 429)
-
-        const token = await client.fetchApplicationToken()
-            .catch(() => ({ success: false, token: undefined }))
-
-        expect(token).toHaveProperty('success', false)
-        expect(token).toHaveProperty('token', undefined)
-    })
-
-    test('rest: null response', async () => {
-        let retries = 0
-        const client = createTestClient('creator', async () => {
-            if (retries) return new Response(JSON.stringify({ errors: [{ title: 'Invalid request'}] }), { status: 400 })
-            else {
-                retries += 1
-                return null as unknown as Response
-            }
-        })
-
-        const token = await client.fetchApplicationToken()
-            .catch(() => ({ success: false, token: undefined }))
-
-        expect(token).toHaveProperty('success', false)
-        expect(token).toHaveProperty('token', undefined)
     })
 })
 

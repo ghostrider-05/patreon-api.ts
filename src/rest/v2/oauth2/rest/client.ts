@@ -207,7 +207,7 @@ export class RestClient {
                     options
                 )
 
-                // Check for true value specificly
+                // Check for true value specifically
                 if (retryInvalidRequestResult === true) {
                     return await tryRequest(retries + 1)
                 } else {
@@ -225,7 +225,7 @@ export class RestClient {
     private async makeRequest (options: SharedRequestOptions) {
         const waited = await this.ratelimiter.wait()
         if (waited > 0) {
-            this.debug('This client is queueing a request to avoid ratelimits')
+            this.debug('This client has queued a request to avoid ratelimits for: ' + waited.toString() + ' (ms)')
         }
 
         await this.counter.wait()
