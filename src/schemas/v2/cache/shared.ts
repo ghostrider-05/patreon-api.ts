@@ -23,6 +23,10 @@ export interface CacheStoreSharedOptions<
      */
     patchUnknownItem?: boolean
 
+    /**
+     * When using a custom key format for storing items,
+     * define these methods for converting the key to a cache id and back.
+     */
     convert?: CacheStoreConvertOptions<C>
 }
 
@@ -34,6 +38,10 @@ export class CacheStoreShared<
     protected async: IsAsync
     protected promise: PromiseManager<IsAsync>
 
+    /**
+     * The binding used for persistent storage of cache values.
+     * Defaults to storing the values in the process memory.
+     */
     public binding: CacheStoreBinding<IsAsync, Value>
 
     /**
@@ -69,15 +77,31 @@ export class CacheStoreShared<
         return this.async
     }
 
+    // eslint-disable-next-line jsdoc/require-returns
+    /**
+     * Deletes all values if the {@link binding} has defined a `deleteAll` handler.
+     */
     public deleteAll (): IfAsync<IsAsync, void> {
         if (!this.binding.deleteAll) return void 0 as IfAsync<IsAsync, void>
         else return this.binding.deleteAll()
     }
 
+    // eslint-disable-next-line jsdoc/require-returns
+    /**
+     * Delete a value.
+     * @param args The identifier of the value.
+     * Use the converter options for handling custom values.
+     */
     public delete(...args: ObjValueTuple<C>): IfAsync<IsAsync, void> {
         return this.binding.delete(this.options.convert.toKey(...args))
     }
 
+    // eslint-disable-next-line jsdoc/require-returns
+    /**
+     * Sets a value.
+     * @param args The identifier with the value.
+     * Use the converter options for handling custom values.
+     */
     public put(...args: [...ObjValueTuple<C>, value: Value]): IfAsync<IsAsync, void> {
         const { last, values } = getLastTupleValue(args)
         const key = this.options.convert.toKey(...values)
@@ -85,10 +109,22 @@ export class CacheStoreShared<
         return this.binding.put(key, last)
     }
 
+    // eslint-disable-next-line jsdoc/require-returns
+    /**
+     * Gets a value.
+     * @param args The identifier of the value.
+     * Use the converter options for handling custom values.
+     */
     public get(...args: ObjValueTuple<C>): IfAsync<IsAsync, Value | undefined> {
         return this.binding.get(this.options.convert.toKey(...args))
     }
 
+    // eslint-disable-next-line jsdoc/require-returns
+    /**
+     * Edits a value. Uses the {@link options}.patchUnknownItem to control how unknown values are edited.
+     * @param args The identifier of the value with the new (partial) item.
+     * Use the converter options for handling custom values.
+     */
     public edit(...args: [...ObjValueTuple<C>, value: Partial<Value> | ((item: Value | undefined) => Value)]) {
         const { last: value, values } = getLastTupleValue(args)
 
@@ -106,6 +142,13 @@ export class CacheStoreShared<
         })
     }
 
+    // eslint-disable-next-line jsdoc/require-returns
+    /**
+     * Sets the values for multiple items.
+     * If the {@link binding} has not configured a `bulkPut` handler, the `put` handler will be used for all items.
+     * @param items List of identifiers with the values.
+     * Use the converter options for handling custom values.
+     */
     public bulkPut(items: (C & { value: Value })[]): IfAsync<IsAsync, void> {
         if (items.length === 0) {
             return undefined as IfAsync<IsAsync, void>
@@ -124,6 +167,13 @@ export class CacheStoreShared<
         })), () => {})
     }
 
+    // eslint-disable-next-line jsdoc/require-returns
+    /**
+     * Gets the values for multiple items.
+     * If the {@link binding} has not configured a `bulkGet` handler, the `get` handler will be used for all items.
+     * @param keys List of identifiers.
+     * Use the converter options for handling custom values.
+     */
     public bulkGet(keys: C[]): IfAsync<IsAsync, ({ key: string, value: Value } | undefined)[]> {
         if (keys.length === 0) {
             return [] as IfAsync<IsAsync, never[]>
@@ -143,6 +193,13 @@ export class CacheStoreShared<
         })), result => result)
     }
 
+    // eslint-disable-next-line jsdoc/require-returns
+    /**
+     * Deletes the values for multiple items.
+     * If the {@link binding} has not configured a `bulkDelete` handler, the `delete` handler will be used for all items.
+     * @param keys List of identifiers.
+     * Use the converter options for handling custom values.
+     */
     public bulkDelete(keys: C[]): IfAsync<IsAsync, void> {
         if (keys.length === 0) {
             return undefined as IfAsync<IsAsync, void>

@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import {
     PatreonMock,
+    QueryBuilder,
     RouteBases,
     Routes,
 } from '../../../v2'
@@ -65,7 +66,7 @@ describe('Mock client', () => {
 
         expect(mockedResponse.data).toBeDefined()
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const error = JSON.parse(mockedResponse.data!).errors[0]
+        const error = JSON.parse(mockedResponse.data! as string).errors[0]
         expect(error).toBeTypeOf('object')
         expect(error['status']).toEqual(statusCode.toString())
         console.log(error)
@@ -93,5 +94,25 @@ describe('mock data', () => {
     test('scrub with replacer', () => {
         expect(client.scrub('12345', { replacer: '-' })).toEqual('-----')
         expect(client.scrub('12345', { replacer: () => '*' })).toEqual('*')
+    })
+
+    test.todo('scrub API route', () => {
+        expect(RouteBases.oauth2 + Routes.identity()).toEqual(client.scrub(RouteBases.oauth2 + Routes.identity()))
+        const campaignId = client.createId('campaign')
+        expect(RouteBases.oauth2 + Routes.campaign('*'.repeat(campaignId.length))).toEqual(client.scrub(RouteBases.oauth2 + Routes.campaign(campaignId)))
+    })
+
+    test.todo('scrub API data', () => {
+        const id = client.createId('campaign')
+        const data = client.getSingleResponsePayload('campaign', QueryBuilder.campaign.includeAll(), {
+            id,
+            item: client.getAttributeItem('campaign', id).attributes,
+            relatedItems: [],
+        })
+        const scrubbed = client.scrub(Object.freeze(data))
+
+        expect(data.data.id).not.toEqual(scrubbed.data.id)
+        expect(data.links.self).not.toEqual(scrubbed.links.self)
+        // expect(data.data.id).not.toEqual(scrubbed.data.id)
     })
 })

@@ -5,11 +5,25 @@
 ### Resources
 
 When storing API resources, the `CacheStore` can be used.
+This cache has methods for:
 
+- synchronizing the cache with external resources, `syncResource` or `syncRequest` for parsing the resource out of the incoming request.
+- parsing resources and relationships to the JSON:API format.
 
 ### Tokens
 
+When [storing API tokens](./oauth#cache), the `CacheTokenStore` can be used.
+This store extends the [base for the custom store](#custom).
+
+:::details Example
+
+<<< @/examples/config/cache.ts#store-tokens{ts twoslash}
+
+:::
+
 ### Custom
+
+<<< @/examples/config/cache.ts#store-custom{ts twoslash}
 
 ## Bindings
 
@@ -28,6 +42,8 @@ Each binding defines handlers for `get`, `put`, `delete` methods. Optionally, bu
 ::: code-group
 
 <<< @/examples/config/cache.ts#file-cache{ts twoslash} [Basic methods]
+
+<<< @/examples/config/cache.ts#file-cache-sync{ts twoslash} [Basic sync methods]
 
 <<< @/examples/config/cache.ts#file-cache-all{ts twoslash} [With bulk methods]
 

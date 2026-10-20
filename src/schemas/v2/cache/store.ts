@@ -91,6 +91,10 @@ export interface CacheStoreOptions extends Omit<CacheStoreSharedOptions<{ type: 
     }
     // sweepers?: {}
     // limits?: {}
+    /**
+     * Adds items to the cache on constructing the cache.
+     * Will call the `bulkPut` handler each time and emit the `ready` event when done.
+     */
     initial?: {
         [T in ItemType]: CacheStoreItem<T>
     }[ItemType][]

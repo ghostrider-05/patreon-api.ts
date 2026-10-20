@@ -425,7 +425,9 @@ export class PatreonMockData {
 
             if (rel.type === 'item') {
                 const firstItem = items[0]
-                if (!firstItem) throw new Error()
+                if (!firstItem) {
+                    return { ...obj, data: null }
+                }
 
                 return {
                     ...obj,
@@ -635,7 +637,7 @@ export class PatreonMockData {
             return <T>data.map(item => PatreonMockData.scrub(item, options))
         } else if (typeof data === 'object' && data) {
             const { attributes } = options ?? {}
-            const output = data as Record<string, unknown>
+            const output = { ...data } as Record<string, unknown>
 
             if ('attributes' in data && 'type' in data && attributes) {
                 const obj = <Record<string, unknown>>data['attributes']

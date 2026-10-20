@@ -1,4 +1,4 @@
-import type { AccessRule as Schema } from './access_rule'
+import type { AccessRule as AccessRuleSchema } from './access_rule'
 import type { Address as AddressSchema } from './address'
 import type { Benefit as BenefitSchema } from './benefit'
 import type { Campaign as CampaignSchema } from './campaign'
@@ -16,7 +16,7 @@ import type { Webhook as WebhookSchema } from './webhook'
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace SchemaResources {
-    export type AccessRule = Schema
+    export type AccessRule = AccessRuleSchema
     export type Address = AddressSchema
     export type Benefit = BenefitSchema
     export type Campaign = CampaignSchema

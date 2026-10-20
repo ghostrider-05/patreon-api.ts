@@ -23,7 +23,7 @@ The examples below demonstrate how to make a fully typed request to the API with
 
 \* If no token is given in the client options, you can use the [`token` option in the request options](/api/interfaces/Oauth2FetchOptions).
 
-** Default query: using [`rest.includeAllQueries`](../configuration.md#rest-include-allqueries) from the client options allows to fetch the API without providing a query
+\*\* Default query: using [`rest.includeAllQueries`](../configuration.md#rest-include-allqueries) from the client options allows to fetch the API without providing a query
 
 ::: code-group
 
