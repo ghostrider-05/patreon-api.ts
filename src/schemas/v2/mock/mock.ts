@@ -20,7 +20,9 @@ import {
 } from '../../../schemas/v2/'
 
 import {
+    type CacheItem,
     CacheStore,
+    type CacheStoreBinding,
     type CacheStoreOptions,
 } from '../cache/'
 
@@ -72,6 +74,7 @@ export interface PatreonMockOptions {
          */
         query?: boolean
     }
+
     /**
      * Options for replying from the mock service.
      */
@@ -84,11 +87,19 @@ export interface PatreonMockOptions {
         unknownCacheResponse?:
             | string
     }
+
     /**
      * Options for the cache.
      * Use a cache to persist your mocking data and act as a mock database.
+     * Use {@link cacheBinding} to set the binding for persistent storage of the cache.
      */
     cache?: CacheStoreOptions
+
+    /**
+     * The binding for the cache with options from {@link cache}.
+     */
+    cacheBinding?: CacheStoreBinding<false, CacheItem<ItemType>>
+
     /**
      * Options to return random data.
      * If no cache item is found, the mock service can return a randomly generated payload as response.
@@ -159,7 +170,7 @@ export class PatreonMock {
     public constructor (
         public options: PatreonMockOptions = {},
     ) {
-        this.cache = new CacheStore(false, undefined, options.cache)
+        this.cache = new CacheStore(false, options.cacheBinding, options.cache)
 
         this.data = options.data != undefined && options.data instanceof PatreonMockData
             ? options.data
