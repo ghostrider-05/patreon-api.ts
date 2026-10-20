@@ -70,7 +70,6 @@ const restClientOptions: Partial<RestClientOptions> = {
 export const restClient = new RestClient(restClientOptions)
 
 export const creatorClient = new PatreonCreatorClient({
-    rest: restClientOptions,
     oauth: {
         clientId,
         clientSecret,
@@ -82,7 +81,6 @@ export const creatorClient = new PatreonCreatorClient({
 })
 
 export const userClient = new PatreonUserClient({
-    rest: restClientOptions,
     oauth: {
         clientId,
         clientSecret,
