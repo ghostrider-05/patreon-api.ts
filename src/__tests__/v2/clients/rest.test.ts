@@ -5,9 +5,11 @@ import {
     mockFetch,
     mockFetchReturnValue,
     restClient as client,
+    creatorClient,
 } from '../../client'
 
 import {
+    PatreonCreatorClient,
     PatreonMockData,
     RestClient,
 } from '../../../v2'
@@ -46,6 +48,11 @@ describe('client methods', () => {
 
     it('user agent', () => {
         expect(client.userAgent).toBeDefined()
+        expect(creatorClient.rest.userAgent).toEqual(client.userAgent)
+    })
+
+    it('all queries check', () => {
+        expect(PatreonCreatorClient.hasAllQueriesEnabled(creatorClient)).toBeFalsy()
     })
 
     it ('with no fetch defined', () => {
