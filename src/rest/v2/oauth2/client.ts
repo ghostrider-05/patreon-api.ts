@@ -131,7 +131,8 @@ export class PatreonOauthClient {
     public options: Required<Omit<OauthClientOptions, 'token'>> & Partial<Oauth2RedirectOptions>
 
     /**
-     * The last (updated) token that is stored
+     * The last (updated) token that is stored.
+     * This is only updated when using token validation and the token is refreshed.
      */
     public cachedToken: Oauth2CreatorToken | Oauth2StoredToken | undefined = undefined
 

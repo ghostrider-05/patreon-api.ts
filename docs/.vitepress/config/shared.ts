@@ -92,6 +92,10 @@ export function createGuideItem (expandFeatures = false): SharedItem {
             text: 'Webhooks',
             link: '/guide/features/webhooks',
         },
+        {
+            text: 'Cache',
+            link: '/guide/features/cache',
+        },
     ]
 
     if (!expandFeatures) return {

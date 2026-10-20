@@ -31,9 +31,10 @@ declare const env: {
 }
 
 // Configure async/sync store and the binding depending on the storage used
-const cache = new CacheTokenStore(true)
+// Without a binding, it stores in memory. Configure the binding for other storage providers (SQL, KV, etc)
+const cache = new CacheTokenStore(false)
 // Get the current token saved on starting the process
-const dbToken = (await cache.get('token'))!
+const dbToken = cache.get('token')
 
 const emitter = new EventEmitter<RestEventMap>()
 
@@ -57,7 +58,7 @@ emitter.on('response', async ({ response }) => {
         const refreshedToken = await client.oauth.refreshToken(currentToken)
 
         // Save it your DB
-        await cache.put('token', refreshedToken)
+        cache.put('token', refreshedToken)
         // Update the token on the client
         client.oauth.cachedToken = refreshedToken
     }
