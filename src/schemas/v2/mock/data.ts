@@ -185,7 +185,6 @@ export class PatreonMockData {
      * Get a response body for a single resource to mock a response payload
      * @param type The type of the resource that is returned
      * @param query The query to select the relationships and attributes returned
-     * @param query.includes DEPRECATED. The requested relationships on the item
      * @param query.relationships The requested relationships on the item
      * @param query.attributes The attribute map to filter the returned attributes
      * @param data The resource item, id and related items
@@ -230,7 +229,6 @@ export class PatreonMockData {
      * Get a response body for multiple resources to mock a response payload
      * @param type The type of the resource that is returned
      * @param query The query to select the relationships and attributes returned
-     * @param query.includes DEPRECATED. The requested relationships on the item
      * @param query.relationships The requested relationships on the item
      * @param query.attributes The attribute map to filter the returned attributes
      * @param query.requestOptions The pagination limits and sorting to apply to the items

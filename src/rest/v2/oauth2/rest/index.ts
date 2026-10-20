@@ -2,6 +2,7 @@ export {
     RestClient,
     type RestRequestCounter,
     type RestRequestCounterOptions,
+    type RestRequestLimiter,
 } from './client'
 
 export {
@@ -27,5 +28,5 @@ export {
 export {
     type RestRetriesOptions,
     type RestRetriesBackoffOptions,
-    type RestRetries
+    type RestRetries,
 } from './retries'
