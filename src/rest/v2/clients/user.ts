@@ -42,7 +42,9 @@ export class PatreonUserClientInstance<IncludeAll extends boolean> extends Patre
 
 export class PatreonUserClient<IncludeAll extends boolean = false> extends PatreonClient<IncludeAll> {
     public constructor (options: PatreonClientOptions<IncludeAll>) {
-        super(options, 'oauth')
+        options.oauth.tokenType ??= 'oauth'
+
+        super(options)
     }
 
     /* eslint-disable @typescript-eslint/unified-signatures */

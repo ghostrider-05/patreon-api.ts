@@ -37,6 +37,10 @@ describe('oauth client', () => {
         creatorClient.name = 'new'
         expect(creatorClient.name).toEqual('new')
         expect(creatorClient.oauth['rest'].name).toEqual('new')
+        expect(creatorClient.rest.name).toEqual('new')
+
+        expect(creatorClient.oauth.options.tokenType).toEqual('creator')
+        expect(userClient.oauth.options.tokenType).toEqual('oauth')
     })
 
     test('util: is expired', () => {
