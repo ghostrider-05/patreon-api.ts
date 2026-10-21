@@ -403,13 +403,4 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
     ) {
         return this.paginateOauth2<Query>(Routes.campaignPosts(campaignId), query, options)
     }
-
-    /** @deprecated */
-    public listOauth2: PatreonSharedClient<TransformType, IncludeAll>['paginateOauth2'] = (...args) => this.paginateOauth2(...args)
-    /** @deprecated */
-    public listCampaignPosts: PatreonSharedClient<TransformType, IncludeAll>['paginateCampaignPosts'] = (...args) => this.paginateCampaignPosts(...args)
-    /** @deprecated */
-    public listCampaignMembers: PatreonSharedClient<TransformType, IncludeAll>['paginateCampaignMembers'] = (...args) => this.paginateCampaignMembers(...args)
-    /** @deprecated */
-    public listCampaigns: PatreonSharedClient<TransformType, IncludeAll>['paginateCampaigns'] = (...args) => this.paginateCampaigns(...args)
 }
