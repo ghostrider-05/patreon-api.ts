@@ -378,6 +378,10 @@ export class QueryBuilder<
         return new QueryBuilder(Type.User, false)
     }
 
+    public static get live () {
+        return new QueryBuilder(Type.Live, false)
+    }
+
     public static get member () {
         return new QueryBuilder(Type.Member, false)
     }

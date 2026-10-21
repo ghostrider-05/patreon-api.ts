@@ -1,16 +1,18 @@
 import {
     PatreonSharedClient,
-    WriteResourceSharedClient,
     type Oauth2FetchOptions,
     type Oauth2RouteOptions,
+} from './shared'
+
+import {
     type ResponseTransformMap,
     type ResponseTransformType,
-} from './shared'
+    type PatreonClientTransformOptions,
+} from './transform'
 
 import {
     PatreonOauthClient,
     RestClient,
-    Routes,
     type PatreonOauthClientOptions,
     type RestClientOptions,
 } from '../oauth2/'
@@ -23,7 +25,6 @@ import {
 } from '../../../payloads/v2'
 
 import {
-    Type,
     type BasePatreonQuery,
 } from '../../../schemas/v2'
 
@@ -32,6 +33,7 @@ export type {
     ResponseTransformType,
     Oauth2FetchOptions,
     Oauth2RouteOptions,
+    PatreonClientTransformOptions,
 }
 
 /**
@@ -53,6 +55,11 @@ export interface PatreonClientOptions<IncludeAll extends boolean = false> {
      * The rest options for this client
      */
     rest?: Partial<RestClientOptions<IncludeAll>>
+
+    /**
+     * Options for transforming the API response.
+     */
+    transform?: Partial<PatreonClientTransformOptions<IncludeAll>>
 }
 
 export abstract class PatreonClient<IncludeAll extends boolean = false> extends PatreonSharedClient<'default', IncludeAll> {
@@ -62,16 +69,7 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
      * Client to use for creating, updating and getting webhooks from the current client.
      * @see https://docs.patreon.com/#apiv2-webhook-endpoints
      */
-    public webhooks: WebhookClient
-
-    /**
-     * Interact with the lives API routes.
-     *
-     * From the Patreon documentation:
-     * The Live APIs are early-access, and may be subject to change based on feedback from our partners.
-     * @see https://docs.patreon.com/#post-api-oauth2-v2-lives
-     */
-    public lives: WriteResourceSharedClient<Type.Live, string>
+    public webhooks: WebhookClient<IncludeAll>
 
     /**
      * Applies the `simplify` method on all responses.
@@ -108,23 +106,42 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
         this._oauth['rest'].name = value
     }
 
-    public constructor(options: PatreonClientOptions<IncludeAll>, type: 'oauth' | 'creator') {
-        options.oauth.tokenType ??= type
-        const includeAllQueries = options.rest?.includeAllQueries ?? <IncludeAll>false
+    public constructor (options: PatreonClientOptions<IncludeAll>) {
+        const transformOptions: PatreonClientTransformOptions<IncludeAll> = {
+            includeAllQueries: options.transform?.includeAllQueries
+                ?? options.rest?.includeAllQueries
+                ?? <IncludeAll>false
+        }
 
         const restClient = new RestClient(options.rest, { name: options.name ?? null })
         const oauth = new PatreonOauthClient(options.oauth, restClient)
 
-        super(oauth, 'default', (res) => res, includeAllQueries)
-
-        this.normalized = new PatreonSharedClient(oauth, 'normalized', normalizeFromQuery, includeAllQueries)
-        this.simplified = new PatreonSharedClient(oauth, 'simplified', simplifyFromQuery, includeAllQueries)
-
-        this.lives = new WriteResourceSharedClient(Type.Live, oauth, {
-            itemRoute: Routes.live,
-            listRoute: Routes.lives,
+        super(oauth, {
+            transform: {
+                transformType: 'default',
+                parser: (res) => res,
+                ...transformOptions,
+            },
         })
-        this.webhooks = new WebhookClient(this.oauth)
+
+        this.normalized = new PatreonSharedClient(oauth, {
+            transform: {
+                transformType: 'normalized',
+                parser: normalizeFromQuery,
+                ...transformOptions,
+            },
+        })
+        this.simplified = new PatreonSharedClient(oauth, {
+            transform: {
+                transformType: 'simplified',
+                parser: simplifyFromQuery,
+                ...transformOptions,
+            },
+        })
+
+        this.webhooks = new WebhookClient(this.oauth, {
+            transform: transformOptions,
+        })
     }
 
     public static hasAllQueriesEnabled <
@@ -138,9 +155,16 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
         IncludeAll extends boolean = boolean
     >(
         client: PatreonClient<IncludeAll>,
-        type: TransformType,
+        transformType: TransformType,
         parser: ResponseTransformMap<BasePatreonQuery>[TransformType],
     ): PatreonSharedClient<TransformType, IncludeAll> {
-        return new PatreonSharedClient(client.oauth, type, parser, client._include_all_query)
+        return new PatreonSharedClient(client.oauth, {
+            transform: {
+                transformType,
+                includeAllQueries: client._include_all_query,
+                parser,
+            },
+            token: client['_token'],
+        })
     }
 }

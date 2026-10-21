@@ -5,6 +5,8 @@ import {
 
 export class PatreonCreatorClient<IncludeAll extends boolean = false> extends PatreonClient<IncludeAll> {
     public constructor (options: PatreonClientOptions<IncludeAll>) {
-        super(options, 'creator')
+        options.oauth.tokenType ??= 'creator'
+
+        super(options)
     }
 }
