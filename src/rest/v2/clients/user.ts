@@ -10,7 +10,14 @@ export class PatreonUserClientInstance<IncludeAll extends boolean> extends Patre
     public client: PatreonUserClient<IncludeAll>
 
     public constructor (client: PatreonUserClient<IncludeAll>, token: Oauth2StoredToken) {
-        super(client.oauth, 'default', (res) => res, client['_include_all_query'], token)
+        super(client.oauth, {
+            transform: {
+                includeAllQueries: client['_include_all_query'],
+                parser: (res) => res,
+                transformType: 'default',
+            },
+            token,
+        })
 
         this.client = client
         this.token = token

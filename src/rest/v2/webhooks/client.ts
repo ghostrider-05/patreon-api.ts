@@ -1,6 +1,7 @@
 import {
     type BasePatreonQueryType,
-    type GetResponsePayload,
+    QueryBuilder,
+    type QueryDefault,
     Type,
     type Webhook,
     type WriteResourcePayload,
@@ -16,6 +17,7 @@ import type { PatreonOauthClient } from '../oauth2/client'
 import { resolveHeaders } from '../oauth2/rest/headers'
 
 import { CrudResourcesSharedClient, type Oauth2RouteOptions,  } from '../clients/shared'
+import type { PatreonClientTransformOptions } from '../clients/transform'
 
 import { WebhookPayloadClient } from './payload'
 
@@ -36,7 +38,7 @@ export type WebhookAPIEditBody = WriteResourcePayload<Type.Webhook, RequestMetho
 
 export type WebhookAPIEditResult = WriteResourceResponse<Type.Webhook>
 
-export class WebhookClient {
+export class WebhookClient<IncludeAll extends boolean = false> {
     /**
      * The headers that are sent on webhook requests
      */
@@ -56,14 +58,24 @@ export class WebhookClient {
     }
 
     public payloads = WebhookPayloadClient
-    private shared: CrudResourcesSharedClient<Type.Webhook, undefined>
+    private shared: CrudResourcesSharedClient<Type.Webhook, 'default', IncludeAll, undefined>
 
     public constructor (
         public oauth: PatreonOauthClient,
+        options?: {
+            transform?: Partial<PatreonClientTransformOptions<IncludeAll>>
+        },
     ) {
         this.shared = new CrudResourcesSharedClient(Type.Webhook, oauth, {
             itemRoute: Routes.webhook,
             listRoute: Routes.webhooks,
+            idParam: undefined,
+            listQuery: QueryBuilder.webhooks,
+            itemQuery: null,
+        }, {
+            includeAllQueries: options?.transform?.includeAllQueries ?? <IncludeAll>false,
+            transformType: 'default',
+            parser: (res) => res,
         })
     }
 
@@ -98,10 +110,10 @@ export class WebhookClient {
      * @param options Request options
      * @returns the webhooks managed by this client
      */
-    public async fetchWebhooks<Query extends BasePatreonQueryType<Type.Webhook, true>>(
-        query: Query,
+    public async fetchWebhooks<Query extends BasePatreonQueryType<Type.Webhook, true> = QueryDefault<IncludeAll, Type.Webhook, true>>(
+        query?: Query,
         options?: Oauth2WebhookRouteOptions,
-    ): Promise<GetResponsePayload<Query>> {
+    ) {
         return this.shared.fetch(query, options)
     }
 
