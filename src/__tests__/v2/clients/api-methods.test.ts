@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { creatorClient } from '../../client'
-import { QueryBuilder, Type } from '../../../v2'
+import { PatreonCreatorClient, QueryBuilder, Type } from '../../../v2'
 
 describe('client methods', () => {
     test('campaigns', async () => {
@@ -52,5 +52,12 @@ describe('client methods', () => {
         const identity = await creatorClient.fetchIdentity(QueryBuilder.identity, { token: 'token' })
     
         expect(identity.data.type).toEqual(Type.User)
+    })
+
+    test('custom parser', () => {
+        expect(() => PatreonCreatorClient.createCustomParser(creatorClient, 'default', (res) => {
+            return res
+        })).not.toThrow()
+        // TODO: test if custom typed parser works
     })
 })

@@ -75,17 +75,11 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
 
     /**
      * Applies the `simplify` method on all responses.
-     *
-     * NOTE: due to type complexity, the response might be typed as an union of a paginated and resource response.
-     * If this happens, apply the `simplify` method on the default response manually. I have no idea how to fix this bug.
      */
     public simplified: PatreonSharedClient<'simplified', IncludeAll>
 
     /**
      * Applies the `normalize` method on all responses.
-     *
-     * NOTE: due to type complexity, the response might be typed as an union of a paginated and resource response.
-     * If this happens, apply the `normalize` method on the default response manually. I have no idea how to fix this bug.
      */
     public normalized: PatreonSharedClient<'normalized', IncludeAll>
 
@@ -140,15 +134,13 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
     }
 
     public static createCustomParser <
-        Type extends keyof ResponseTransformMap<BasePatreonQuery>,
+        TransformType extends keyof ResponseTransformMap<BasePatreonQuery>,
         IncludeAll extends boolean = boolean
     >(
         client: PatreonClient<IncludeAll>,
-        type: Type,
-        parser: ResponseTransformMap<BasePatreonQuery>[Type],
-        /** TODO: replace with hasAllQueriesEnabled method */
-        includeAllQueries: IncludeAll
-    ): PatreonSharedClient<Type, IncludeAll> {
-        return new PatreonSharedClient(client.oauth, type, parser, includeAllQueries)
+        type: TransformType,
+        parser: ResponseTransformMap<BasePatreonQuery>[TransformType],
+    ): PatreonSharedClient<TransformType, IncludeAll> {
+        return new PatreonSharedClient(client.oauth, type, parser, client._include_all_query)
     }
 }
