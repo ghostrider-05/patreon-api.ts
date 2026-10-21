@@ -8,7 +8,7 @@ const client = new PatreonCreatorClient({
         clientSecret: 'secret',
         // Configure your token
     },
-    rest: {
+    transform: {
         includeAllQueries: true,
     }
 })
