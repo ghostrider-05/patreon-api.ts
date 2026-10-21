@@ -20,6 +20,13 @@ import type { RequestPayload } from '../internals/request'
 
 import type { AnyToCamelCase } from './capitalize'
 
+type If<T extends boolean, A, B> = T extends true ? A : B
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type IsListingQuery<Query extends BasePatreonQuery> = Query extends PatreonQuery<infer _T, infer _I, infer _A, infer _L>
+    ? Query extends { _payload_type: { links: object } } ? false : true
+    : never
+
 export type NormalizedAttributeItem<
     Type extends ItemType,
     Attributes extends Record<string, unknown> = Record<string, never>
@@ -79,10 +86,8 @@ export type NormalizeRequest<
         : NormalizedGetRequestPayload<T, R, M>
     : never
 
-export type GetNormalizedResponsePayload<Query extends BasePatreonQuery> = Query extends PatreonQuery<infer T, infer I, infer A, infer L>
-    ? L extends false
-        ? NormalizedGetRequestPayload<T, I, A>
-        : NormalizedListRequestPayload<T, I, A>
+export type GetNormalizedResponsePayload<Query extends BasePatreonQuery> = Query extends PatreonQuery<infer T, infer I, infer A, boolean>
+    ? If<IsListingQuery<Query>, NormalizedListRequestPayload<T, I, A>, NormalizedGetRequestPayload<T, I, A>>
     : never
 
 export type SimplifyRequest<
@@ -93,8 +98,6 @@ export type SimplifyRequest<
         : AnyToCamelCase<NormalizedGetRequestPayload<T, R, M>>
     : never
 
-export type GetSimplifiedResponsePayload<Query extends BasePatreonQuery> = Query extends PatreonQuery<infer T, infer I, infer A, infer L>
-    ? L extends false
-        ? AnyToCamelCase<NormalizedGetRequestPayload<T, I, A>>
-        : AnyToCamelCase<NormalizedListRequestPayload<T, I, A>>
+export type GetSimplifiedResponsePayload<Query extends BasePatreonQuery> = Query extends PatreonQuery<infer T, infer I, infer A, boolean>
+    ? If<IsListingQuery<Query>, AnyToCamelCase<NormalizedListRequestPayload<T, I, A>>, AnyToCamelCase<NormalizedGetRequestPayload<T, I, A>>>
     : never

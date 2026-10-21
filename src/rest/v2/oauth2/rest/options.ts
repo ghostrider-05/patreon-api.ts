@@ -90,14 +90,6 @@ export interface RestClientOptions<IncludeAllQuery extends boolean = boolean> {
     fetch: RestFetcher
 
     /**
-     * Get the access token for unauthenticated requests
-     * @default <Client>.fetchStoredToken
-     * @deprecated Since this is not able to refresh tokens, this will be removed in the future.
-     * If you do depend on this method, please open an issue with your usecase.
-     */
-    getAccessToken: () => Promise<string | undefined>
-
-    /**
      * Headers to add on every request.
      * Can also be overwritten on the request options.
      *
@@ -111,8 +103,10 @@ export interface RestClientOptions<IncludeAllQuery extends boolean = boolean> {
 
     /**
      * The amount of times to retry failed (defaults to 5XX responses) or aborted requests.
+     * Does not retry 4XX responses unless specifically configured with the status option.
      *
      * Can be applied to all statuses, ranges or a specific status.
+     * When using multiple retries for different statuses, the (first) option without a status will be used for all other statuses.
      * @default 3
      */
     retries: RestRetries
@@ -137,14 +131,6 @@ export interface RestClientOptions<IncludeAllQuery extends boolean = boolean> {
     ratelimitTimeout: number
 
     // TODO: check what a good limit is before being ratelimited.
-    /**
-     * The maximum amount of requests per second for this client.
-     * Set to `0` to disable the limit.
-     * @default 0
-     * @deprecated use {@link globalRequestsLimit}
-     */
-    globalRequestPerSecond: number
-
     /**
      * The maximum amount of requests for this client.
      * Set to `0` to disable the limit.
@@ -179,8 +165,6 @@ export const DefaultRestOptions: RestClientOptions = {
     emitter: null,
     includeAllQueries: false,
     fetch: (...args) => fetch(...args),
-    getAccessToken: async () => undefined,
-    globalRequestPerSecond: 0,
     globalRequestsLimit: 0,
     invalidRequestsLimit: 0,
     ratelimitTimeout: 0,
@@ -258,12 +242,3 @@ export interface RequestOptions {
      */
     signal?: AbortSignal | undefined
 }
-
-/** @deprecated use RequestOptions */
-export interface InternalRequestOptions extends RequestOptions {
-    path: string
-    method?: RequestMethod | `${RequestMethod}`
-}
-
-/** @deprecated use RestClientOptions */
-export type RESTOptions<IncludeAllQuery extends boolean = boolean> = RestClientOptions<IncludeAllQuery>

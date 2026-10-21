@@ -5,9 +5,11 @@ import {
     mockFetch,
     mockFetchReturnValue,
     restClient as client,
+    creatorClient,
 } from '../../client'
 
 import {
+    PatreonCreatorClient,
     PatreonMockData,
     RestClient,
 } from '../../../v2'
@@ -46,6 +48,11 @@ describe('client methods', () => {
 
     it('user agent', () => {
         expect(client.userAgent).toBeDefined()
+        expect(creatorClient.rest.userAgent).toEqual(client.userAgent)
+    })
+
+    it('all queries check', () => {
+        expect(PatreonCreatorClient.hasAllQueriesEnabled(creatorClient)).toBeFalsy()
     })
 
     it ('with no fetch defined', () => {
@@ -138,7 +145,7 @@ describe('requests', () => {
         }))
 
         await expect(client.get<{ data: [] }>('/api'))
-            .rejects.toThrowError('Missing access token for authenticated request')
+            .rejects.toThrow('Missing access token for authenticated request')
     })
 
     it('GET request: retried request', async () => {
@@ -163,14 +170,14 @@ describe('requests', () => {
         mockFetchReturnValue(Promise.resolve(new Error('Something went wrong...')))
 
         await expect(client.get<{ data: [] }>('/api', { accessToken: 'token' }))
-            .rejects.toThrowError('Something went wrong...')
+            .rejects.toThrow('Something went wrong...')
     })
 
     it('GET request: invalid body', async () => {
         mockFetchReturnValue(Promise.resolve(new Response('Some Cloudflare block message', { status: 400 })))
 
         await expect(client.get<{ data: [] }>('/api', { accessToken: 'token' }))
-            .rejects.toThrowError('Received an invalid error response:\n"Some Cloudflare block message"')
+            .rejects.toThrow('Received an invalid error response:\n"Some Cloudflare block message"')
     })
 
     it('GET request: timed out', { timeout: 500 }, async () => {
@@ -182,7 +189,7 @@ describe('requests', () => {
         await expect(client.get<{ data: [] }>('/api', {
             accessToken: 'token',
             timeout: 10,
-        })).rejects.toThrowError('The operation was aborted due to timeout')
+        })).rejects.toThrow('The operation was aborted due to timeout')
     })
 
     it('GET request: ratelimited, no retry information', async () => {
@@ -191,7 +198,7 @@ describe('requests', () => {
 
         await expect(client.get<{ data: [] }>('/api', {
             accessToken: 'token',
-        })).rejects.toThrowError()
+        })).rejects.toThrow()
     })
 
     it('GET request: ratelimited, retry information in body', async () => {
@@ -200,7 +207,7 @@ describe('requests', () => {
 
         await expect(client.get<{ data: [] }>('/api', {
             accessToken: 'token',
-        })).rejects.toThrowError()
+        })).rejects.toThrow()
     })
 
     it('GET request: ratelimited, retry information in body and headers', async () => {
@@ -209,16 +216,20 @@ describe('requests', () => {
 
         await expect(client.get<{ data: [] }>('/api', {
             accessToken: 'token',
-        })).rejects.toThrowError()
+        })).rejects.toThrow()
     })
 
     it('GET request: ratelimited, with second attempt', async () => {
+        client['ratelimiter'].add(1_000)
         const error = ratelimitedResponse(3, { body: true })
         mockFetchReturnValue(error)
 
+        // Client is already ratelimited for 1s
+        // Assume that this request extends the ratelimit
         await expect(client.get<{ data: [] }>('/api', {
             accessToken: 'token',
-        })).rejects.toThrowError()
+        })).rejects.toThrow()
+        client['ratelimiter'].add(3_000)
 
         expect(client.limited).toEqual(true)
         // Ensure all counters are not limited

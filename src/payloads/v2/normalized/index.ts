@@ -137,5 +137,6 @@ export function simplify<
 export function simplifyFromQuery<
     Query extends BasePatreonQuery
 >(payload: GetResponsePayload<Query>): GetSimplifiedResponsePayload<Query> {
+    // @ts-expect-error ??????????
     return convertToCamelcase(normalizeFromQuery(payload)) as GetSimplifiedResponsePayload<Query>
 }

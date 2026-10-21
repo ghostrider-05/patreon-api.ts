@@ -2,6 +2,7 @@ export {
     RestClient,
     type RestRequestCounter,
     type RestRequestCounterOptions,
+    type RestRequestLimiter,
 } from './client'
 
 export {
@@ -17,8 +18,6 @@ export {
 export {
     DefaultRestOptions,
     RequestMethod,
-    type InternalRequestOptions,
-    type RESTOptions,
     type RequestOptions,
     type RestClientOptions,
     type RestEventMap,
@@ -29,5 +28,5 @@ export {
 export {
     type RestRetriesOptions,
     type RestRetriesBackoffOptions,
-    type RestRetries
+    type RestRetries,
 } from './retries'

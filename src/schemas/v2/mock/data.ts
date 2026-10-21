@@ -79,8 +79,6 @@ export interface PatreonMockDataQuery<
     I extends RelationshipFields<T>,
     A extends RelationshipMap<T, I>,
 > {
-    /** @deprecated */
-    includes?: I[]
     relationships?: I[]
     attributes: A
     requestOptions?: QueryRequestOptions | undefined
@@ -92,7 +90,7 @@ function getRelationships<
     I extends RelationshipFields<T>,
     A extends RelationshipMap<T, I>,
 >(query: PatreonMockDataQuery<T, I, A>): I[] {
-    return query.relationships ?? query.includes ?? []
+    return query.relationships ?? []
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
@@ -187,7 +185,6 @@ export class PatreonMockData {
      * Get a response body for a single resource to mock a response payload
      * @param type The type of the resource that is returned
      * @param query The query to select the relationships and attributes returned
-     * @param query.includes DEPRECATED. The requested relationships on the item
      * @param query.relationships The requested relationships on the item
      * @param query.attributes The attribute map to filter the returned attributes
      * @param data The resource item, id and related items
@@ -232,7 +229,6 @@ export class PatreonMockData {
      * Get a response body for multiple resources to mock a response payload
      * @param type The type of the resource that is returned
      * @param query The query to select the relationships and attributes returned
-     * @param query.includes DEPRECATED. The requested relationships on the item
      * @param query.relationships The requested relationships on the item
      * @param query.attributes The attribute map to filter the returned attributes
      * @param query.requestOptions The pagination limits and sorting to apply to the items
@@ -429,7 +425,9 @@ export class PatreonMockData {
 
             if (rel.type === 'item') {
                 const firstItem = items[0]
-                if (!firstItem) throw new Error()
+                if (!firstItem) {
+                    return { ...obj, data: null }
+                }
 
                 return {
                     ...obj,
@@ -639,7 +637,7 @@ export class PatreonMockData {
             return <T>data.map(item => PatreonMockData.scrub(item, options))
         } else if (typeof data === 'object' && data) {
             const { attributes } = options ?? {}
-            const output = data as Record<string, unknown>
+            const output = { ...data } as Record<string, unknown>
 
             if ('attributes' in data && 'type' in data && attributes) {
                 const obj = <Record<string, unknown>>data['attributes']

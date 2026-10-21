@@ -4,29 +4,11 @@ import {
     PatreonCreatorClient,
     PatreonUserClient,
     RestClient,
+    RestClientOptions,
 } from '../v2'
 
 export const clientId = 'client_id'
 export const clientSecret = 'client_secret'
-
-export const creatorClient = new PatreonCreatorClient({
-    oauth: {
-        clientId,
-        clientSecret,
-        token: {
-            access_token: 'access_token',
-            refresh_token: 'refresh_token',
-        },
-    },
-})
-
-export const userClient = new PatreonUserClient({
-    oauth: {
-        clientId,
-        clientSecret,
-        redirectUri: 'https://ghostrider-05.com/',
-    }
-})
 
 // rest client
 
@@ -75,7 +57,7 @@ export const getLastFetchMockCall = () => {
     return options
 }
 
-export const restClient = new RestClient({
+const restClientOptions: Partial<RestClientOptions> = {
     api: 'https://patreon.com',
     fetch: mockFetch,
     globalRequestsLimit: 600,
@@ -83,4 +65,25 @@ export const restClient = new RestClient({
         limit: 2000,
         period: 600,
     },
+}
+
+export const restClient = new RestClient(restClientOptions)
+
+export const creatorClient = new PatreonCreatorClient({
+    oauth: {
+        clientId,
+        clientSecret,
+        token: {
+            access_token: 'access_token',
+            refresh_token: 'refresh_token',
+        },
+    },
+})
+
+export const userClient = new PatreonUserClient({
+    oauth: {
+        clientId,
+        clientSecret,
+        redirectUri: 'https://ghostrider-05.com/',
+    }
 })

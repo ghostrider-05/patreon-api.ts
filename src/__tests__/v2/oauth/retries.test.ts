@@ -91,12 +91,29 @@ describe('retry amount', () => {
     test('status check', () => {
         expect(getRetryAmount(defaultRetries, 500).retries).toEqual(defaultRetries)
         expect(getRetryAmount(defaultRetries, 401).retries).toEqual(0)
+        expect(getRetryAmount({
+            retries: 2,
+            status: 401,
+        }, 401).retries).toEqual(2)
+        expect(getRetryAmount({
+            retries: 2,
+            status: [400, 410],
+        }, 401).retries).toEqual(2)
+        expect(getRetryAmount({
+            retries: 2,
+            status: [[400, 410]],
+        }, 401).retries).toEqual(2)
+        expect(getRetryAmount({
+            retries: 2,
+            status: [[400, 401], [404, 520]],
+        }, 403).retries).toEqual(0)
     })
 
     test('custom status retries', () => {
         const get = (status: number | null) => getRetryAmount([
             { status: 200, retries: -1 },
             { status: [401, 403], retries: 4 },
+            { retries: defaultRetries },
         ], status).retries
 
         expect(get(null)).toEqual(defaultRetries)

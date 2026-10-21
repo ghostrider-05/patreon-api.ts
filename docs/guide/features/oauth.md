@@ -31,8 +31,6 @@ Note: There have been reports that [tokens expire when the creator logs in](http
 
 <<< @/examples/oauth/creator.ts#token-options{ts twoslash} [Token in options]
 
-<<< @/examples/oauth/creator.ts#token-store{ts twoslash} [Token store]
-
 :::
 
 ## User oauth2
@@ -73,13 +71,6 @@ Since the client has already configured a redirect uri, scopes and client inform
 ## Refresh tokens
 
 To refresh an access token you can use the `refreshToken` method on the oauth client.
-The cached token will be updated to the refreshed token.
-
-:::info Store
-
-If you have configured [a token store](#store) on the client, calling the `refreshToken` method will also call the `put` method on the store with the refreshed token.
-
-:::
 
 <<< @/examples/oauth/refresh_token.ts#cache-token{ts twoslash}
 
@@ -117,24 +108,11 @@ After refreshing, the token will be stored in `client.oauth.cachedToken` and upd
 
 If no token is provided in the request options, the validation will throw an error.
 
-## Store
+## Cache
 
-> [!WARNING]
-> The store feature is deprecated and will be removed in future versions.
+On the oauth client the `cachedToken` will be set to the token provided in the options.
 
-There are 3 built-in methods of retrieving and storing tokens:
+Cache / storages can be used to store the token for longer.
+See [the cache guide](./cache) for more information on the `CacheTokenStore`.
 
-1. Manual loading and storing
-2. Fetch: use an external server that accepts `GET` and `PUT` requests
-3. KV: store the (creator) token in a KV-like storage system (present on a lot of edge-runtimes).
-
-:::code-group
-
-<<< @/examples/oauth/store.ts#kv-store{ts twoslash} [KV store]
-
-<<< @/examples/oauth/store.ts#fetch-store{ts twoslash} [Fetch store]
-
-<<< @/examples/oauth/store.ts#custom-store{ts twoslash} [Custom store]
-
-:::
-
+<<< @/examples/oauth/creator.ts#token-store{ts twoslash} [Token store]

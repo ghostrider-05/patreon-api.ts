@@ -11,9 +11,7 @@ import {
     PatreonOauthClient,
     RestClient,
     Routes,
-    type Oauth2StoredToken,
     type PatreonOauthClientOptions,
-    type PatreonTokenFetchOptions,
     type RestClientOptions,
 } from '../oauth2/'
 
@@ -55,19 +53,9 @@ export interface PatreonClientOptions<IncludeAll extends boolean = false> {
      * The rest options for this client
      */
     rest?: Partial<RestClientOptions<IncludeAll>>
-
-    /**
-     * Options for storing and getting API (creator) tokens.
-     * @default undefined
-     * @deprecated Use the `CacheTokenStore` class to store and fetch any tokens.
-     * See the documentation for an example: https://patreon-api.pages.dev/guide/features/oauth#creator-token
-     */
-    store?: PatreonTokenFetchOptions
 }
 
 export abstract class PatreonClient<IncludeAll extends boolean = false> extends PatreonSharedClient<'default', IncludeAll> {
-    private store: PatreonTokenFetchOptions | undefined = undefined
-
     /**
      * Interact with the webhooks API.
      *
@@ -87,17 +75,11 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
 
     /**
      * Applies the `simplify` method on all responses.
-     *
-     * NOTE: due to type complexity, the response might be typed as an union of a paginated and resource response.
-     * If this happens, apply the `simplify` method on the default response manually. I have no idea how to fix this bug.
      */
     public simplified: PatreonSharedClient<'simplified', IncludeAll>
 
     /**
      * Applies the `normalize` method on all responses.
-     *
-     * NOTE: due to type complexity, the response might be typed as an union of a paginated and resource response.
-     * If this happens, apply the `normalize` method on the default response manually. I have no idea how to fix this bug.
      */
     public normalized: PatreonSharedClient<'normalized', IncludeAll>
 
@@ -143,17 +125,6 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
             listRoute: Routes.lives,
         })
         this.webhooks = new WebhookClient(this.oauth)
-
-        this.store = options.store
-
-        this.oauth.onTokenRefreshed = async (token) => {
-            if (token) await this.putStoredToken?.(token, true)
-        }
-
-        this.oauth['rest'].options.getAccessToken ??= async () => {
-            return await this.fetchStoredToken()
-                .then(token => token?.access_token)
-        }
     }
 
     public static hasAllQueriesEnabled <
@@ -163,46 +134,13 @@ export abstract class PatreonClient<IncludeAll extends boolean = false> extends 
     }
 
     public static createCustomParser <
-        Type extends keyof ResponseTransformMap<BasePatreonQuery>,
+        TransformType extends keyof ResponseTransformMap<BasePatreonQuery>,
         IncludeAll extends boolean = boolean
     >(
         client: PatreonClient<IncludeAll>,
-        type: Type,
-        parser: ResponseTransformMap<BasePatreonQuery>[Type],
-        /** TODO: replace with hasAllQueriesEnabled method */
-        includeAllQueries: IncludeAll
-    ): PatreonSharedClient<Type, IncludeAll> {
-        return new PatreonSharedClient(client.oauth, type, parser, includeAllQueries)
-    }
-
-    protected static async fetchStored(store?: PatreonTokenFetchOptions): Promise<Oauth2StoredToken | undefined> {
-        const stored = await store?.get()
-        if (stored == undefined) return undefined
-
-        const { expires_in_epoch } = stored
-        stored.expires_in = (Math.round((parseInt(expires_in_epoch) - Date.now()) / 1000)).toString()
-        return stored
-    }
-
-    /**
-     * Fetch the stored token with the `get` method from the client options
-     * @returns the stored token, if `options.store.get` is defined and returns succesfully.
-     * @deprecated Use the `CacheTokenStore` class to store and fetch any tokens.
-     * See the documentation for an example: https://patreon-api.pages.dev/guide/features/oauth#creator-token
-     */
-    public async fetchStoredToken(): Promise<Oauth2StoredToken | undefined> {
-        return PatreonClient.fetchStored(this.store)
-    }
-
-    /**
-     * Save your token with the method from the client options
-     * @param token The token to save
-     * @param [cache] Whether to overwrite the application token cache and update it with the token
-     * @deprecated Use the `CacheTokenStore` class to store and fetch any tokens.
-     * See the documentation for an example: https://patreon-api.pages.dev/guide/features/oauth#creator-token
-     */
-    public async putStoredToken(token: Oauth2StoredToken, cache?: boolean): Promise<void> {
-        await this.store?.put(token)
-        if (cache) this.oauth.cachedToken = token
+        type: TransformType,
+        parser: ResponseTransformMap<BasePatreonQuery>[TransformType],
+    ): PatreonSharedClient<TransformType, IncludeAll> {
+        return new PatreonSharedClient(client.oauth, type, parser, client._include_all_query)
     }
 }

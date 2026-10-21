@@ -127,12 +127,7 @@
         "RandomDataGenerator",
         "PatreonMockDataRandomResources",
         "PatreonMockWebhooks",
-        "PatreonMockWebhooksOptions",
-        // deprecated types
-        "PatreonFetchOptions",
-        "PatreonMemoryTokenStore",
-        "PatreonKVTokenStore",
-        "PatreonFetchTokenStore"
+        "PatreonMockWebhooksOptions"
     ],
     "plugin": [
         "typedoc-plugin-markdown",
