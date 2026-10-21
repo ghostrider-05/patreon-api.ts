@@ -15,7 +15,7 @@ import {
 import type { PatreonOauthClient } from '../oauth2/client'
 import { resolveHeaders } from '../oauth2/rest/headers'
 
-import { WriteResourceSharedClient, type Oauth2RouteOptions,  } from '../clients/shared'
+import { CrudResourcesSharedClient, type Oauth2RouteOptions,  } from '../clients/shared'
 
 import { WebhookPayloadClient } from './payload'
 
@@ -56,12 +56,12 @@ export class WebhookClient {
     }
 
     public payloads = WebhookPayloadClient
-    private shared: WriteResourceSharedClient<Type.Webhook, undefined>
+    private shared: CrudResourcesSharedClient<Type.Webhook, undefined>
 
     public constructor (
         public oauth: PatreonOauthClient,
     ) {
-        this.shared = new WriteResourceSharedClient(Type.Webhook, oauth, {
+        this.shared = new CrudResourcesSharedClient(Type.Webhook, oauth, {
             itemRoute: Routes.webhook,
             listRoute: Routes.webhooks,
         })
