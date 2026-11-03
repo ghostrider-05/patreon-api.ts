@@ -114,7 +114,7 @@ export interface RestClientOptions<IncludeAllQuery extends boolean = boolean> {
     /**
      * Whether to include all relationships and attributes in the query
      * @default false
-     * @deprecated Use <ClientOptions>.transform.includeAllQueries
+     * @deprecated Use \<ClientOptions\>.transform.includeAllQueries
      */
     includeAllQueries: IncludeAllQuery
 

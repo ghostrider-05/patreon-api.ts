@@ -133,7 +133,7 @@ export interface Oauth2StoredToken extends Oauth2Token {
 /**
  * Client options for handling Oauth
  */
-export type PatreonOauthClientOptions = OauthClientOptions & Partial<Oauth2RedirectOptions>
+export interface PatreonOauthClientOptions extends OauthClientOptions, Partial<Oauth2RedirectOptions> {}
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 function makeOauthRequestOptions (
