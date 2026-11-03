@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// @ts-expect-error duplicate-imports
 // #region api-client
 import { PatreonCreatorClient, WebhookClient } from 'patreon-api.ts'
 
@@ -8,14 +10,14 @@ const client = new WebhookClient(patreon.oauth)
 // or:
 const { webhooks } = patreon
 // #endregion api-client
+// @ts-expect-error duplicate-imports
 // #region api-fetch
 import { QueryBuilder, WebhookClient } from 'patreon-api.ts'
 
 declare const client: WebhookClient
 
-const query = QueryBuilder.webhooks.setAttributes({
-    webhook: ['paused', 'triggers', 'uri'],
-})
+const query = QueryBuilder.webhooks
+    .setResourceAttributes(['paused', 'triggers', 'uri'])
 
 const response = await client.fetchWebhooks(query)
 
@@ -23,6 +25,7 @@ for (const webhook of response.data) {
     console.log(webhook.id, webhook.attributes.uri)
 }
 // #endregion api-fetch
+// @ts-expect-error duplicate-imports
 // #region api-create
 import { PatreonWebhookTrigger, WebhookClient } from 'patreon-api.ts'
 
@@ -36,6 +39,7 @@ const createdWebhook = await client.createWebhook({
     uri: 'https://my-server-url.com/incoming-webhooks/patreon',
 })
 // #endregion api-create
+// @ts-expect-error duplicate-imports
 // #region api-update
 import { WebhookClient } from 'patreon-api.ts'
 
@@ -58,6 +62,7 @@ const updatedWebhook = await client.editWebhook({
 // or:
 await client.unpauseWebhook('my-webhook-id')
 // #endregion api-update-pause
+// @ts-expect-error duplicate-imports
 // #region api-delete
 import { WebhookClient } from 'patreon-api.ts'
 
@@ -80,6 +85,7 @@ async function handleRequest (request: Request, env: { WEBHOOK_SECRET: string })
     // ...
 }
 // #endregion verify
+// @ts-expect-error duplicate-imports
 // #region parse
 import { parseWebhookRequest } from 'patreon-api.ts'
 
@@ -113,6 +119,7 @@ const publishedPostResult = await parseWebhookRequest<PatreonWebhookTrigger.Post
 // Or for any post event:
 const anyPostResult = await parseWebhookRequest<PatreonWebhookPostTrigger>(request, env.WEBHOOK_SECRET)
 // #endregion parse-type
+// @ts-expect-error duplicate-imports
 // #region payload-client
 import { parseWebhookRequest, WebhookPayloadClient } from 'patreon-api.ts'
 
@@ -134,6 +141,7 @@ async function handleRequest (request: Request) {
 }
 
 // #endregion payload-client
+// @ts-expect-error duplicate-imports
 // #region payload-convert-discord-posts
 import { parseWebhookRequest, WebhookPayloadClient } from 'patreon-api.ts'
 

@@ -23,7 +23,7 @@ The examples below demonstrate how to make a fully typed request to the API with
 
 \* If no token is given in the client options, you can use the [`token` option in the request options](/api/interfaces/Oauth2FetchOptions).
 
-\*\* Default query: using [`rest.includeAllQueries`](../configuration.md#rest-include-allqueries) from the client options allows to fetch the API without providing a query
+\*\* Default query: using [`transform.includeAllQueries`](../configuration.md#transform-include-allqueries) from the client options allows to fetch the API without providing a query
 
 ::: code-group
 
@@ -41,12 +41,15 @@ The methods on the client return the default `JSON:API` response. Use the [`simp
 
 ### Include all
 
-> [!INFO] Client option
-> To fetch all attributes and relationships on every request, you can use the [`rest.includeAllQueries`](../configuration.md#rest-include-allqueries) client options.
+> [!TIP] Client option
+> To fetch all attributes and relationships on every request, you can use the [`transform.includeAllQueries`](../configuration.md#transform-include-allqueries) client options. This will set the default query on all methods to `<QueryBuilder>.includeAll()`.
 
 By default the Patreon API will return no attributes and relationships and you will have to add the resources needed to your query.
 When you want to request all relationships on a query, the `includeAllRelationships` method can be used.
 To also request all attributes (including the attributes of the relationships), the `includeAll` method can be used.
+
+> [!TIP] includeAll vs includeAllRelationships
+> Both methods on the query builder include all relationships. Only `includeAll` also includes the attributes of the resource and all relationships. Thus there is no need to call both methods on the same query.
 
 ### Pagination
 

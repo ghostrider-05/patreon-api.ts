@@ -8,6 +8,7 @@
         "noUnusedParameters": true,
         "allowUnusedLabels": true,
         "noImplicitAny": true,
+        "noPropertyAccessFromIndexSignature": false,
         "noUncheckedIndexedAccess": false,
         "rootDir": ".",
         "paths": {

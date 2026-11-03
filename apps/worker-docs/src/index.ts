@@ -66,7 +66,7 @@ export default <ExportedHandler>{
                     ...corsHeaders,
                 }
             })
-        } else if (pathname.startsWith('/data/library')) {
+        } else if (pathname.startsWith('/library')) {
             return new Response(JSON.stringify({
                 version,
                 name: 'patreon-api.ts',

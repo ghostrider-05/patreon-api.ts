@@ -1,10 +1,11 @@
 // @ts-check
 import eslint from '@eslint/js'
 import tseslint from 'typescript-eslint'
+import { defineConfig } from 'eslint/config'
 
 import jsdoc from 'eslint-plugin-jsdoc'
 
-export default [
+export default defineConfig([
     eslint.configs.recommended,
     ...tseslint.configs.strict,
     jsdoc.configs['flat/recommended-typescript'],
@@ -23,9 +24,10 @@ export default [
             '**/*.test.ts',
             // Ignore current file
             'eslint.config.mjs',
-            // Ignore tsup config
-            'tsup.config.ts',
-            // Ignore vitest config
+            'eslint-global.config.mjs',
+            // Ignore build config
+            'tsdown.config.ts',
+            // Ignore test config
             'vitest.config.mts',
         ],
         plugins: {
@@ -62,4 +64,4 @@ export default [
             ]
         }
     }
-]
+])

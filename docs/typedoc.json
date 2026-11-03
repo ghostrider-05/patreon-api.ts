@@ -82,6 +82,7 @@
         "@preventExpand",
         "@expandType",
         // Custom blocks
+        "@requires",
         "@format",
         "@constant"
     ],

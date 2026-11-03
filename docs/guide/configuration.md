@@ -4,6 +4,9 @@ This page will cover some general topics for configuring this library.
 
 ## Client options
 
+These are options for the base client exported by this library: `PatreonClient`.
+Depending on how [your authentication is handled](./features/oauth), the recommended client is either `PatreonUserClient` or `PatreonCreatorClient`.
+
 ### name
 
 To track spam and more, Patreon has made it a requirement to send a `User-Agent` header. This library will send a user agent in the form of:
@@ -23,20 +26,6 @@ Connect an event emitter to listen to rest events (such as `request`, `response`
 
 Overwrite the global fetch function. This can also be overwritten per request.
 This will default to the global `fetch` variable on the runtime.
-
-### rest.includeAllQueries
-
-Set the default query to return all relationships and attributes, instead of empty attributes.
-
-:::code-group
-
-<<< @/examples/config/include_all.ts#config{ts twoslash} [Configuration]
-
-<<< @/examples/config/include_all.ts#difference{ts twoslash} [Difference]
-
-:::
-
-The client has a generic boolean to indicate if this option is enabled and correctly changes the response type for all requests.
 
 ### rest.retries
 
@@ -60,6 +49,20 @@ The following timeout options can be configured:
 - `rest.ratelimitTimeout`: the timeout to wait after a request is rate limited.
 
 For more options, such as `api`, `headers` and more, see [the `RestClientOptions` reference](/api/interfaces/RestClientOptions).
+
+### transform.includeAllQueries
+
+Set [the default query](./features/request#query-builder) to return all relationships and attributes, instead of empty attributes.
+
+:::code-group
+
+<<< @/examples/config/include_all.ts#config{ts twoslash} [Configuration]
+
+<<< @/examples/config/include_all.ts#difference{ts twoslash} [Difference]
+
+:::
+
+The client has a generic boolean to indicate if this option is enabled and correctly changes the response type for all requests.
 
 ## Module augmentation
 

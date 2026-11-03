@@ -57,6 +57,8 @@ export type AdditionalKeys<
  */
 export type If<T extends boolean, A, B = never> = T extends true ? A : B;
 
+export type Optional<T, K extends keyof T> = Partial<Pick<T, K>> & Omit<T, K>
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface CustomTypeOptions {}
 

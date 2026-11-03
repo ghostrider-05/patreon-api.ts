@@ -107,6 +107,7 @@ export const fetch = async (request: Request) => {
     return new Response(null, { status: 201 })
 }
 // #endregion code
+// @ts-expect-error duplicate-imports
 // #region login-client
 import { PatreonOauthScope, PatreonUserClient } from 'patreon-api.ts'
 
@@ -133,6 +134,7 @@ export function createLoginRedirect () {
     return Response.redirect(client.oauth.oauthUri, 301)
 }
 // #endregion login-client
+// @ts-expect-error duplicate-imports
 // #region login-custom
 import { PatreonOauthScope, PatreonUserClient } from 'patreon-api.ts'
 

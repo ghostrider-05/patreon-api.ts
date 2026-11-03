@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { StyleValue } from 'vue'
+
 const greenColor = 'var(--vp-c-green-3)'
 const redColor = 'var(--vp-c-red-3)'
 
@@ -11,22 +13,37 @@ interface Key {
     colors?: 'boolean' | Record<number, 'green' | 'red'>
 }
 
-function getColor (key: Key, value: number | boolean) {
+const props = defineProps<{
+    keys: Key[]
+    values: ({
+        title: string
+        link?: string
+    } & Record<string, number | boolean>)[]
+    colors: Record<'green' | 'red', { color: string, value: boolean }>
+    badges?: {
+        type?: string
+        text: string
+        id: string
+    }[]
+}>()
+
+function getColor (key: Key, value: number | boolean): string | undefined {
     if (!key.colors) return undefined
-    else if (key.colors === 'boolean') return value === true ? greenColor : redColor
-    else return { red: redColor, green: greenColor }[key.colors[<number>value]]
+    const colorOptions = props.colors
+    if (key.colors === 'boolean') return Object.values(colorOptions).find(c => c.value === value)?.color
+    else return colorOptions[key.colors[<number>value]]?.color
 }
 
-function getStyle (key: Key, value: number | boolean) {
+function getStyle (key: Key, value: number | boolean): StyleValue {
     const color = getColor(key, value)
     if (color) return { backgroundColor: color, color: 'var(--vp-c-neutral-inverse)', textAlign: 'center' }
     else return {}
 }
 
-function getLabel (value: boolean | number | string) {
+function getLabel (value: boolean | number | string): string {
     return typeof value === 'boolean'
         ? value ? 'Yes' : 'No'
-        : value
+        : value.toString()
 } 
 </script>
 
@@ -34,19 +51,29 @@ function getLabel (value: boolean | number | string) {
     <table>
         <thead>
             <tr>
-                <th v-for="key in $frontmatter.keys" :title="key.title">
+                <th v-for="key in keys" :title="key.title">
                     {{ key.name }}
                 </th>
             </tr>
         </thead>
 
         <tbody>
-            <tr v-for="lib in $frontmatter.libraries">
-                <td v-for="key in $frontmatter.keys" :style="getStyle(key, lib[key.id])">
+            <tr v-for="lib in values">
+                <td v-for="key in keys" :style="getStyle(key, lib[key.id])">
                     <span v-if="key.id === 'title'">
                         <a :href="lib.link" v-if="lib.link">{{ lib.title }}</a>
                         <span v-else>{{ lib.title }}</span>
-                        <Badge :text="officialText" v-if="lib.official" type="info" />
+
+                        <span
+                            v-for="badge in badges ?? []"
+                            :key="badge.id"
+                        >
+                            <Badge
+                                :text="badge.text"
+                                v-if="lib[badge.id]"
+                                :type="badge.type ?? 'info'"
+                            />
+                        </span>
                     </span>
 
                     <span v-else>

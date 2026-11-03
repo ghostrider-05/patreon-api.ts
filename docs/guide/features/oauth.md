@@ -16,7 +16,7 @@ For making a request, there are multiple options to include the access token:
 
 ## Creator token
 
-If you don't need to handle Oauth2 requests, but only your own creator profile, the first example will get you started.
+If you don't need to handle Oauth2 requests, but only your own creator profile, these examples will get you started.
 
 <!-- :::warning Expiring tokens
 
@@ -27,11 +27,22 @@ Note: There have been reports that [tokens expire when the creator logs in](http
 
 ::: -->
 
+The following examples show how a token can be added:
+
 :::code-group
 
-<<< @/examples/oauth/creator.ts#token-options{ts twoslash} [Token in options]
+<<< @/examples/oauth/creator.ts#token-options{ts twoslash} [Client options]
+
+<<< @/examples/oauth/creator.ts#token-request-options{ts twoslash} [Request options]
+
+<<< @/examples/oauth/creator.ts#token-options-client{ts twoslash} [Client oauth options]
 
 :::
+
+Each example will result in the token being added to the request. The client options allows you to only define the token once and this token can also be overwritten by the request options.
+
+> [!WARNING] Client id/secret
+> If the oauth client id/secret are not provided, most oauth features (on this page) will not work. You can still [make an request](./request) with an access (and refresh) token. See [the reference](../../api/) if this is required.
 
 ## User oauth2
 

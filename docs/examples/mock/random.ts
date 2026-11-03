@@ -21,7 +21,7 @@ export const randomCampaignPayload = data.getSingleResponsePayload(
     Type.Campaign,
     {
         attributes: { campaign: ['patron_count'] },
-        includes: [],
+        relationships: [],
     }, {
         id: randomId,
         item: randomCampaign,
@@ -43,7 +43,7 @@ export const randomCampaignWithCreatorPayload = data.getSingleResponsePayload(
     Type.Campaign,
     {
         attributes: { campaign: ['patron_count'] },
-        includes: ['creator'],
+        relationships: ['creator'],
     }, {
         id: data.createId(Type.Campaign),
         item: data.random.campaign(campaignId),

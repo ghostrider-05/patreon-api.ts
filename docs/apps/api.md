@@ -8,9 +8,15 @@ https://patreon-docs.ghostrider.workers.dev
 
 ## Routes
 
+### GET /library
+
+Returns some information about this library.
+See the GitHub app for more details and the response body.
+
 ### GET /data
 
-Returns some information about resources and the Patreon API. See the GitHub app for more details and the response body.
+Returns some information about resources and the Patreon API.
+See the GitHub app for more details and the response body.
 
 ### {METHOD} /proxy/{path}
 

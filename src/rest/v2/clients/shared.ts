@@ -1,11 +1,10 @@
-import { normalizeFromQuery, simplifyFromQuery } from '../../../payloads/v2'
+/* eslint-disable jsdoc/valid-types */
 import {
     type BasePatreonQuery,
     type BasePatreonQueryType,
-    type GetResponsePayload,
     QueryBuilder,
     type QueryDefault,
-    type Type,
+    Type,
     type WriteResourceType,
     type WriteResourcePayload,
     type WriteResourceResponse,
@@ -23,6 +22,13 @@ import {
 } from '../oauth2/rest'
 
 import { Routes } from '../oauth2/routes'
+
+import {
+    type ResponseTransformMap,
+    type ResponseTransformType,
+    TransformClient,
+    type TransformClientOptions,
+} from './transform'
 
 /**
  * Options for the raw Oauth2 request methods
@@ -51,44 +57,75 @@ export interface Oauth2FetchOptions extends Omit<RequestOptions,
  */
 export type Oauth2RouteOptions = Omit<Oauth2FetchOptions, 'method'>
 
-export class WriteResourceSharedClient<T extends WriteResourceType, I extends string | null | undefined> {
-    private static get emptyQuery () {
+interface WriteClientConfig<T extends Type, IdParam extends string | null | undefined> {
+    listRoute: () => string
+    itemRoute: (id: string) => string
+    idParam: IdParam
+    listQuery: IdParam extends undefined ? QueryBuilder<T, true> : null
+    itemQuery: IdParam extends undefined ? null : QueryBuilder<T, false>
+}
+
+export class WriteResourceSharedClient<
+    T extends WriteResourceType,
+    TransformType extends ResponseTransformType,
+    IncludeAll extends boolean,
+    IdParam extends string | null | undefined,
+> extends TransformClient<TransformType, IncludeAll> {
+    protected static get emptyQuery () {
         return QueryBuilder.fromParams(new URLSearchParams())
     }
 
     public constructor (
-        private resource: T,
-        private oauth: PatreonOauthClient,
-        private config: {
-            listRoute: () => string
-            itemRoute: (id: string) => string
-        },
-    ) {}
+        protected resource: T,
+        protected oauth: PatreonOauthClient,
+        protected config: WriteClientConfig<T, IdParam>,
+        transformOptions: TransformClientOptions<TransformType, IncludeAll>,
+    ) {
+        super(transformOptions)
+    }
 
-    public async fetch<Query extends BasePatreonQueryType<Type.Webhook, true>>(...args: I extends string | null ? [
-        id: I,
-        query: Query,
+    public async fetch<
+        Query extends BasePatreonQueryType<T, IdParam extends string | null ? false : true>
+            = QueryDefault<IncludeAll, T, IdParam extends string | null ? false : true>
+    >(...args: IdParam extends string | null ? [
+        id: IdParam,
+        query?: Query,
         options?: Omit<Oauth2RouteOptions, 'body' | 'contentType'>,
     ] : [
-        query: Query,
+        query?: Query,
         options?: Omit<Oauth2RouteOptions, 'body' | 'contentType'>,
-    ]): Promise<GetResponsePayload<Query>> {
+    ]): Promise<ReturnType<ResponseTransformMap<Query>[TransformType]>> {
         if (typeof args[0] === 'string' || args[0] == null) {
             const [id, query, options] = args as [
                 id: string | null,
-                query: Query,
+                query?: Query,
                 options?: Omit<Oauth2RouteOptions, 'body' | 'contentType'>,
             ]
 
-            if (id) return await this.oauth.fetch<Query>(this.config.itemRoute(id), query, options)
-            else return await this.oauth.fetch<Query>(this.config.listRoute(), query, options)
+            if (id) return await this.oauth.fetch<Query>(
+                this.config.itemRoute(id),
+                //@ts-expect-error Default query
+                query ?? this.getDefaultQuery(this.config.itemQuery),
+                options,
+            ).then(res => this.parseResponse(res))
+            else return await this.oauth.fetch<Query>(
+                this.config.listRoute(),
+                //@ts-expect-error Default query
+                query ?? this.getDefaultQuery(this.config.listQuery),
+                options,
+            ).then(res => this.parseResponse(res))
         } else {
             const [query, options] = args as [
-                query: Query,
+                query?: Query,
                 options?: Omit<Oauth2RouteOptions, 'body' | 'contentType'>,
             ]
 
-            return await this.oauth.fetch<Query>(this.config.listRoute(), query, options)
+            return await this.oauth.fetch<Query>(
+                this.config.listRoute(),
+                //@ts-expect-error Default query
+                query ?? this.getDefaultQuery(this.config.listQuery),
+                options,
+            ).then(res => this.parseResponse(res))
         }
     }
 
@@ -134,7 +171,14 @@ export class WriteResourceSharedClient<T extends WriteResourceType, I extends st
             // Typecast needed because of empty query
         }) as unknown as WriteResourceResponse<T>
     }
+}
 
+export class CrudResourcesSharedClient<
+    T extends WriteResourceType,
+    TransformType extends ResponseTransformType,
+    IncludeAll extends boolean,
+    IdParam extends string | null | undefined,
+> extends WriteResourceSharedClient<T, TransformType, IncludeAll, IdParam> {
     public async delete (id: string, options?: Omit<Oauth2RouteOptions, 'body' | 'contentType'>): Promise<void> {
         await this.oauth.fetch(this.config.itemRoute(id), WriteResourceSharedClient.emptyQuery, {
             ...(options ?? {}),
@@ -143,23 +187,36 @@ export class WriteResourceSharedClient<T extends WriteResourceType, I extends st
     }
 }
 
-// TODO: replace with generics once https://github.com/Microsoft/TypeScript/issues/1213 is closed
-export interface ResponseTransformMap<Query extends BasePatreonQuery> {
-    default: (res: GetResponsePayload<Query>) => GetResponsePayload<Query>
-    simplified: (res: GetResponsePayload<Query>) => ReturnType<typeof simplifyFromQuery<Query>>
-    normalized: (res: GetResponsePayload<Query>) => ReturnType<typeof normalizeFromQuery<Query>>
-}
+export class PatreonSharedClient<TransformType extends ResponseTransformType, IncludeAll extends boolean> extends TransformClient<TransformType, IncludeAll> {
+    private _token: Oauth2CreatorToken | Oauth2StoredToken | undefined
 
-export type ResponseTransformType = keyof ResponseTransformMap<BasePatreonQuery>
+    /**
+     * Interact with the lives API routes.
+     *
+     * From the Patreon documentation:\
+     * The Live APIs are early-access, and may be subject to change based on feedback from our partners.
+     * @see https://docs.patreon.com/#post-api-oauth2-v2-lives
+     */
+    public lives: WriteResourceSharedClient<Type.Live, TransformType, IncludeAll, string>
 
-export class PatreonSharedClient<TransformType extends ResponseTransformType, IncludeAll extends boolean> {
     public constructor (
         protected _oauth: PatreonOauthClient,
-        protected transformType: TransformType,
-        private parser: ResponseTransformMap<BasePatreonQuery>[TransformType],
-        protected _include_all_query: IncludeAll,
-        private _token?: Oauth2CreatorToken | Oauth2StoredToken,
-    ) {}
+        options: {
+            transform: TransformClientOptions<TransformType, IncludeAll>
+            token?: Oauth2CreatorToken | Oauth2StoredToken | undefined
+        },
+    ) {
+        super(options.transform)
+
+        this._token = options.token
+        this.lives = new WriteResourceSharedClient(Type.Live, _oauth, {
+            itemRoute: Routes.live,
+            listRoute: Routes.lives,
+            idParam: '',
+            itemQuery: QueryBuilder.live,
+            listQuery: null,
+        }, options.transform)
+    }
 
     private setRequestToken (options: Oauth2FetchOptions): Oauth2FetchOptions {
         const token = options.token ?? this._token ?? this._oauth.cachedToken
@@ -168,14 +225,6 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
             ...options,
             ...(token ? { token } : {}),
         }
-    }
-
-    private _replace <Query extends BasePatreonQuery> (res: GetResponsePayload<Query>): ReturnType<ResponseTransformMap<Query>[TransformType]> {
-        return this.parser(<never>res)
-    }
-
-    private getDefault <T extends Type, L extends boolean>(builder: QueryBuilder<T, L>): QueryDefault<IncludeAll, T, L> {
-        return this._include_all_query ? builder.includeAll() : builder
     }
 
     /**
@@ -194,7 +243,7 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
         const requestOptions = this.setRequestToken(options ?? {})
 
         return await this._oauth.fetch(path, query, requestOptions)
-            .then(res => this._replace<Query>(res))
+            .then(res => this.parseResponse<Query>(res))
     }
 
     // eslint-disable-next-line jsdoc/require-yields-type
@@ -217,83 +266,148 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
 
         let page = await paginator.next()
         while (!page.done) {
-            yield this._replace<Query>(page.value)
+            yield this.parseResponse<Query>(page.value)
             page = await paginator.next()
         }
 
         return page.value
     }
 
+    /**
+     * Fetch campaigns.
+     * This returns a single page of campaigns, to paginate through more pages see {@link paginateCampaigns}.
+     * @param query The query for requesting relationships and attributes
+     * @param options The request options. Allows for authentication (token) and fetch options.
+     * @returns The API response for the route. If using a (client) response parser, the response will be transformed.
+     * @see https://docs.patreon.com/#get-api-oauth2-v2-campaigns
+     * @requires `campaigns` scope.
+     */
     public async fetchCampaigns <
         Query extends BasePatreonQueryType<Type.Campaign, true> = QueryDefault<IncludeAll, Type.Campaign, true>
     >(
         // @ts-expect-error Nothing is wrong?
-        query: Query = this.getDefault(QueryBuilder.campaigns),
-        options?: Oauth2RouteOptions
+        query: Query = this.getDefaultQuery(QueryBuilder.campaigns),
+        options?: Oauth2RouteOptions,
     ) {
         return await this.fetchOauth2<Query>(Routes.campaigns(), query, options)
     }
 
+    /**
+     * Fetch a campaign.
+     * @param campaignId The id of the campaign to return.
+     * @param query The query for requesting relationships and attributes
+     * @param options The request options. Allows for authentication (token) and fetch options.
+     * @returns The API response for the route. If using a (client) response parser, the response will be transformed.
+     * @see https://docs.patreon.com/#get-api-oauth2-v2-campaigns-campaign_id
+     * @requires `campaigns` scope.
+     */
     public async fetchCampaign <
         Query extends BasePatreonQueryType<Type.Campaign, false> = QueryDefault<IncludeAll, Type.Campaign, false>
     >(
         campaignId: string,
         // @ts-expect-error Nothing is wrong?
-        query: Query = this.getDefault(QueryBuilder.campaign),
+        query: Query = this.getDefaultQuery(QueryBuilder.campaign),
         options?: Oauth2RouteOptions
     ) {
         return await this.fetchOauth2<Query>(Routes.campaign(campaignId), query, options)
     }
 
+    /**
+     * Fetch campaign members.
+     * This returns a single page of members, to paginate through more pages see {@link paginateCampaignMembers}.
+     * @param campaignId The campaign id of the members
+     * @param query The query for requesting relationships and attributes
+     * @param options The request options. Allows for authentication (token) and fetch options.
+     * @returns The API response for the route. If using a (client) response parser, the response will be transformed.
+     * @see https://docs.patreon.com/#get-api-oauth2-v2-campaigns-campaign_id-members
+     * @requires `campaigns.members` scope.
+     * For the address the `campaigns.members.address` scope is required.
+     */
     public async fetchCampaignMembers <
         Query extends BasePatreonQueryType<Type.Member, true> = QueryDefault<IncludeAll, Type.Member, true>
     >(
         campaignId: string,
         // @ts-expect-error Nothing is wrong?
-        query: Query = this.getDefault(QueryBuilder.member),
+        query: Query = this.getDefaultQuery(QueryBuilder.member),
         options?: Oauth2RouteOptions
     ) {
         return await this.fetchOauth2<Query>(Routes.campaignMembers(campaignId), query, options)
     }
 
+    /**
+     * Fetch campaign posts.
+     * This returns a single page of posts, to paginate through more pages see {@link paginateCampaignPosts}.
+     * @param campaignId The campaign id of the posts
+     * @param query The query for requesting relationships and attributes
+     * @param options The request options. Allows for authentication (token) and fetch options.
+     * @returns The API response for the route. If using a (client) response parser, the response will be transformed.
+     * @see https://docs.patreon.com/#get-api-oauth2-v2-campaigns-campaign_id-posts
+     * @requires `campaigns.posts` scope
+     */
     public async fetchCampaignPosts <
         Query extends BasePatreonQueryType<Type.Post, true> = QueryDefault<IncludeAll, Type.Post, true>
     >(
         campaignId: string,
         // @ts-expect-error Nothing is wrong?
-        query: Query = this.getDefault(QueryBuilder.campaignPosts),
+        query: Query = this.getDefaultQuery(QueryBuilder.campaignPosts),
         options?: Oauth2RouteOptions
     ) {
         return await this.fetchOauth2<Query>(Routes.campaignPosts(campaignId), query, options)
     }
 
+    /**
+     * Fetch a member.
+     * @param memberId The id of the member to return.
+     * @param query The query for requesting relationships and attributes
+     * @param options The request options. Allows for authentication (token) and fetch options.
+     * @returns The API response for the route. If using a (client) response parser, the response will be transformed.
+     * @see https://docs.patreon.com/#get-api-oauth2-v2-members-member_id
+     * @requires `campaigns.members` scope.
+     */
     public async fetchMember <
         Query extends BasePatreonQueryType<Type.Member, false> = QueryDefault<IncludeAll, Type.Member, false>
     >(
         memberId: string,
         // @ts-expect-error Nothing is wrong?
-        query: Query = this.getDefault(QueryBuilder.member),
+        query: Query = this.getDefaultQuery(QueryBuilder.member),
         options?: Oauth2RouteOptions
     ) {
         return await this.fetchOauth2<Query>(Routes.member(memberId), query, options)
     }
 
+    /**
+     * Fetch a post.
+     * @param postId The id of the post to return.
+     * @param query The query for requesting relationships and attributes
+     * @param options The request options. Allows for authentication (token) and fetch options.
+     * @returns The API response for the route. If using a (client) response parser, the response will be transformed.
+     * @see https://docs.patreon.com/#get-api-oauth2-v2-posts-id
+     * @requires `campaigns.posts` scope.
+     */
     public async fetchPost <
         Query extends BasePatreonQueryType<Type.Post, false> = QueryDefault<IncludeAll, Type.Post, false>
     >(
         postId: string,
         // @ts-expect-error Nothing is wrong?
-        query: Query = this.getDefault(QueryBuilder.post),
+        query: Query = this.getDefaultQuery(QueryBuilder.post),
         options?: Oauth2RouteOptions
     ) {
         return await this.fetchOauth2<Query>(Routes.post(postId), query, options)
     }
 
+    /**
+     * Fetch the current user for the oauth token.
+     * @param query The query for requesting relationships and attributes
+     * @param options The request options. Allows for authentication (token) and fetch options.
+     * @returns The API response for the route. If using a (client) response parser, the response will be transformed.
+     * @see https://docs.patreon.com/#get-api-oauth2-v2-identity
+     * @requires `identity` scope.
+     */
     public async fetchIdentity <
         Query extends BasePatreonQueryType<Type.User, false> = QueryDefault<IncludeAll, Type.User, false>
     >(
         // @ts-expect-error Nothing is wrong?
-        query: Query = this.getDefault(QueryBuilder.identity),
+        query: Query = this.getDefaultQuery(QueryBuilder.identity),
         options?: Oauth2RouteOptions
     ) {
         return await this.fetchOauth2<Query>(Routes.identity(), query, options)
@@ -303,7 +417,7 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
         Query extends BasePatreonQueryType<Type.Campaign, true> = QueryDefault<IncludeAll, Type.Campaign, true>
     >(
         // @ts-expect-error Nothing is wrong?
-        query: Query = this.getDefault(QueryBuilder.campaigns),
+        query: Query = this.getDefaultQuery(QueryBuilder.campaigns),
         options?: Oauth2RouteOptions
     ) {
         return this.paginateOauth2<Query>(Routes.campaigns(), query, options)
@@ -314,7 +428,7 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
     >(
         campaignId: string,
         // @ts-expect-error Nothing is wrong?
-        query: Query = this.getDefault(QueryBuilder.campaignMembers),
+        query: Query = this.getDefaultQuery(QueryBuilder.campaignMembers),
         options?: Oauth2RouteOptions
     ) {
         return this.paginateOauth2<Query>(Routes.campaignMembers(campaignId), query, options)
@@ -325,7 +439,7 @@ export class PatreonSharedClient<TransformType extends ResponseTransformType, In
     >(
         campaignId: string,
         // @ts-expect-error Nothing is wrong?
-        query: Query = this.getDefault(QueryBuilder.campaignPosts),
+        query: Query = this.getDefaultQuery(QueryBuilder.campaignPosts),
         options?: Oauth2RouteOptions
     ) {
         return this.paginateOauth2<Query>(Routes.campaignPosts(campaignId), query, options)

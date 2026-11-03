@@ -4,7 +4,7 @@ import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 
 import type { GitHubStatsComponentProps } from '../components/GitHubStat.vue'
 
-import * as shared from './shared'
+import * as shared from './shared.js'
 
 import {
     author,
@@ -27,13 +27,21 @@ const repoUrl = repository.url.slice(4, -4), branch = 'main'
 
 const createSidebarItems = () => [
     shared.createGuideItem(true),
-    shared.createLinksItem({
-        branch,
-        bugsUrl: bugs.url,
-        fundingUrl: funding,
-        repoUrl,
-        version,
-    }),
+    {
+        text: 'References',
+        items: shared.createReferenceItems(),
+        collapsed: true,
+    },
+    {
+        ...shared.createLinksItem({
+            branch,
+            bugsUrl: bugs.url,
+            fundingUrl: funding,
+            repoUrl,
+            version,
+        }),
+        collapsed: true,
+    },
 ] as DefaultTheme.SidebarItem[]
 
 export default defineConfig({
@@ -72,8 +80,7 @@ export default defineConfig({
     themeConfig: {
         nav: [
             shared.createGuideItem(false),
-            { text: 'Reference', link: '/api/', activeMatch: '/api/' },
-            { text: 'OpenAPI', link: 'https://patreon.apidocumentation.com/v2-stable/reference', },
+            ...shared.createReferenceItems(),
             shared.createLinksItem({
                 branch,
                 bugsUrl: bugs.url,

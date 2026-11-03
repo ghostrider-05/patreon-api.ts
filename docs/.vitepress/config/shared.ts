@@ -27,6 +27,20 @@ export function createAppsItem (): SharedItem {
     }
 }
 
+export function createReferenceItems (): SharedItem[] {
+    return [
+        {
+            text: 'Reference',
+            link: '/api/',
+            activeMatch: '/api/',
+        },
+        {
+            text: 'OpenAPI',
+            link: 'https://patreon.apidocumentation.com/v2-stable/reference',
+        },
+    ]
+}
+
 export function createLinksItem (options: {
     version: string
     repoUrl: string

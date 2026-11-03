@@ -148,3 +148,4 @@ example.ts
 
 # TypeDoc output
 docs/api/
+eslint-suppressions.json

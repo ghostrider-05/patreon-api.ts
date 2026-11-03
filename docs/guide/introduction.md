@@ -146,9 +146,14 @@ As you may have noticed, the Patreon API documentation is missing explanations f
 
 ## Comparison
 
-See why I made this library with all* [JavaScript and TypeScript repositories for the Patreon API](https://github.com/search?q=patreon+language:JavaScript+language:TypeScript++archived:false++is:public+stars:%3E0&type=repositories&s=stars&o=desc) compared (scroll to see all features):
+See why I made this library with all* JavaScript and TypeScript repositories for the Patreon API compared (scroll to see all features):
 
-<LibraryTable />
+<LibraryTable
+  :keys="$frontmatter.keys"
+  :values="$frontmatter.libraries"
+  :badges="[{ id: 'official', text: 'Official' }]"
+  :colors="{ green: { color: 'var(--vp-c-green-3)', value: true }, red: { color: 'var(--vp-c-red-3)', value: false } }"
+/>
 
 :::details Repository requirements
 
@@ -160,6 +165,27 @@ A library is included if it:
   - **not** for scraping, only related to badges, downloading assets or a Patreon clone
   - exports code or is published on NPM
 - is not archived
+
+[GitHub search query](https://github.com/search?q=%22patreon%22+stars%3A%3E%3D1+language%3Ats+language%3Ajs+is%3Apublic+fork%3Afalse+archived%3Afalse+topic%3Apatreon+-topic%3Ascraper+-topic%3Adownloader+-topic%3Adownload+-topic%3Abrowser-extension+-topic%3Achrome-extension+-topic%3Awebextension+-topic%3Atampermonkey+-topic%3Auserscript&type=repositories&ref=advsearch&s=stars&o=desc&p=1):
+
+```txt
+"patreon"
+stars:>=1
+language:ts
+language:js
+is:public
+fork:false
+archived:false
+topic:patreon
+-topic:scraper
+-topic:downloader
+-topic:download
+-topic:browser-extension
+-topic:chrome-extension
+-topic:webextension
+-topic:tampermonkey
+-topic:userscript
+```
 
 :::
 

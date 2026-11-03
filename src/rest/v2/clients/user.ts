@@ -10,7 +10,14 @@ export class PatreonUserClientInstance<IncludeAll extends boolean> extends Patre
     public client: PatreonUserClient<IncludeAll>
 
     public constructor (client: PatreonUserClient<IncludeAll>, token: Oauth2StoredToken) {
-        super(client.oauth, 'default', (res) => res, client['_include_all_query'], token)
+        super(client.oauth, {
+            transform: {
+                includeAllQueries: client['_include_all_query'],
+                parser: (res) => res,
+                transformType: 'default',
+            },
+            token,
+        })
 
         this.client = client
         this.token = token
@@ -40,9 +47,14 @@ export class PatreonUserClientInstance<IncludeAll extends boolean> extends Patre
     }
 }
 
+export interface PatreonUserClientOptions<IncludeAll extends boolean = false> extends PatreonClientOptions<IncludeAll> {
+    oauth: PatreonClientOptions<IncludeAll>['oauth'] & Record<'clientId' | 'clientSecret', string>
+}
+
 export class PatreonUserClient<IncludeAll extends boolean = false> extends PatreonClient<IncludeAll> {
-    public constructor (options: PatreonClientOptions<IncludeAll>) {
-        super(options, 'oauth')
+    public constructor (options: PatreonUserClientOptions<IncludeAll>) {
+        options.oauth.tokenType ??= 'oauth'
+        super(options)
     }
 
     /* eslint-disable @typescript-eslint/unified-signatures */

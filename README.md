@@ -45,11 +45,17 @@ To read more about how to use this library, go to the [documentation](https://pa
 
 To check for compatibility with this package, look if your platform:
 
-- has the globals: `AbortController`, `setTimeout`, `clearTimeout`, `setInterval`, `clearInterval`, `Request`, `fetch`, `URL` and `URLSearchParams`
-  - for node.js: `v22` or higher
+- has the globals: `AbortSignal`, `setTimeout`, `clearTimeout`, `setInterval`, `clearInterval`, `Request`, `Response`, `fetch`, `URL` and `URLSearchParams` ([and more](https://github.com/ghostrider-05/patreon-api.ts/blob/main/docs/globals.md))
+  - for node.js: `v18` or higher
   - for Cloudflare workers: [enable Node.js](https://developers.cloudflare.com/workers/runtime-apis/nodejs/#enable-nodejs-with-workers)
-- supports `ES2020`
+- supports `ES2020` and either the ESM or CJS format
 - supports the `node:crypto` module: `createHmac` and `randomUUID`
+
+This library is supporting all LTS Node.js versions.
+Older versions may work, but are not officially supported.
+
+- oldest tested Node.js version: `22`
+- newest tested Node.js version: `26`
 
 <!-- #endregion compatibility -->
 

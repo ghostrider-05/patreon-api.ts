@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-dynamic-delete */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
+
 // region file-cache
 import { CacheStore, CacheStoreBinding } from 'patreon-api.ts'
 import { readFile, writeFile } from 'node:fs/promises'
@@ -99,7 +99,8 @@ const cacheFileBinding = <T>(path: PathLike, parser: {
         },
         bulkPut: async (items) => {
             const content = await _readFile()
-            await _writeFile({ ...content, ...Object.fromEntries(items) })
+            const newEntries = items.reduce((map, { key, value }) => ({ ...map, [key]: value }), {} as Record<string, T>)
+            await _writeFile({ ...content, ...newEntries })
         },
         bulkGet: async (keys) => {
             const content = await _readFile()
@@ -155,7 +156,7 @@ emitter.on('response', async ({ response }) => {
     if (response.status === 401) {
         // Get the token
         const currentToken = client.tokenCache.get('token')
-        if (!currentToken) return console.log('No token to refresh')
+        if (!currentToken) return client.rest.debug('No token to refresh')
         const refreshedToken = await client.oauth.refreshToken(currentToken)
 
         // Save it your DB
@@ -169,7 +170,10 @@ emitter.on('response', async ({ response }) => {
 import { CacheStoreShared } from 'patreon-api.ts'
 
 interface CustomValue { value: string }
-class CustomCache<IsAsync extends boolean> extends CacheStoreShared<IsAsync, CustomValue, { id: string }> {
+interface CustomKey { id: string }
+
+// @noErrors: 2344
+export class CustomCache<IsAsync extends boolean> extends CacheStoreShared<IsAsync, CustomValue, CustomKey> {
     public constructor (async: IsAsync) {
         // Optionally, define a custom  default binding or whether this is a sync/async cache
         super(async, undefined, {
@@ -183,4 +187,10 @@ class CustomCache<IsAsync extends boolean> extends CacheStoreShared<IsAsync, Cus
         })
     }
 }
+
+const customCache = new CustomCache(false)
+
+const customValue = customCache.get('id')
+customCache.put('id_2', { value: 'cache value' })
+const values = customCache.bulkGet([{ id: 'id' }, { id: 'id_2' }])
 // endregion store-custom

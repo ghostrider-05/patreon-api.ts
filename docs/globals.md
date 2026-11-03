@@ -1,0 +1,26 @@
+# Global variables
+
+- AbortSignal
+- Array
+- Date
+- Error
+- JSON
+- Map
+- Math
+- Object
+- Promise
+- RegExp
+- Request
+- Response
+- Set
+- String
+- URL
+- URLSearchParams
+- clearInterval
+- clearTimeout
+- console
+- fetch
+- parseInt
+- setInterval
+- setTimeout
+- undefined
