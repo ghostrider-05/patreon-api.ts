@@ -24,7 +24,9 @@ onMounted(async () => {
 
 <template>
     <p>
-        <VPLink :href="'https://github.com/' + repo"><span :class="iconClass"></span> {{ stat }} {{ label }}</VPLink>
+        <VPLink :href="'https://github.com/' + repo">
+            <span :class="iconClass"></span> {{ stat }} {{ label }}
+        </VPLink>
     </p>
 </template>
 

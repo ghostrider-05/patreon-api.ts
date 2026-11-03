@@ -29,7 +29,7 @@ declare const mockAgent: import('undici-types').MockAgent
 const data = new PatreonMockData()
 
 const testUserPayload = data.getSingleResponsePayload(Type.User, {
-    includes: [],
+    relationships: [],
     attributes: { user: ['full_name'] },
 }, {
     id: data.createId(Type.User),

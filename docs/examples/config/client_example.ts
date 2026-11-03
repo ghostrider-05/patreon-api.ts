@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable jsdoc/require-jsdoc */
 // @ts-expect-error duplicate-imports
 // #region fetch
@@ -60,6 +61,10 @@ export async function fetchPatreonRest (client: PatreonClient) {
         user: ('full_name')[]
     }, true>
 
+    const accessToken = typeof client.oauth.cachedToken === 'string'
+        ? client.oauth.cachedToken
+        : client.oauth.cachedToken?.access_token
+
     const { query } = QueryBuilder.fromParams<Query>(new URLSearchParams({
         include: 'creator',
         'fields[user]': 'full_name',
@@ -67,7 +72,7 @@ export async function fetchPatreonRest (client: PatreonClient) {
 
     // get the campaigns
     const campaigns = await client.rest.get<GetResponsePayload<Query>>(Routes.campaigns(), {
-        accessToken: client.oauth.cachedToken?.access_token,
+        accessToken,
         query,
     })
     // or fetch the post(s), member(s), post(s) or current user
@@ -78,7 +83,7 @@ export async function fetchPatreonRest (client: PatreonClient) {
 
     while (nextCursor) {
         const response = await client.rest.get<GetResponsePayload<Query>>(Routes.campaigns(), {
-            accessToken: client.oauth.cachedToken?.access_token,
+            accessToken,
             query: query + encodeURIComponent(`&page[cursor]=${nextCursor}`),
         })
 

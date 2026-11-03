@@ -4,7 +4,7 @@ import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 
 import type { GitHubStatsComponentProps } from '../components/GitHubStat.vue'
 
-import * as shared from './shared'
+import * as shared from './shared.js'
 
 import {
     author,

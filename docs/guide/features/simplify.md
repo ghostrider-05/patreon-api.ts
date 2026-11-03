@@ -44,4 +44,4 @@ Add a key to `ResponseTransformMap` with a function that satisfies `(res: GetRes
 
 An example for adding a `campaign_id` to every response:
 
-<<< @/examples/simplify/parser.d.ts{ts}
+<<< @/examples/simplify/parser.d.ts{ts twoslash}

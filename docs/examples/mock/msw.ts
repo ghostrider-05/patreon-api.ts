@@ -1,3 +1,4 @@
+// @ts-expect-error duplicate-imports
 // #region handler
 import { http } from 'msw'
 import { PatreonMock } from 'patreon-api.ts'
@@ -33,6 +34,7 @@ export const allHandlers = Object.values(mockHandlers).map(handler => {
     })
 })
 // #endregion all-handlers
+// @ts-expect-error duplicate-imports
 // #region error-handler
 import { http } from 'msw'
 import { PatreonMock } from 'patreon-api.ts'

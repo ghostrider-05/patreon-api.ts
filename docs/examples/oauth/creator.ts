@@ -1,13 +1,43 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // #region token-options
+// @errors: 2578
+// @ts-expect-error duplicate-imports
+declare const env: { [x: string]: string }
+// @ts-expect-error duplicate-imports @errors: 2578
+// ---cut-before---
 import { PatreonCreatorClient } from 'patreon-api.ts'
 
-declare const env: {
-    CLIENT_ID: string
-    CLIENT_SECRET: string
-    CREATOR_ACCESS_TOKEN: string
-    CREATOR_REFRESH_TOKEN: string
-}
+const client = new PatreonCreatorClient({
+    oauth: {
+        token: env.CREATOR_ACCESS_TOKEN,
+    },
+})
+// #endregion token-options
+// #region token-request-options
+// @errors: 2578
+// @ts-expect-error duplicate-imports
+declare const env: { [x: string]: string }
+// @ts-expect-error duplicate-imports
+// ---cut-before---
+import { PatreonCreatorClient } from 'patreon-api.ts'
+
+const client = new PatreonCreatorClient({
+    // ... client options
+})
+
+// Use a query for requesting attributes
+// See making a request for more information
+const response = await client.fetchCampaigns(undefined, {
+    token: env.CREATOR_ACCESS_TOKEN,
+})
+// #endregion token-request-options
+// #region token-options-client
+// @errors: 2578
+// @ts-expect-error duplicate-imports
+declare const env: { [x: string]: string }
+// @ts-expect-error duplicate-imports
+// ---cut-before---
+import { PatreonCreatorClient } from 'patreon-api.ts'
 
 const client = new PatreonCreatorClient({
     oauth: {
@@ -19,16 +49,15 @@ const client = new PatreonCreatorClient({
         },
     },
 })
-// #endregion token-options
+// #endregion token-options-client
 // #region token-store
+// @errors: 2578
+// @ts-expect-error duplicate-imports
+declare const env: { [x: string]: string }
+// @ts-expect-error duplicate-imports
+// ---cut-before---
 import { PatreonCreatorClient, CacheTokenStore, type RestEventMap } from 'patreon-api.ts'
 import { EventEmitter } from 'node:stream'
-
-declare const env: {
-    CLIENT_ID: string
-    CLIENT_SECRET: string
-    SERVER_TOKEN: string
-}
 
 // Configure async/sync store and the binding depending on the storage used
 // Without a binding, it stores in memory. Configure the binding for other storage providers (SQL, KV, etc)
