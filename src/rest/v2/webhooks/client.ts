@@ -114,7 +114,7 @@ export class WebhookClient<IncludeAll extends boolean = false> {
         query?: Query,
         options?: Oauth2WebhookRouteOptions,
     ) {
-        return this.shared.fetch(query, options)
+        return this.shared.fetch<Query>(query, options)
     }
 
     /**

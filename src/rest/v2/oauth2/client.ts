@@ -17,28 +17,42 @@ import { getRequiredScopes } from './scopes'
 
 import type { If } from '../../../utils/'
 
+export type Oauth2ClientOptionsToken =
+    | Oauth2CreatorToken
+    | Oauth2Token
+    | Oauth2StoredToken
+    | string
+    | undefined
+
 interface OauthClientOptions {
     /**
      * The client id of the application.
      * Can be found in the Patreon developer portal.
+     *
+     * Must be defined for oauth requests (such as refreshing a token).
      */
-    clientId: string
+    clientId: string | null
 
     /**
      * The client secret of the application.
      * Can be found in the Patreon developer portal. Keep this private!
+     *
+     * Must be defined for oauth requests (such as refreshing a token).
      */
-    clientSecret: string
+    clientSecret: string | null
 
     /**
      * Set the (creator) token of the application.
      * If no epoch time (ms) is given, it will assume the token was just created.
      */
-    token?: Oauth2CreatorToken | Oauth2Token | Oauth2StoredToken
+    token?: Oauth2ClientOptionsToken
 
     /**
      * The type of token is used.
      * Used when validating resources with the given scopes.
+     *
+     * This is an option that is configured by using a creator or user client
+     * and is only needed to configure when using a custom client.
      * @default
      * - 'creator' when using a creator client
      * - 'oauth' when using an user client
@@ -88,8 +102,17 @@ interface OauthClientOptions {
 }
 
 export interface Oauth2RedirectOptions {
+    /**
+     * The redirect uri to use for oauth authentication
+     */
     redirectUri: string
+    /**
+     * The scopes to request on an oauth redirect uri
+     */
     scopes: string[]
+    /**
+     * The state param to set on an oauth redirect uri
+     */
     state: string | undefined
 }
 
@@ -134,7 +157,7 @@ export class PatreonOauthClient {
      * The last (updated) token that is stored.
      * This is only updated when using token validation and the token is refreshed.
      */
-    public cachedToken: Oauth2CreatorToken | Oauth2StoredToken | undefined = undefined
+    public cachedToken: Exclude<Oauth2ClientOptionsToken, Oauth2Token> | Oauth2StoredToken = undefined
 
     public constructor(
         options: PatreonOauthClientOptions,
@@ -158,8 +181,8 @@ export class PatreonOauthClient {
         }
 
         if (options.token) {
-            this.cachedToken = 'expires_in_epoch' in options.token
-                ? <Oauth2StoredToken>options.token
+            this.cachedToken = typeof options.token === 'string' || 'expires_in_epoch' in options.token
+                ? <Oauth2StoredToken | string>options.token
                 : PatreonOauthClient.toStored(options.token)
         }
     }
@@ -184,10 +207,10 @@ export class PatreonOauthClient {
         query: Query,
         options?: Oauth2FetchOptions,
     ): Promise<GetResponsePayload<Query>> {
-        const token = this.options.validateToken ? await PatreonOauthClient.validateToken(
-            this,
-            options?.token
-        ) : (options?.token ?? this.cachedToken)
+        // TODO: do not validate when `auth` option is disabled
+        const token = this.options.validateToken
+            ? await this.validateToken(options?.token)
+            : (options?.token ?? this.cachedToken)
 
         this.validateScopes(path, query)
 
@@ -267,8 +290,9 @@ export class PatreonOauthClient {
      * Get an Oauth token from an redirect request. This request has a code parameter
      * @param url The request url, or the code, to use for fetching the access token
      * @returns Returns the token on success.
-     * Returns `undefined` for missing code missing redirect uri.
+     * Returns `undefined` for missing code or missing redirect uri.
      * @throws {Error} on a failed request: can be e.g. because of missing permissions or invalid code
+     * @throws {Error} if the oauth client id and secret are not defined in the client options
      */
     public async getOauthTokenFromCode(url: string | { code: string }): Promise<Oauth2StoredToken | undefined> {
         const code = typeof url === 'string'
@@ -276,7 +300,11 @@ export class PatreonOauthClient {
             : url.code
 
         if (!code) return undefined
+        // TODO: throw an error?
         if (!this.options.redirectUri) return undefined
+        if (!PatreonOauthClient.validateClientOptions(this.options)) {
+            throw new Error('Missing oauth client id and/or secret in client options for creating an oauth uri')
+        }
 
         const options = makeOauthRequestOptions(this.options.accessTokenUri, {
             code,
@@ -298,8 +326,13 @@ export class PatreonOauthClient {
      * @param token The refresh token, or the token with a `refresh_token`, to use
      * @returns the updated access token
      * @throws {Error} on a failed request
+     * @throws {Error} if the oauth client id and secret are not defined in the client options
      */
     public async refreshToken(token: Oauth2CreatorToken | Oauth2Token | Oauth2StoredToken | string): Promise<Oauth2StoredToken> {
+        if (!PatreonOauthClient.validateClientOptions(this.options)) {
+            throw new Error('Missing oauth client id and/or secret in client options for refreshing a token')
+        }
+
         const refresh_token = typeof token === 'string'
             ? token
             : token.refresh_token
@@ -319,6 +352,7 @@ export class PatreonOauthClient {
      * The uri to redirect users to in the first step of the Oauth flow
      * @returns the url to use for redirecting the user to
      * @throws {Error} if the redirectUri is not defined or an empty string
+     * @throws {Error} if the oauth client id and secret are not defined in the client options
      */
     public get oauthUri(): string {
         return this.createOauthUri()
@@ -331,6 +365,7 @@ export class PatreonOauthClient {
      * @param options.scopes The scopes to request for this client.
      * @param options.state The state to check after authorization.
      * @throws {Error} if the redirectUri is not defined or an empty string, in both the options and client options
+     * @throws {Error} if the oauth client id and secret are not defined in the client options
      * @returns the uri to redirect the user to in order to authorize this client.
      */
     public createOauthUri(options?: Partial<Oauth2RedirectOptions>) {
@@ -338,6 +373,10 @@ export class PatreonOauthClient {
 
         if (!redirectUri) {
             throw new Error('Missing redirect uri in oauth options')
+        }
+
+        if (!PatreonOauthClient.validateClientOptions(this.options)) {
+            throw new Error('Missing oauth client id and/or secret in client options for creating an oauth uri')
         }
 
         const params = new URLSearchParams({
@@ -355,6 +394,12 @@ export class PatreonOauthClient {
         return this.options.authorizationUri + '?' + params.toString()
     }
 
+    protected static validateClientOptions (
+        options: PatreonOauthClient['options'],
+    ): options is PatreonOauthClient['options'] & Record<'clientId' | 'clientSecret', string> {
+        return typeof options.clientId === 'string' && typeof options.clientSecret === 'string'
+    }
+
     protected validateScopes (
         path: string,
         query: BasePatreonQuery,
@@ -368,25 +413,26 @@ export class PatreonOauthClient {
         if (missingScopes.length === 0) return
 
         const msg = `Missing oauth scopes for ${path}: "${missingScopes.join('", "')}"`
+        // TODO: return debug
         if (validate === 'warn') console.log(msg)
         else throw new Error(msg)
     }
 
-    protected static async validateToken (
-        client: PatreonOauthClient,
-        token: Oauth2CreatorToken | Oauth2StoredToken | string | undefined = client.cachedToken
-    ) {
-        if (token != undefined && (typeof token === 'object' && !PatreonOauthClient.isExpired(token))) return token
+    protected async validateToken (
+        token: Oauth2CreatorToken | Oauth2StoredToken | string | undefined = this.cachedToken
+    ): Promise<Oauth2CreatorToken | Oauth2StoredToken | string | undefined> {
         if (token == undefined) throw new Error('No token found to validate!')
 
-        // Since the token is the access token, you cannot use this to refresh a token
-        if (typeof token === 'string') return
+        const shouldBeValidated = (typeof token === 'object' && PatreonOauthClient.isExpired(token))
+            // Since the token is the access token, you cannot use this to refresh a token
+            || typeof token !== 'string'
+        if (!shouldBeValidated) return token
 
         // TODO: add test for this case
-        const refreshed = await client.refreshToken(token)
+        const refreshed = await this.refreshToken(token)
         if (refreshed) {
-            client.cachedToken = refreshed
-            await client.options.onTokenValidationRefreshed(refreshed)
+            this.cachedToken = refreshed
+            await this.options.onTokenValidationRefreshed(refreshed)
         }
 
         return refreshed
@@ -395,7 +441,7 @@ export class PatreonOauthClient {
     /**
      * Check if a token is likely expired
      * @param token The token to check
-     * @returns `true` only if `token.expires_in_epoch` is present and not in the past
+     * @returns `true` only if `token.expires_in_epoch` is present and in the past
      */
     protected static isExpired(token: Oauth2CreatorToken | Oauth2StoredToken): boolean {
         if (!token.expires_in_epoch) return false

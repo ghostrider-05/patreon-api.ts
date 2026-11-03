@@ -47,10 +47,13 @@ export class PatreonUserClientInstance<IncludeAll extends boolean> extends Patre
     }
 }
 
-export class PatreonUserClient<IncludeAll extends boolean = false> extends PatreonClient<IncludeAll> {
-    public constructor (options: PatreonClientOptions<IncludeAll>) {
-        options.oauth.tokenType ??= 'oauth'
+export interface PatreonUserClientOptions<IncludeAll extends boolean = false> extends PatreonClientOptions<IncludeAll> {
+    oauth: PatreonClientOptions<IncludeAll>['oauth'] & Record<'clientId' | 'clientSecret', string>
+}
 
+export class PatreonUserClient<IncludeAll extends boolean = false> extends PatreonClient<IncludeAll> {
+    public constructor (options: PatreonUserClientOptions<IncludeAll>) {
+        options.oauth.tokenType ??= 'oauth'
         super(options)
     }
 

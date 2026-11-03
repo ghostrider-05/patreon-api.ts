@@ -56,10 +56,11 @@ describe('webhook client', () => {
         const client = creatorClient.webhooks
 
         test('fetch webhooks', async () => {
-            const query = QueryBuilder.webhooks
+            const query = QueryBuilder.webhooks.setResourceAttributes(['uri'])
             const webhooks = await client.fetchWebhooks(query)
 
             expect(webhooks.data[0].type).toEqual('webhook')
+            expect(webhooks.data[0].attributes.uri).toBeDefined()
             console.log(webhooks)
         })
 

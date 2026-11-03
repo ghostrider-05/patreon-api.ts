@@ -5,12 +5,13 @@ import { PatreonCreatorClient, QueryBuilder, Type } from '../../../v2'
 
 describe('client methods', () => {
     test('campaigns', async () => {
-        const campaign = await creatorClient.fetchCampaign('id', QueryBuilder.campaign, { token: 'token' })
+        const campaign = await creatorClient.fetchCampaign('id', QueryBuilder.campaign.setResourceAttributes(['discord_server_id']), { token: 'token' })
         const campaigns = await creatorClient.fetchCampaigns(QueryBuilder.campaigns, { token: 'token' })
 
         expect(Array.isArray(campaigns.data)).toBeTruthy()
         expect(Array.isArray(campaign.data)).toBeFalsy()
 
+        expect(campaign.data.attributes.discord_server_id).toBeDefined()
         expect(campaign.data.type).toEqual(Type.Campaign)
         expect(campaigns.data.every(d => d.type === Type.Campaign)).toBeTruthy()
     })

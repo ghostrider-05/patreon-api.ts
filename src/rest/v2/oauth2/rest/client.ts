@@ -138,6 +138,7 @@ export class RestClient {
     public debug (message: string): void {
         const emitted = this.options.emitter?.emit('debug', { message }) ?? false
 
+        // TODO: use custom handler?
         if (!emitted && this.options.debug) {
             console.log(message)
         }

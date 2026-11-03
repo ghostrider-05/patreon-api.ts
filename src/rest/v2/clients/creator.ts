@@ -1,12 +1,26 @@
+import type { Optional } from '../../../utils/'
+
 import {
     PatreonClient,
     type PatreonClientOptions,
 } from './base'
 
-export class PatreonCreatorClient<IncludeAll extends boolean = false> extends PatreonClient<IncludeAll> {
-    public constructor (options: PatreonClientOptions<IncludeAll>) {
-        options.oauth.tokenType ??= 'creator'
+export type PatreonCreatorClientOptions<IncludeAll extends boolean = false> = Optional<
+    Omit<PatreonClientOptions<IncludeAll>, 'oauth'> & {
+        oauth: Optional<PatreonClientOptions<IncludeAll>['oauth'], 'clientId' | 'clientSecret'>
+    }, 'oauth'
+>
 
-        super(options)
+export class PatreonCreatorClient<IncludeAll extends boolean = false> extends PatreonClient<IncludeAll> {
+    public constructor (options: PatreonCreatorClientOptions<IncludeAll>) {
+        super({
+            ...options,
+            oauth: {
+                clientId: null,
+                clientSecret: null,
+                tokenType: 'creator',
+                ...options.oauth,
+            },
+        })
     }
 }
