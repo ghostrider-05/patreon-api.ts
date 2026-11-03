@@ -45,7 +45,6 @@
     "src/__tests__/**/*.test.ts"
   ],
   "include": [
-    "src/**/*.ts",
-    "tsup.config.ts"
+    "src/**/*.ts"
   ]
 }

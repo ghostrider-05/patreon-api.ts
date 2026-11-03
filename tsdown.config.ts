@@ -6,7 +6,7 @@ export default defineConfig([
         clean: true,
         dts: true,
         outDir: 'dist',
-        removeNodeProtocol: false,
+        nodeProtocol: true,
         format: [
             'cjs',
             'esm',

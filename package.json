@@ -20,6 +20,7 @@
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "npx eslint \"src/**/*.ts\" \"examples/**/*.ts\"",
+    "lint:globals": "npx tsc && node ./tsc-generated/scripts/v2/globals.js",
     "lint:fix": "npx eslint --fix \"src/**/*.ts\" \"examples/**/*.ts\""
   },
   "engines": {

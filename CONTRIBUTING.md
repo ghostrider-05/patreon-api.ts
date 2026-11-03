@@ -27,6 +27,16 @@ If you have a question or want to chat, open [a new discussion](https://github.c
 4. Answer questions and discuss the implementation if necessary.
 5. (Optional) Create a new pull request that implements the feature
 
+## How to add new API routes
+
+1. Add the new route to (the comments of) `Routes`
+2. Check if the route has a query defined on `QueryBuilder`
+3. Define the route in `/schemas/v2/api/paths/`
+4. If the route is using a `POST` or `PATCH` method, define the body in `/schemas/v2/modifiable.ts`
+5. If the route uses a new resources:
+   1. Define the resource in `/schemas/v2/resources/`
+   2. Define the type in `/schemas/v2/item.ts` and relationships in `/schemas/v2/relationships.ts`
+
 ## Pull request guidelines
 
 > [!TIP]
