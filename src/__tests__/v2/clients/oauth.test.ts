@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 import { creatorClient, userClient } from '../../client'
 
 import { QueryBuilder, Type } from '../../../v2'
-import { PatreonOauthClient } from "../../../rest/v2/oauth2/client"
+import { PatreonOauthClient, type Oauth2CreatorToken, type Oauth2StoredToken } from "../../../rest/v2/oauth2/client"
 
 describe('oauth methods', () => {
     test('pagination', async () => {
@@ -30,6 +30,9 @@ describe('oauth methods', () => {
 })
 
 describe('oauth client', () => {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const cachedToken = creatorClient.oauth.cachedToken! as Oauth2CreatorToken | Oauth2StoredToken
+
     test('client options', () => {
         expect(creatorClient.name).toBeNull()
         expect(creatorClient.oauth.userAgent).toBeTypeOf('string')
@@ -44,8 +47,7 @@ describe('oauth client', () => {
     })
 
     test('util: is expired', () => {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        expect(PatreonOauthClient['isExpired'](creatorClient.oauth.cachedToken!)).toBeFalsy()
+        expect(PatreonOauthClient['isExpired'](cachedToken)).toBeFalsy()
 
         expect(PatreonOauthClient['isExpired'](<never>{
             expires_in_epoch: (Date.now() + 86000).toString(),
@@ -53,8 +55,7 @@ describe('oauth client', () => {
     })
 
     test('util: to stored', () => {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        expect(PatreonOauthClient['toStored'](creatorClient.oauth.cachedToken!)).toEqual(creatorClient.oauth.cachedToken)
+        expect(PatreonOauthClient['toStored'](cachedToken)).toEqual(creatorClient.oauth.cachedToken)
 
         expect(parseInt(PatreonOauthClient['toStored'](<never>{ expires_in: '600'}).expires_in_epoch)).approximately(Date.now() + 600_000, 20)
     })
@@ -75,29 +76,29 @@ describe('oauth client', () => {
 
     test('validate scopes', () => {
         // no option set
-        expect(() => creatorClient.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrowError()
+        expect(() => creatorClient.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrow()
         creatorClient.oauth.options.validateScopes = true
-        expect(() => creatorClient.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrowError()
+        expect(() => creatorClient.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrow()
 
         // const userClient = createTestClient('user', async () => new Response())
-        expect(() => userClient.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrowError()
+        expect(() => userClient.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrow()
 
         userClient.oauth.options.validateScopes = true
-        expect(() => userClient.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).toThrowError()
+        expect(() => userClient.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).toThrow()
 
         userClient.oauth.options.scopes = ['w:campaigns.webhook']
-        expect(() => userClient.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrowError()
+        expect(() => userClient.oauth['validateScopes']('/webhooks', QueryBuilder.webhooks)).not.toThrow()
     })
 
     test('validate token', async () => {
         creatorClient.oauth.options.validateToken = true
 
-        expect(async () => await PatreonOauthClient['validateToken'](creatorClient.oauth, undefined)).not.toThrowError()
-        expect(await PatreonOauthClient['validateToken'](creatorClient.oauth)).toEqual(creatorClient.oauth.cachedToken)
+        expect(async () => await creatorClient.oauth['validateToken'](undefined)).not.toThrow()
+        expect(await creatorClient.oauth['validateToken']()).toEqual(creatorClient.oauth.cachedToken)
 
         creatorClient.oauth.cachedToken = undefined
-        expect(await PatreonOauthClient['validateToken'](creatorClient.oauth).catch(() => undefined)).toBeUndefined()
+        expect(await creatorClient.oauth['validateToken']().catch(() => undefined)).toBeUndefined()
 
-        expect(await PatreonOauthClient['validateToken'](creatorClient.oauth, 'access_token')).toBeUndefined()
+        expect(await creatorClient.oauth['validateToken']('access_token')).toBeUndefined()
     })
 })
