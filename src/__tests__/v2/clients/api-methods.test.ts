@@ -61,4 +61,8 @@ describe('client methods', () => {
         })).not.toThrow()
         // TODO: test if custom typed parser works
     })
+
+    // TODO: add tests for lives (fetching specifically)
+
+    // TODO: test paginate methods on clients
 })

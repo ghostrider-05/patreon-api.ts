@@ -4,6 +4,9 @@ This page will cover some general topics for configuring this library.
 
 ## Client options
 
+These are options for the base client exported by this library: `PatreonClient`.
+Depending on how [your authentication is handled](./features/oauth), the recommended client is either `PatreonUserClient` or `PatreonCreatorClient`.
+
 ### name
 
 To track spam and more, Patreon has made it a requirement to send a `User-Agent` header. This library will send a user agent in the form of:
@@ -49,7 +52,7 @@ For more options, such as `api`, `headers` and more, see [the `RestClientOptions
 
 ### transform.includeAllQueries
 
-Set the default query to return all relationships and attributes, instead of empty attributes.
+Set [the default query](./features/request#query-builder) to return all relationships and attributes, instead of empty attributes.
 
 :::code-group
 
