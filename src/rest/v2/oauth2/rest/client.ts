@@ -192,6 +192,7 @@ export class RestClient {
                     data: getResponseHeaders(response.headers),
                     bodyUsed: response.bodyUsed,
                     response,
+                    raw: response,
                     headers: response.headers,
                     ok: response.ok,
                     status: response.status,

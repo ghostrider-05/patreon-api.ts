@@ -40,9 +40,11 @@ export interface RestEventMap {
         method: string
         body: string | null
     }]
-    response: [data: {
+    response: [response: {
         data: PatreonHeadersData
+        /** @deprecated */
         response: RestResponse
+        raw: RestResponse
         headers: RestHeaders
         ok: boolean
         status: number
