@@ -19,6 +19,13 @@ interface ResourceSchemaOptions<T extends string> {
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
+function formatDescription (description: string): string {
+    return ['\n'].reduce((stripped, prefix) => {
+        return stripped.startsWith(prefix) ? stripped.slice(prefix.length) : stripped
+    }, description)
+}
+
+// eslint-disable-next-line jsdoc/require-jsdoc
 function createResourceSchemas <T extends string> (options: ResourceSchemaOptions<T>) {
     return options.schemas.reduce((schemas, schema) => {
         const { documentation, fileName, interfaceName } = options.getDetails(schema)
@@ -31,7 +38,7 @@ function createResourceSchemas <T extends string> (options: ResourceSchemaOption
             [schema]: {
                 type: 'object',
                 title: interfaceName,
-                description: getJsDocDescription(declaration),
+                description: formatDescription(getJsDocDescription(declaration)),
                 externalDocs: documentation,
                 properties: declaration.getProperties().reduce((properties, property) => {
                     const type = property.getType().getNonNullableType(), nullType = 'null'
@@ -58,7 +65,7 @@ function createResourceSchemas <T extends string> (options: ResourceSchemaOption
                                     ? { enum: type.getUnionTypes().map(t => t.getText().replace(/"/g, '')) }
                                     : {}
                             ),
-                            description: getJsDocDescription(property),
+                            description: formatDescription(getJsDocDescription(property)),
                             ...(externalDocs ? { externalDocs: { url: externalDocs } } : {}),
                             ...(format != undefined ? { format } : {}),
                             ...(examples != undefined && examples.length
