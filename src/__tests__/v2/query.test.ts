@@ -218,7 +218,7 @@ describe('query builder', () => {
     test('query schema', () => {
         expect(QueryBuilder.campaign.schemaRelationships).toEqual(documentedCampaignRelationships)
 
-        expect(QueryBuilder.campaign.schemaResourceAttributes).toHaveLength(29)
+        expect(QueryBuilder.campaign.schemaResourceAttributes).toHaveLength(30)
     })
 
     test('query to string', () => {
