@@ -93,6 +93,7 @@ describe('relationships', () => {
             'creator',
             'goals',
             'tiers',
+            'live_access_rules',
         ])).toEqualTypeOf<RelationshipFields<Type.Campaign>[]>()
     })
 
@@ -109,6 +110,7 @@ describe('relationships', () => {
             Type.Goal,
             Type.Tier,
             Type.User,
+            Type.LiveAccessRule,
         ])).toEqualTypeOf<RelationshipTypeFields<Type.Campaign>[]>()
 
         expectTypeOf(createTuple([

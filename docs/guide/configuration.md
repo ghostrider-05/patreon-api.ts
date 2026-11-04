@@ -85,9 +85,11 @@ declare module 'patreon-api.ts' {
 
 The following keys can be used in `CustomTypeOptions`:
 
-| Key                  | Resource | Default  | Recommended type                                           |
-| -------------------- | -------- | -------- | ---------------------------------------------------------- |
-| `social_connections` | `User`   | `object` | `Record<string, { url: string, user_id: string } \| null>` |
+| Key                    | Resource | Default  | Recommended type                                                                                                                                      |
+| ---------------------- | -------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `social_connections`   | `User`   | `object` | `Record<string, { url: string, user_id: string } \| null>`                                                                                            |
+| `member_patron_status` | `Member` | `string` | `'active_patron' \| 'declined_patron' \| 'former_patron'`                                                                                             |
+| `member_charge_status` | `Member` | `string` | `'Paid' \| 'Declined' \| 'Deleted' \| 'Pending' \| 'Refunded' \| 'Refunded by Patreon' \| 'Partially Refunded' \| 'Fraud' \| 'Free Trial' \| 'Other'` |
 
 An example for the configuration can be found in the [CJS example](https://github.com/ghostrider-05/patreon-api.ts/tree/main/examples/node-cjs/).
 

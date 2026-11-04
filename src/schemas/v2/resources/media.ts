@@ -50,12 +50,12 @@ export interface Media {
     owner_type: string
 
     /**
-     *
+     * Size of file in bytes.
      */
     size_bytes: number
 
     /**
-     *
+     * The state of the file.
      */
     state: string
 

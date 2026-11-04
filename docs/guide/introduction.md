@@ -144,6 +144,8 @@ Do you have a question about using this library? [Open a Q&A discussion on GitHu
 
 As you may have noticed, the Patreon API documentation is missing explanations for a lot of things. Therefore I needed to guess or test certain things myself when making this library. By doing this I acknowledge that sometimes your application can throw errors or types might not fully reflect the data. To fix this, either open a [GitHub issue](https://github.com/ghostrider-05/patreon-api.ts/issues/) with your findings or [post a discussion](https://patreondevelopers.com) on the Patreon developers forum to ask Patreon developers to update their documentation.
 
+Code comments in the resource interfaces are directly copied from the API documentation. Anything useful (that was removed at some point) will still be added to the comments with a `Note:` prefixed.
+
 ## Comparison
 
 See why I made this library with all* JavaScript and TypeScript repositories for the Patreon API compared (scroll to see all features):
@@ -162,9 +164,9 @@ A library is included if it:
 - has at least 1 GitHub star
 - is written in TypeScript or JavaScript
 - is a repo:
-  - **not** for scraping, only related to badges, downloading assets or a Patreon clone
+  - **not** for scraping, a browser extension / script, only related to badges, downloading assets or a Patreon clone
   - exports code or is published on NPM
-- is not archived
+- is not archived and is not a fork
 
 [GitHub search query](https://github.com/search?q=%22patreon%22+stars%3A%3E%3D1+language%3Ats+language%3Ajs+is%3Apublic+fork%3Afalse+archived%3Afalse+topic%3Apatreon+-topic%3Ascraper+-topic%3Adownloader+-topic%3Adownload+-topic%3Abrowser-extension+-topic%3Achrome-extension+-topic%3Awebextension+-topic%3Atampermonkey+-topic%3Auserscript&type=repositories&ref=advsearch&s=stars&o=desc&p=1):
 

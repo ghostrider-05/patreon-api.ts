@@ -21,6 +21,7 @@ const isNonStringType = (input: string): boolean => {
     }
 
     return ['true', 'false'].includes(input)
+        || ['\'', '"'].some(char => input[0] === char && input.at(-1) === char)
         || tryParse(() => { JSON.parse(input) })
         || tryParse(() => !isNaN(parseInt(input)))
 }

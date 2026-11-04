@@ -43,7 +43,7 @@ export interface Tier {
     /**
      * Number of posts published to this tier
      */
-    post_count: number
+    post_count: number | null
 
     /**
      * Whether the tier is currently published

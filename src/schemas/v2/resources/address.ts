@@ -8,12 +8,12 @@ export interface Address {
     addressee: string | null
 
     /**
-     *
+     * City.
      */
     city: string
 
     /**
-     *
+     * Country.
      */
     country: string
 

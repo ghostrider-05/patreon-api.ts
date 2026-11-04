@@ -74,6 +74,7 @@ export const Campaign = {
         'image_url',
         'image_small_url',
         'is_charged_immediately',
+        'is_eligable_for_live',
         'is_monthly',
         'is_nsfw',
         'has_rss',
