@@ -155,7 +155,7 @@ export class PatreonMockDataRandomResources {
             next_charge_date: this.random.futureDate(),
             note: '',
             patron_status: null,
-            pledge_cadence: 1,
+            pledge_cadence: '1',
             pledge_relationship_start: this.random.futureDate(),
             will_pay_amount_cents: 500,
             ...(this.resources?.member?.(id) ?? {}),

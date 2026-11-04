@@ -91,7 +91,7 @@ export interface Member {
      *
      * Note: this will be `1` if Campaign.is_monthly is `true`
      * Note: this used to be documented as an integer.
-     * @example 1
+     * @example '1'
      */
     pledge_cadence: string | null
 
