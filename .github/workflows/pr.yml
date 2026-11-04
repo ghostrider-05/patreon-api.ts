@@ -1,16 +1,14 @@
 name: Pull Request
 on:
   - pull_request
-  - pull_request_target
 env:
-  NODE_VERSION: 22.x
+  NODE_VERSION: 24.x
 jobs:
   test_coverage:
     name: Test coverage
     runs-on: ubuntu-latest
     # Only needs to run on head branch since that will become the new base
     # and coverage needs to pass before merging
-    if: ${{ github.event_name == 'pull_request' }}
     continue-on-error: true
     strategy:
       matrix:
@@ -50,7 +48,6 @@ jobs:
     name: Report PR coverage
     runs-on: ubuntu-latest
     needs: test_coverage
-    if: always() && github.event_name == 'pull_request'
     permissions:
       pull-requests: write
       contents: read
@@ -75,15 +72,3 @@ jobs:
           json-final-path: src/coverage/coverage-final.json
           json-summary-path: src/coverage/coverage-summary.json
           json-summary-compare-path: src/coverage-main/coverage-summary.json
-  labeler:
-    name: Pull Request labeler
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request_target' }}
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-    - uses: actions/labeler@v7
-      with:
-        repo-token: '${{ secrets.GITHUB_TOKEN }}'
-        sync-labels: true
