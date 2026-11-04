@@ -22,21 +22,24 @@ export interface User {
 
     /**
      * The user's email address.
+     * Users may restrict the sharing of their email address.
      * Requires certain scopes to access.
      * See the scopes section of the documentation
      * @format email
      */
-    email: string
+    email: string | null
 
     /**
      * First name.
+     * Can be empty if the user has opted to hide their identity for their membership.
      */
     first_name: string | null
 
     /**
-     * Combined first and last name
+     * Combined first and last name.
+     * Can be empty if the user has opted to hide their identity for their membership.
      */
-    full_name: string
+    full_name: string | null
 
     /**
      * Whether the user has chosen to keep private which creators they pledge to
@@ -44,10 +47,11 @@ export interface User {
     hide_pledges: boolean | null
 
     /**
-     * The user's profile picture URL, scaled to width 400px
+     * The user's profile picture URL, scaled to width 400px.
+     * Can be empty if the user has opted to hide their identity for their membership.
      * @format uri
      */
-    image_url: string
+    image_url: string | null
 
     /**
      * Whether this user has an active campaign.
@@ -61,6 +65,7 @@ export interface User {
 
     /**
      * Last name.
+     * Can be empty if the user has opted to hide their identity for their membership.
      */
     last_name: string | null
 
@@ -87,10 +92,11 @@ export interface User {
     social_connections: CustomTypeOption<'social_connections', object>
 
     /**
-     * The user's profile picture URL, scaled to a square of size 100x100px
+     * The user's profile picture URL, scaled to a square of size 100x100px.
+     * Can be empty if the user has opted to hide their identity for their membership.
      * @format uri
      */
-    thumb_url: string
+    thumb_url: string | null
 
     /**
      * URL of this user's creator or patron profile
@@ -102,6 +108,7 @@ export interface User {
      * The public "username" of the user.
      * patreon.com/ goes to this user's creator page.
      * Non-creator users might not have a vanity.
+     * Can be empty if the user has opted to hide their identity for their membership.
      * @deprecated use Campaign.vanity
      */
     vanity: string | null

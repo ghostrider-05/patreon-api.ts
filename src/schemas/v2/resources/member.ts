@@ -1,3 +1,5 @@
+import type { CustomTypeOption } from '../../../utils/'
+
 /**
  * The record of a user's membership to a campaign.
  * Remains consistent across months of pledging.
@@ -7,7 +9,7 @@ export interface Member {
      * The total amount that the member has ever paid to the campaign in the campaign's currency.
      * 0 if never paid
      */
-    campaign_lifetime_support_cents: number
+    campaign_lifetime_support_cents: number | null
 
     /**
      * The amount in cents that the member is entitled to.
@@ -17,27 +19,29 @@ export interface Member {
 
     /**
      * The member's email address.
-     * Requires the campaigns.members[email] scope
+     * Requires the campaigns.members[email] scope.
+     * Members may restrict the sharing of their email address.
      */
-    email: string
+    email: string | null
 
     /**
-     * Full name of the member user
+     * Full name of the member user.
+     * Can be empty if the user has opted to hide their identity for this membership.
      * @example John Doe
      */
-    full_name: string
+    full_name: string | null
 
     /**
      * The user is not a pledging patron but has subscribed to updates about public posts.
      * This will always be false, following has been replaced by free membership.
      * @deprecated
      */
-    is_follower: boolean
+    is_follower: boolean | null
 
     /**
      * The user is in a free trial period.
      */
-    is_free_trial: boolean
+    is_free_trial: boolean | null
 
     /**
      * The user's membership is from a free gift
@@ -52,24 +56,9 @@ export interface Member {
     last_charge_date: string | null
 
     /**
-     * The result of the last attempted charge.
-     * The only successful status is `'Paid'`.
-     * `null` if never charged
-     *
-     * Note: this will likely be either `'Paid'` or `'Pending'`
+     * Note: The result of the last attempted charge. The only successful status is `'Paid'`.
      */
-    last_charge_status:
-        | 'Paid'
-        | 'Declined'
-        | 'Deleted'
-        | 'Pending'
-        | 'Refunded'
-        | 'Refunded by Patreon'
-        | 'Partially Refunded'
-        | 'Fraud'
-        | 'Free Trial'
-        | 'Other'
-        | null
+    last_charge_status: CustomTypeOption<'member_charge_status', string> | null
 
     /**
      * The total amount that the member has ever paid to the campaign in the campaign's currency.
@@ -78,7 +67,7 @@ export interface Member {
      * Use {@link campaign_lifetime_support_cents}.
      * @deprecated
      */
-    lifetime_support_cents: number
+    lifetime_support_cents: number | null
 
     /**
      * Datetime of next charge.
@@ -93,24 +82,21 @@ export interface Member {
     note: string
 
     /**
-     * A `null` value indicates the member has never pledged
+     * Note: A `null` value indicates the member has never pledged
      */
-    patron_status:
-        | 'active_patron'
-        | 'declined_patron'
-        | 'former_patron'
-        | null
+    patron_status: CustomTypeOption<'member_patron_status', string>| null
 
     /**
      * Number of months between charges
      *
      * Note: this will be `1` if Campaign.is_monthly is `true`
+     * Note: this used to be documented as an integer.
      * @example 1
      */
-    pledge_cadence: number | null
+    pledge_cadence: string | null
 
     /**
-     * Datetime of beginning of most recent pledge chainfrom this member to the campaign.
+     * Datetime of beginning of most recent pledge chain from this member to the campaign.
      * Pledge updates do not change this value
      * @format date-time
      */
