@@ -47,6 +47,11 @@ export interface Campaign {
     is_charged_immediately: boolean | null
 
     /**
+     * Whether the campaign is eligible for live.
+     */
+    is_eligable_for_live: boolean
+
+    /**
      * Whether the campaign charges per month
      */
     is_monthly: boolean
