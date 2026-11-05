@@ -15,18 +15,18 @@ import {
     RestClient,
     type PatreonOauthClientOptions,
     type RestClientOptions,
-} from '../oauth2/'
+} from '../../oauth/v2/'
 
-import { WebhookClient } from '../webhooks/'
+import { WebhookClient } from '../../webhooks/v2'
 
 import {
     normalizeFromQuery,
     simplifyFromQuery,
-} from '../../../payloads/v2'
+} from '../../payloads/v2'
 
 import {
     type BasePatreonQuery,
-} from '../../../schemas/v2'
+} from '../../schemas/v2'
 
 export type {
     ResponseTransformMap,

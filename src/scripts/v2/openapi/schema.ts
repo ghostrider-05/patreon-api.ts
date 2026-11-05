@@ -2,7 +2,7 @@ import { writeFile } from 'fs/promises'
 
 import type { OpenAPIV3_1 } from 'openapi-types'
 
-import { RequestMethod } from '../../../rest/v2/oauth2/rest/options'
+import { RequestMethod } from '../../../oauth/v2/rest/options'
 import type { Route } from '../../../schemas/v2/api/types'
 
 interface PathSchemaOptions {

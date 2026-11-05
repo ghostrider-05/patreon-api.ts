@@ -4,9 +4,9 @@ import type { Route } from '../api/types'
 import {
     RouteBases,
     RequestMethod,
-} from '../../../rest/v2/'
+} from '../../../oauth/v2'
 
-import { shouldIncludeRequestBody } from '../../../rest/v2/oauth2/rest/client'
+import { shouldIncludeRequestBody } from '../../../oauth/v2/rest/client'
 
 import {
     type ItemType,

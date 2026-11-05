@@ -1,4 +1,4 @@
-import type { Oauth2StoredToken } from '../../../rest/v2/'
+import type { Oauth2StoredToken } from '../../../oauth/v2'
 
 import type { CacheStoreBinding } from './base'
 

@@ -2,20 +2,20 @@ import {
     QueryBuilder,
     type BasePatreonQuery,
     type GetResponsePayload,
-} from '../../../schemas/v2/query'
+} from '../../schemas/v2/query'
 
-import type { Oauth2FetchOptions } from '../clients'
+import type { Oauth2FetchOptions } from '../../clients/v2'
 
 import {
     RequestMethod,
     type RestClient,
     type RequestOptions,
-} from './rest/'
+} from './rest'
 
 import { Oauth2Routes } from './routes'
 import { getRequiredScopes } from './scopes'
 
-import type { If } from '../../../utils/'
+import type { If } from '../../utils'
 
 export type Oauth2ClientOptionsToken =
     | Oauth2CreatorToken

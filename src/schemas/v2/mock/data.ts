@@ -6,7 +6,7 @@ import {
     RouteBases,
     RequestMethod,
     ResponseHeaders,
-} from '../../../rest/v2/'
+} from '../../../oauth/v2'
 
 import type { ListRequestPayload } from '../../../payloads/v2/internals/list'
 import type { GetRequestPayload } from '../../../payloads/v2/internals/get'

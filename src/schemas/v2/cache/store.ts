@@ -1,5 +1,5 @@
 /* eslint-disable jsdoc/check-param-names */
-import { RequestMethod } from '../../../rest/v2'
+import { RequestMethod } from '../../../oauth/v2'
 
 import {
     type AttributeItem,

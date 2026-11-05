@@ -30,3 +30,6 @@ export {
     type RestRetriesBackoffOptions,
     type RestRetries,
 } from './retries'
+
+export * from './routes'
+export * from './version'

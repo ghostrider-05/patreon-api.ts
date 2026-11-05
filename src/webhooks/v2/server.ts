@@ -1,5 +1,5 @@
-import { RestHeaders } from '../oauth2'
-import { resolveHeaders } from '../oauth2/rest/headers'
+import { RestHeaders } from '../../oauth/v2/index2'
+import { resolveHeaders } from '../../oauth/v2/rest/headers'
 
 import { WebhookClient } from './client'
 import { WebhookPayloadClient } from './payload'

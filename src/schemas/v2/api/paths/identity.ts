@@ -1,7 +1,7 @@
 import {
     Routes,
     RequestMethod,
-} from '../../../../rest/v2/'
+} from '../../../../oauth/v2'
 
 import { Type } from '../../item'
 import type { Route } from '../types'

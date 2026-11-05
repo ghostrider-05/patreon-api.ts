@@ -1,4 +1,4 @@
-import { version } from '../../../../utils'
+import { version } from '../../../utils'
 
 import type { RequestOptions } from './options'
 
