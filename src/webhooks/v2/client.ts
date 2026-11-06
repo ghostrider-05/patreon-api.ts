@@ -11,9 +11,9 @@ import {
 import {
     Routes,
     RequestMethod,
+    type PatreonOauthClient,
     type RestHeaders,
-} from '../../oauth/v2/index2'
-import type { PatreonOauthClient } from '../../oauth/v2/client'
+} from '../../oauth/v2/'
 import { resolveHeaders } from '../../oauth/v2/rest/headers'
 
 import { CrudResourcesSharedClient, type Oauth2RouteOptions,  } from '../../clients/v2/shared'
