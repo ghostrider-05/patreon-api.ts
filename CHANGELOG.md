@@ -1,5 +1,52 @@
 # Changelog
 
+## [0.21.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.20.0...patreon-api.ts-v0.21.0) (2026-11-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* **PatreonClient:** removes (undocumented) method for deleting a live
+* **PatreonClient:** removes type constructor option
+* remove deprecations (store, oauth, rest) ([#315](https://github.com/ghostrider-05/patreon-api.ts/issues/315))
+* **rest:** rename amount/interval to limit/period in counter options
+
+### Features
+
+* **PatreonClient:** deprecate rest.includeAllQueries option for transform.includeAllQueries option ([3f939df](https://github.com/ghostrider-05/patreon-api.ts/commit/3f939df169f001e865c2b2f15aee8eaef2cecc28))
+* **PatreonClient:** fetch on lives uses includeAllQueries option for default query ([3f939df](https://github.com/ghostrider-05/patreon-api.ts/commit/3f939df169f001e865c2b2f15aee8eaef2cecc28))
+* **PatreonClient:** fetch on lives uses normalized/simplified transforms ([3f939df](https://github.com/ghostrider-05/patreon-api.ts/commit/3f939df169f001e865c2b2f15aee8eaef2cecc28))
+* **PatreonClient:** removes (undocumented) method for deleting a live ([3f939df](https://github.com/ghostrider-05/patreon-api.ts/commit/3f939df169f001e865c2b2f15aee8eaef2cecc28))
+* **PatreonClient:** removes type constructor option ([3f939df](https://github.com/ghostrider-05/patreon-api.ts/commit/3f939df169f001e865c2b2f15aee8eaef2cecc28))
+* **PatreonCreatorClient:** make oauth and oauth.clientId/oauth.clientSecret optional ([3f939df](https://github.com/ghostrider-05/patreon-api.ts/commit/3f939df169f001e865c2b2f15aee8eaef2cecc28))
+* **PatreonMock:** add cache binding option ([8ea6ca8](https://github.com/ghostrider-05/patreon-api.ts/commit/8ea6ca88ea2cd9b519ddd55301b389928089c19d))
+* **PatreonOauthClient:** allow also string | undefined type for token option ([3f939df](https://github.com/ghostrider-05/patreon-api.ts/commit/3f939df169f001e865c2b2f15aee8eaef2cecc28))
+* **PatreonOauthClient:** allow null for clientId and clientSecret option ([3f939df](https://github.com/ghostrider-05/patreon-api.ts/commit/3f939df169f001e865c2b2f15aee8eaef2cecc28))
+* **QueryBuilder:** add `setResourceAttributes` method ([668ecfd](https://github.com/ghostrider-05/patreon-api.ts/commit/668ecfdbbe72e36b7e5a0b16ff406be13cbc9f02))
+* **QueryBuilder:** add live query builder ([3f939df](https://github.com/ghostrider-05/patreon-api.ts/commit/3f939df169f001e865c2b2f15aee8eaef2cecc28))
+* remove deprecations (store, oauth, rest) ([#315](https://github.com/ghostrider-05/patreon-api.ts/issues/315)) ([8ea6ca8](https://github.com/ghostrider-05/patreon-api.ts/commit/8ea6ca88ea2cd9b519ddd55301b389928089c19d))
+* **rest:** allow custom counters for (invalid) request ([cbf29c1](https://github.com/ghostrider-05/patreon-api.ts/commit/cbf29c10680416f7c9ebe1005343409dd9099f58))
+* **rest:** allow custom default retries with multiple status ranges ([8ea6ca8](https://github.com/ghostrider-05/patreon-api.ts/commit/8ea6ca88ea2cd9b519ddd55301b389928089c19d))
+* **rest:** allow multiple status ranges for retries ([8ea6ca8](https://github.com/ghostrider-05/patreon-api.ts/commit/8ea6ca88ea2cd9b519ddd55301b389928089c19d))
+* **RestEventMap:** deprecate `response` property for `raw` response ([356cc70](https://github.com/ghostrider-05/patreon-api.ts/commit/356cc701e11a437b925bc6564723e37f4cd7ec45))
+* **rest:** rename amount/interval to limit/period in counter options ([cbf29c1](https://github.com/ghostrider-05/patreon-api.ts/commit/cbf29c10680416f7c9ebe1005343409dd9099f58))
+* update resources for membership masking ([#323](https://github.com/ghostrider-05/patreon-api.ts/issues/323)) ([cc9a359](https://github.com/ghostrider-05/patreon-api.ts/commit/cc9a3598d1e8571962c0664680066c9cfd319dfc))
+* **WebhookClient:** use includeAllQueries option from the client in fetchWebhooks for default query ([3f939df](https://github.com/ghostrider-05/patreon-api.ts/commit/3f939df169f001e865c2b2f15aee8eaef2cecc28))
+
+
+### Bug Fixes
+
+* **Campaign:** add `is_eligable_for_live` attribute ([cc9a359](https://github.com/ghostrider-05/patreon-api.ts/commit/cc9a3598d1e8571962c0664680066c9cfd319dfc))
+* **docs:** update mention of discontinued v1 API ([e3dd962](https://github.com/ghostrider-05/patreon-api.ts/commit/e3dd962358ce3681416e72ed5d3c5f9d9fb30a13)), closes [#303](https://github.com/ghostrider-05/patreon-api.ts/issues/303)
+* **PatreonClient:** correct query type for fetching a live ([3f939df](https://github.com/ghostrider-05/patreon-api.ts/commit/3f939df169f001e865c2b2f15aee8eaef2cecc28))
+* **PatreonClient:** correct return type of fetching a live ([3f939df](https://github.com/ghostrider-05/patreon-api.ts/commit/3f939df169f001e865c2b2f15aee8eaef2cecc28))
+* **PatreonClient:** resolve paginated union type error on simplified methods ([8ea6ca8](https://github.com/ghostrider-05/patreon-api.ts/commit/8ea6ca88ea2cd9b519ddd55301b389928089c19d))
+* **PatreonMockData:** do not throw error on null relationship in filterRelationships ([8ea6ca8](https://github.com/ghostrider-05/patreon-api.ts/commit/8ea6ca88ea2cd9b519ddd55301b389928089c19d))
+* **PatreonOauthClient:** use rest debug on warn with scope validation ([09bff26](https://github.com/ghostrider-05/patreon-api.ts/commit/09bff2684736b4bf4f420cd9e938c2ac452aa4e6))
+* **QueryBuilder:** correct return type of `setAttributes` ([668ecfd](https://github.com/ghostrider-05/patreon-api.ts/commit/668ecfdbbe72e36b7e5a0b16ff406be13cbc9f02))
+* **rest:** allow null start values for counters ([6f237d3](https://github.com/ghostrider-05/patreon-api.ts/commit/6f237d3d607fa386daf7e3feb087742a79af4bc0))
+* **rest:** do not use default retry amount for a status not defined in the options ([8ea6ca8](https://github.com/ghostrider-05/patreon-api.ts/commit/8ea6ca88ea2cd9b519ddd55301b389928089c19d))
+* **rest:** emit response event also on retries and failed responses ([7980c12](https://github.com/ghostrider-05/patreon-api.ts/commit/7980c124cafc8e822d4dbefaf28fd4eee113b2a2))
+
 ## [0.20.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.19.0...patreon-api.ts-v0.20.0) (2026-08-24)
 
 
