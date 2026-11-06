@@ -23,13 +23,13 @@ webhooks:
   - changed-files:
     - any-glob-to-any-file:
       - 'src/payloads/v2/webhooks.ts'
-      - 'src/rest/v2/webhooks/*'
-      - 'src/rest/v2/webhooks/**'
+      - 'src/webhooks/v2/webhooks/*'
+      - 'src/webhooks/v2/webhooks/**'
 oauth:
   - changed-files:
     - any-glob-to-any-file:
-      - 'src/rest/v2/oauth2/*'
-      - 'src/rest/v2/oauth2/**'
+      - 'src/oauth/v2/*'
+      - 'src/oauth/v2/**'
 npm:
   - changed-files:
     - any-glob-to-any-file:
