@@ -135,6 +135,7 @@ export function createGuideItem (expandFeatures = false): SharedItem {
             {
                 text: 'Features',
                 items: features,
+                link: '/guide/features/',
             },
         ]
     }

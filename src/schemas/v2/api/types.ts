@@ -1,7 +1,7 @@
 import type {
     PatreonOauthScope,
     RequestMethod,
-} from '../../../rest/v2/'
+} from '../../../oauth/v2'
 
 import type { Type } from '../item'
 import type { RelationshipFieldsToItem } from '../relationships'

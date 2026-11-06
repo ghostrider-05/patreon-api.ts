@@ -1,4 +1,4 @@
-import { QueryBuilder, type BasePatreonQuery } from '../../../schemas/v2/query'
+import { QueryBuilder, type BasePatreonQuery } from '../../schemas/v2/query'
 
 import { Routes } from './routes'
 

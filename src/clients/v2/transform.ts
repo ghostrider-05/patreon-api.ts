@@ -1,7 +1,7 @@
 import type {
     GetNormalizedResponsePayload,
     GetSimplifiedResponsePayload,
-} from '../../../payloads/v2/normalized/payload'
+} from '../../payloads/v2/normalized/payload'
 
 import {
     type BasePatreonQuery,
@@ -9,7 +9,7 @@ import {
     QueryBuilder,
     type QueryDefault,
     Type,
-} from '../../../schemas/v2'
+} from '../../schemas/v2'
 
 // TODO: replace with generics once https://github.com/Microsoft/TypeScript/issues/1213 is closed
 export interface ResponseTransformMap<Query extends BasePatreonQuery> {

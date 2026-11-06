@@ -6,18 +6,18 @@ import {
     type Webhook,
     type WriteResourcePayload,
     type WriteResourceResponse,
-} from '../../../schemas/v2'
+} from '../../schemas/v2'
 
 import {
     Routes,
     RequestMethod,
+    type PatreonOauthClient,
     type RestHeaders,
-} from '../oauth2/'
-import type { PatreonOauthClient } from '../oauth2/client'
-import { resolveHeaders } from '../oauth2/rest/headers'
+} from '../../oauth/v2/'
+import { resolveHeaders } from '../../oauth/v2/rest/headers'
 
-import { CrudResourcesSharedClient, type Oauth2RouteOptions,  } from '../clients/shared'
-import type { PatreonClientTransformOptions } from '../clients/transform'
+import { CrudResourcesSharedClient, type Oauth2RouteOptions,  } from '../../clients/v2/shared'
+import type { PatreonClientTransformOptions } from '../../clients/v2/transform'
 
 import { WebhookPayloadClient } from './payload'
 

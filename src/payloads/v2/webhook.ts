@@ -3,7 +3,7 @@ import {
     type PatreonWebhookMemberTrigger,
     type PatreonWebhookPledgeTrigger,
     type PatreonWebhookPostTrigger,
-} from '../../rest/v2/'
+} from '../../webhooks/v2/triggers'
 
 import {
     Type,

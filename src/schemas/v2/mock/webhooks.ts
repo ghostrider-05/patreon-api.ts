@@ -1,7 +1,7 @@
 import { createHmac } from 'node:crypto'
 
-import { PatreonWebhookTrigger, WebhookClient } from '../../../rest/v2/webhooks'
-import { createBackoff, type RestRetriesOptions } from '../../../rest/v2/oauth2/rest/retries'
+import { PatreonWebhookTrigger, WebhookClient } from '../../../webhooks/v2'
+import { createBackoff, type RestRetriesOptions } from '../../../oauth/v2/rest/retries'
 
 import type { WebhookPayload } from '../../../payloads/v2/'
 import type { Webhook } from '../resources/webhook'

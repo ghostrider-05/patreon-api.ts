@@ -1,5 +1,3 @@
-import { RouteBases } from '../../routes'
-
 import type { RestRequestCounterOptions } from './internal/counter'
 
 import type {
@@ -11,6 +9,8 @@ import {
     defaultRetries,
     type RestRetries,
 } from './retries'
+
+import { RouteBases } from './routes'
 
 export enum RequestMethod {
     Delete = 'DELETE',

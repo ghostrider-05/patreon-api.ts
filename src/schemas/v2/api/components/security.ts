@@ -1,6 +1,6 @@
 import type { OpenAPIV3_1 } from 'openapi-types'
 
-import { Oauth2Routes } from '../../../../rest/v2/oauth2/routes'
+import { Oauth2Routes } from '../../../../oauth/v2/routes'
 
 export default (scopes?: Record<string, string>) => ({
     Oauth2: {

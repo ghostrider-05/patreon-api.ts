@@ -1,6 +1,6 @@
-import { QueryBuilder } from '../../../schemas/v2'
+import { QueryBuilder } from '../../schemas/v2'
 
-import type { Oauth2StoredToken } from '../oauth2/'
+import type { Oauth2StoredToken } from '../../oauth/v2/'
 
 import { PatreonClient, type PatreonClientOptions } from './base'
 import { PatreonSharedClient } from './shared'

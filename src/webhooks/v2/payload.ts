@@ -1,10 +1,10 @@
-import { type WebhookPayload } from '../../../payloads/v2'
+import { type WebhookPayload } from '../../payloads/v2'
 import {
     type AttributeItem,
     type Campaign,
     Type,
     type User,
-} from '../../../schemas/v2'
+} from '../../schemas/v2'
 
 import {
     type PatreonWebhookMemberTrigger,

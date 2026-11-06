@@ -8,20 +8,16 @@ import {
     type WriteResourceType,
     type WriteResourcePayload,
     type WriteResourceResponse,
-} from '../../../schemas/v2'
+} from '../../schemas/v2'
 
 import {
     PatreonOauthClient,
-    type Oauth2CreatorToken,
-    type Oauth2StoredToken,
-} from '../oauth2/client'
-
-import {
+    Routes,
     RequestMethod,
     type RequestOptions,
-} from '../oauth2/rest'
-
-import { Routes } from '../oauth2/routes'
+    type Oauth2CreatorToken,
+    type Oauth2StoredToken,
+} from '../../oauth/v2/'
 
 import {
     type ResponseTransformMap,
