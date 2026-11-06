@@ -1,6 +1,7 @@
 import { assertType, describe, expectTypeOf, test } from 'vitest'
 
-import { Add, If, Length, Subtract, Tuple } from '../../utils/generics'
+import { If } from '../../utils/'
+import { Add, Length, Subtract, Tuple } from '../../utils/generics'
 
 describe('add type', () => {
     test('add zero', () => {

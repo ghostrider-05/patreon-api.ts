@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { PatreonError } from '../../../rest/v2/oauth2/rest/error'
+import { PatreonError } from '../../../oauth/v2/rest/error'
 
 describe('error class', () => {
     test('custom attributes', () => {

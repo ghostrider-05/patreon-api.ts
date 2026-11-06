@@ -4,7 +4,7 @@ import {
     createBackoff,
     getRetryAmount,
     defaultRetries,
-} from '../../../rest/v2/oauth2/rest/retries'
+} from '../../../oauth/v2/rest/retries'
 
 describe('backoff', () => {
     test('linear strategy', () => {

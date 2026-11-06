@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 import {
     resolveHeaders,
     makeUserAgentHeader,
-} from '../../../rest/v2/oauth2/rest/headers'
+} from '../../../oauth/v2/rest/headers'
 
 describe('rest headers', () => {
     test('user agent', () => {

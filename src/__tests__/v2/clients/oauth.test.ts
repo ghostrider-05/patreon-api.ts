@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 import { creatorClient, userClient } from '../../client'
 
 import { QueryBuilder, Type } from '../../../v2'
-import { PatreonOauthClient, type Oauth2CreatorToken, type Oauth2StoredToken } from "../../../rest/v2/oauth2/client"
+import { PatreonOauthClient, type Oauth2CreatorToken, type Oauth2StoredToken } from "../../../oauth/v2/client"
 
 describe('oauth methods', () => {
     test('pagination', async () => {
