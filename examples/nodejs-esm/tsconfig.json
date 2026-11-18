@@ -6,7 +6,9 @@
         "module": "NodeNext",
         "target": "ES2020",
         "moduleResolution": "NodeNext",
+        "types": ["node"]
     },
+    "exclude": ["../../dist/"],
     "include": [
         "./index.js"
     ]
