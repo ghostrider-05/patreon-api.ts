@@ -62,8 +62,8 @@ jobs:
       - name: Install dependencies
         run: npm run install-ci
 
-      - name: Run
-        run: npm start-ci
+      - name: Run package
+        run: npm run start-ci
         env:
           ACCESS_TOKEN: 'test-access-token'
           REFRESH_TOKEN: 'test-refresh-token'
