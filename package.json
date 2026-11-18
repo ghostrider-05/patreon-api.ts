@@ -2,15 +2,20 @@
   "name": "patreon-api.ts",
   "version": "0.21.0",
   "description": "Typescript library for the V2 Patreon API",
-  "types": "./dist/index.d.ts",
+  "license": "MIT",
+  "author": {
+    "name": "ghostrider-05",
+    "email": "info@ghostrider-05.com"
+  },
+  "types": "./dist/index.d.cts",
   "module": "./dist/index.mjs",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
-    }
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
     "install-ci": "npm ci --ignore-scripts",
@@ -22,9 +27,6 @@
     "lint": "npx eslint \"src/**/*.ts\" \"examples/**/*.ts\"",
     "lint:globals": "npx tsc && node ./tsc-generated/scripts/v2/globals.js",
     "lint:fix": "npx eslint --fix \"src/**/*.ts\" \"examples/**/*.ts\""
-  },
-  "engines": {
-    "node": ">=22"
   },
   "funding": "https://paypal.me/05ghostrider",
   "homepage": "https://github.com/ghostrider-05/patreon-api.ts#readme",
@@ -47,26 +49,45 @@
     "oauth",
     "webhook-server"
   ],
-  "author": {
-    "name": "ghostrider-05"
+  "engines": {
+    "node": ">=22",
+    "runtime": [
+      {
+        "name": "node",
+        "version": ">=22",
+        "onFail": "warn"
+      }
+    ]
+  },
+  "devEngines": {
+    "runtime": [{
+      "name": "node",
+      "onFail": "error",
+      "version": "24.x"
+    }]
   },
   "publishConfig": {
     "access": "public",
     "provenance": true
   },
-  "license": "MIT",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^24.13.3",
-    "@vitest/coverage-istanbul": "^5.0.4",
-    "eslint": "^10.14.0",
-    "eslint-plugin-jsdoc": "^65.4.2",
-    "msw": "^3.0.3",
+    "@vitest/coverage-istanbul": "^5.1.0",
+    "eslint": "^10.15.0",
+    "eslint-plugin-jsdoc": "^65.4.10",
+    "msw": "^3.0.6",
     "openapi-types": "^12.1.3",
     "ts-morph": "^28.0.0",
-    "tsdown": "^0.23.1",
+    "tsdown": "^0.23.7",
     "typescript": "6.0.3",
-    "typescript-eslint": "^8.72.1",
-    "vitest": "5.0.4"
+    "typescript-eslint": "^8.73.0",
+    "vitest": "5.1.0"
+  },
+  "peerDependencies": {
+    "undici-types": "^6.0.0 || ^7.0.0 || ^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "undici-types": { "optional": true }
   }
 }

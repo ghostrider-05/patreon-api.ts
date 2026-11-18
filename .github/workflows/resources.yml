@@ -6,8 +6,6 @@ on:
       - 'src/schemas/v2/relationships.ts'
 permissions:
   contents: write
-env:
-  NODE_VERSION: 24.x
 jobs:
   update:
     name: Update v2 schemas
@@ -16,10 +14,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Install node.js v${{ env.NODE_VERSION}}
+      - name: Install node.js
         uses: actions/setup-node@v7
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version-file: package.json
           cache: npm
 
       - name: Install dependencies
