@@ -35,9 +35,6 @@ jobs:
 
       - name: Run tests
         run: npm run test
-
-      - name: Run build
-        run: npm run build
   test_package:
     name: Test package
     runs-on: ubuntu-latest
@@ -47,9 +44,6 @@ jobs:
           - ./examples/nodejs-cjs/
           - ./examples/nodejs-esm/
     needs: test
-    defaults:
-      run:
-        working-directory: ${{ matrix.directory }}
     steps:
       - uses: actions/checkout@v7
 
@@ -62,8 +56,19 @@ jobs:
       - name: Install dependencies
         run: npm run install-ci
 
+      - name: Run tsc
+        run: npm run prestart
+
+      - name: Run build
+        run: npm run build
+
+      - name: Install dependencies
+        run: npm run install-ci
+        working-directory: ${{ matrix.directory }}
+
       - name: Run package
         run: npm run start-ci
+        working-directory: ${{ matrix.directory }}
         env:
           ACCESS_TOKEN: 'test-access-token'
           REFRESH_TOKEN: 'test-refresh-token'
