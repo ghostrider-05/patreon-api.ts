@@ -44,8 +44,8 @@ jobs:
     strategy:
       matrix:
         directory:
-          - /examples/nodejs-cjs/
-          - /examples/nodejs-esm/
+          - ./examples/nodejs-cjs/
+          - ./examples/nodejs-esm/
     needs: test
     defaults:
       run:

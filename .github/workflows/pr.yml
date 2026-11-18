@@ -81,12 +81,12 @@ jobs:
     strategy:
       matrix:
         directory:
-          - /apps/worker-docs/
-          - /docs/
-          - /examples/cloudflare-webhook/
-          - /examples/express-webhook/
-          - /examples/nodejs-cjs/
-          - /examples/nodejs-esm/
+          - ./apps/worker-docs/
+          - ./docs/
+          - ./examples/cloudflare-webhook/
+          - ./examples/express-webhook/
+          - ./examples/nodejs-cjs/
+          - ./examples/nodejs-esm/
     steps:
       - uses: actions/checkout@v7
         with:
