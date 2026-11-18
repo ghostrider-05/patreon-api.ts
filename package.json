@@ -60,11 +60,13 @@
     ]
   },
   "devEngines": {
-    "runtime": [{
-      "name": "node",
-      "onFail": "error",
-      "version": "24.x"
-    }]
+    "runtime": [
+      {
+        "name": "node",
+        "version": "24.x",
+        "onFail": "warn"
+      }
+    ]
   },
   "publishConfig": {
     "access": "public",
