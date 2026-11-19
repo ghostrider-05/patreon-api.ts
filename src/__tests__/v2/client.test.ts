@@ -25,7 +25,7 @@ function createTestClient <T extends ('creator' | 'user')>(
         oauth: {
             clientId: 'id',
             clientSecret: 'secret',
-            redirectUri: 'https://patreon.com/',
+            redirectUri: 'https://www.patreon.com/',
             token: {
                 access_token: 'access_token',
                 refresh_token: 'refresh_token',
@@ -134,7 +134,7 @@ describe('user client', () => {
 
     test('throws on creating instance', async () => {
         // Url is invalid because it does not have a code param
-        const invalidUrl = 'https://patreon.com/?state=2039fg30'
+        const invalidUrl = 'https://www.patreon.com/?state=2039fg30'
 
         expect(await (async function () {
             return await client.createInstance(invalidUrl)

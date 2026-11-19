@@ -82,9 +82,9 @@ export const defaultRandomDataGenerator: RandomDataGenerator = {
     state: () => '',
     username: () => 'john_doe',
     title: () => 'A mocked title',
-    uri: () => 'https://patreon.com/',
-    imageUri: () => 'https://patreon.com/',
-    videoUri: () => 'https://patreon.com/',
+    uri: () => 'https://www.patreon.com/',
+    imageUri: () => 'https://www.patreon.com/',
+    videoUri: () => 'https://www.patreon.com/',
     futureDate: () => new Date(Date.now() + _random_int(10_000, 100_000)).toISOString(),
     pastDate: () => new Date(Date.now() - _random_int(10_000, 100_000)).toISOString(),
 }

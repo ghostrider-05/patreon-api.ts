@@ -7,5 +7,5 @@
         "id": "user_id",
         "full_name": "John Doe"
     },
-    "link": "https://patreon.com/api/oauth/v2/campaigns/id"
+    "link": "https://www.patreon.com/api/oauth/v2/campaigns/id"
 }

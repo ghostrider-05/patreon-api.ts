@@ -9,7 +9,7 @@ export default {
         version: `${APIVersion}`,
         description: 'An unofficial OpenAPI schema for the V2 Patreon API. Made based on the official api with https://github.com/ghostrider-05/patreon-api.ts',
         // They mention in the FAQ on the dev portal that there will be an API TOS soon...
-        termsOfService: 'https://patreon.com/legal',
+        termsOfService: 'https://www.patreon.com/legal',
         // Put official contact or library info?
         contact: {
             name: 'Patreon',
@@ -23,7 +23,7 @@ export default {
     servers: [
         {
             description: 'API domain',
-            url: 'https://patreon.com',
+            url: 'https://www.patreon.com',
         }
     ] satisfies OpenAPIV3_1.ServerObject[],
     tags: [

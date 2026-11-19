@@ -482,7 +482,7 @@ export class PatreonMockData {
      * - post
      * - webhook
      * @param id The id of the resource
-     * @returns `https://patreon.com/api/oauth2/v2/${type}s/${id}`
+     * @returns `https://www.patreon.com/api/oauth2/v2/${type}s/${id}`
      * @see https://docs.patreon.com/#apiv2-resource-endpoints
      */
     public createAPIUrl (type: Type | ItemType, id: string): string {
@@ -533,11 +533,11 @@ export class PatreonMockData {
      * - post
      * - webhook
      * @param id The id of the resource
-     * @returns `https://patreon.com/api/oauth2/v2/${type}s/${id}`
+     * @returns `https://www.patreon.com/api/oauth2/v2/${type}s/${id}`
      * @see https://docs.patreon.com/#apiv2-resource-endpoints
      */
     public static createAPIUrl (type: Type | ItemType, id: string): string {
-        return `https://patreon.com/api/oauth2/v2/${type}s/${id}`
+        return `${RouteBases.oauth2}/${type}s/${id}`
     }
 
     /**

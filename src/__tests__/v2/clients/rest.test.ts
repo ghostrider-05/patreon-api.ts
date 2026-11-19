@@ -92,7 +92,7 @@ describe('requests', () => {
         })
 
         const [url, init] = getLastFetchMockCall()
-        expect(url).toEqual('https://patreon.com/api')
+        expect(url).toEqual('https://www.patreon.com/api')
         // @ts-expect-error ??????????
         expect(init?.headers['Authorization']).toEqual('Bearer token')
         expect(response).toEqual({ data: [] })

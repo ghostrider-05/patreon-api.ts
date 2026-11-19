@@ -90,13 +90,13 @@ interface OauthClientOptions {
 
     /**
      * Overwrite the access token Oauth route
-     * @default 'https://patreon.com/api/oauth2/token'
+     * @default 'https://www.patreon.com/api/oauth2/token'
      */
     accessTokenUri?: string
 
     /**
      * Overwrite the authorization Oauth route
-     * @default 'https://patreon.com/oauth2/authorize'
+     * @default 'https://www.patreon.com/oauth2/authorize'
      */
     authorizationUri?: string
 }

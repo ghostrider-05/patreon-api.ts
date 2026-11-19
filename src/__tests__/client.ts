@@ -58,7 +58,7 @@ export const getLastFetchMockCall = () => {
 }
 
 const restClientOptions: Partial<RestClientOptions> = {
-    api: 'https://patreon.com',
+    api: 'https://www.patreon.com',
     fetch: mockFetch,
     globalRequestsLimit: 600,
     invalidRequestsLimit: {

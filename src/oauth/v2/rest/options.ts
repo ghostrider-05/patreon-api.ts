@@ -59,7 +59,7 @@ export interface RestEventMap {
 export interface RestClientOptions<IncludeAllQuery extends boolean = boolean> {
     /**
      * The base url of the Patreon API
-     * @default 'https://patreon.com/api/oauth2/v2'
+     * @default 'https://www.patreon.com/api/oauth2/v2'
      */
     api: string
 
@@ -180,7 +180,7 @@ export const DefaultRestOptions: RestClientOptions = {
 export interface RequestOptions {
     /**
      * The base url of the Patreon API
-     * @default 'https://patreon.com/api/oauth2/v2'
+     * @default 'https://www.patreon.com/api/oauth2/v2'
      */
     api?: string
 

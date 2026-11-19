@@ -15,7 +15,7 @@ describe('Mock client', () => {
         const { getIdentity } = handlers
 
         expect(getIdentity.method).toEqual('get')
-        expect(getIdentity.url).toEqual('https://patreon.com/api/oauth2/v2/identity')
+        expect(getIdentity.url).toEqual('https://www.patreon.com/api/oauth2/v2/identity')
     })
 
     test('returns mock handlers without origin', () => {
