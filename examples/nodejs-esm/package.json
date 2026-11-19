@@ -7,13 +7,13 @@
   "type": "module",
   "scripts": {
     "install-ci": "npm ci --ignore-scripts",
-    "start": "node -r dotenv/config . dotenv_config_path=../.env"
+    "start-ci": "node .",
+    "start": "node --env-file=../.env ."
   },
   "keywords": [],
   "author": "ghostrider-05",
   "license": "MIT",
   "devDependencies": {
-    "dotenv": "^18.0.4",
-    "patreon-api.ts": "../../"
+    "patreon-api.ts": "file:../.."
   }
 }

@@ -1,3 +1,5 @@
+/* eslint-disable jsdoc/no-types */
+/* eslint-disable jsdoc/require-param-description */
 /* eslint-disable no-undef */
 
 import {
@@ -8,6 +10,10 @@ import {
     QueryBuilder,
     Routes,
 } from 'patreon-api.ts'
+
+if (!process.env.ACCESS_TOKEN || !process.env.REFRESH_TOKEN) {
+    throw new Error('No token provided')
+}
 
 const client = new PatreonCreatorClient({
     oauth: {
@@ -28,22 +34,14 @@ const client = new PatreonCreatorClient({
     }
 })
 
-const query = QueryBuilder.campaigns
-    .addRelationshipAttributes('creator', ['social_connections'])
-
-const payload = await client.fetchCampaigns(query)
-console.log(
-    JSON.stringify(payload, null, 4),
-    JSON.stringify(normalize(payload), null, 4),
-    JSON.stringify(simplify(payload), null, 4),
-)
+if (!process.env.CI) await logCampaign(client)
 
 // Some actions you can take as example
 const createWebhook = false
 const unpauseAllWebhooks = false
 const listWebhooks = true
 
-if (createWebhook) {
+if (!process.env.CI && createWebhook && process.env.CAMPAIGN_ID && process.env.WEBHOOK_URI) {
     const test = await client.webhooks.createWebhook({
         campaignId: process.env.CAMPAIGN_ID,
         triggers: [
@@ -52,10 +50,10 @@ if (createWebhook) {
         uri: process.env.WEBHOOK_URI,
     })
 
-    console.log(JSON.stringify(test, null, 4))
+    log(test)
 }
 
-if (unpauseAllWebhooks) {
+if (!process.env.CI && unpauseAllWebhooks) {
     const webhookQuery = QueryBuilder.webhooks
         .addRelationships(['campaign'])
         .setAttributes({ webhook: ['paused'] })
@@ -68,15 +66,33 @@ if (unpauseAllWebhooks) {
         }
     }
 
-    console.log(JSON.stringify(webhooks, null, 4))
+    log(webhooks)
 }
 
-if (listWebhooks) {
+if (!process.env.CI && listWebhooks) {
     const webhookQuery = QueryBuilder.webhooks
         .setAttributes({ webhook: ['uri', 'triggers'] })
         .setRequestOptions({ count: 1 })
 
     for await (const page of client.paginateOauth2(Routes.webhooks(), webhookQuery)) {
-        console.log(JSON.stringify(page, null, 4))
+        log(page)
     }
+}
+
+/** @param {PatreonCreatorClient} client  */
+async function logCampaign (client) {
+    const query = QueryBuilder.campaigns
+        .addRelationshipAttributes('creator', ['social_connections'])
+
+    const payload = await client.fetchCampaigns(query)
+    console.log(
+        JSON.stringify(payload, null, 4),
+        JSON.stringify(normalize(payload), null, 4),
+        JSON.stringify(simplify(payload), null, 4),
+    )
+}
+
+/** @param {unknown} response */
+function log (response) {
+    console.log(JSON.stringify(response, null, 4))
 }

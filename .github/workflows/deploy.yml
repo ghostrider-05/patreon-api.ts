@@ -3,14 +3,18 @@ on:
   push:
     paths: 
       # Examples
+      - 'examples/cloudflare-webhook/*'
       - 'examples/cloudflare-webhook/**'
       # Documentation
-      - 'docs/**' 
+      - 'docs/*'
+      - 'docs/**'
+      - 'apps/worker-docs/*'
       - 'apps/worker-docs/**'
       # Trigger when this file is updated
       - '.github/workflows/deploy.yml'
       # Trigger a new deploy when a release is made
       - '.release-please-manifest.json'
+  workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -28,7 +32,7 @@ jobs:
       - name: Install node.js v${{ env.NODE_VERSION }}
         uses: actions/setup-node@v7
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version-file: package.json
           cache: npm
 
       - name: Install dependencies
@@ -68,10 +72,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Install node.js v${{ env.NODE_VERSION }}
+      - name: Install node.js
         uses: actions/setup-node@v7
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version-file: package.json
           cache: npm
 
       - name: Install dependencies

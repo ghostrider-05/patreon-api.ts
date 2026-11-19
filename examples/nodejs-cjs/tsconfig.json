@@ -11,7 +11,9 @@
             "./index.d.ts"
         ]
     },
+    "exclude": ["dist/*"],
     "include": [
-        "./"
+        "./index.d.ts",
+        "./index.js"
     ]
 }
