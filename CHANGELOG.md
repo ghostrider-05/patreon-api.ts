@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.21.1](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.21.0...patreon-api.ts-v0.21.1) (2026-11-19)
+
+
+### Bug Fixes
+
+* **build:** update package config (cjs) ([#327](https://github.com/ghostrider-05/patreon-api.ts/issues/327)) ([8c25abd](https://github.com/ghostrider-05/patreon-api.ts/commit/8c25abd56a471de5d1526abc8d51f7e4f0bcafb6))
+* use `https://www.patreon.com` instead of `https://patreon.com` ([ea8168c](https://github.com/ghostrider-05/patreon-api.ts/commit/ea8168c8e29f390be2180bc9ea673e997541e426))
+
 ## [0.21.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.20.0...patreon-api.ts-v0.21.0) (2026-11-06)
 
 
