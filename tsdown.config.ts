@@ -3,7 +3,6 @@ import { defineConfig } from 'tsdown'
 export default defineConfig([
     {
         name: 'patreon-api.ts',
-        exports: true,
         report: true,
         clean: true,
         sourcemap: false,
@@ -15,6 +14,8 @@ export default defineConfig([
         outDir: 'dist',
         nodeProtocol: true,
         platform: 'node',
+        publint: true,
+        attw: true,
         checks: {
             bundlerTimings: false,
         },
