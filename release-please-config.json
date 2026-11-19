@@ -3,6 +3,7 @@
     "packages": {
         ".": {
             "bump-minor-pre-major": true,
+            "include-commit-authors": true,
             "extra-files": [
                 "src/utils/version.ts"
             ]
