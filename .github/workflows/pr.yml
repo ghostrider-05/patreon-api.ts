@@ -1,8 +1,9 @@
 name: Pull Request
 on:
   - pull_request
-env:
-  NODE_VERSION: 24.x
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   test_coverage:
     name: Test coverage
@@ -23,10 +24,10 @@ jobs:
         with:
           ref: ${{ matrix.branch }}
 
-      - name: Install node.js v${{ env.NODE_VERSION }}
+      - name: Install node.js
         uses: actions/setup-node@v7
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version-file: package.json
           cache: npm
 
       - name: Install dependencies
@@ -72,3 +73,37 @@ jobs:
           json-final-path: src/coverage/coverage-final.json
           json-summary-path: src/coverage/coverage-summary.json
           json-summary-compare-path: src/coverage-main/coverage-summary.json
+  update-packages:
+    name: Update package
+    runs-on: ubuntu-latest
+    # Only on release PRs
+    if: ${{ github.event.pull_request.labels.name == 'autorelease:pending' }}
+    strategy:
+      matrix:
+        directory:
+          - ./apps/worker-docs/
+          - ./docs/
+          - ./examples/cloudflare-webhook/
+          - ./examples/express-webhook/
+          - ./examples/nodejs-cjs/
+          - ./examples/nodejs-esm/
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: Install dependencies
+        run: npm run install-ci
+
+      - name: Update package
+        run: npm install patreon-api.ts
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          branch: ${{ github.ref_name }}
+          commit_message: Update patreon-api.ts in ${{ matrix.directory }}

@@ -42,6 +42,7 @@
   },
   "exclude": [
     "coverage",
+    "dist",
     "src/__tests__/**/*.test.ts"
   ],
   "include": [

@@ -1,6 +1,9 @@
 name: Test
 on: 
   - push
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   test:
     name: Test
@@ -32,3 +35,40 @@ jobs:
 
       - name: Run tests
         run: npm run test
+  test_package:
+    name: Test package
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory:
+          - ./examples/nodejs-cjs/
+          - ./examples/nodejs-esm/
+    needs: test
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: Install dependencies
+        run: npm run install-ci
+
+      - name: Run tsc
+        run: npm run prestart
+
+      - name: Run build
+        run: npm run build
+
+      - name: Install dependencies
+        run: npm run install-ci
+        working-directory: ${{ matrix.directory }}
+
+      - name: Run package
+        run: npm run start-ci
+        working-directory: ${{ matrix.directory }}
+        env:
+          ACCESS_TOKEN: 'test-access-token'
+          REFRESH_TOKEN: 'test-refresh-token'

@@ -45,7 +45,7 @@ If you have a question or want to chat, open [a new discussion](https://github.c
 The following steps are recommended for creating a new pull request:
 
 1. Create [a bug report](#how-to-report-a-bug) or [feature request](#how-to-suggest-a-feature-or-enhancement).
-2. Install Git and Node.js v22+.
+2. Install Git and Node.js v24+.
 3. Fork the repository, clone locally and create a new branch on your fork.
 4. Run `npm run install-ci` to install dependencies.
 5. Implement the feature or bug fix on your branch.
