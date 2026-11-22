@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.21.1](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.21.0...patreon-api.ts-v0.21.1) (2026-11-22)
+
+
+### Bug Fixes
+
+* **build:** update package config (cjs) ([#327](https://github.com/ghostrider-05/patreon-api.ts/issues/327)) ([8c25abd](https://github.com/ghostrider-05/patreon-api.ts/commit/8c25abd56a471de5d1526abc8d51f7e4f0bcafb6))
+* **PatreonError:** include detail in error message ([58d9bdb](https://github.com/ghostrider-05/patreon-api.ts/commit/58d9bdbbaec11bf171f8533d4f25b39285836cf2))
+* **PatreonOauthClient:** do not validate tokens on non-auth requests ([dd0e22d](https://github.com/ghostrider-05/patreon-api.ts/commit/dd0e22d22449fc03add89cb254a6d4b9b485557e))
+* use `https://www.patreon.com` instead of `https://patreon.com` ([ea8168c](https://github.com/ghostrider-05/patreon-api.ts/commit/ea8168c8e29f390be2180bc9ea673e997541e426))
+
 ## [0.21.0](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.20.0...patreon-api.ts-v0.21.0) (2026-11-06)
 
 
