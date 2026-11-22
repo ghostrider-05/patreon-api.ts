@@ -165,63 +165,79 @@ export class RestClient {
         method: RequestMethod | `${RequestMethod}`,
         options: RequestOptions = {}
     ): Promise<TypedResponse> {
-        const tryRequest = async (retries = 0): Promise<RestResponse> => {
-            const url = this.buildUrl(path, options)
-            const response = await this.makeRequest({
-                ...options,
-                method,
-                url,
-                currentRetries: retries,
-            })
-
-            if (response instanceof Error) {
-                throw response
-            } else if (response == null) {
-                return await tryRequest(retries + 1)
-            } else {
-                const counterOptions = { method, status: response.status }
-                if (this.counter.filter(url, counterOptions)) {
-                    this.counter.add()
-                }
-
-                if (this.invalidCounter.filter(url, counterOptions)) {
-                    this.invalidCounter.add()
-                }
-
-                this.options.emitter?.emit('response', {
-                    data: getResponseHeaders(response.headers),
-                    bodyUsed: response.bodyUsed,
-                    response,
-                    raw: response,
-                    headers: response.headers,
-                    ok: response.ok,
-                    status: response.status,
-                })
-
-                if (response.ok) {
-                    return response
-                }
-
-                const retryInvalidRequestResult = await this.handleInvalidRequest(
-                    response,
-                    retries,
-                    path,
-                    options
-                )
-
-                // Check for true value specifically
-                if (retryInvalidRequestResult === true) {
-                    return await tryRequest(retries + 1)
-                } else {
-                    throw retryInvalidRequestResult
-                }
-            }
+        const requestOptions: Omit<SharedRequestOptions, 'currentRetries'> & { path: string } = {
+            ...options,
+            method,
+            path,
+            url: this.buildUrl(path, options),
         }
 
-        const response = await tryRequest()
+        const response = await this.requestWithRetries(
+            (retries) => this.makeRequest({
+                ...requestOptions,
+                currentRetries: retries,
+            }),
+            requestOptions,
+        )
         const parsed = parseResponse<TypedResponse>(response)
 
         return parsed
+    }
+
+    private async requestWithRetries (
+        request: (retries: number) => Promise<RestResponse | Error | null>,
+        requestOptions: Omit<SharedRequestOptions, 'currentRetries'> & { path: string },
+        retries = 0,
+    ): Promise<RestResponse> {
+        const { method, path, url, ...options } = requestOptions
+        const response = await request(retries)
+
+        if (response instanceof Error) {
+            throw response
+        } else if (response == null) {
+            return await this.requestWithRetries(request, requestOptions, retries + 1)
+        } else {
+            this.countRequest(url, { method, status: response.status })
+
+            // TODO: add current retry count
+            this.options.emitter?.emit('response', {
+                data: getResponseHeaders(response.headers),
+                bodyUsed: response.bodyUsed,
+                response,
+                raw: response,
+                headers: response.headers,
+                ok: response.ok,
+                status: response.status,
+            })
+
+            if (response.ok) {
+                return response
+            }
+
+            const retryInvalidRequestResult = await this.handleInvalidRequest(
+                response,
+                retries,
+                path,
+                options
+            )
+
+            // Check for true value specifically
+            if (retryInvalidRequestResult === true) {
+                return await this.requestWithRetries(request, requestOptions, retries + 1)
+            } else {
+                throw retryInvalidRequestResult
+            }
+        }
+    }
+
+    private countRequest (...[url, counterOptions]: Parameters<RestRequestCounter['filter']>): void {
+        if (this.counter.filter(url, counterOptions)) {
+            this.counter.add()
+        }
+
+        if (this.invalidCounter.filter(url, counterOptions)) {
+            this.invalidCounter.add()
+        }
     }
 
     private async makeRequest (options: SharedRequestOptions) {
@@ -325,8 +341,9 @@ export class RestClient {
                 }
             }
 
+            const headersData = getResponseHeaders(response.headers)
             return errors.map(error => {
-                return new PatreonError(error, getResponseHeaders(response.headers))
+                return new PatreonError(error, headersData)
             })
         }
     }

@@ -85,15 +85,6 @@ export interface PatreonMockDataQuery<
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-function getRelationships<
-    T extends Type | ItemType,
-    I extends RelationshipFields<T>,
-    A extends RelationshipMap<T, I>,
->(query: PatreonMockDataQuery<T, I, A>): I[] {
-    return query.relationships ?? []
-}
-
-// eslint-disable-next-line jsdoc/require-jsdoc
 function applySorting<I extends { attributes: object }> (
     items: I[],
     sortOptions: NonNullable<QueryRequestOptions['sort']>
@@ -204,7 +195,7 @@ export class PatreonMockData {
     ): GetRequestPayload<T, I, A> {
         const url = this.createAPIUrl(type, data.id)
         const attributeItem = this.getAttributeItem(type, data.id, data.item, query.attributes[type] as (keyof ItemMap[T])[] ?? [])
-        const includes = getRelationships(query)
+        const includes = query.relationships ?? []
 
         if (includes.length === 0) {
             return {
@@ -259,7 +250,7 @@ export class PatreonMockData {
             )
         }), query.requestOptions)
 
-        const includes = getRelationships(query)
+        const includes = query.relationships ?? []
 
         if (includes.length === 0) {
             return {
@@ -419,7 +410,7 @@ export class PatreonMockData {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const getRelation = <F extends RelationshipFields<T>>(name: F) => resource.find(r => r.name === name)!
 
-        const relationships = getRelationships(query).reduce<Relationship<T, I>['relationships']>((obj, relation) => {
+        const relationships = (query.relationships ?? []).reduce<Relationship<T, I>['relationships']>((obj, relation) => {
             const rel = getRelation(relation)
             const items = relatedItems.filter(i => i.type === rel.resource)
 

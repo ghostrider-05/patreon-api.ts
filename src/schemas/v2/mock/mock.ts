@@ -33,7 +33,12 @@ import {
     type PatreonMockDataQuery,
 } from './data'
 
-import { findAPIPath, type PatreonMockRouteId } from './paths'
+import {
+    findAPIPath,
+    getDefaultResponseStatus,
+    parseAPIPath,
+    type PatreonMockRouteId,
+} from './paths'
 
 import {
     PatreonMockWebhooks,
@@ -43,7 +48,9 @@ import {
 import type { If } from '../../../utils/'
 
 export interface PatreonMockHandlerOptions {
+    /** @default true */
     cache?: boolean | undefined
+    /** @default true */
     random?: boolean | undefined
     statusCode?: number
 
@@ -202,6 +209,7 @@ export class PatreonMock {
         }) != undefined
     }
 
+    // TODO: allow custom origin and apiPath
     /**
      * Create a mocked route
      * @param path The request path to use: /api/oauth2/v2{path}
@@ -298,31 +306,6 @@ export class PatreonMock {
                 ...(sort ? { sort } : {}),
             }
         }
-    }
-
-    private getDefaultResponseStatus (route: Route, method?: string) {
-        const options = route.methods.find(m => {
-            return m.method.toLowerCase() === (method ?? RequestMethod.Get).toLowerCase()
-        })
-
-        return options && 'responseStatus' in options ? options.responseStatus
-            : ('response' in route && 'status' in route.response && typeof route.response.status === 'number'
-                ? route.response.status
-                : 200)
-    }
-
-    private parseAPIPath (url: string): ParsedRoute {
-        const { pathname, searchParams } = new URL(url)
-
-        const apiPath = findAPIPath(pathname, {
-            apiPath: PatreonMock.path,
-        })
-        if (apiPath == undefined) throw new Error('No API route found to mock for: ' + url)
-
-        return {
-            ...apiPath,
-            searchParams,
-        } as ParsedRoute
     }
 
     private buildResponseFromUrl (route: ParsedRoute, options?: PatreonMockHandlerOptions & {
@@ -425,9 +408,9 @@ export class PatreonMock {
         transform: (response: PatreonMockHandlerDefaultResponse) => T,
     ): T {
         this.validateHeaders(request.headers)
-        const route = this.parseAPIPath(request.url)
+        const route = parseAPIPath(request.url, { apiPath: PatreonMock.path })
         const headers = this.getResponseHeaders(options.headers)
-        const status = options.statusCode ?? this.getDefaultResponseStatus(route.path, request.method)
+        const status = options.statusCode ?? getDefaultResponseStatus(route.path, request.method)
 
         const resourceType = route.path.resource
         // If no id is found in the route:

@@ -27,6 +27,21 @@ describe('oauth methods', () => {
             // TODO: test if data is unique
         }
     })
+
+    test('paginate on resource endpoint', async () => {
+        const query = new QueryBuilder(Type.Webhook, false)
+        const paginator = creatorClient.paginateOauth2('/campaigns/18272729', query)
+        const page = await paginator.next()
+        console.log(page)
+
+        expect(page.done).toBeFalsy()
+
+        const nextPage = await paginator.next()
+        console.log(nextPage)
+
+        expect(nextPage.done).toBeTruthy()
+        expect(nextPage.value).toEqual(1)
+    })
 })
 
 describe('oauth client', () => {

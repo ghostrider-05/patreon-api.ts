@@ -241,7 +241,7 @@ export class PatreonOauthClient {
         query: Query,
         options?: Oauth2FetchOptions,
     ): AsyncGenerator<GetResponsePayload<Query>, number, unknown> {
-        let total: number | null = null, page = 1, count = 0
+        let total: number | null = null, page = 0, count = 0
         // Must be a variable as calling a method on the parameter does not update the params.
         const params = query.params
         let lastResourceId: string | undefined = undefined
@@ -254,6 +254,7 @@ export class PatreonOauthClient {
             )
             if (response == undefined) break
             yield response
+            page += 1
 
             // TODO: add test for this case
             // Abort if the response is not paginated
@@ -277,13 +278,12 @@ export class PatreonOauthClient {
             if (lastResourceId === lastDataId || !nextCursor) {
                 break
             } else {
-                page += 1
                 params.set('page[cursor]', nextCursor)
                 lastResourceId = lastDataId
             }
         }
 
-        return page - 1
+        return page
     }
 
     /**
