@@ -207,8 +207,7 @@ export class PatreonOauthClient {
         query: Query,
         options?: Oauth2FetchOptions,
     ): Promise<GetResponsePayload<Query>> {
-        // TODO: do not validate when `auth` option is disabled
-        const token = this.options.validateToken
+        const token = this.options.validateToken && !(options?.auth ?? true)
             ? await this.validateToken(options?.token)
             : (options?.token ?? this.cachedToken)
 
