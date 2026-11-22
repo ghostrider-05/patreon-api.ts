@@ -1,4 +1,4 @@
-import type { PatreonHeadersData } from './headers'
+import { type PatreonHeadersData } from './headers'
 
 export interface PatreonErrorData {
     id: string
@@ -19,7 +19,7 @@ export class PatreonError extends Error {
         public error: PatreonErrorData,
         public data: PatreonHeadersData,
     ) {
-        super(error.title)
+        super(error.title + (error.detail ? ': ' + error.detail : ''))
     }
 
     public get retry_after_seconds () {
@@ -27,7 +27,9 @@ export class PatreonError extends Error {
     }
 
     public override get name () {
-        return `${this.error.code_name}[${this.error.code ?? 'unknown code'}]`
+        if (this.error.code && this.error.code_name) {
+            return `PatreonError[${this.error.code_name}(${this.error.code})]`
+        } else return 'PatreonError'
     }
 }
 
