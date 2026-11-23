@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.21.2](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.21.1...patreon-api.ts-v0.21.2) (2026-11-23)
+
+
+### Bug Fixes
+
+* **QueryBuilder:** allow readonly arrays in builder methods ([888cbc3](https://github.com/ghostrider-05/patreon-api.ts/commit/888cbc3f8a10dda1ec336ac868655471b75252e8))
+* **QueryBuilder:** clarify setting undefined removes attributes ([21611b3](https://github.com/ghostrider-05/patreon-api.ts/commit/21611b326191560624f28647b70570aaa8eaf8f1))
+* **QueryBuilder:** do not include empty attributes in query ([9409079](https://github.com/ghostrider-05/patreon-api.ts/commit/9409079e0cf38b645ccbe2c8f91817a150d96133))
+
 ## [0.21.1](https://github.com/ghostrider-05/patreon-api.ts/compare/patreon-api.ts-v0.21.0...patreon-api.ts-v0.21.1) (2026-11-22)
 
 
