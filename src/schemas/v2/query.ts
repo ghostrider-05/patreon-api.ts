@@ -265,9 +265,7 @@ export class QueryBuilder<
      * Use {@link includeAll} to also include the attributes (for all relationships)
      */
     public includeAllRelationships () {
-        const { include } = QueryBuilder.createCompleteOptions(this.resource)
-
-        this._relationships = include
+        this._relationships = this.schemaRelationships.slice()
 
         return this as QueryBuilder<T, Listing, RelationshipFields<T>, Attributes>
     }
