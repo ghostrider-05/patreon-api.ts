@@ -108,6 +108,18 @@ export type QueryDefault<IncludeAll extends boolean, T extends Type, L extends b
     PatreonQuery<T, never, never, L>
 >
 
+type QueryBuilderReadonlyInput<T> = T | (T extends unknown[]
+    ? ReadonlyArray<T[number]>
+    : (T extends object ? ({ [K in keyof T]: QueryBuilderReadonlyInput<T[K]> }) : T))
+
+// eslint-disable-next-line jsdoc/require-jsdoc
+function getInput <T>(input: QueryBuilderReadonlyInput<T>): T {
+    if (Array.isArray(input)) return input.slice() as T
+    else if (typeof input === 'object' && input) {
+        return Object.fromEntries(Object.entries(input).map(([key, value]) => [key, getInput(value)])) as T
+    } else return input as T
+}
+
 export class QueryBuilder<
     T extends Type,
     Listing extends boolean,
@@ -278,10 +290,10 @@ export class QueryBuilder<
      * Use {@link setResourceAttributes} to only set the attributes of the query resource.
      * @param attributes The attributes mapped to the resource (of the relationship)
      */
-    public setAttributes <A extends RelationshipMap<T, Relationships>>(attributes: A) {
+    public setAttributes <A extends RelationshipMap<T, Relationships>>(attributes: QueryBuilderReadonlyInput<A>) {
         this._attributes = {
             ...this._attributes,
-            ...attributes,
+            ...getInput(attributes),
         }
 
         return this as unknown as QueryBuilder<T, Listing, Relationships, Omit<Attributes, keyof A> & A>
@@ -292,23 +304,23 @@ export class QueryBuilder<
      * Use {@link setAttributes} to also set the attributes of the relationships (and query resource).
      * @param attributes The attributes of the resource
      */
-    public setResourceAttributes <A extends RelationshipMap<T, Relationships>[T]>(attributes: A) {
+    public setResourceAttributes <A extends RelationshipMap<T, Relationships>[T]>(attributes: QueryBuilderReadonlyInput<A>) {
         this._attributes = {
             ...this._attributes,
-            [this.resource]: attributes,
+            [this.resource]: getInput(attributes),
         }
 
         return this as unknown as QueryBuilder<T, Listing, Relationships, Omit<Attributes, `${T}`> & { [t in T]: A }>
     }
 
-    public addRelationships<R extends RelationshipFields<T>>(relationships: R[]) {
-        this._relationships.push(...relationships)
+    public addRelationships<R extends RelationshipFields<T>>(relationships: Array<R> | ReadonlyArray<R>) {
+        this._relationships.push(...relationships.slice())
 
         return this as unknown as QueryBuilder<T, Listing, R | Relationships, Attributes>
     }
 
-    public setRelationships<R extends RelationshipFields<T>>(relationships: R[]) {
-        this._relationships = relationships
+    public setRelationships<R extends RelationshipFields<T>>(relationships: Array<R> | ReadonlyArray<R>) {
+        this._relationships = relationships.slice()
 
         return this as unknown as QueryBuilder<T, Listing, R, Attributes>
     }
@@ -316,7 +328,7 @@ export class QueryBuilder<
     public addRelationshipAttributes <
         R extends RelationshipFields<T>,
         A extends NonNullable<Pick<RelationshipMap<T, R>, RelationshipFieldToFieldType<T, R>>[RelationshipFieldToFieldType<T, R>]>
-    >(relationship: R, attributes: A) {
+    >(relationship: R, attributes: A | ReadonlyArray<A[number]>) {
         if (!this._relationships.includes(relationship)) {
             this._relationships.push(relationship)
         }
@@ -326,7 +338,7 @@ export class QueryBuilder<
         // @ts-expect-error Weird TS typing stuff
         this._attributes[relationResource] ??= [] as A
         // @ts-expect-error Weird TS typing stuff
-        this._attributes[relationResource]?.push(...attributes)
+        this._attributes[relationResource]?.push(...attributes.slice())
 
         return this as unknown as QueryBuilder<T, Listing, Relationships | R,
             Attributes & {
@@ -342,13 +354,13 @@ export class QueryBuilder<
     public setRelationshipAttributes <
         R extends RelationshipFields<T>,
         A extends NonNullable<Pick<RelationshipMap<T, R>, RelationshipFieldToFieldType<T, R>>[RelationshipFieldToFieldType<T, R>]>
-    >(relationship: R, attributes: A) {
+    >(relationship: R, attributes: A | ReadonlyArray<A[number]>) {
         if (!this._relationships.includes(relationship)) {
             this._relationships.push(relationship)
         }
 
         // @ts-expect-error Weird TS typing stuff
-        this._attributes[this.getRelationshipResourceName(relationship)] = attributes
+        this._attributes[this.getRelationshipResourceName(relationship)] = attributes.slice()
 
         return this as unknown as QueryBuilder<T, Listing, Relationships | R,
             (Attributes extends { [K in RelationshipFieldToFieldType<T, R>]: unknown }
@@ -356,6 +368,17 @@ export class QueryBuilder<
                 : Attributes
             ) & { [K in `${RelationshipFieldToFieldType<T, R>}`]: A }
         >
+    }
+
+    /**
+     * Dynamically build a query using callbacks.
+     */
+    public get build () {
+        return QueryBuilder.createFunctionBuilder(this)
+    }
+
+    public toString (): string {
+        return this.query
     }
 
     public static get campaign () {
@@ -401,17 +424,6 @@ export class QueryBuilder<
      */
     public static createCompleteOptions <T extends Type>(resource: T) {
         return createCompleteQueryOptions<T>(resource)
-    }
-
-    /**
-     * Dynamically build a query using callbacks.
-     */
-    public get build () {
-        return QueryBuilder.createFunctionBuilder(this)
-    }
-
-    public toString (): string {
-        return this.query
     }
 
     /**

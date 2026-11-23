@@ -89,6 +89,7 @@
     "intentionallyNotDocumented": [],
     "intentionallyNotExported": [
         "CacheStoreItemInput",
+        "QueryBuilderReadonlyInput",
         // utility types
         "IfAsync",
         "Additional",
