@@ -181,7 +181,7 @@ export class QueryBuilder<
                 .keys(this._attributes)
                 .reduce((params, key) => {
                     const keys = <string[] | undefined>this._attributes[<keyof Attributes>key]
-                    if (keys == undefined) return params
+                    if (keys == undefined || keys.length === 0) return params
 
                     return {
                         ...params,
