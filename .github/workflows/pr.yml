@@ -77,7 +77,7 @@ jobs:
     name: Update package
     runs-on: ubuntu-latest
     # Only on release PRs
-    if: ${{ github.event.pull_request.labels.name == 'autorelease:pending' }}
+    if: ${{ github.event.pull_request.labels.id == 6810208387 }}
     strategy:
       matrix:
         directory:

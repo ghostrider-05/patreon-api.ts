@@ -261,7 +261,7 @@ export class QueryBuilder<
     }
 
     /**
-     * Include all relationships for the main resource.
+     * Include all relationships for the main resource.\
      * Use {@link includeAll} to also include the attributes (for all relationships)
      */
     public includeAllRelationships () {
@@ -273,7 +273,7 @@ export class QueryBuilder<
     }
 
     /**
-     * Include all relationships and attributes for the main resource.
+     * Include all relationships and attributes for the main resource.\
      * Use {@link includeAllRelationships} to only include the relationships (without the relationship attributes)
      */
     public includeAll () {
@@ -287,6 +287,7 @@ export class QueryBuilder<
 
     /**
      * Sets attributes for the resource and relationships.
+     * If a resources is undefined, removes all attributes for that resource.\
      * Use {@link setResourceAttributes} to only set the attributes of the query resource.
      * @param attributes The attributes mapped to the resource (of the relationship)
      */
@@ -300,7 +301,8 @@ export class QueryBuilder<
     }
 
     /**
-     * Sets attributes for the query resource.
+     * Sets attributes for the query resource.\
+     * If undefined, removes all attributes for this resource.\
      * Use {@link setAttributes} to also set the attributes of the relationships (and query resource).
      * @param attributes The attributes of the resource
      */

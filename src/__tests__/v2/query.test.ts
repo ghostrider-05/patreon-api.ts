@@ -216,9 +216,39 @@ describe('query builder', () => {
     })
 
     test('query schema', () => {
-        expect(QueryBuilder.campaign.schemaRelationships).toEqual(documentedCampaignRelationships)
+        const builder = QueryBuilder.campaign
+        expect(builder.schemaRelationships).toEqual(documentedCampaignRelationships)
+        expect(builder.setResourceAttributes(builder.schemaResourceAttributes)).toBeDefined()
 
-        expect(QueryBuilder.campaign.schemaResourceAttributes).toHaveLength(30)
+        expect(builder.schemaResourceAttributes).toHaveLength(30)
+    })
+
+    test('reset attributes', () => {
+        const builder = QueryBuilder.campaign
+
+        expect(builder
+            .setAttributes({ campaign: ['discord_server_id'] })
+            .setResourceAttributes(undefined)
+            .resourceAttributes
+        ).toEqual(undefined)
+
+        expect(builder
+            .setAttributes({ campaign: ['discord_server_id'] })
+            .setResourceAttributes(undefined)
+            .query
+        ).toEqual('')
+
+        expect(builder
+            .setAttributes({ campaign: ['discord_server_id'] })
+            .setAttributes({ campaign: undefined })
+            .resourceAttributes
+        ).toEqual(undefined)
+
+        expect(builder
+            .setAttributes({ campaign: ['discord_server_id'] })
+            .setAttributes({ campaign: undefined })
+            .query
+        ).toEqual('')
     })
 
     test('query to string', () => {
