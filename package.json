@@ -1,6 +1,6 @@
 {
   "name": "patreon-api.ts",
-  "version": "0.21.1",
+  "version": "0.21.2",
   "description": "Typescript library for the V2 Patreon API",
   "license": "MIT",
   "author": {
